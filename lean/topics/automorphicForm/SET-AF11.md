@@ -247,7 +247,11 @@ the whole wired corpus `check_port --changed` 10,498 ok / 0 / 0; the frozen chec
 probe still elaborates; the consumer zone compiles in 0 errors, 0 warnings.
 
 **Deviations from the pin, all recorded.** One `attribute [local instance]` block replaces the pin's
-per-proof `letI`/`haveI` (FR-0121: `linter.style.haveILetI` is live and `set_option` is forbidden),
+per-proof `letI`/`haveI` (FR-0121: `linter.style.haveILetI` is live and `set_option` is forbidden), and
+its two non-mathlib members — regularity of `adelicAddHaar` and countability of the principal
+subgroup — are stated **locally in the module** rather than taken from the pin-chapter façade
+`FltWs24`: new code takes no name carrying a pipeline token (FR-0125, corrected at SET-AF12's
+dispatch; the façade is a `Cleanup families` item of CARRY-FORWARD, not a dependency),
 and the flow-coefficient lemmas are restated in the port's `archMatrixUpdate` form (still `rfl`);
 **`add_left_injective` → `add_right_injective`** in row 1 is the one substantive correction — without
 it the `conv_lhs` set-integral rewrite silently aims at `fun u => x + u`, so the pin's spelling does
@@ -288,10 +292,10 @@ side, and it is **seven for seven**:
 | `needed [F terminal]` | 877 / 354,646 | **868 / 353,051** | −9 / −1,595 ✓ (exact) |
 | `needed [literal]` | 890 / 358,121 | **881 / 356,526** | −9 / −1,595 ✓ |
 | frontier F | 1,538 / 772,720 | **1,547 / 774,315** | +9 / +1,595 ✓ |
-| ready rows, all namespaces | 68 / 18,250 | 67 — | the set's two ready rows leave; one row net-enters from another column (the read is global) |
-| `AutomorphicForm` ready rows | 39 / 12,906 | 37 (forecast) | −2, the set's two ready rows |
+| ready rows, all namespaces | 68 / 18,250 | **67 / 17,980** | −1 / −270: the two rows leave, one enters |
+| `AutomorphicForm` ready rows | 39 / 12,906 | **38 / 12,636** | −1: the two rows leave and the set readies one (`whittakerCoefficient_finset_sum_mul_unipotentGL2_diagOne_mul`, 84 — SET-AF12's rider) |
 | leaves, all namespaces | 241 / 61,078 | **234** | −7 ✓ |
-| `AutomorphicForm` leaves | 72 / 15,039 | 65 (forecast) | −7 ✓ (all nine of the set's rows are gone from both blocks) |
+| `AutomorphicForm` leaves | 72 / 15,039 | **65 / 13,798** | −7 ✓ (all nine of the set's rows are gone from both blocks) |
 | withheld by the FR-0044 guard | 4 / 831 | 4 / 831 | — |
 | `--selfcheck` | PASS (1,357 / 1,538) | **PASS** (1,366 `Thm_` sources, 1,547 declared names) | — |
 
@@ -646,6 +650,7 @@ rows (54, 17, 14, 12 project consumers) is the reason to expect a positive retur
 first set in four where the *demand* side is the smaller half of the payoff.
 
 **Measured at landing (§5.1):** the first three rows are exact to the line; of the last two, the
-*leaves* are exact (241 → **234**, −7), while the ready shelf reads 68 → **67** all-namespaces rather
-than 66 — the read is global, so a row from another column entered in the same interval. The
-`AutomorphicForm`-only figures (39 → 37 ready, 72 → 65 leaves) are as forecast.
+*leaves* are exact (241 → **234**, −7), while the ready shelf reads 68 → **67 / 17,980** all-namespaces rather
+than 66 — the set readies exactly one row (`whittakerCoefficient_finset_sum_mul_unipotentGL2_diagOne_mul`,
+84 silo, whose one premise is this set's transformation law), so the `AutomorphicForm` shelf reads
+39 → **38 / 12,636** and leaves 72 → **65 / 13,798**.

@@ -22,7 +22,19 @@
   `NumberTheory/AdelicHaar/AdelicModulus.lean` and the archimedean one
   `NumberTheory/AdelicHaar/ArchModulus.lean`.
 
-  The engines stay tier 3 and are recorded in `spec/UNWIRED-PUBLIC.md`.
+  The principal-idele engine `ProductFormula` is wired by its own header (its four pin `S_`
+  files are its `spec-pin:` line), so its declarations are statement-checked; the two
+  definition engines (`AdelicModulus`, `ArchModulus`) stay tier 3 and are recorded in
+  `spec/UNWIRED-PUBLIC.md`.
+
+  **Wiring.** `spec/check_port.py` owns this façade: the six `spec-pin:` lines below name the
+  six pin `Theorems/` wrappers the headlines are stated from.
+  spec-pin: Theorems/Thm_NumberField_AdeleRing_distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm.lean
+  spec-pin: Theorems/Thm_NumberField_InfiniteAdeleRing_distribHaarChar_eq_prod_norm_pow_mult.lean
+  spec-pin: Theorems/Thm_NumberField_AdelicBox_isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox.lean
+  spec-pin: Theorems/Thm_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean
+  spec-pin: Theorems/Thm_NumberField_AdelicHaar_measurePreserving_mul_algebraMap_adelicAddHaar.lean
+  spec-pin: Theorems/Thm_NumberField_AdeleRing_distribHaarChar_algebraMap.lean
 
   Pin: `anthropics/fermats-last-theorem` at `aa2d8b3`; the wrappers are the
   `Theorems/Thm_NumberField_{AdeleRing_distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm,
@@ -46,29 +58,26 @@ namespace NumberField
 
 namespace AdelicBox
 
--- pin: isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox (S_NumberField_AdelicBox_isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox.lean:47)
 theorem isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox
     (F : Type) [Field F] [NumberField F]
     [MeasurableSpace (AdeleRing (𝓞 F) F)] [BorelSpace (AdeleRing (𝓞 F) F)]
     (μ : MeasureTheory.Measure (AdeleRing (𝓞 F) F)) (a : F) (ha : a ≠ 0) :
     MeasureTheory.IsAddFundamentalDomain (AdeleRing.principalSubgroup (𝓞 F) F)
       ((fun x => algebraMap F (AdeleRing (𝓞 F) F) a * x) ⁻¹' AdelicBox.adelicBox F) μ :=
-  FltWs24.AdelicModulusOne.isAddFundamentalDomain_preimage_mul F μ a ha
+  AdelicHaar.isAddFundamentalDomain_preimage_mul F μ a ha
 
 end AdelicBox
 
 namespace AdeleRing
 
--- pin: measurePreserving_mul_algebraMap (S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean:83)
 theorem measurePreserving_mul_algebraMap (F : Type) [Field F] [NumberField F]
     [MeasurableSpace (AdeleRing (𝓞 F) F)] [BorelSpace (AdeleRing (𝓞 F) F)]
     (μ : MeasureTheory.Measure (AdeleRing (𝓞 F) F)) [μ.IsAddHaarMeasure] [μ.Regular]
     (a : F) (ha : a ≠ 0) :
     MeasureTheory.MeasurePreserving (fun x => algebraMap F (AdeleRing (𝓞 F) F) a * x) μ μ :=
-  FltWs24.AdelicModulusOne.measurePreserving_mul F μ a ha
-    (FltWs24.AdelicModulusOne.isAddFundamentalDomain_preimage_mul F μ a ha)
+  AdelicHaar.measurePreserving_mul F μ a ha
+    (AdelicHaar.isAddFundamentalDomain_preimage_mul F μ a ha)
 
--- pin: distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm (S_NumberField_AdeleRing_distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm.lean:1352)
 -- Spelled with the wrapper's long names (`NumberField.RingOfIntegers F` for `𝓞 F`): the
 -- statement checker diffs the wrapper's text, and this wrapper does not use the shorthand.
 theorem distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm
@@ -81,12 +90,11 @@ theorem distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm
             ‖(a : NumberField.AdeleRing (NumberField.RingOfIntegers F) F).2 v‖ :=
   ZhatModulus.distribHaarChar_eq_placeModulus (ZhatModulus.hasTransversal F) a
 
--- pin: distribHaarChar_algebraMap (S_NumberField_AdeleRing_distribHaarChar_algebraMap.lean:65)
 theorem distribHaarChar_algebraMap (F : Type) [Field F] [NumberField F]
     [MeasurableSpace (AdeleRing (𝓞 F) F)] [BorelSpace (AdeleRing (𝓞 F) F)] (a : Fˣ) :
     MeasureTheory.distribHaarChar (AdeleRing (𝓞 F) F)
       (Units.map (algebraMap F (AdeleRing (𝓞 F) F)).toMonoidHom a) = 1 :=
-  FltWs24.AdelicModulusOneChar.distribHaarChar_algebraMap_impl F a
+  AdelicHaar.distribHaarChar_algebraMap_impl F a
 
 end AdeleRing
 
@@ -98,18 +106,17 @@ section
 -- `adelicAddHaar` pins the `adeleBorel` measurable space, so the ambient instance must be it.
 attribute [local instance] NumberField.AdelicHaar.adeleBorel
 
--- pin: measurePreserving_mul_algebraMap_adelicAddHaar (S_NumberField_AdelicHaar_measurePreserving_mul_algebraMap_adelicAddHaar.lean:21)
 -- The three local instances are the pin's: `adelicAddHaar`'s `Regular` companion, its
--- `IsAddHaarMeasure`, and the `BorelSpace` of its measurable space. Narrow suppression of
--- the `haveI`/`letI` style linter on this one declaration (house style).
-set_option linter.style.haveILetI false in
+-- `IsAddHaarMeasure`, and the `BorelSpace` of its measurable space. They are bound with `have`
+-- rather than `haveI`: in Lean 4 `have` registers a local instance itself, so the inlining
+-- behaviour of `haveI` is the only difference and proofs are irrelevant.
 theorem measurePreserving_mul_algebraMap_adelicAddHaar
     (F : Type) [Field F] [NumberField F] (a : F) (ha : a ≠ 0) :
     MeasureTheory.MeasurePreserving (fun x => algebraMap F (AdeleRing (𝓞 F) F) a * x)
       (AdelicHaar.adelicAddHaar (𝓞 F) F) (AdelicHaar.adelicAddHaar (𝓞 F) F) := by
-  haveI := AdelicHaar.borelSpace_adeleBorel (𝓞 F) F
-  haveI := AdelicHaar.isAddHaarMeasure_adelicAddHaar (𝓞 F) F
-  haveI := FltWs24.regular_adelicAddHaar F
+  have h1 := AdelicHaar.borelSpace_adeleBorel (𝓞 F) F
+  have h2 := AdelicHaar.isAddHaarMeasure_adelicAddHaar (𝓞 F) F
+  have h3 := AdelicHaar.regular_adelicAddHaar F
   exact NumberField.AdeleRing.measurePreserving_mul_algebraMap F _ a ha
 
 end
@@ -118,7 +125,6 @@ end AdelicHaar
 
 namespace InfiniteAdeleRing
 
--- pin: distribHaarChar_eq_prod_norm_pow_mult (S_NumberField_InfiniteAdeleRing_distribHaarChar_eq_prod_norm_pow_mult.lean:413)
 -- `distribHaarChar` stays unqualified, as in the wrapper (the checker diffs its text).
 theorem distribHaarChar_eq_prod_norm_pow_mult
     (K : Type) [Field K] [NumberField K]

@@ -27,8 +27,17 @@
 
   The pin's cross-file `Theorems.` wrappers are replaced by this module's own
   declarations, so the four pin files are four sections of one file. The
-  `p2m_*` scaffolding is dropped; no file-wide option beyond
-  `set_option autoImplicit false` and the house `haveI` linter setting.
+  `p2m_*` scaffolding is dropped, and the declarations sit in
+  `NumberField.AdelicHaar` — their subject's home — rather than in the pin's
+  chapter-label namespace.
+
+  **Wiring.** `spec/check_port.py` owns every public declaration here: the four
+  `spec-pin:` lines above name the four pin `S_` files, and the checker resolves
+  each statement by name and, failing that, by its content hash.
+  spec-pin: P2M/Sol/S_NumberField_AdelicBox_isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox.lean
+  spec-pin: P2M/Sol/S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean
+  spec-pin: P2M/Sol/S_NumberField_AdelicHaar_measurePreserving_mul_algebraMap_adelicAddHaar.lean
+  spec-pin: P2M/Sol/S_NumberField_AdeleRing_distribHaarChar_algebraMap.lean
 -/
 import FLTForHuman.NumberTheory.AdelicBox
 import FLTForHuman.NumberTheory.AdelicHaar.Adele
@@ -37,30 +46,26 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 
 set_option autoImplicit false
 
--- The pin's `letI`/`haveI` walls are load-bearing: they feed instance search in the `exact`s.
-set_option linter.style.haveILetI false
-
 open NumberField IsDedekindDomain MeasureTheory MeasureTheory.Measure
 open scoped NNReal ENNReal
 
 noncomputable section
 
-namespace FltWs24
+namespace NumberField
 
-namespace AdelicModulusOne
+namespace AdelicHaar
 
 variable (F : Type) [Field F] [NumberField F]
 
 local notation "𝔸" => AdeleRing (𝓞 F) F
 
--- pin: isAddFundamentalDomain_preimage_mul (S_NumberField_AdelicBox_isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox.lean:18)
 theorem isAddFundamentalDomain_preimage_mul [MeasurableSpace 𝔸] [BorelSpace 𝔸]
     (μ : Measure 𝔸) (a : F) (ha : a ≠ 0) :
     IsAddFundamentalDomain (AdeleRing.principalSubgroup (𝓞 F) F)
       ((fun x => algebraMap F 𝔸 a * x) ⁻¹' AdelicBox.adelicBox F) μ := by
   have hm : ‹MeasurableSpace 𝔸› = AdelicHaar.adeleBorel (𝓞 F) F := BorelSpace.measurable_eq
   subst hm
-  letI : MeasurableSpace 𝔸 := AdelicHaar.adeleBorel (𝓞 F) F
+  let : MeasurableSpace 𝔸 := AdelicHaar.adeleBorel (𝓞 F) F
   refine IsAddFundamentalDomain.mk' ?_ fun x => ?_
   · exact ((AdelicBox.measurableSet_adelicBox F).preimage
       (measurable_const_mul (algebraMap F 𝔸 a))).nullMeasurableSet
@@ -79,24 +84,20 @@ theorem isAddFundamentalDomain_preimage_mul [MeasurableSpace 𝔸] [BorelSpace �
       subst hk'eq
       rfl
 
--- pin: principalUnit (S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean:16)
 noncomputable def principalUnit (a : F) (ha : a ≠ 0) : 𝔸ˣ :=
   Units.map (algebraMap F 𝔸 : F →+* 𝔸).toMonoidHom (Units.mk0 a ha)
 
--- pin: mul_eq_coe_mulLeft (S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean:22)
 theorem mul_eq_coe_mulLeft (a : F) (ha : a ≠ 0) :
     (fun x => algebraMap F 𝔸 a * x) = ⇑(ContinuousAddEquiv.mulLeft (principalUnit F a ha)) :=
   rfl
 
--- pin: countable_principalSubgroup (S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean:26)
 theorem countable_principalSubgroup : Countable (AdeleRing.principalSubgroup (𝓞 F) F) := by
-  haveI : Countable F := (Module.finBasis ℚ F).equivFun.injective.countable
+  have : Countable F := (Module.finBasis ℚ F).equivFun.injective.countable
   refine Function.Surjective.countable
     (f := fun k : F => (⟨algebraMap F 𝔸 k, k, rfl⟩ : AdeleRing.principalSubgroup (𝓞 F) F)) ?_
   rintro ⟨x, k, rfl⟩
   exact ⟨k, rfl⟩
 
--- pin: addHaarScalarFactor_map_mulLeft (S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean:33)
 theorem addHaarScalarFactor_map_mulLeft [MeasurableSpace 𝔸] [BorelSpace 𝔸]
     (μ : Measure 𝔸) [μ.IsAddHaarMeasure] (a : F) (ha : a ≠ 0)
     (hFD : IsAddFundamentalDomain (AdeleRing.principalSubgroup (𝓞 F) F)
@@ -104,18 +105,18 @@ theorem addHaarScalarFactor_map_mulLeft [MeasurableSpace 𝔸] [BorelSpace 𝔸]
     (μ.map (ContinuousAddEquiv.mulLeft (principalUnit F a ha))).addHaarScalarFactor μ = 1 := by
   have hm : ‹MeasurableSpace 𝔸› = AdelicHaar.adeleBorel (𝓞 F) F := BorelSpace.measurable_eq
   subst hm
-  letI : MeasurableSpace 𝔸 := AdelicHaar.adeleBorel (𝓞 F) F
+  let : MeasurableSpace 𝔸 := AdelicHaar.adeleBorel (𝓞 F) F
   set e : 𝔸 ≃ₜ+ 𝔸 := ContinuousAddEquiv.mulLeft (principalUnit F a ha) with he
-  haveI : (μ.map e).IsAddHaarMeasure := e.isAddHaarMeasure_map μ
+  have : (μ.map e).IsAddHaarMeasure := e.isAddHaarMeasure_map μ
   obtain ⟨C, hC, hBC⟩ := AdelicBox.exists_isCompact_adelicBox_subset F
   have hcl : IsCompact (closure (AdelicBox.adelicBox F)) := hC.closure_of_subset hBC
   have key := measure_isAddInvariant_eq_smul_of_isCompact_closure (μ.map e) μ hcl
   have hme : Measurable (⇑e) := e.continuous.measurable
   rw [Measure.map_apply hme (AdelicBox.measurableSet_adelicBox F)] at key
-  haveI := countable_principalSubgroup F
-  haveI : MeasurableConstVAdd (AdeleRing.principalSubgroup (𝓞 F) F) 𝔸 :=
+  have := countable_principalSubgroup F
+  have : MeasurableConstVAdd (AdeleRing.principalSubgroup (𝓞 F) F) 𝔸 :=
     ⟨fun c => measurable_const_add (c : 𝔸)⟩
-  haveI : VAddInvariantMeasure (AdeleRing.principalSubgroup (𝓞 F) F) 𝔸 μ :=
+  have : VAddInvariantMeasure (AdeleRing.principalSubgroup (𝓞 F) F) 𝔸 μ :=
     ⟨fun c s _ => measure_preimage_add μ (c : 𝔸) s⟩
   have hFD' : IsAddFundamentalDomain (AdeleRing.principalSubgroup (𝓞 F) F)
       (⇑e ⁻¹' AdelicBox.adelicBox F) μ := by
@@ -129,7 +130,6 @@ theorem addHaarScalarFactor_map_mulLeft [MeasurableSpace 𝔸] [BorelSpace 𝔸]
     rw [← ENNReal.mul_left_inj h0 htop, one_mul]; exact key.symm
   exact_mod_cast h1
 
--- pin: measurePreserving_mul (S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean:65)
 theorem measurePreserving_mul [MeasurableSpace 𝔸] [BorelSpace 𝔸]
     (μ : Measure 𝔸) [μ.IsAddHaarMeasure] [μ.Regular] (a : F) (ha : a ≠ 0)
     (hFD : IsAddFundamentalDomain (AdeleRing.principalSubgroup (𝓞 F) F)
@@ -138,31 +138,25 @@ theorem measurePreserving_mul [MeasurableSpace 𝔸] [BorelSpace 𝔸]
   have h1 := addHaarScalarFactor_map_mulLeft F μ a ha hFD
   rw [mul_eq_coe_mulLeft F a ha]
   set e : 𝔸 ≃ₜ+ 𝔸 := ContinuousAddEquiv.mulLeft (principalUnit F a ha) with he
-  haveI : (μ.map e).IsAddHaarMeasure := e.isAddHaarMeasure_map μ
-  haveI : (μ.map e).Regular := Regular.map e.toHomeomorph
+  have : (μ.map e).IsAddHaarMeasure := e.isAddHaarMeasure_map μ
+  have : (μ.map e).Regular := Regular.map e.toHomeomorph
   have huniq := isAddLeftInvariant_eq_smul_of_regular (μ.map e) μ
   rw [h1, one_smul] at huniq
   exact ⟨e.continuous.measurable, huniq⟩
-
-end AdelicModulusOne
 
 section RegularAdelicAddHaar
 
 attribute [local instance] NumberField.AdelicHaar.adeleBorel
 
--- pin: regular_adelicAddHaar (S_NumberField_AdelicHaar_measurePreserving_mul_algebraMap_adelicAddHaar.lean:13)
 -- The pin's `first | … | … | …` fallbacks are unreachable in mathlib `v4.34.0`: the first
 -- alternative closes the goal, so only it is kept (statements unchanged).
 theorem regular_adelicAddHaar (F : Type) [Field F] [NumberField F] :
     (AdelicHaar.adelicAddHaar (𝓞 F) F).Regular := by
-  haveI := AdelicHaar.borelSpace_adeleBorel (𝓞 F) F
+  have := AdelicHaar.borelSpace_adeleBorel (𝓞 F) F
   exact (inferInstance : (Measure.addHaar : Measure (AdeleRing (𝓞 F) F)).Regular)
 
 end RegularAdelicAddHaar
 
-namespace AdelicModulusOneChar
-
--- pin: addHaarScalarFactor_eq_one_of_integral_eq (S_NumberField_AdeleRing_distribHaarChar_algebraMap.lean:16)
 theorem addHaarScalarFactor_eq_one_of_integral_eq {G : Type*} [AddCommGroup G] [TopologicalSpace G]
     [IsTopologicalAddGroup G] [LocallyCompactSpace G] [MeasurableSpace G] [BorelSpace G]
     (μ' μ : Measure G) [μ.IsAddHaarMeasure] [IsFiniteMeasureOnCompacts μ'] [μ'.IsAddLeftInvariant]
@@ -180,24 +174,19 @@ theorem addHaarScalarFactor_eq_one_of_integral_eq {G : Type*} [AddCommGroup G] [
     linarith [h1, hpos]
   exact_mod_cast h2
 
-variable (F : Type) [Field F] [NumberField F]
-
-local notation "𝔸" => AdeleRing (𝓞 F) F
-
--- pin: distribHaarChar_algebraMap_impl (S_NumberField_AdeleRing_distribHaarChar_algebraMap.lean:37)
 theorem distribHaarChar_algebraMap_impl [MeasurableSpace 𝔸] [BorelSpace 𝔸] (a : Fˣ) :
     distribHaarChar 𝔸 (Units.map (algebraMap F 𝔸).toMonoidHom a) = 1 := by
   set u : 𝔸ˣ := Units.map (algebraMap F 𝔸).toMonoidHom a with hu
 
   let μ : Measure 𝔸 := Measure.addHaar
-  haveI : μ.Regular := by
+  have : μ.Regular := by
     show (Measure.addHaar : Measure 𝔸).Regular
     unfold Measure.addHaar; infer_instance
 
   -- The pin calls the `Theorems/` wrapper; here the engine's own declarations replace it.
   have hmp : MeasurePreserving (fun x => (u : 𝔸) * x) μ μ :=
-    AdelicModulusOne.measurePreserving_mul F μ (a : F) a.ne_zero
-      (AdelicModulusOne.isAddFundamentalDomain_preimage_mul F μ (a : F) a.ne_zero)
+    measurePreserving_mul F μ (a : F) a.ne_zero
+      (isAddFundamentalDomain_preimage_mul F μ (a : F) a.ne_zero)
 
   have hsf : addHaarScalarFactor (DomMulAct.mk u⁻¹ • μ : Measure 𝔸) μ = 1 := by
     refine addHaarScalarFactor_eq_one_of_integral_eq _ μ fun f hf hfc => ?_
@@ -211,6 +200,6 @@ theorem distribHaarChar_algebraMap_impl [MeasurableSpace 𝔸] [BorelSpace 𝔸]
     exact hsf
   rwa [map_inv (distribHaarChar 𝔸) u, inv_eq_one] at hinv
 
-end AdelicModulusOneChar
+end AdelicHaar
 
-end FltWs24
+end NumberField

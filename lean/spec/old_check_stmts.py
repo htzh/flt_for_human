@@ -5012,7 +5012,10 @@ PORT_FILES = [
     # `NumberTheory/AdelicHaar/ProductFormula.lean` (tier 3). The two modulus headlines
     # (WORKORDER-A1) land into this same module. Appended last so no earlier last-name
     # match can flip.
-    "FLTForHuman/NumberTheory/AdelicModulus.lean",
+    # FLTForHuman/NumberTheory/AdelicModulus.lean — wired by its own `spec-pin:` header (the six
+    # `Theorems/` wrappers, 6 ok / 0 mismatch / 0 missing); its PORT_FILES row was retired with the
+    # `FltWs24` naming sweep, which also wired its principal-idele engine
+    # (`NumberTheory/AdelicHaar/ProductFormula.lean`, 9 ok, `NumberField.AdelicHaar.*`).
     # --- TOPIC-compactness-twins definition gate: the adic-completion integrality
     # instances (see SOURCES). One already-homed leaf module, promoted from tier 3 to
     # tier 1 because the Fujisaki compactness pair consumes

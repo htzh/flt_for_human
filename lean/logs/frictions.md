@@ -2623,3 +2623,109 @@ round promotes what generalizes.
   just pass the path to both (`dedup --module` accepts it too) — and when a gate tool tracebacks with
   `FileNotFoundError` on its own subject, try the other spelling before suspecting the module.
 - **seen**: 2026-11-02, SET-AF11 (0 clusters / 0 dead either way; the crash is argument-only).
+
+
+## FR-0125 [method] [style] — a port name carrying a **pipeline token** is not a dependency new code may take: the façade fact is wrapped or re-proved at a token-free name, never cited
+
+- **where**: SET-AF11's landed `AutomorphicForm/Adelic/WhittakerCoefficient.lean` (caught at AF12's
+  dispatch): the module's local-instance block cited `FltWs24.regular_adelicAddHaar` and
+  `FltWs24.AdelicModulusOne.countable_principalSubgroup` — two names of the pin-chapter namespace
+  `FltWs24` in `NumberTheory/AdelicHaar/ProductFormula.lean`, one of the four "pin-chapter
+  namespaces still in use" recorded in [../CARRY-FORWARD.md](../CARRY-FORWARD.md) (`Cleanup families`).
+- **symptom**: the module compiles and checks 13/0/0 — nothing mechanical objects. The defect is in the
+  *surface*: a new module has taken a name whose namespace is a pipeline chapter label, so the label
+  now has a consumer that the cleanup wave would have to chase, and the port's naming rule ("generated
+  name tokens are rectified, not carried") is broken by the newest code rather than the oldest.
+- **cause**: `Measure.regular_addHaarMeasure` is gone in mathlib `v4.34.0`, so the port's copy of the
+  regularity fact lives in the façade (`FltWs24.regular_adelicAddHaar`, three lines), and the
+  countability of the principal subgroup likewise (`FltWs24.AdelicModulusOne.countable_principalSubgroup`).
+  Both read as "already in the port, just import it" — the same shape as a legitimate substitution, but
+  the *name* is part of the cost.
+- **rule**: before citing a port declaration from new code, read its **namespace**, not only its
+  statement. If the namespace is a pin chapter label (`FltWs24`, `M4aS4`, `P6B`, `M4aLocalCFT`, or any
+  `…C41`/`…17`-style id), do not cite it: either state the pin's own prelude locally (it is the pin's
+  text, and a shim for a removed mathlib lemma is a shim either way — `regular_adelicAddHaar` is three
+  lines, `countable_principalSubgroup` six), or make the token-free wrapper in the façade's own
+  token-free module (`NumberTheory/AdelicModulus.lean`) the thing you import, and let the
+  rectification wave move the label. A cleanup family is a reason to *avoid* the name, never to
+  spread it.
+- **seen**: 2026-11-02, SET-AF11 → SET-AF12 (manager's fix: the two references replaced by two local
+  `private instance`s proved in the module; the module was re-checked at 13 ok, the statements probe
+  re-run, and the facade's remaining reference sites are again only its own).
+
+
+## FR-0126 [checker] [style] — wiring a module that still carries `-- pin:` markers reports **every** marked declaration as `MISSING … (marker)`; and a "load-bearing" `haveI` is fixed with `have`, not with a suppression
+
+- **where**: the `FltWs24` naming sweep (CARRY-FORWARD, `Cleanup families`), on
+  `NumberTheory/AdelicHaar/ProductFormula.lean` and `NumberTheory/AdelicModulus.lean`.
+- **symptom (a)**: with `spec-pin:` lines added but the grandfathered `-- pin: name (file:line)`
+  comments left in place, `check_port --force` reports **8 of 9** declarations `MISSING … (marker)`
+  in the engine and **3 of 6** in the façade, on a module whose statements are byte-faithful and
+  whose wire names the right files. Stripping the markers in the same edit turns the same wire into
+  **9 ok / 0 mismatch / 0 missing** and **6 ok / 0 / 0**.
+- **cause**: the marker tier resolves a declaration by the marker's *pin name*, looked up in the
+  wire — not by the port's statement — so a marker naming a pin helper the port states elsewhere
+  (or under a different last-name path) can never resolve, and the policy since 2026-11-02 is that
+  the header is the tracking and markers are stripped when the module is touched. A marker's
+  `(file:line)` is informational; it does not widen the wire.
+- **symptom (b)**: `linter.style.haveILetI` fires on every `haveI`/`letI` in a *tactic* proof whose
+  goal is a proposition, and the tempting reply is `set_option linter.style.haveILetI false`. That is
+  the wrong reply: mathlib's own linter docstring states that in Lean 4 **`have` and `let` register
+  local instances themselves**, so `have`/`let` is a drop-in replacement and the suppression hides
+  nothing but a style difference. (A suppression *is* justified for a **term-mode** `letI` inside a
+  definition body — `letI := pins.nS` before `∫ … ∂pins.ν` — where `let` changes the elaborated term.)
+- **rule**: when a module is wired (for any reason), strip the `-- pin:` markers and put every file
+  they named in the header in the same edit, then read `MISSING` as a real gap. When the `haveILetI`
+  linter fires in a proof, write `have`/`let`; keep a file-wide or narrowly-scoped `set_option` only
+  where the binding is in a term, with the reason in the header.
+- **seen**: 2026-11-02, the `FltWs24` sweep (engine 9 ok, façade 6 ok, both silent with no
+  suppression; CARRY-FORWARD's table now has two live labels, `M4aS4` and `M4aLocalCFT`).
+
+
+## FR-0127 [style] [api drift] — the pinned `S_` proofs transcribe, but "zero warnings" forces five mechanical repair classes (and one of the linters' own hints is unsound)
+
+- **where**: SET-AF12 order A, `AutomorphicForm/Adelic/ArchWhittaker.lean` (both `S_` files transcribed
+  verbatim: the pin's real row at `S_…gl2Real…:114–347`, the complex row at `S_…gl2Complex…:19–695`).
+  Under the port's gates the two rows compile at once but emit **14 + 49 warnings**, all style/API,
+  none mathematical.
+- **symptom** (each fails the "zero warnings" gate; fixes are proof-shape only):
+  * `linter.unusedTactic` on `all_goals first | rfl | skip` (pin real `:221`, `:227`; complex `:563`,
+    `:568`, `:580`, `:585`, `:713`, `:718`, `:759`, `:763`, `:984`, `:989`). Where the linter fires,
+    no goal was closed by `rfl` and the whole line is a no-op: deleting it leaves the following
+    bullets on the same goals. Do **not** delete the unflagged occurrences (e.g. the `hpow` block,
+    pin real `:294`/complex `:967`), where `rfl` does close a goal and the bullets then refer to the
+    rest.
+  * `linter.unnecessarySeqFocus` on `convert … using 1 <;> first | rfl | simp` (pin real `:191`,
+    `:325`, `:330`, `:355`; complex `:520`, `:686`, `:692`). The hint "use `(tac1; tac2)`" is
+    **unsound**: with `;`, `first | rfl | simp` picks one branch against the whole goal list and
+    commits it to every goal, so the goal that needed `simp` is left unsolved (measured: `;` broke
+    `hasDerivAt_xIw` and the `hl` block). The shape that both silences the linter and keeps the
+    per-goal choice is `convert … using 1` on its own line followed by `all_goals first | rfl | simp`.
+  * `linter.unusedSimpArgs` on `simp [hre]` (pin complex `:569`, `:586`, `:719`): `simp` alone closes
+    the goal; drop the argument (the `hre` hypothesis stays used in the sibling bullet, so the
+    `linter.unusedVariables` gate stays quiet).
+  * `linter.unusedVariables` on `aT_mul_flowH`'s `(hy : 0 < y) (hs : 0 < s)` (pin complex `:134`). The
+    binders are part of the **hashed signature** (FR-0123), so `_hy`/`_hs` is not an option; reference
+    them in the proof (`have _ : 0 < y := hy`) and keep the pin's names.
+  * deprecations `if_pos`/`if_neg`/`dif_pos`/`dif_neg` → `ite_eq_left`/`ite_eq_right`/`dite_eq_left`/
+    `dite_eq_right` (pin complex `:835`, `:838`, `:843`, `:845`, `:872–:875`, `:895–:898`, `:968`;
+    16+ sites). FR-0122 recorded `if_pos` once from AF11; the whole family bites in this set. Note
+    the replacements take the hypothesis as an argument (`ite_eq_left h1`) in `rw` chains, and
+    **`rw [ite_eq_left]` with no argument still works**, leaving `⊢ p` as a side goal exactly as
+    `rw [if_pos]` did — which is why the pin's `rw [if_neg]` / `intro h` pairs port unchanged.
+- **cause**: the pin is built without `mathlib`'s full linter set and on mathlib v4.33.0; the port's
+  modules run with `linter.style.*`, `linter.unusedTactic`, `linter.unnecessarySeqFocus`,
+  `linter.unusedSimpArgs`, `linter.unusedVariables` and deprecation warnings live, and any one of
+  them fails the module. The repairs are all local rewrites of the proof script; none changes a
+  statement (checked: `check_port` 69 ok / 0 mismatch / 0 missing after the repairs).
+- **rule**: transcribe the statement verbatim and the proof *shaped* — run the edit loop
+  (`lake env lean -DautoImplicit=false -DmaxHeartbeats=200000`) and treat every warning as a defect
+  to repair, not to suppress (no `set_option linter.…` in a module). When a linter suggests a
+  tactic rewrite, test it: `unnecessarySeqFocus`'s `;` hint is wrong for goal-list-sensitive
+  second tactics (`first`, `all_goals`, `try`).
+- **also (scoping gotcha, Lean core)**: `open Foo in` binds to the *next declaration*; a
+  section doc-comment `/-! … -/` placed between them swallows the scope, and the declaration then
+  fails with `Unknown identifier` on every unqualified name of `Foo` (measured on the real row:
+  `splitTorusGL2_mul`, `lowerUnipotentGL2_iwasawa`). Either drop the comment between them or use a
+  plain `open Foo` before the comment.
+- **seen**: 2026-11-02, SET-AF12 order A (real row 14 warnings, complex row 49; both silent after).

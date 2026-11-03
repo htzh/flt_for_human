@@ -983,17 +983,28 @@ node carrying the wrapper headline. First order:
 
 ## Cleanup families
 
-### Four pin-chapter namespaces still in use
+### Two pin-chapter namespaces still in use
 
-Four modules declare under the pin's transcription-device namespaces, which name a chapter rather
+Two modules declare under the pin's transcription-device namespaces, which name a chapter rather
 than a theory:
 
 | namespace | declared in | reference sites | consumer modules |
 |---|---|---|---|
-| `P6B` | `AdelicHaar/AdelicModulus.lean` | 9 | the modulus façade |
 | `M4aS4` | `AdelicHaar/{AdelicModulus,PlaceMeasure}.lean` | 6 | `AutomorphicForm/Adelic/WeylIntegrable/{Assembly,LatticeEstimates,UniformBound}.lean` + the two declarers |
-| `FltWs24` | `AdelicHaar/ProductFormula.lean` | 5 | the modulus façade |
 | `M4aLocalCFT` | `NumberField/TateGlobal/FujisakiCompact.lean` | 59 | most of the T1 `TateGlobal/*` cluster |
+
+**Resolved 2026-11-02 (the `FltWs24` sweep, triggered by SET-AF12).** `FltWs24` →
+`NumberField.AdelicHaar` in `NumberTheory/AdelicHaar/ProductFormula.lean`, with the two sub-chapter
+namespaces `AdelicModulusOne` and `AdelicModulusOneChar` folded into it and the duplicate
+`variable`/`local notation` pair that the merge exposed deleted. The module was **wired** on the way
+(its four `S_` files as the header's `spec-pin:` lines, grandfathered `-- pin:` markers stripped,
+**9 ok / 0 mismatch / 0 missing**), and its tier-1 façade `NumberTheory/AdelicModulus.lean` was handed
+over to the checker (six `Theorems/` wrappers as the wire, markers stripped, **6 ok / 0 / 0**, its
+`PORT_FILES` row retired — its `SOURCES` rows stay). The two `haveI` walls in the façade and the nine
+in the engine were rewritten as `have` (Lean 4 registers a local instance for `have`/`let`, so no
+suppression is needed anywhere) and the engine's file-wide `linter.style.haveILetI false` is gone.
+The two modules are `dedup --within` 0 clusters and `move_dead` 0/0. Remaining: `M4aS4` (the
+`AdelicModulus` half is 4 declarations, the `PlaceMeasure` half 29) and `M4aLocalCFT`.
 
 Merging one into an existing theory namespace (`NumberField.AdelicHaar`, `NumberField.TateGlobal`)
 is the case playbook §3.2 warns about — two chapters can hold the same declaration name with
