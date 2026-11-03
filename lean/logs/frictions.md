@@ -2729,3 +2729,169 @@ round promotes what generalizes.
   `splitTorusGL2_mul`, `lowerUnipotentGL2_iwasawa`). Either drop the comment between them or use a
   plain `open Foo` before the comment.
 - **seen**: 2026-11-02, SET-AF12 order A (real row 14 warnings, complex row 49; both silent after).
+
+
+## FR-0128 [method] [tooling] — a substitution row can point at the **`private` twin**: read its `port` *module*, not only its `port_name`; and a pin `S_` file that reads "flat public" still has `private` preludes
+
+- **where**: SET-AF13's pricing (`port_advise`/`port_plan` on the four flat-Eisenstein rows) and its
+  first dispatch.
+- **symptom**: three advise rows flagged as "not importable" — `norm_finComponent_le_one_of_mem`,
+  `finLocalHeight_one'`, `hpow` — of which only one was genuinely private: the tool's row for
+  `norm_finComponent_le_one_of_mem` named `AutomorphicForm.BigCellExpansion.Height.norm_finComponent_le_one_of_mem`
+  (a `private` copy), while `NumberField/AdelicHeight.lean:442` holds a **public** copy of the same
+  statement (`AdelicHeight.norm_finComponent_le_one_of_mem`). Importing the public one saves the 13-line
+  restatement and a dedup cluster, and the advise file cannot see it because the two copies share a
+  last name and the name tier resolves one of them.
+- **cause**: `port_advise` is name-anchored and picks one module per last name; when the port holds
+  two copies — one private, one public — the row's `port` field is whichever the index hits first. The
+  `port_name`/`port` pair is the only place the choice is visible, and it is easy to read past.
+- **second half**: the set's design claim "these `S_` files are a flat public surface" is a claim about
+  a *sweep*, not about every declaration: the same files carry `private theorem`s (in this set:
+  `exists_bound_on_unitBox_family_j1`, `hpow`, `finLocalHeight_one'`, `norm_finComponent_le_one_of_mem`).
+  Making one of those public in the port produces a checker `MISMATCH` that no re-spelling fixes, because
+  the pin's statement is spelled with the file's `section` variables (`variable {A : Type*} [CommRing A]`)
+  and inlining them changes the text (FR-0123). The faithful and cheap answer is `private`.
+- **rule**: for each advise substitution, read `port` (the module) and `port_private` together; if the
+  named copy is private, look for a public copy of the same last name before pricing a restatement.
+  And when a set orders "helpers public", qualify it: **public where the pin is public, private where
+  the pin is private** — the checker's text diff decides, not the set's aesthetics.
+- **seen**: 2026-11-02, SET-AF13 (worker's two questions at its first row; the manager added the
+  fourth mathlib import `Mathlib.Analysis.Complex.LocallyUniformLimit`, which the pin's `import Mathlib`
+  had been hiding).
+
+
+## FR-0129 [pin-gap] [definition-gate] — a pin `S_` proof may rest on a `Def_` module the set's gate never listed: `Def_AutomorphicForm_FnTwist`
+
+- **where**: SET-AF13's dictionary row, proof of `isKfSmooth_mul_hpow` (pin
+  `P2M/Sol/S_AutomorphicForm_exists_flat_isInducedSection_family_eq_of_isInducedSection.lean:194`),
+  which calls `isSmoothVector_rightTranslationFn_mul` — defined only in
+  `Definitions/Def_AutomorphicForm_FnTwist.lean:67` (pin line 7 of that `S_` file's imports).
+- **symptom**: the four wrappers' closure lists eight `Def_` modules and `gate_scan` reports 0 missing
+  in each, but the *proof* imports a ninth (`FnTwist`) that the port has not ported. The port's
+  `RepTheory/SmoothVectors.lean` has no product-smoothness lemma (it has `.add`, `.smul`,
+  `.const_smul`, `isOpen_coe_inf_stabilizer`, but not `mul`), so `IsKfSmooth (fun g => φ₀ g * hpow t g)`
+  cannot be closed by import.
+- **cause**: the set's definition gate scans the *statements'* closure (the wrappers), while a
+  ported proof carries its own closure — the `S_` files' import lists. `--rows` over the wrappers
+  cannot see a proof-only `Def_` node.
+- **rule**: when pricing a set, run the gate over the wrappers **and** over the four `S_` files'
+  import lists; a `Def_` node that appears only in the latter is an unported prerequisite. Locally,
+  a 10-line `IsSmoothVector` product argument (product stabilizer ⊇ intersection of stabilizers, which
+  is open) can be inlined into the declaration that needs it without adding a public declaration the
+  wire does not own — which is what was done here (no `MISMATCH`, no extra surface).
+- **seen**: 2026-11-02, SET-AF13 dictionary row.
+
+## FR-0130 [mathlib-API] — the height row's three mathlib v4.34 shifts: `prod_le_prod₀`, `coe_toFinset` as a simp argument, and `unusedSectionVars` on pin-shaped declarations
+
+- **where**: SET-AF13's height row (`Ws37EisMaj`), transcriptions of pin
+  `S_AutomorphicForm_exists_flatEisenstein_mul_le_mul_archHeight_rpow_of_mem_centreCutSiegelSet.lean`
+  `:281`–`:285` (`hSa`/`hSb`/`hSd`), `:289`, `:299`, `:327` (the three `Finset.prod_le_prod` calls),
+  `:132`, `:135`, `:141` (the three instance-unused theorems) and `:60`, `:77`
+  (`Eventually.of_forall`).
+- **symptom**: (1) the two-argument `Finset.prod_le_prod` (nonnegativity + pointwise) is
+  `Finset.prod_le_prod₀` in v4.34, in `Algebra/Order/BigOperators/GroupWithZero/Finset.lean:39`;
+  the un-subscripted name is now the `[MulLeftMono N]` version, which ℝ does not satisfy, and
+  using it makes the second argument apply to the *conclusion* ("function expected"). (2)
+  `simp only [hS, Finset.coe_union, Set.Finite.coe_toFinset]` no longer rewrites the goal
+  (`v ∈ ↑(ha.toFinset)`), so the pin's `Or.inl (Or.inl hv)` fails; an explicit
+  `rw [Set.Finite.coe_toFinset (hs := ha)]` works and keeps `hv` usable. (3) `maxEntry_nonneg`,
+  `le_maxEntry`, `fdistort_nonneg` have an `[IsUltrametricDist K]` binder auto-included from the
+  pin's `section Ultra` although they never use it; the port's `linter.unusedSectionVars` fails the
+  module on exactly that, and it cannot be silenced without `set_option`. Moving the three (and the
+  defs `maxEntry`/`fdistort`) into a `section UltraBase` with only `[NormedField K]` keeps their
+  source text — and therefore their hashes — byte-identical. (4) `Eventually.of_forall` is now
+  `Filter.Eventually.of_forall`, and the row-4 file's `ℝ≥0∞`/`∞` need `open scoped ENNReal`.
+- **cause**: the pin is on mathlib v4.33 with its own linter set; the port is on v4.34 with the full
+  linter set live. Product/measure API names and section-variable bookkeeping both moved.
+- **rule**: on a height row, check `prod_le_prod` first (subscript `₀`), prefer an explicit `rw` of
+  `Set.Finite.coe_toFinset` over a `simp only` argument, and split a pin `section` whose instance
+  variable is unused by some of its theorems — the text is unchanged, so the checker still matches,
+  while the linter goes quiet.
+- **seen**: 2026-11-02, SET-AF13 height row (0 warnings after the repairs; `check_port` 33 ok /
+  0 mismatch / 0 missing at that point).
+
+## FR-0131 [checker] [instance] — `statement_db` does not index `instance` declarations, but a pin `def` may need the instance it declares
+
+- **where**: SET-AF13's constant-term row, pin
+  `S_AutomorphicForm_constantTerm_bruhatEisenstein_eq_section_add_weylIntertwiningIntegral.lean:34`
+  (`scoped instance instNontrivialAdeleRing : Nontrivial 𝔸`) and `:39` (`def principalEquiv`).
+- **symptom**: the worklist for the row counts 8 declarations and none of them is an instance, yet
+  `principalEquiv`'s statement `F ≃ AdeleRing.principalSubgroup (𝓞 F) F` fails with
+  `synthInstanceFailed: Nontrivial 𝔸` unless the pin's instance is re-stated (the equiv's forward
+  map builds a subtype element from `algebraMap F 𝔸`). With the instance in place the file
+  elaborates; the checker's 41-ok surface does not list it, but the "drop `private`" surface gate
+  does (64 ok), so it *is* matched by hash and costs nothing. Its `Countable` twin is not needed:
+  the port's `NumberField.AdelicHaar.countable_principalSubgroup` can be registered by
+  `attribute [local instance]`, as the port's `WhittakerCoefficient.lean:149` already does.
+- **cause**: instances carry statements, but the worklist's "declaration lines" pass skips them, and
+  the pin hides an instance dependency inside the *type* of an ordinary `def`.
+- **rule**: when a pin `def`'s type mentions a structure that needs a `Nontrivial`/`Countable`
+  instance the pin declares locally, re-state the pin's instance rather than discovering the gap at
+  elaboration; and check the "drop `private`" number, not only the ok count, to confirm it is matched.
+- **seen**: 2026-11-02, SET-AF13 constant-term row.
+
+## FR-0132 [tooling] [instrument] — no reading answers "what does this landing ready"; a scoping pass must simulate the landing
+
+- **where**: SET-AF14's scoping read, `tools/deps/build/af14-forecast.py` (69 lines: two `analyze`
+  calls over the same frontier), used to price four candidate blocks on one shelf.
+- **symptom**: the recipe's §7 asks a scoping pass to report "which rows **became ready because of the
+  set**", and nothing in `frontier.py`, `port_advise.py` or `port_plan.py` can be asked that question
+  before the work exists: `--ready` reads one frontier, and two shelves taken a set apart are the only
+  comparison the column has had (AF13 §5.1: "the re-read ... readied nothing again"). A scoping brief
+  therefore cannot say *why* one ready block is a better cut than another beyond silo and leverage —
+  and on this shelf both of those mislead: the largest ready block (the Weyl pair, 2,640) and the
+  largest single row (the indicator, 1,043) each ready **zero** rows, while a 372-line row readies
+  **nine** (2,168 silo) and this set's 1,578 readies two (729).
+- **cause**: readiness is a pure function of the ported set (`needed_masks`), so it *is* computable
+  ahead of the work; the tool offers only the present-tense reading of it.
+- **rule**: before cutting a set, run the landing as a simulation — `ported ∪ set` through the same
+  `analyze(...)` the shelf read uses — and quote the delta (needed / frontier / ready / leaves) and the
+  readied rows with their silos. `build/af14-forecast.py` is the working instance (4.9 s for two
+  analyses); a `--pretend-ported NAME` (the inverse of `--unport`) on `frontier.py` would make it one
+  command.
+- **seen**: 2026-11-02, SET-AF14 scoping (§0.3); the numbers it produced moved the cut off the block
+  the previous brief had named.
+
+## FR-0133 [tooling] — the worklist's "imported" column counts statement-identical **private** port copies, so it overstates a set's reuse
+
+- **where**: SET-AF14's price, `build/af-worklist.py` over the eight `LocalIntertwining` layer-0 rows:
+  "62 imported" of 1,465 declaration lines. `port_plan.py` on the same slice: "already in the port
+  (vetted) 58" → net 1,393.
+- **symptom**: 55 of those 62 lines are statement-identical copies the port holds `private` —
+  `integrable_one_add_sq_rpow_neg` (51 lines, pin text) is `Iwasawa/Real/Continuation.lean:71`'s
+  `private integrable_dom`, and `one_add_sq_pos` (2+2) is `private` in the same pair of modules. A
+  `private` declaration is not importable, so neither figure is reuse; the honest one is **7**. Only
+  `port_advise`'s substitution block says so ("only as a port-private declaration: 3 — promote or move
+  to a home"), and the worklist and the plan both read as if the lines were free.
+- **cause**: the worklist's statement index is built over every declaration in the port tree, `private`
+  ones included (which is right for `dedup`-style redundancy, wrong for importability), and
+  `port_plan`'s "in port" set is that index's.
+- **rule**: when a slice's in-port figure is a large fraction of its raw lines, check the *three*
+  substitution classes separately — byte-identical public, binder-spelled public, private-only — and
+  price the third as work (or as a promotion decision) rather than as reuse. FR-0128 is the same trap
+  from the other side (`port_advise` pointing at a `private` twin as if it were the port copy).
+- **seen**: 2026-11-02, SET-AF14 price (§2.1).
+
+## FR-0134 [tooling] — a `def` in `port_advise`'s substitution table is matched by its *type*, so a `def` with a different body reads as reusable
+
+- **where**: SET-AF14's price, `port_advise`'s substitute block: pin
+  `S_AutomorphicForm_LocalIntertwining_exists_bound_norm_integral_mixedSpace_archAtom_prod.lean:61`
+  (`private def maj`) against port `AutomorphicForm.TestFnArchProfile.sqSize`
+  (`AutomorphicForm/Adelic/RightConvNeZeroArch.lean:276`), reported as "identical up to binder spelling".
+- **symptom**: both are `(F : Type) [Field F] [NumberField F] → mixedEmbedding.mixedSpace F → ℝ`, so the
+  shape tier matches; the bodies are different functions — the pin's
+  `maj y = (∏_real (1+‖y.1 i‖²)^(-1)) * ∏_cplx (1+‖y.2 w‖²)^(-2)` is a *product* of inverse
+  Japanese-bracket factors, the port's `sqSize x = (∑ v, (x.1 v)^2) + ∑ v, ‖x.2 v‖²` a *sum of squares*.
+  Importing `sqSize` for `maj` would have made the row's `integrable_maj` **false as stated** (the
+  measure is the product measure, and `sqSize` is integrable only after a Gaussian argument the pin does
+  not make). The 4-line `def` was written at the pin's text instead, and `check_port` matches it at the
+  pin's line, so nothing was lost but the price was wrong by 4 lines and one import.
+- **cause**: a declaration's "statement" is its type, and for a `def` the type is not its content;
+  `port_advise` inherits the statement-based matching that is right for theorems. The `maj`/`sqSize` pair
+  also survived the binder-spelling and shape tiers because the *type* is literally the same.
+- **rule**: never import on a `def` row of the substitution table — read the port `def`'s body against
+  the pin's (the table gives both line numbers for exactly this). A `def` row is a *hint* that a home
+  exists, not a substitution; if the bodies differ, write the pin's `def` at the pin's name and drop the
+  import the row claimed.
+- **seen**: 2026-11-02, SET-AF14 row 8 (`maj`, written private at the pin's text; the import it justified,
+  `RightConvNeZeroArch`, removed, and order B's closure dropped from 3,561 to 3,128 jobs).
