@@ -3,12 +3,17 @@
 
   The generic one-parameter-group smoothness machinery (`AutoSmooth`), the tower
   composition estimate (`ScalarMajorant.Composition`), the real-place symbol/decay
-  development (`RealDecay`) and the uniform-in-`g`/`u` extension (`B2bRUnif`).
+  development (`RealDecay`) and the uniform-in-`g`/`u` extension (`UniformDecay`).
   The pin's local `FourierDecay` block is not re-transcribed: it is the landed
   `FLTForHuman.MeasureTheory.FourierDecay`.
 
   Pin: `anthropics/fermats-last-theorem` at `aa2d8b3`;
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_forall_bound_iteratedFDeriv_cpow_neg_radC_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean
 -/
 import Mathlib.Analysis.SpecialFunctions.JapaneseBracket
 import FLTForHuman.AutomorphicForm.Iwasawa.Real.Core
@@ -25,32 +30,26 @@ namespace AutomorphicForm.RealIwasawa.AutoSmooth
 
 variable {A : Type*} [NormedRing A] [NormedAlgebra ℝ A] [CompleteSpace A]
 
--- pin: IsOneParamGroup (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:525)
 structure IsOneParamGroup (R : ℝ → A) : Prop where
   map_zero : R 0 = 1
   map_add : ∀ s t : ℝ, R (s + t) = R s * R t
   continuous : Continuous R
 
--- pin: prim (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:530)
 def prim (R : ℝ → A) (t : ℝ) : A := ∫ u in (0 : ℝ)..t, R u
 
 namespace IsOneParamGroup
 
 variable {R : ℝ → A}
 
--- pin: hasDerivAt_prim (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:536)
 theorem hasDerivAt_prim (hR : IsOneParamGroup R) (t : ℝ) : HasDerivAt (prim R) (R t) t :=
   (hR.continuous.integral_hasStrictDerivAt 0 t).hasDerivAt
 
--- pin: deriv_prim (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:539)
 theorem deriv_prim (hR : IsOneParamGroup R) : deriv (prim R) = R :=
   funext fun t => (hR.hasDerivAt_prim t).deriv
 
--- pin: differentiable_prim (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:542)
 theorem differentiable_prim (hR : IsOneParamGroup R) : Differentiable ℝ (prim R) :=
   fun t => (hR.hasDerivAt_prim t).differentiableAt
 
--- pin: mul_prim (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:545)
 theorem mul_prim (hR : IsOneParamGroup R) (t ε : ℝ) :
     R t * prim R ε = prim R (t + ε) - prim R t := by
   have h1 : R t * prim R ε = ∫ u in (0 : ℝ)..ε, R t * R u := by
@@ -69,7 +68,6 @@ theorem mul_prim (hR : IsOneParamGroup R) (t ε : ℝ) :
       (hR.continuous.intervalIntegrable _ _)
   rw [h1, h2, h3, h4]
 
--- pin: exists_isUnit_prim (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:563)
 theorem exists_isUnit_prim (hR : IsOneParamGroup R) : ∃ ε : ℝ, 0 < ε ∧ IsUnit (prim R ε) := by
   have hc : ContinuousAt R 0 := hR.continuous.continuousAt
   rw [Metric.continuousAt_iff] at hc
@@ -109,12 +107,10 @@ theorem exists_isUnit_prim (hR : IsOneParamGroup R) : ∃ ε : ℝ, 0 < ε ∧ I
   rw [hrw]
   exact hεA.mul hu
 
--- pin: eq_sub_mul_inv (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:602)
 theorem eq_sub_mul_inv (hR : IsOneParamGroup R) {ε : ℝ} (u : Aˣ) (hu : (u : A) = prim R ε) (t : ℝ) :
     R t = (prim R (t + ε) - prim R t) * (u⁻¹ : Aˣ) := by
   rw [← hR.mul_prim t ε, ← hu, Units.mul_inv_cancel_right]
 
--- pin: contDiff_nat (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:606)
 theorem contDiff_nat (hR : IsOneParamGroup R) : ∀ n : ℕ, ContDiff ℝ n R := by
   obtain ⟨ε, _hε, hunit⟩ := hR.exists_isUnit_prim
   obtain ⟨u, hu⟩ := hunit
@@ -132,15 +128,12 @@ theorem contDiff_nat (hR : IsOneParamGroup R) : ∀ n : ℕ, ContDiff ℝ n R :=
     rw [Nat.cast_succ, hformula]
     exact ((hP.comp (contDiff_id.add contDiff_const)).sub hP).mul contDiff_const
 
--- pin: contDiff (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:623)
 theorem contDiff (hR : IsOneParamGroup R) : ContDiff ℝ ∞ R :=
   contDiff_infty.2 hR.contDiff_nat
 
--- pin: differentiable (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:626)
 theorem differentiable (hR : IsOneParamGroup R) : Differentiable ℝ R :=
   (hR.contDiff_nat 1).differentiable (by simp)
 
--- pin: deriv_eq_mul (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:629)
 theorem deriv_eq_mul (hR : IsOneParamGroup R) (t : ℝ) : deriv R t = R t * deriv R 0 := by
   have hd := hR.differentiable
   have heq : (fun s => R (t + s)) = fun s => R t * R s := funext fun s => hR.map_add t s
@@ -148,7 +141,6 @@ theorem deriv_eq_mul (hR : IsOneParamGroup R) (t : ℝ) : deriv R t = R t * deri
     _ = deriv (fun s => R t * R s) 0 := by rw [heq]
     _ = R t * deriv R 0 := deriv_const_mul _ (hd 0)
 
--- pin: deriv_eq_mul' (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:636)
 theorem deriv_eq_mul' (hR : IsOneParamGroup R) (t : ℝ) : deriv R t = deriv R 0 * R t := by
   have hd := hR.differentiable
   have heq : (fun s => R (s + t)) = fun s => R s * R t := funext fun s => hR.map_add s t
@@ -156,13 +148,11 @@ theorem deriv_eq_mul' (hR : IsOneParamGroup R) (t : ℝ) : deriv R t = deriv R 0
     _ = deriv (fun s => R s * R t) 0 := by rw [heq]
     _ = deriv R 0 * R t := deriv_mul_const (hd 0) _
 
--- pin: commute_deriv_zero (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:643)
 theorem commute_deriv_zero (hR : IsOneParamGroup R) (t : ℝ) : Commute (R t) (deriv R 0) := by
   have h := hR.deriv_eq_mul t
   rw [hR.deriv_eq_mul' t] at h
   exact h.symm
 
--- pin: iteratedDeriv_eq (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:648)
 theorem iteratedDeriv_eq (hR : IsOneParamGroup R) (k : ℕ) :
     iteratedDeriv k R = fun t => R t * deriv R 0 ^ k := by
   induction k with
@@ -172,7 +162,6 @@ theorem iteratedDeriv_eq (hR : IsOneParamGroup R) (k : ℕ) :
     funext t
     rw [deriv_mul_const (hR.differentiable t), hR.deriv_eq_mul t, mul_assoc, ← pow_succ']
 
--- pin: norm_iteratedDeriv_le (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:657)
 theorem norm_iteratedDeriv_le (hR : IsOneParamGroup R) (k : ℕ) (t : ℝ) :
     ‖iteratedDeriv k R t‖ ≤ ‖R t‖ * ‖deriv R 0‖ ^ k := by
   rw [hR.iteratedDeriv_eq k]
@@ -180,7 +169,6 @@ theorem norm_iteratedDeriv_le (hR : IsOneParamGroup R) (k : ℕ) (t : ℝ) :
   · simp
   · exact (norm_mul_le _ _).trans (by gcongr; exact norm_pow_le' _ hk)
 
--- pin: norm_iteratedDeriv_le_of_bound (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:664)
 theorem norm_iteratedDeriv_le_of_bound (hR : IsOneParamGroup R) {S : Set ℝ} {M : ℝ}
     (hM : ∀ t ∈ S, ‖R t‖ ≤ M) (k : ℕ) (t : ℝ) (ht : t ∈ S) :
     ‖iteratedDeriv k R t‖ ≤ M * ‖deriv R 0‖ ^ k :=
@@ -188,18 +176,15 @@ theorem norm_iteratedDeriv_le_of_bound (hR : IsOneParamGroup R) {S : Set ℝ} {M
 
 end IsOneParamGroup
 
--- pin: contDiff_of_continuous_addChar (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:672)
 theorem contDiff_of_continuous_addChar (χ : ℝ → ℂ) (h0 : χ 0 = 1) (hadd : ∀ s t, χ (s + t) = χ s * χ t)
     (hc : Continuous χ) : ContDiff ℝ ∞ χ :=
   (IsOneParamGroup.mk h0 hadd hc).contDiff
 
--- pin: deriv_continuous_addChar (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:676)
 theorem deriv_continuous_addChar (χ : ℝ → ℂ) (h0 : χ 0 = 1) (hadd : ∀ s t, χ (s + t) = χ s * χ t)
     (hc : Continuous χ) (t : ℝ) : deriv χ t = χ t * deriv χ 0 :=
   (IsOneParamGroup.mk h0 hadd hc).deriv_eq_mul t
 
 
--- pin: isOneParamGroup_cexp (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:683)
 theorem isOneParamGroup_cexp (c : ℂ) : IsOneParamGroup (fun t : ℝ => Complex.exp (t * c)) := by
   refine ⟨by simp, fun s t => ?_, Complex.continuous_exp.comp (Complex.continuous_ofReal.mul continuous_const)⟩
   rw [← Complex.exp_add]
@@ -207,7 +192,6 @@ theorem isOneParamGroup_cexp (c : ℂ) : IsOneParamGroup (fun t : ℝ => Complex
   push_cast
   ring
 
--- pin: deriv_cexp_zero (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:690)
 theorem deriv_cexp_zero (c : ℂ) : deriv (fun t : ℝ => Complex.exp (t * c)) 0 = c := by
   have h1 : HasDerivAt (fun w : ℂ => Complex.exp (w * c))
       (Complex.exp ((((0 : ℝ) : ℂ)) * c) * (1 * c)) ((0 : ℝ) : ℂ) :=
@@ -226,7 +210,6 @@ section Composition
 
 variable {g : Matrix (Fin 2) (Fin 2) ℝ}
 
--- pin: norm_iteratedFDeriv_comp_log_rad_le (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:827)
 theorem norm_iteratedFDeriv_comp_log_rad_le (hg : g.det ≠ 0) {Ψ : ℝ → ℂ} (hΨ : ContDiff ℝ ∞ Ψ)
     {κ : ℝ} (hκ : 0 ≤ κ) (hΨd : ∀ (j : ℕ) (t : ℝ), ‖iteratedDeriv j Ψ t‖ ≤ κ ^ j * ‖Ψ t‖)
     {n i : ℕ} (hin : i ≤ n) (u : ℝ) :
@@ -259,16 +242,12 @@ open AutomorphicForm.RealIwasawa.AutoSmooth AutomorphicForm.RealIwasawa.ScalarMa
 
 variable {g : Matrix (Fin 2) (Fin 2) ℝ}
 
--- pin: Ψ (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:933)
 def Ψ (u : ℂ) (t : ℝ) : ℂ := Complex.exp (↑t * (-u))
 
--- pin: isOneParamGroup_Ψ (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:935)
 theorem isOneParamGroup_Ψ (u : ℂ) : IsOneParamGroup (Ψ u) := isOneParamGroup_cexp (-u)
 
--- pin: deriv_Ψ_zero (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:937)
 theorem deriv_Ψ_zero (u : ℂ) : deriv (Ψ u) 0 = -u := deriv_cexp_zero (-u)
 
--- pin: norm_Ψ (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:939)
 theorem norm_Ψ (u : ℂ) (t : ℝ) : ‖Ψ u t‖ = Real.exp (-u.re * t) := by
   unfold Ψ
   rw [Complex.norm_exp]
@@ -277,7 +256,6 @@ theorem norm_Ψ (u : ℂ) (t : ℝ) : ‖Ψ u t‖ = Real.exp (-u.re * t) := by
     zero_mul, sub_zero]
   ring
 
--- pin: norm_iteratedDeriv_Ψ_le (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:947)
 theorem norm_iteratedDeriv_Ψ_le (u : ℂ) (j : ℕ) (t : ℝ) :
     ‖iteratedDeriv j (Ψ u) t‖ ≤ ‖u‖ ^ j * ‖Ψ u t‖ := by
   have h := (isOneParamGroup_Ψ u).norm_iteratedDeriv_le j t
@@ -285,12 +263,10 @@ theorem norm_iteratedDeriv_Ψ_le (u : ℂ) (j : ℕ) (t : ℝ) :
   calc ‖iteratedDeriv j (Ψ u) t‖ ≤ ‖Ψ u t‖ * ‖u‖ ^ j := h
     _ = ‖u‖ ^ j * ‖Ψ u t‖ := mul_comm _ _
 
--- pin: norm_Ψ_log_rad (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:954)
 theorem norm_Ψ_log_rad (hg : g.det ≠ 0) (u : ℂ) (x : ℝ) :
     ‖Ψ u (Real.log (rad g x))‖ = rad g x ^ (-u.re) := by
   rw [norm_Ψ, Real.rpow_def_of_pos (rad_pos hg x), mul_comm (-u.re)]
 
--- pin: weight_eq (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:958)
 theorem weight_eq (hg : g.det ≠ 0) (u : ℂ) (x : ℝ) :
     ((Real.sqrt ((g 0 0 + x * g 1 0) ^ 2 + (g 0 1 + x * g 1 1) ^ 2) : ℂ) ^ (-u))
       = Ψ u (Real.log (rad g x)) := by
@@ -299,25 +275,21 @@ theorem weight_eq (hg : g.det ≠ 0) (u : ℂ) (x : ℝ) :
   unfold Ψ
   rw [Complex.cpow_def_of_ne_zero (Complex.ofReal_ne_zero.mpr hr.ne'), ← Complex.ofReal_log hr.le]
 
--- pin: weightFun_eq (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:966)
 theorem weightFun_eq (hg : g.det ≠ 0) (u : ℂ) :
     (fun x : ℝ => ((Real.sqrt ((g 0 0 + x * g 1 0) ^ 2 + (g 0 1 + x * g 1 1) ^ 2) : ℂ) ^ (-u)))
       = fun x => Ψ u (Real.log (rad g x)) :=
   funext (weight_eq hg u)
 
--- pin: contDiff_Ψ_log_rad (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:971)
 theorem contDiff_Ψ_log_rad (hg : g.det ≠ 0) (u : ℂ) :
     ContDiff ℝ ∞ (fun x => Ψ u (Real.log (rad g x))) :=
   (isOneParamGroup_Ψ u).contDiff.comp (contDiff_log_rad hg)
 
--- pin: contDiff_weight (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:975)
 theorem contDiff_weight (hg : g.det ≠ 0) (u : ℂ) :
     ContDiff ℝ ∞
       (fun x : ℝ => ((Real.sqrt ((g 0 0 + x * g 1 0) ^ 2 + (g 0 1 + x * g 1 1) ^ 2) : ℂ) ^ (-u))) := by
   rw [weightFun_eq hg u]
   exact contDiff_Ψ_log_rad hg u
 
--- pin: norm_iteratedFDeriv_Ψ_log_rad_le (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:981)
 theorem norm_iteratedFDeriv_Ψ_log_rad_le (hg : g.det ≠ 0) (u : ℂ) (n : ℕ) (x : ℝ) :
     ‖iteratedFDeriv ℝ n (fun x => Ψ u (Real.log (rad g x))) x‖
       ≤ (n ! * max 1 ‖u‖ ^ n * towerD g n ^ n) * rad g x ^ (-u.re) := by
@@ -328,7 +300,6 @@ theorem norm_iteratedFDeriv_Ψ_log_rad_le (hg : g.det ≠ 0) (u : ℂ) (n : ℕ)
       ≤ n ! * (max 1 ‖u‖ ^ n * rad g x ^ (-u.re)) * towerD g n ^ n := h
     _ = (n ! * max 1 ‖u‖ ^ n * towerD g n ^ n) * rad g x ^ (-u.re) := by ring
 
--- pin: exists_bound_iteratedFDeriv_weight (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:991)
 theorem exists_bound_iteratedFDeriv_weight (hg : g.det ≠ 0) (u : ℂ) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ x : ℝ,
       ‖iteratedFDeriv ℝ n
@@ -341,7 +312,6 @@ theorem exists_bound_iteratedFDeriv_weight (hg : g.det ≠ 0) (u : ℂ) (n : ℕ
   · rw [weightFun_eq hg u]
     exact norm_iteratedFDeriv_Ψ_log_rad_le hg u n x
 
--- pin: rad_rpow_neg_le_one_add_sq (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1003)
 theorem rad_rpow_neg_le_one_add_sq (hg : g.det ≠ 0) {κ : ℝ} (hκ : 0 ≤ κ) (x : ℝ) :
     rad g x ^ (-κ) ≤ radFloor g ^ (-κ / 2) * (1 + ‖x‖ ^ 2) ^ (-κ / 2) := by
   have hF := radFloor_pos hg
@@ -356,7 +326,6 @@ theorem rad_rpow_neg_le_one_add_sq (hg : g.det ≠ 0) {κ : ℝ} (hκ : 0 ≤ κ
   rw [h1, ← Real.mul_rpow hF.le (by positivity)]
   exact Real.rpow_le_rpow_of_nonpos (by positivity) (radFloor_mul_le_rad_sq hg x) (by linarith)
 
--- pin: integrable_rpow_neg_rad (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1017)
 theorem integrable_rpow_neg_rad (hg : g.det ≠ 0) {κ : ℝ} (hκ : 1 < κ) :
     Integrable (fun x => rad g x ^ (-κ)) (volume : Measure ℝ) := by
   have hint : Integrable (fun x : ℝ => (1 + ‖x‖ ^ 2) ^ (-κ / 2)) volume :=
@@ -366,7 +335,6 @@ theorem integrable_rpow_neg_rad (hg : g.det ≠ 0) {κ : ℝ} (hκ : 1 < κ) :
   · rw [Real.norm_of_nonneg (Real.rpow_nonneg (rad_pos hg x).le _)]
     exact rad_rpow_neg_le_one_add_sq hg (by linarith) x
 
--- pin: exists_bound_iteratedFDeriv_weight_mul (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1026)
 theorem exists_bound_iteratedFDeriv_weight_mul (hg : g.det ≠ 0) (u : ℂ)
     {P : ℝ → ℂ} (hPC : ContDiff ℝ ∞ P)
     (hPB : ∀ n : ℕ, ∃ C : ℝ, 0 < C ∧ ∀ x : ℝ, ‖iteratedFDeriv ℝ n P x‖ ≤ C) :
@@ -401,7 +369,6 @@ theorem exists_bound_iteratedFDeriv_weight_mul (hg : g.det ≠ 0) (u : ℂ)
         · exact (hCh (n - i)).2 x
     _ = (n.choose i : ℝ) * Cf i * Ch (n - i) * rad g x ^ (-u.re) := by ring
 
--- pin: norm_fourierIntegral_cpow_radR_mul_le_polyDecay (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1060)
 theorem norm_fourierIntegral_cpow_radR_mul_le_polyDecay
     {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : g.det ≠ 0) {u : ℂ} (hu : 1 < u.re)
     {P : ℝ → ℂ} (hPC : ContDiff ℝ ∞ P)
@@ -499,19 +466,16 @@ theorem norm_fourierIntegral_cpow_radR_mul_le_polyDecay
       _ ≤ (M0 * 2 ^ N + MN * (2 / c) ^ N + 1) * (1 + ‖ξ‖) ^ (-(N:ℝ)) :=
           mul_le_mul_of_nonneg_right hstep4 hrpow0.le
 
--- pin: radR_eq_rad (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1157)
 theorem radR_eq_rad (g : Matrix (Fin 2) (Fin 2) ℝ) (x : ℝ) :
     Real.sqrt ((g 0 0 + x * g 1 0) ^ 2 + (g 0 1 + x * g 1 1) ^ 2) = rad g x :=
   (rad_eq_sqrt g x).symm
 
--- pin: radR_control (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1161)
 theorem radR_control (x : ℝ) :
     Real.sqrt (((!![1, 2; 3, 4] : Matrix (Fin 2) (Fin 2) ℝ) 0 0 + x * (!![1, 2; 3, 4] : Matrix (Fin 2) (Fin 2) ℝ) 1 0) ^ 2
         + ((!![1, 2; 3, 4] : Matrix (Fin 2) (Fin 2) ℝ) 0 1 + x * (!![1, 2; 3, 4] : Matrix (Fin 2) (Fin 2) ℝ) 1 1) ^ 2)
       = Real.sqrt ((1 + x * 3) ^ 2 + (2 + x * 4) ^ 2) := by
   simp
 
--- pin: hypotheses_inhabited (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1167)
 theorem hypotheses_inhabited :
     (1 : Matrix (Fin 2) (Fin 2) ℝ).det ≠ 0 ∧ 1 < (2 : ℂ).re ∧ ContDiff ℝ ∞ (fun _ : ℝ => (1 : ℂ)) ∧
     (∀ n : ℕ, ∃ C : ℝ, 0 < C ∧ ∀ x : ℝ, ‖iteratedFDeriv ℝ n (fun _ : ℝ => (1 : ℂ)) x‖ ≤ C) ∧
@@ -527,27 +491,23 @@ theorem hypotheses_inhabited :
 
 end AutomorphicForm.RealIwasawa.RealDecay
 
-namespace AutomorphicForm.RealIwasawa.B2bRUnif
+namespace AutomorphicForm.RealIwasawa.UniformDecay
 
 open AutomorphicForm.RealIwasawa.ScalarMajorant AutomorphicForm.RealIwasawa.RealDecay MeasureTheory
 open scoped ContDiff FourierTransform Nat
 
--- pin: continuous_botNormSq (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1205)
 theorem continuous_botNormSq : Continuous fun g : Matrix (Fin 2) (Fin 2) ℝ => botNormSq g := by
   unfold botNormSq
   fun_prop
 
--- pin: continuous_foot_num (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1209)
 theorem continuous_foot_num : Continuous fun g : Matrix (Fin 2) (Fin 2) ℝ => -(g 0 0 * g 1 0 + g 0 1 * g 1 1) := by
   fun_prop
 
--- pin: continuous_det2 (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1212)
 theorem continuous_det2 : Continuous fun g : Matrix (Fin 2) (Fin 2) ℝ => g.det := by
   have : (fun g : Matrix (Fin 2) (Fin 2) ℝ => g.det) = fun g => g 0 0 * g 1 1 - g 0 1 * g 1 0 :=
     funext fun g => Matrix.det_fin_two g
   rw [this]; fun_prop
 
--- pin: exists_uniform_matrix_constants (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1217)
 theorem exists_uniform_matrix_constants (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℝ)) (h𝒢 : IsCompact 𝒢)
     (hdet : ∀ g ∈ 𝒢, g.det ≠ 0) :
     ∃ T ρ : ℝ, 0 < ρ ∧ ρ ≤ 1 ∧ ∀ g ∈ 𝒢, towerRatio g ≤ T ∧ ρ ≤ radFloor g := by
@@ -620,14 +580,13 @@ theorem exists_uniform_matrix_constants (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℝ)
     unfold radFloor
     refine (min_le_right _ _).trans (le_min (le_trans (min_le_left _ _) hb1) (le_trans (min_le_right _ _) hb2))
 
-end AutomorphicForm.RealIwasawa.B2bRUnif
+end AutomorphicForm.RealIwasawa.UniformDecay
 
-namespace AutomorphicForm.RealIwasawa.B2bRUnif
+namespace AutomorphicForm.RealIwasawa.UniformDecay
 
 open AutomorphicForm.RealIwasawa.ScalarMajorant AutomorphicForm.RealIwasawa.RealDecay MeasureTheory
 open scoped ContDiff FourierTransform Nat
 
--- pin: norm_iteratedFDeriv_weight_le_uniform (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1302)
 theorem norm_iteratedFDeriv_weight_le_uniform {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : g.det ≠ 0) {T R : ℝ}
     (hT : towerRatio g ≤ T) {u : ℂ} (hu : ‖u‖ ≤ R) (n : ℕ) (x : ℝ) :
     ‖iteratedFDeriv ℝ n
@@ -645,15 +604,12 @@ theorem norm_iteratedFDeriv_weight_le_uniform {g : Matrix (Fin 2) (Fin 2) ℝ} (
   calc (n ! : ℝ) * max 1 ‖u‖ ^ n * towerD g n ^ n ≤ n ! * max 1 R ^ n * (n ! * max 1 T) ^ n :=
       mul_le_mul (mul_le_mul_of_nonneg_left h1 h0) h2 (pow_nonneg (towerD_pos n).le n) (by positivity)
 
--- pin: Dconst (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1319)
 def Dconst (T R : ℝ) (Ch : ℕ → ℝ) (n : ℕ) : ℝ :=
   ∑ i ∈ Finset.range (n + 1), (n.choose i : ℝ) * (i ! * max 1 R ^ i * (i ! * max 1 T) ^ i) * Ch (n - i)
 
--- pin: Dconst_nonneg (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1322)
 theorem Dconst_nonneg (T R : ℝ) {Ch : ℕ → ℝ} (hCh : ∀ n, 0 ≤ Ch n) (n : ℕ) : 0 ≤ Dconst T R Ch n :=
   Finset.sum_nonneg fun i _ => mul_nonneg (mul_nonneg (Nat.cast_nonneg _) (by positivity)) (hCh _)
 
--- pin: norm_iteratedFDeriv_weight_mul_le_uniform (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1325)
 theorem norm_iteratedFDeriv_weight_mul_le_uniform {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : g.det ≠ 0) {T R : ℝ}
     (hT : towerRatio g ≤ T) {u : ℂ} (hu : ‖u‖ ≤ R)
     {P : ℝ → ℂ} (hPC : ContDiff ℝ ∞ P) {Ch : ℕ → ℝ} (hCh : ∀ n x, ‖iteratedFDeriv ℝ n P x‖ ≤ Ch n)
@@ -677,7 +633,6 @@ theorem norm_iteratedFDeriv_weight_mul_le_uniform {g : Matrix (Fin 2) (Fin 2) �
         exact mul_nonneg (Nat.cast_nonneg _) (mul_nonneg (by positivity) (Real.rpow_nonneg hrad.le _))
     _ = (n.choose i : ℝ) * (i ! * max 1 R ^ i * (i ! * max 1 T) ^ i) * Ch (n - i) * rad g x ^ (-u.re) := by ring
 
--- pin: integral_rad_rpow_neg_le_uniform (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1348)
 theorem integral_rad_rpow_neg_le_uniform {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : g.det ≠ 0) {ρ : ℝ} (hρ0 : 0 < ρ) (hρ1 : ρ ≤ 1)
     (hρ : ρ ≤ radFloor g) {κ κ₀ κ₁ : ℝ} (hκ₀ : 1 < κ₀) (hκ : κ₀ ≤ κ) (hκ1 : κ ≤ κ₁) :
     ∫ x, rad g x ^ (-κ) ∂volume ≤ ρ ^ (-κ₁ / 2) * ∫ x : ℝ, (1 + ‖x‖ ^ 2) ^ (-κ₀ / 2) ∂volume := by
@@ -696,14 +651,13 @@ theorem integral_rad_rpow_neg_le_uniform {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : 
   refine integral_mono_of_nonneg (Filter.Eventually.of_forall fun x => Real.rpow_nonneg (rad_pos hg x).le _)
     (hint0.const_mul _) (Filter.Eventually.of_forall hpt)
 
-end AutomorphicForm.RealIwasawa.B2bRUnif
+end AutomorphicForm.RealIwasawa.UniformDecay
 
-namespace AutomorphicForm.RealIwasawa.B2bRUnif
+namespace AutomorphicForm.RealIwasawa.UniformDecay
 
 open AutomorphicForm.RealIwasawa.ScalarMajorant AutomorphicForm.RealIwasawa.RealDecay MeasureTheory
 open scoped ContDiff FourierTransform Nat
 
--- pin: main (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1379)
 theorem main
     (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℝ)) (h𝒢 : IsCompact 𝒢) (hdet : ∀ g ∈ 𝒢, g.det ≠ 0)
     (U : Set ℂ) (hU : IsCompact U) (hU1 : ∀ u ∈ U, 1 < u.re)
@@ -834,11 +788,10 @@ theorem main
       _ ≤ (M0' * 2 ^ N + MN' * (2 / c) ^ N + 1) * (1 + ‖ξ‖) ^ (-(N:ℝ)) :=
           mul_le_mul_of_nonneg_right hstep4 hrpow0.le
 
-end AutomorphicForm.RealIwasawa.B2bRUnif
+end AutomorphicForm.RealIwasawa.UniformDecay
 
 namespace AutomorphicForm.RealIwasawa.Engine
 
--- pin: solution (S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:1198)
 theorem norm_fourierIntegral_cpow_rad_mul_le_polyDecay
     {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : g.det ≠ 0) {u : ℂ} (hu : 1 < u.re)
     {P : ℝ → ℂ} (hPC : ContDiff ℝ ∞ P)
@@ -852,7 +805,6 @@ theorem norm_fourierIntegral_cpow_rad_mul_le_polyDecay
         ≤ C * (1 + ‖ξ‖) ^ (-(N : ℝ)) :=
   RealDecay.norm_fourierIntegral_cpow_radR_mul_le_polyDecay hg hu hPC hPB L hc hL N
 
--- pin: solution (S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:1518)
 theorem exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact
     (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℝ)) (h𝒢 : IsCompact 𝒢) (hdet : ∀ g ∈ 𝒢, g.det ≠ 0)
     (U : Set ℂ) (hU : IsCompact U) (hU1 : ∀ u ∈ U, 1 < u.re)
@@ -865,7 +817,7 @@ theorem exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompac
       ‖VectorFourier.fourierIntegral 𝐞 volume L.toLinearMap₁₂
           (fun x => ((Real.sqrt ((g 0 0 + x * g 1 0) ^ 2 + (g 0 1 + x * g 1 1) ^ 2) : ℂ) ^ (-u)) * P g x) ξ‖
         ≤ C * (1 + ‖ξ‖) ^ (-(N : ℝ)) :=
-  B2bRUnif.main 𝒢 h𝒢 hdet U hU hU1 P hPC hPB L hc hL N
+  UniformDecay.main 𝒢 h𝒢 hdet U hU hU1 P hPC hPB L hc hL N
 
 end AutomorphicForm.RealIwasawa.Engine
 

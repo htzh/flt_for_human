@@ -48,30 +48,32 @@
   of this header name the seven pin `S_` files the module transcribes, and the checker resolves
   each public statement against them by name and, failing that, by the statement's content hash.
   So a later proof can import
-  `AutomorphicForm.CasCore17.*`, `…CommAway17.*`, `…Elem17LR.*`, `…CasLR17.*`, `…OsAlg17.*`,
-  `…Ws23.*`, `…OsInf17.*`, `…InvZero22.*` directly.
+  `AutomorphicForm.CasCore.*`, `…CommAway.*`, `…ElemLR.*`, `…CasLR.*`, `…OsAlg.*`, `…OsInf.*`,
+  `…InvZero.*` directly, all under their subject names: the pin's pipeline stage ids (`…17`, `…22`,
+  `…40` — the pin's own README calls such labels pipeline artefacts, not mathematics) are stripped
+  from the namespaces, as are its file wrappers.
 
   Transcribed from the three pin `S_` files (pinned `aa2d8b3`), which are one development written
   three times: `S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean` (569 lines),
   `S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean` (856) and
   `S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean` (917).
   Byte-normalised the shared prefix is 552 lines, 56 names / 538 declaration lines: the
-  `CasCore17` engine, written **once** here (the pin wrote it three times, `private` only in the
+  `CasCore` engine, written **once** here (the pin wrote it three times, `private` only in the
   third copy). The 64-declaration engine is 63 here: the pin's local `continuous_rightTranslate` —
-  duplicated inside the pin itself, in `CasCore17` at `S_…iterate_raise….lean:482` and again in
-  `CommAway17` at `S_…leftCasimir….lean:607` — is the port's
+  duplicated inside the pin itself, in `CasCore` at `S_…iterate_raise….lean:482` and again in
+  `CommAway` at `S_…leftCasimir….lean:607` — is the port's
   `AutomorphicForm.CuspidalConstituent.continuous_rightTranslate`, so both copies are dropped
   rather than re-proved.
 
-  The pin's `private theorem _root_.CasCore17.…` / `_root_.CommAway17.…` root-namespace shadows
-  (its `p2m_export` workaround for the triplication) are resolved per lemma: the two `CasCore17`
+  The pin's `private theorem _root_.CasCore.…` / `_root_.CommAway.…` root-namespace shadows
+  (its `p2m_export` workaround for the triplication) are resolved per lemma: the two `CasCore`
   ones (`isArchSmoothAt_rightTranslate`, `archCasimirAt_rightTranslate`) restate engine lemmas with
   identical statements, so sourcing the engine from the copy without shadows drops them; the two
-  `CommAway17` ones are *not* restatements — their hypothesis is a `k` commuting with
+  `CommAway` ones are *not* restatements — their hypothesis is a `k` commuting with
   `archRealGLAt hw '' GL₂(ℝ)` (`hk`) rather than a specific `archRealGLAt hw M` — so they are kept
   and renamed `isArchSmoothAt_rightTranslate_of_glArch_eq_one` /
   `archCasimirAt_rightTranslate_of_glArch_eq_one`, which is exactly what distinguishes them from
-  the `CasCore17` namesakes.
+  the `CasCore` namesakes.
   spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean
@@ -98,7 +100,7 @@ open NumberField NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 open IsDedekindDomain AdelicLevel
 open AutomorphicForm.CuspidalConstituent
 
-namespace CasCore17
+namespace CasCore
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
@@ -185,9 +187,9 @@ theorem conjArr_one (M : GL (Fin 2) ℝ) : conjArr M (Matrix.of.symm 1) = Matrix
     show ((M⁻¹ : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ) * (M : Matrix (Fin 2) (Fin 2) ℝ) =
       ((M⁻¹ * M : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ) from rfl, inv_mul_cancel, Units.val_one]
 
-end CasCore17
+end CasCore
 
-namespace CasCore17
+namespace CasCore
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
@@ -264,9 +266,9 @@ theorem archDerivAt_rightTranslate (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞 F)
   rw [fderiv_comp _ hd (conjCLM M).differentiableAt, ContinuousLinearMap.fderiv, ContinuousLinearMap.comp_apply,
     conjCLM_apply M (Matrix.of.symm 1), conjArr_one]
 
-end CasCore17
+end CasCore
 
-namespace CasCore17
+namespace CasCore
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
@@ -350,9 +352,9 @@ theorem archDerivAt_comm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmooth
   rw [archDerivAt_archDerivAt_eq hw hφ, archDerivAt_archDerivAt_eq hw hφ, D2_symm hw hφ g (archDirMatrix j), D1_sub]
   ring
 
-end CasCore17
+end CasCore
 
-namespace CasCore17
+namespace CasCore
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
@@ -427,9 +429,9 @@ theorem rightTranslate_combo (k : AdelicGL2 (𝓞 F) F) (a b : ℂ) (θ₁ θ₂
   funext g
   simp only [rightTranslate, Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply]
 
-end CasCore17
+end CasCore
 
-namespace CasCore17
+namespace CasCore
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
@@ -554,9 +556,9 @@ theorem rel_Fm_E {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ
   push_cast at h
   linear_combination -h
 
-end CasCore17
+end CasCore
 
-namespace CasCore17
+namespace CasCore
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
@@ -627,9 +629,9 @@ theorem package (M : GL (Fin 2) ℝ) (x : AdelicGL2 (𝓞 F) F → ℂ) (hxs : I
     refine CuspidalConstituent.continuous_rightTranslate F (continuous_Dconj hw M d fun e => ?_) _
     exact continuous_archDerivAt_Dconj hw M d' e hxs hD2
 
-end CasCore17
+end CasCore
 
-namespace CommAway17
+namespace CommAway
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 
@@ -699,9 +701,9 @@ theorem archRealGLAt_mul_rowIsometryInclAt₀_comm {w w' : InfinitePlace F} (hw 
   show adelicArchGLInclAt F w _ * adelicArchGLInclAt F w' _ = adelicArchGLInclAt F w' _ * adelicArchGLInclAt F w _
   exact (commute_adelicArchGLInclAt_of_ne F (Ne.symm hne) _ _).eq
 
-end CommAway17
+end CommAway
 
-namespace Elem17LR
+namespace ElemLR
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 
@@ -743,11 +745,11 @@ theorem archRealGLAt_mul_comm_of_archComponent_eq_one {w : InfinitePlace F} (hw 
     · rw [archComponent_glArch_archRealGLAt_of_ne hw hw', one_mul, mul_one]
   · rw [map_mul, map_mul, glFin_archRealGLAt, one_mul, mul_one]
 
-end Elem17LR
+end ElemLR
 
-namespace CasLR17
+namespace CasLR
 
-open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix CasCore17
+open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix CasCore
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
@@ -884,24 +886,24 @@ theorem exists_decomp (y : AdelicGL2 (𝓞 F) F) :
     ∃ (m : GL (Fin 2) ℝ) (y' : AdelicGL2 (𝓞 F) F), archComponent F w (glArch (𝓞 F) F y') = 1 ∧ y = archRealGLAt hw m * y' := by
   set m : GL (Fin 2) ℝ := (glEquivOfRingEquiv (ringEquivRealOfIsReal hw).symm).symm (archComponent F w (glArch (𝓞 F) F y)) with hm
   refine ⟨m, (archRealGLAt hw m)⁻¹ * y, ?_, by rw [mul_inv_cancel_left]⟩
-  rw [map_mul, map_mul, map_inv, map_inv, Elem17LR.archComponent_glArch_archRealGLAt_self, hm, MulEquiv.apply_symm_apply,
+  rw [map_mul, map_mul, map_inv, map_inv, ElemLR.archComponent_glArch_archRealGLAt_self, hm, MulEquiv.apply_symm_apply,
     inv_mul_cancel]
 
 theorem archCasimirAt_rightTranslate_any (y : AdelicGL2 (𝓞 F) F) {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) :
     archCasimirAt hw (rightTranslate F y θ) = rightTranslate F y (archCasimirAt hw θ) := by
   obtain ⟨m, y', hy', rfl⟩ := exists_decomp hw y
   have hk : ∀ M : GL (Fin 2) ℝ, archRealGLAt hw M * y' = y' * archRealGLAt hw M :=
-    fun M => Elem17LR.archRealGLAt_mul_comm_of_archComponent_eq_one hw M hy'
-  rw [rightTranslate_mul, rightTranslate_mul, CasCore17.archCasimirAt_rightTranslate hw m (CommAway17.isArchSmoothAt_rightTranslate_of_glArch_eq_one hw hk hθ),
-    CommAway17.archCasimirAt_rightTranslate_of_glArch_eq_one hw hk]
+    fun M => ElemLR.archRealGLAt_mul_comm_of_archComponent_eq_one hw M hy'
+  rw [rightTranslate_mul, rightTranslate_mul, CasCore.archCasimirAt_rightTranslate hw m (CommAway.isArchSmoothAt_rightTranslate_of_glArch_eq_one hw hk hθ),
+    CommAway.archCasimirAt_rightTranslate_of_glArch_eq_one hw hk]
 
 theorem isArchSmoothAt_rightTranslate_any (y : AdelicGL2 (𝓞 F) F) {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) :
     IsArchSmoothAt hw (rightTranslate F y θ) := by
   obtain ⟨m, y', hy', rfl⟩ := exists_decomp hw y
   have hk : ∀ M : GL (Fin 2) ℝ, archRealGLAt hw M * y' = y' * archRealGLAt hw M :=
-    fun M => Elem17LR.archRealGLAt_mul_comm_of_archComponent_eq_one hw M hy'
+    fun M => ElemLR.archRealGLAt_mul_comm_of_archComponent_eq_one hw M hy'
   rw [rightTranslate_mul]
-  exact CasCore17.isArchSmoothAt_rightTranslate hw m (CommAway17.isArchSmoothAt_rightTranslate_of_glArch_eq_one hw hk hθ)
+  exact CasCore.isArchSmoothAt_rightTranslate hw m (CommAway.isArchSmoothAt_rightTranslate_of_glArch_eq_one hw hk hθ)
 
 theorem leftCasimir_eq {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (y : AdelicGL2 (𝓞 F) F) :
     -((1 / 4 : ℂ) * Ld hw .H (Ld hw .H θ) y - (1 / 2 : ℂ) * Ld hw .H θ y + Ld hw .E (Ld hw .Fm θ) y) = archCasimirAt hw θ y := by
@@ -909,11 +911,11 @@ theorem leftCasimir_eq {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt
   rw [Ld_rightTranslate, Ld_rightTranslate, Ld_rightTranslate, Ld_rightTranslate, archCasimirAt_rightTranslate_any hw y hθ] at h
   simpa only [rightTranslate, one_mul] using h
 
-end CasLR17
+end CasLR
 
-namespace OsAlg17
+namespace OsAlg
 
-open CasCore17
+open CasCore
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
@@ -1011,11 +1013,11 @@ theorem Dk_raise (hθ : IsArchSmoothAt hw θ) {m : ℂ} (hm : Dk hw θ = m • �
 
 end Smooth
 
-end OsAlg17
+end OsAlg
 
-namespace OsAlg17
+namespace OsAlg
 
-open CasCore17
+open CasCore
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
@@ -1160,11 +1162,11 @@ theorem lower_raise {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw
     ((archDerivAt hw .E (archDerivAt hw .E θ) g) + archDerivAt hw .E (archDerivAt hw .Fm θ) g +
       (archDerivAt hw .E (archDerivAt hw .Fm θ) g - archDerivAt hw .H θ g) + archDerivAt hw .Fm (archDerivAt hw .Fm θ) g) * Complex.I_sq
 
-end OsAlg17
+end OsAlg
 
-namespace OsAlg17
+namespace OsAlg
 
-open CasCore17
+open CasCore
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
@@ -1252,7 +1254,7 @@ theorem lower_iter_raise_iter {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchS
     rw [Function.iterate_succ_apply' (raise hw), Function.iterate_succ_apply (lower hw), lower_raise hw hs hk hc,
       lower_iter_smul, ih, smul_smul, Finset.prod_range_succ, mul_comm]
 
-end OsAlg17
+end OsAlg
 
 
 /-! ### The three headlines -/
@@ -1275,7 +1277,7 @@ theorem archCasimirAt_rightTranslate_archRealGLAt
           rightTranslate K (archRealGLAt hw m) (archCasimirAt hw x) := by
   have _ := hxc
   intro m
-  exact CasCore17.package hw m x hxs hD1 hD2
+  exact CasCore.package hw m x hxs hD1 hD2
 
 /-- **Headline 2.** The pin's `leftCasimir` — the enveloping-algebra element acting by left
 translation, `L d γ y = deriv (fun t => γ (archFlowAt hw d (-t) * y)) 0` — agrees with
@@ -1289,7 +1291,7 @@ theorem leftCasimir_eq_archCasimirAt_of_isArchSmoothAt
     ∀ y : AdelicGL2 (𝓞 K) K,
       -((1 / 4 : ℂ) * L .H (L .H θ) y - (1 / 2 : ℂ) * L .H θ y + L .E (L .Fm θ) y) = archCasimirAt hw θ y := by
   intro L y
-  exact CasLR17.leftCasimir_eq hw hθ y
+  exact CasLR.leftCasimir_eq hw hθ y
 
 /-- **Headline 3.** The Maass raising/lowering calculus: from weight `m` and Casimir eigenvalue
 `lam`, the iterates of `lower`/`raise` stay smooth with the shifted weights, and the two
@@ -1315,8 +1317,8 @@ theorem iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul
     (∀ M : ℕ, lower^[M] (raise^[M] θ) =
       (∏ j ∈ Finset.range M, (-4 * lam + (m + 2 * Complex.I * j) ^ 2 + 2 * Complex.I * (m + 2 * Complex.I * j))) • θ) := by
   intro lower raise
-  exact ⟨fun j => OsAlg17.lower_iter_props hw hθ hm hΩ j, fun j => OsAlg17.raise_iter_props hw hθ hm hΩ j,
-    fun M => OsAlg17.raise_iter_lower_iter hw hθ hm hΩ M, fun M => OsAlg17.lower_iter_raise_iter hw hθ hm hΩ M⟩
+  exact ⟨fun j => OsAlg.lower_iter_props hw hθ hm hΩ j, fun j => OsAlg.raise_iter_props hw hθ hm hΩ j,
+    fun M => OsAlg.raise_iter_lower_iter hw hθ hm hΩ M, fun M => OsAlg.lower_iter_raise_iter hw hθ hm hΩ M⟩
 
 
 /-! ### The four real leaves
@@ -1329,11 +1331,9 @@ own, `private` exactly as the pin has them. -/
 
 /-! #### The three commutators -/
 
-namespace Ws23
 
-namespace M0a
 
-open CasCore17
+open CasCore
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
@@ -1350,9 +1350,7 @@ private theorem main
   · funext g
     rw [Pi.sub_apply, rel_Fm_E hw hφ g]; ring
 
-end M0a
 
-end Ws23
 
 /-- **Headline.** The three `𝔰𝔩₂` commutator identities of the archimedean flows on a smooth `φ`:
 `[H,E] = 2E`, `[H,F⁻] = -2F⁻`, `[E,F⁻] = H`. -/
@@ -1362,14 +1360,14 @@ theorem archDerivAt_commutator_of_isArchSmoothAt
     archDerivAt hw .H (archDerivAt hw .E φ) - archDerivAt hw .E (archDerivAt hw .H φ) = (2 : ℂ) • archDerivAt hw .E φ ∧
     archDerivAt hw .H (archDerivAt hw .Fm φ) - archDerivAt hw .Fm (archDerivAt hw .H φ) = (-2 : ℂ) • archDerivAt hw .Fm φ ∧
     archDerivAt hw .E (archDerivAt hw .Fm φ) - archDerivAt hw .Fm (archDerivAt hw .E φ) = archDerivAt hw .H φ :=
-  Ws23.M0a.main hw φ hφ
+  main hw φ hφ
 
 /-! #### The character identity -/
 
-namespace OsInf17
+namespace OsInf
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
-open CasCore17
+open CasCore
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
@@ -1507,7 +1505,7 @@ private theorem main (n : ℤ) (y : AdelicGL2 (𝓞 F) F → ℂ) (hys : IsArchS
   show _ = (fderiv ℝ (chart hw y g) (Matrix.of.symm 1)) (Matrix.of.symm (archDirMatrix .E) - Matrix.of.symm (archDirMatrix .Fm))
   rw [map_sub]
 
-end OsInf17
+end OsInf
 
 /-- **Headline.** On a function with archimedean character `archWeightCharAt hw n`, the difference of
 the `E` and `F⁻` derivatives is multiplication by `I·n`: the Casimir acts by the character. -/
@@ -1517,7 +1515,7 @@ theorem archDerivAt_E_sub_archDerivAt_Fm_eq_smul_of_hasArchCharacterAt
     (y : AdelicGL2 (𝓞 K) K → ℂ) (hys : IsArchSmoothAt hw y)
     (hyn : HasArchCharacterAt₀ K w (archWeightCharAt hw n) y) :
     archDerivAt hw .E y - archDerivAt hw .Fm y = (Complex.I * n) • y :=
-  OsInf17.main hw n y hys hyn
+  OsInf.main hw n y hys hyn
 
 /-! #### The row isometry at a different place -/
 
@@ -1541,11 +1539,11 @@ theorem archCasimirAt_rightTranslate_rowIsometryInclAt_of_ne
           rightTranslate K (rowIsometryInclAt₀ K w' k) (archCasimirAt hw x) := by
   have _ := hxc
   intro w' hw' k
-  exact CommAway17.package hw (CommAway17.archRealGLAt_mul_rowIsometryInclAt₀_comm hw hw' k) x hxs hD1 hD2
+  exact CommAway.package hw (CommAway.archRealGLAt_mul_rowIsometryInclAt₀_comm hw hw' k) x hxs hD1 hD2
 
 /-! #### Killing `E` and `F⁻` gives `GL₂(ℝ)`-invariance -/
 
-namespace InvZero22
+namespace InvZero
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
@@ -1626,7 +1624,7 @@ private theorem main (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt h
   rw [map_mul, map_mul, map_mul, ← mul_assoc, ← mul_assoc, ← mul_assoc,
     apply_mul_upper hw φ hφ hE, apply_mul_lower hw φ hφ hF, apply_mul_upper hw φ hφ hE, apply_mul_lower hw φ hφ hF]
 
-end InvZero22
+end InvZero
 
 /-- **Headline.** A smooth function whose `E` and `F⁻` derivatives both vanish is right-invariant
 under `GL₂(ℝ)` at the place, for determinant-one elements. -/
@@ -1636,5 +1634,5 @@ theorem apply_mul_archRealGLAt_eq_of_archDerivAt_E_eq_zero_of_archDerivAt_Fm_eq_
     (hE : archDerivAt hw .E φ = 0) (hF : archDerivAt hw .Fm φ = 0)
     (g : AdelicGL2 (𝓞 F) F) (h : GL (Fin 2) ℝ) (hh : Matrix.GeneralLinearGroup.det h = 1) :
     φ (g * archRealGLAt hw h) = φ g :=
-  InvZero22.main hw φ hφ hE hF g h hh
+  InvZero.main hw φ hφ hE hF g h hh
 

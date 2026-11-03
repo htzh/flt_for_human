@@ -720,9 +720,9 @@ open NumberField.AdelicBox
 
 variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K}
 
-namespace CommConv17
+namespace CommConv
 
-open CasCore17
+open CasCore
 
 variable (hw : w.IsReal)
 
@@ -930,11 +930,11 @@ private theorem main (x : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x) (hx
     funext y
     show _ = (-((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α) - (1 / 2 : ℂ) • archDerivAt hw .H α +
       archDerivAt hw .E (archDerivAt hw .Fm α))) y
-    simp only [Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, CasCore17.rel_Fm_E hw hαs y]
+    simp only [Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, CasCore.rel_Fm_E hw hαs y]
     ring
   rw [hΩL, hLR, hΩR, hnat]
 
-end CommConv17
+end CommConv
 
 /-- **Headline (the bridge).** If `x` is archimedean-smooth with continuous first and second flow
 derivatives and `f` is a factorizable test function, then `rightConv x f` is arch-smooth with the
@@ -953,11 +953,11 @@ theorem archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivA
         (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' (rightConv K x f)))) ∧
         archCasimirAt hw (rightConv K x f) = rightConv K (archCasimirAt hw x) f := by
   intro f tys hf _
-  exact CommConv17.main hw x hxc hxs hD1 hD2 f hf
+  exact CommConv.main hw x hxc hxs hD1 hD2 f hf
 
-namespace CasLeft2
+namespace CasLeft
 
-open CasCore17
+open CasCore
 
 variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K} (hw : w.IsReal)
 
@@ -967,7 +967,7 @@ private def Tens (ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) 
     ∀ y, γ y = fa (glArch (𝓞 K) K y) * ff (glFin (𝓞 K) K y)
 
 private theorem tens_Ld {ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) → ℂ}
-    {γ : AdelicGL2 (𝓞 K) K → ℂ} (hγ : Tens ff γ) (d : ArchDir) : Tens ff (CommConv17.Lf hw d γ) := by
+    {γ : AdelicGL2 (𝓞 K) K → ℂ} (hγ : Tens ff γ) (d : ArchDir) : Tens ff (CommConv.Lf hw d γ) := by
   obtain ⟨fa, hfa, hγeq⟩ := hγ
   obtain ⟨fa', hfa', heq⟩ :=
     (AutomorphicForm.archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d).2.1 fa ff hfa
@@ -987,7 +987,7 @@ private theorem isFactorizableTestFn_of_tens {ff : GL (Fin 2) (IsDedekindDomain.
 
 private theorem Ld_right_law {γ : AdelicGL2 (𝓞 K) K → ℂ} {k : AdelicGL2 (𝓞 K) K} {c : ℂ}
     (h : ∀ g, γ (g * k) = c * γ g) (d : ArchDir) (g : AdelicGL2 (𝓞 K) K) :
-    CommConv17.Lf hw d γ (g * k) = c * CommConv17.Lf hw d γ g := by
+    CommConv.Lf hw d γ (g * k) = c * CommConv.Lf hw d γ g := by
   show deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * (g * k))) 0 =
     c * deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * g)) 0
   have hfun : (fun t : ℝ => γ (archFlowAt hw d (-t) * (g * k))) =
@@ -998,16 +998,16 @@ private theorem Ld_right_law {γ : AdelicGL2 (𝓞 K) K → ℂ} {k : AdelicGL2 
 
 private theorem Ld_left_inv {γ : AdelicGL2 (𝓞 K) K → ℂ} {k : AdelicGL2 (𝓞 K) K}
     (hk : glArch (𝓞 K) K k = 1) (h : ∀ y, γ (k * y) = γ y) (d : ArchDir) (y : AdelicGL2 (𝓞 K) K) :
-    CommConv17.Lf hw d γ (k * y) = CommConv17.Lf hw d γ y := by
+    CommConv.Lf hw d γ (k * y) = CommConv.Lf hw d γ y := by
   show deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * (k * y))) 0 =
     deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0
   congr 1
   funext t
   rw [← mul_assoc, archFlowAt_mul_comm_of_glArch_eq_one hw d (-t) hk, mul_assoc, h]
 
-end CasLeft2
+end CasLeft
 
-open CasLeft2 MeasureTheory in
+open CasLeft MeasureTheory in
 set_option linter.unusedVariables false in
 set_option linter.style.haveILetI false in
 /-- **Headline.** The Casimir of a character-typed test function is again factorisable and
@@ -1035,11 +1035,11 @@ theorem isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofC
   classical
   intro L β
   obtain ⟨fa, ff, hfa, hff, hαeq⟩ := hαf
-  have hT0 : CasLeft2.Tens ff α := ⟨fa, hfa, hαeq⟩
-  have hT1 : CasLeft2.Tens ff (L .H α) := CasLeft2.tens_Ld hw hT0 .H
-  have hT2 : CasLeft2.Tens ff (L .H (L .H α)) := CasLeft2.tens_Ld hw hT1 .H
-  have hT3 : CasLeft2.Tens ff (L .Fm α) := CasLeft2.tens_Ld hw hT0 .Fm
-  have hT4 : CasLeft2.Tens ff (L .E (L .Fm α)) := CasLeft2.tens_Ld hw hT3 .E
+  have hT0 : CasLeft.Tens ff α := ⟨fa, hfa, hαeq⟩
+  have hT1 : CasLeft.Tens ff (L .H α) := CasLeft.tens_Ld hw hT0 .H
+  have hT2 : CasLeft.Tens ff (L .H (L .H α)) := CasLeft.tens_Ld hw hT1 .H
+  have hT3 : CasLeft.Tens ff (L .Fm α) := CasLeft.tens_Ld hw hT0 .Fm
+  have hT4 : CasLeft.Tens ff (L .E (L .Fm α)) := CasLeft.tens_Ld hw hT3 .E
   obtain ⟨fa1, ⟨⟨Φ1, hΦ1, hfa1⟩, hs1⟩, h1⟩ := hT1
   obtain ⟨fa2, ⟨⟨Φ2, hΦ2, hfa2⟩, hs2⟩, h2⟩ := hT2
   obtain ⟨fa4, ⟨⟨Φ4, hΦ4, hfa4⟩, hs4⟩, h4⟩ := hT4
@@ -1088,15 +1088,15 @@ theorem isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofC
   have hβR : ∀ (v : InfinitePlace K) (k : rowIsometrySubgroup₀ v.Completion) (g : AdelicGL2 (𝓞 K) K),
       β (g * rowIsometryInclAt₀ K v k) = ((χ v k⁻¹ : ℂˣ) : ℂ) * β g := by
     intro v k g
-    have e1 := CasLeft2.Ld_right_law hw (hαR v k) .H g
-    have e2 := CasLeft2.Ld_right_law hw (fun g' => CasLeft2.Ld_right_law hw (hαR v k) .H g') .H g
-    have e3 := CasLeft2.Ld_right_law hw (fun g' => CasLeft2.Ld_right_law hw (hαR v k) .Fm g') .E g
+    have e1 := CasLeft.Ld_right_law hw (hαR v k) .H g
+    have e2 := CasLeft.Ld_right_law hw (fun g' => CasLeft.Ld_right_law hw (hαR v k) .H g') .H g
+    have e3 := CasLeft.Ld_right_law hw (fun g' => CasLeft.Ld_right_law hw (hαR v k) .Fm g') .E g
     show -((1 / 4 : ℂ) * L .H (L .H α) (g * _) - (1 / 2 : ℂ) * L .H α (g * _) + L .E (L .Fm α) (g * _)) =
       _ * -((1 / 4 : ℂ) * L .H (L .H α) g - (1 / 2 : ℂ) * L .H α g + L .E (L .Fm α) g)
-    change -((1 / 4 : ℂ) * CommConv17.Lf hw .H (CommConv17.Lf hw .H α) (g * _) - (1 / 2 : ℂ) * CommConv17.Lf hw .H α (g * _) +
-        CommConv17.Lf hw .E (CommConv17.Lf hw .Fm α) (g * _)) =
-      _ * -((1 / 4 : ℂ) * CommConv17.Lf hw .H (CommConv17.Lf hw .H α) g - (1 / 2 : ℂ) * CommConv17.Lf hw .H α g +
-        CommConv17.Lf hw .E (CommConv17.Lf hw .Fm α) g)
+    change -((1 / 4 : ℂ) * CommConv.Lf hw .H (CommConv.Lf hw .H α) (g * _) - (1 / 2 : ℂ) * CommConv.Lf hw .H α (g * _) +
+        CommConv.Lf hw .E (CommConv.Lf hw .Fm α) (g * _)) =
+      _ * -((1 / 4 : ℂ) * CommConv.Lf hw .H (CommConv.Lf hw .H α) g - (1 / 2 : ℂ) * CommConv.Lf hw .H α g +
+        CommConv.Lf hw .E (CommConv.Lf hw .Fm α) g)
     rw [e1, e2, e3]
     ring
   have hβLmem : ∀ v : InfinitePlace K, (fun x => β x⁻¹) ∈ archTypeSubmoduleAt K v (ArchRepAt.ofChar K (χ v)) :=
@@ -1109,11 +1109,11 @@ theorem isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofC
     exact fun v => (mem_archDualTypeSubmoduleAt_ofChar_iff K v (χ v) β).mpr (hβR v)
 
   have hfac1 : IsFactorizableTestFn K (L .H α) :=
-    CasLeft2.isFactorizableTestFn_of_tens hff ⟨fa1, ⟨⟨Φ1, hΦ1, hfa1⟩, hs1⟩, h1⟩
+    CasLeft.isFactorizableTestFn_of_tens hff ⟨fa1, ⟨⟨Φ1, hΦ1, hfa1⟩, hs1⟩, h1⟩
   have hfac2 : IsFactorizableTestFn K (L .H (L .H α)) :=
-    CasLeft2.isFactorizableTestFn_of_tens hff ⟨fa2, ⟨⟨Φ2, hΦ2, hfa2⟩, hs2⟩, h2⟩
+    CasLeft.isFactorizableTestFn_of_tens hff ⟨fa2, ⟨⟨Φ2, hΦ2, hfa2⟩, hs2⟩, h2⟩
   have hfac4 : IsFactorizableTestFn K (L .E (L .Fm α)) :=
-    CasLeft2.isFactorizableTestFn_of_tens hff ⟨fa4, ⟨⟨Φ4, hΦ4, hfa4⟩, hs4⟩, h4⟩
+    CasLeft.isFactorizableTestFn_of_tens hff ⟨fa4, ⟨⟨Φ4, hΦ4, hfa4⟩, hs4⟩, h4⟩
   have hlin : ∀ x' : AdelicGL2 (𝓞 K) K → ℂ, Continuous x' →
       rightConv K x' β = fun g => -((1 / 4 : ℂ) * rightConv K x' (L .H (L .H α)) g
         - (1 / 2 : ℂ) * rightConv K x' (L .H α) g + rightConv K x' (L .E (L .Fm α)) g) := by
@@ -1146,10 +1146,10 @@ theorem isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofC
     intro k hk y
     have hk1 : glArch (𝓞 K) K k = 1 := (mem_finiteAdelicGL2Subgroup_iff K k).mp (Subgroup.mem_inf.mp hk).2
     have hα' : ∀ y, α (k * y) = α y := fun y => (hαU y k hk).1
-    have e1 : ∀ y, L .H α (k * y) = L .H α y := fun y => CasLeft2.Ld_left_inv hw hk1 hα' .H y
-    have e2 : ∀ y, L .H (L .H α) (k * y) = L .H (L .H α) y := fun y => CasLeft2.Ld_left_inv hw hk1 e1 .H y
-    have e3 : ∀ y, L .Fm α (k * y) = L .Fm α y := fun y => CasLeft2.Ld_left_inv hw hk1 hα' .Fm y
-    have e4 : ∀ y, L .E (L .Fm α) (k * y) = L .E (L .Fm α) y := fun y => CasLeft2.Ld_left_inv hw hk1 e3 .E y
+    have e1 : ∀ y, L .H α (k * y) = L .H α y := fun y => CasLeft.Ld_left_inv hw hk1 hα' .H y
+    have e2 : ∀ y, L .H (L .H α) (k * y) = L .H (L .H α) y := fun y => CasLeft.Ld_left_inv hw hk1 e1 .H y
+    have e3 : ∀ y, L .Fm α (k * y) = L .Fm α y := fun y => CasLeft.Ld_left_inv hw hk1 hα' .Fm y
+    have e4 : ∀ y, L .E (L .Fm α) (k * y) = L .E (L .Fm α) y := fun y => CasLeft.Ld_left_inv hw hk1 e3 .E y
     show -((1 / 4 : ℂ) * L .H (L .H α) (k * y) - (1 / 2 : ℂ) * L .H α (k * y) + L .E (L .Fm α) (k * y)) =
       -((1 / 4 : ℂ) * L .H (L .H α) y - (1 / 2 : ℂ) * L .H α y + L .E (L .Fm α) y)
     rw [e1, e2, e4]

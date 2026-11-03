@@ -110,6 +110,67 @@ with its ~15 references in `WeylIntegrable/*`, `Iwasawa/Complex/*`, `MeasureTheo
 `Analysis/Calculus/SeminormBound` and the big-cell module's `attribute [local instance]` lines; and
 `M4aP3B`, which is only four docstring references to pin file names.
 
+**Second pass, 2026-11-02 — the AF column's `arch*` and `Iwasawa` modules, and the Iwasawa
+migration.** Two families, nine labels on namespaces and four more in the Iwasawa column:
+
+* **arch-Casimir** (`Adelic/ArchCasimir.lean`, `Adelic/ArchCasimirComplex.lean`,
+  `Adelic/ArchDerivRightConv.lean`): `CasCore17`→`CasCore`, `CommAway17`→`CommAway`,
+  `Elem17LR`→`ElemLR`, `CasLR17`→`CasLR`, `OsAlg17`→`OsAlg`, `OsInf17`→`OsInf`,
+  `InvZero22`→`InvZero`, `CommAway40`→`CommAwayC` (the complex twin), `CommConv17`→`CommConv`,
+  `CasLeft2`→`CasLeft`; the pin's file wrappers `Ws23`/`M0a`/`Ws26`/`Ws50KDER0` dropped.
+  Statements untouched, so the checker's name tier loses and its **content-hash tier** carries:
+  measured **135 / 106 / 5 ok, 0 mismatch / 0 missing** before and after, wires unchanged.
+* **Iwasawa** (`AutomorphicForm/Iwasawa/{Real,Complex}/*`): `B2bCL1`→`ComplexIwasawa.UniformDecay`,
+  `B2bCL2`→`ComplexIwasawa.Decay`, `B2bRUnif`→`RealIwasawa.UniformDecay`, and
+  `RealIwasawa.Ws1.HARCHR`→`RealIwasawa.HARCHR` (the `.Ws1` file label dropped; the complex twin
+  `HARCHC` never carried one).
+
+**The Iwasawa modules were then migrated to `spec-pin`** (they were tier 3, unwired). Three
+findings worth keeping:
+
+1. **A `-- pin:` marker that names a *bare* pin file is `UNKNOWN PIN FILE` to `check_port`.** Every
+   one of those modules carried markers of the form `-- pin: kC (S_….lean:33)` — no `P2M/Sol/`
+   prefix — so the checker could not resolve them and every marked declaration came out `missing`
+   until the markers were stripped and the files moved into the header (`spec-pin: P2M/Sol/S_….lean`).
+   The old checker resolved bare names; `spec-pin` does not. **Strip-on-touch is also what unblocks
+   a migration.**
+2. **The wire is discoverable from the checker**: with one or two files wired, each `missing` line
+   prints `identical statement at <file>:<line> (not in this wire)` — that hint *is* the missing wire
+   entry. Ten modules needed 2–9 pin files each (the pin's per-file preludes overlap heavily).
+3. **One statement genuinely differs by a pipeline label**: `RealIwasawa.RealDecay.radR_eq_rad`
+   states its right-hand side with the pin's `M4aP3B.RealIwasawa.rad` label, which has no port
+   namespace; it is now an `own:` row in `spec/decl_markers.tsv` with that reason. It is the only
+   such row the migration needed.
+
+Result: 282 markers stripped, ten modules wired, `check_port` per module **0 mismatch / 0 missing**
+(4, 1, 93, 11, 9, 16 for `Complex/{Basic,Continuation,Core,Decay,Estimates,UniformDecay}`; 1, 113, 52,
+4 for `Real/{Continuation,Core,Decay,Estimates}`), one `own:` row, headers rewired (the "(tier 3,
+unlisted)" and "every declaration carries a `-- pin:` comment" sentences are gone),
+`spec/UNWIRED-PUBLIC.md` **112 → 105 modules / 3,394 → 3,106 public declarations** (the ten
+Iwasawa modules are gone from it), all ten modules rebuilt.
+
+**Still open elsewhere — the survey, re-measured 2026-11-02.** 151 digit-carrying namespaces remain
+in the port; most are *mathematical* (`Pic0` 12 files, `LocalGL2` 4, `X1DiamondRational`/`X1HeckeCommute`/
+`X1x0`, `Gamma1Hecke`, `HeckeGamma1`, `KatzGamma0Form`, `CuspForm.Gamma1Hecke`, `Module.End.Sl2Strings`,
+`FLT.Gamma0FundamentalSet`) and must stay. The pipeline families, by the number of namespaces:
+`WLightS9/S10/S11` (16 — they are *pin file names* used as namespaces), `Ldgr*` (11), `Mmr*` (7),
+`P2MKc*` (6), `W7X*` (5) over 4 files, `MilneAvAg*` (4), `N5ID*` (4), `Mp72a*` (4 over 2 files),
+`Es1a1` (4 files), `X1DiamondRational` (3, math), `FujisakiC*` (3), `GL2StrongApproxW8M` (5 files),
+plus singletons (`A2*`, `B2`, `K1HBC`, `EIS2K1`, `ES1Sol`, `F10d`, `FF2`, `FrobChareqC2`, `G1Discharge`,
+`G2Proof`, `IharaSlashB2a`, `Lg37`, `P1Tower`, `P2mS26B6b`, `S06W2`, `S12R`, `S13Bridge`, `SEXP1`,
+`SU2EulerAux`, `RatioE96`, `Velu5Generic`, `Cotpk43T3`, `W1`, `W2`, `W4B*`, `WL12Pen`, `WLightR2`,
+`WPGamma1`, `Ws13S7`, `Ws18BDeg`, `Ws18BDist`, `Ws47`, `X1`, `ArchModS44`, `ElevenA1`, `GF24a*` 3,
+`Aux4SevenTN*` 2, `DeligneSerre271`/`72`, `M4aHerbrand*` 2, `M4aLocalCFT.*` 4, `M4aS4` 2,
+`P2MTwisted*`/`P2mWInert*` 2, `S_*` 16 in `WLightS9/S10/S11`, …). `M4aS4` is still **live in code**
+(`attribute [local instance] M4aS4.placeBorel`/`infMS`, `BigCellExpansion.lean` ×3 and
+`WeylIntegrable/UniformBound.lean` ×1), so its sweep also repoints four `attribute` lines.
+
+Method for any of them (measured twice now): strip the markers, put **every** file they named into
+the header as `spec-pin:` with its full `P2M/Sol/…` path, keep the abbreviation and drop the id, and
+let the checker's `identical statement at … (not in this wire)` hints complete the wire. It is free
+on the checker side (namespace segments are not compared), the statements do not move, and no wire
+that already exists changes — only the modules' own headers, plus one rebuild each.
+
 The table below is the survey as written:
 
 | label | port files | occurrences | what it actually holds there |

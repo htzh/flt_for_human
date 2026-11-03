@@ -1,7 +1,7 @@
 /-
   The complex-place Casimir engine and the right-translate headline.
 
-  The complex mirror of the real-place `CasCore17` engine in `ArchCasimir.lean`:
+  The complex mirror of the real-place `CasCore` engine in `ArchCasimir.lean`:
   the chart `e ↦ φ (g * archComplexLiftAt hw e)`, the derivatives `D1`/`D2`, the
   adjoint action `AdM`, the conjugated derivatives `Dconj`/`DelConj`, the brackets
   and relations for `ArchDirComplex`, the two Casimirs `archCasimirAtComplex` /
@@ -906,7 +906,6 @@ local `dirM`; those are imported, not re-stated. -/
 
 /-! #### The bracket table -/
 
-namespace Ws26
 
 namespace CommC
 
@@ -1066,7 +1065,6 @@ private theorem main (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtCo
 
 end CommC
 
-end Ws26
 
 /-- **Headline.** The fifteen `𝔰𝔩₂(ℂ)` commutator identities of the six archimedean directions on a
 complex-smooth `φ`: the `H`/`E`/`F⁻` triple as at a real place, the `iH`/`iE`/`iF⁻` triple, and the
@@ -1104,11 +1102,10 @@ theorem archDerivAtComplex_commutator_of_isArchSmoothAtComplex
       0 ∧
     archDerivAtComplex hw .Fm (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .Fm φ) =
       0 :=
-  Ws26.CommC.main hw φ hφ
+  CommC.main hw φ hφ
 
 /-! #### The weight-one character identities -/
 
-namespace Ws50KDER0
 
 open Matrix Complex AutomorphicForm.WindowedSiegel NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 
@@ -1314,9 +1311,7 @@ private theorem rotGL_zero : rotGL 0 = 1 := by
 private theorem swayGL_zero : swayGL 0 = 1 := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [swayGL]
 
-end Ws50KDER0
 
-open Ws50KDER0 in
 /-- **Headline.** At weight `1` the complex character kills the `iH`-derivative and forces the two
 pairs `F⁻ = E`, `iF⁻ = −iE`: the sway and rotation row-isometry arguments of the pin. -/
 theorem archDerivAtComplex_iH_eq_zero_and_Fm_eq_E_and_iFm_eq_neg_iE_of_hasArchCharacterAtZero_one
@@ -1353,7 +1348,7 @@ theorem archDerivAtComplex_iH_eq_zero_and_Fm_eq_E_and_iFm_eq_neg_iE_of_hasArchCh
 
 /-! #### The row isometry at a different place -/
 
-namespace CommAway40
+namespace CommAwayC
 
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 
@@ -1448,7 +1443,7 @@ private theorem archComplexGLAt_mul_rowIsometryInclAt₀_comm {w w' : InfinitePl
   show adelicArchGLInclAt F w _ * adelicArchGLInclAt F w' _ = adelicArchGLInclAt F w' _ * adelicArchGLInclAt F w _
   exact (commute_adelicArchGLInclAt_of_ne F (Ne.symm hne) _ _).eq
 
-end CommAway40
+end CommAwayC
 
 -- The pin's `hw' : w' ≠ w` is a hypothesis the statement carries and no proof step needs; it stays
 -- spelled `hw'` because the checker compares binder spelling.
@@ -1472,7 +1467,7 @@ theorem archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne
           rightTranslate K (rowIsometryInclAt₀ K w' k) (archCasimirBarAtComplex hw x) := by
   have _ := hxc
   intro w' hw' k
-  exact CommAway40.package hw (CommAway40.archComplexGLAt_mul_rowIsometryInclAt₀_comm hw hw' k) x hxs hD1 hD2
+  exact CommAwayC.package hw (CommAwayC.archComplexGLAt_mul_rowIsometryInclAt₀_comm hw hw' k) x hxs hD1 hD2
 
 /-! #### Killing all six derivatives gives `GL₂(ℂ)`-invariance -/
 
@@ -1604,7 +1599,7 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 variable {F : Type} [Field F] [NumberField F]
 
 -- The port's copy of `glArch_ext` lives in `ArchCasimir.lean` — in the *transcription* namespace
--- `Elem17LR`, not at `AutomorphicForm.*` — so importing that whole engine to reach it buys less than
+-- `ElemLR`, not at `AutomorphicForm.*` — so importing that whole engine to reach it buys less than
 -- these five lines: re-stated here, `private`, from the pin's own statement (pin `:930`).
 omit [NumberField F] in
 private theorem glArch_ext {x y : GL (Fin 2) (InfiniteAdeleRing F)}
@@ -1851,7 +1846,7 @@ private theorem leftCas_one {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmo
   · linear_combination ((1 / 16 : ℂ) * archDerivAtComplex hw .iH (archDerivAtComplex hw .iH θ) 1 +
         (1 / 4 : ℂ) * archDerivAtComplex hw .iE (archDerivAtComplex hw .iFm θ) 1) * Complex.I_sq
 
--- The port's copy of `rightTranslate_mul` lives in `ArchCasimir.lean` (`OsAlg17`), outside this
+-- The port's copy of `rightTranslate_mul` lives in `ArchCasimir.lean` (`OsAlg`), outside this
 -- module's import closure; the same reasoning as `glArch_ext` above — re-stated `private` from the
 -- pin's own statement (pin `:1162`).
 omit hw in
@@ -1889,12 +1884,12 @@ private theorem casimirs_rightTranslate_any (y : AdelicGL2 (𝓞 F) F) {θ : Ade
   constructor
   · rw [rightTranslate_mul, rightTranslate_mul,
       ArchCxGL.archCasimirAtComplex_rightTranslate hw m
-        (CommAway40.isArchSmoothAtComplex_rightTranslate hw hk hθ),
-      CommAway40.archCasimirAtComplex_rightTranslate hw hk]
+        (CommAwayC.isArchSmoothAtComplex_rightTranslate hw hk hθ),
+      CommAwayC.archCasimirAtComplex_rightTranslate hw hk]
   · rw [rightTranslate_mul, rightTranslate_mul,
       ArchCxGL.archCasimirBarAtComplex_rightTranslate hw m
-        (CommAway40.isArchSmoothAtComplex_rightTranslate hw hk hθ),
-      CommAway40.archCasimirBarAtComplex_rightTranslate hw hk]
+        (CommAwayC.isArchSmoothAtComplex_rightTranslate hw hk hθ),
+      CommAwayC.archCasimirBarAtComplex_rightTranslate hw hk]
 
 private theorem isArchSmoothAtComplex_rightTranslate_any (y : AdelicGL2 (𝓞 F) F)
     {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAtComplex hw θ) :
@@ -1904,7 +1899,7 @@ private theorem isArchSmoothAtComplex_rightTranslate_any (y : AdelicGL2 (𝓞 F)
     fun M => ElemC.archComplexGLAt_mul_comm_of_archComponent_eq_one hw M hy'
   rw [rightTranslate_mul]
   exact ArchCxGL.isArchSmoothAtComplex_rightTranslate hw m
-    (CommAway40.isArchSmoothAtComplex_rightTranslate hw hk hθ)
+    (CommAwayC.isArchSmoothAtComplex_rightTranslate hw hk hθ)
 
 private theorem leftCas_eq {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAtComplex hw θ)
     (y : AdelicGL2 (𝓞 F) F) :

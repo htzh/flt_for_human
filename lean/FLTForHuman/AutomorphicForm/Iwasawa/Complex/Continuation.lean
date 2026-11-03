@@ -1,5 +1,5 @@
 /-
-  The complex-place Iwasawa engine -- continuation (tier 3, unlisted).
+  The complex-place Iwasawa engine -- continuation.
 
   The complex-place Whittaker (Jacquet) integral of the pinned FLT repository
   `anthropics/fermats-last-theorem@aa2d8b3`.  It rests on `Core.lean`'s compact
@@ -12,11 +12,11 @@
     symbol estimate;
   * `Engine` -- the continuation kernel.
 
-  Everything in `HARCHC` is the pin's `private` vocabulary and stays `private`
-  here; every declaration carries a `-- pin:` provenance comment.
+  Everything in `HARCHC` is the pin's `private` vocabulary and stays `private` here.
 
   Pin: `anthropics/fermats-last-theorem` at `aa2d8b3`;
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean
 -/
 import Mathlib.Analysis.Calculus.ParametricIntegral
 import Mathlib.Analysis.SpecialFunctions.Complex.Log
@@ -37,29 +37,23 @@ namespace AutomorphicForm.ComplexIwasawa
 
 namespace HARCHC
 
--- pin: G (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:16)
 private def G (a b : ℕ) (w ζ z : ℂ) : ℂ :=
   z ^ a * conj z ^ b * (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ^ (-w)
     * Complex.exp (-(((4 * Real.pi * (ζ * z).re : ℝ) : ℂ) * Complex.I))
 
--- pin: one_add_norm_sq_pos (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:20)
 private theorem one_add_norm_sq_pos (z : ℂ) : 0 < 1 + ‖z‖ ^ 2 := by positivity
 
--- pin: one_le_one_add_norm_sq (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:22)
 private theorem one_le_one_add_norm_sq (z : ℂ) : 1 ≤ 1 + ‖z‖ ^ 2 := by nlinarith [norm_nonneg z]
 
--- pin: norm_character (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:24)
 private theorem norm_character (ζ z : ℂ) : ‖Complex.exp (-(((4 * Real.pi * (ζ * z).re : ℝ) : ℂ) * Complex.I))‖ = 1 := by
   rw [← neg_mul, ← Complex.ofReal_neg]
   exact Complex.norm_exp_ofReal_mul_I _
 
--- pin: norm_G (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:28)
 private theorem norm_G (a b : ℕ) (w ζ z : ℂ) : ‖G a b w ζ z‖ = ‖z‖ ^ (a + b) * (1 + ‖z‖ ^ 2) ^ (-w.re) := by
   unfold G
   rw [norm_mul, norm_mul, norm_mul, norm_pow, norm_pow, Complex.norm_conj,
     Complex.norm_cpow_eq_rpow_re_of_pos (one_add_norm_sq_pos z), Complex.neg_re, norm_character, mul_one, pow_add]
 
--- pin: norm_pow_le_bracket (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:33)
 private theorem norm_pow_le_bracket (m : ℕ) (z : ℂ) : ‖z‖ ^ m ≤ (1 + ‖z‖ ^ 2) ^ ((m : ℝ) / 2) := by
   have hR0 : 0 < 1 + ‖z‖ ^ 2 := one_add_norm_sq_pos z
   have h1 : ‖z‖ ≤ (1 + ‖z‖ ^ 2) ^ (1 / 2 : ℝ) := by
@@ -72,7 +66,6 @@ private theorem norm_pow_le_bracket (m : ℕ) (z : ℂ) : ‖z‖ ^ m ≤ (1 + �
         rw [← Real.rpow_mul hR0.le]
         ring_nf
 
--- pin: norm_G_le (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:45)
 private theorem norm_G_le (a b : ℕ) {σ : ℝ} {w : ℂ} (hw : σ ≤ w.re) (ζ z : ℂ) :
     ‖G a b w ζ z‖ ≤ (1 + ‖z‖ ^ 2) ^ (-(2 * σ - ((a + b : ℕ) : ℝ)) / 2) := by
   rw [norm_G]
@@ -86,7 +79,6 @@ private theorem norm_G_le (a b : ℕ) {σ : ℝ} {w : ℂ} (hw : σ ≤ w.re) (�
         rw [← Real.rpow_add hR0]
         ring_nf
 
--- pin: integrable_bracket (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:58)
 private theorem integrable_bracket (a b : ℕ) {σ : ℝ} (hσ : ((a + b : ℕ) : ℝ) / 2 + 1 < σ) :
     Integrable (fun z : ℂ => (1 + ‖z‖ ^ 2) ^ (-(2 * σ - ((a + b : ℕ) : ℝ)) / 2)) := by
   refine integrable_rpow_neg_one_add_norm_sq (E := ℂ) (μ := volume) ?_
@@ -94,7 +86,6 @@ private theorem integrable_bracket (a b : ℕ) {σ : ℝ} (hσ : ((a + b : ℕ) 
   push_cast at hσ ⊢
   linarith
 
--- pin: continuous_character (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:65)
 private theorem continuous_character : Continuous (fun q : ℂ × ℂ =>
     Complex.exp (-(((4 * Real.pi * (q.1 * q.2).re : ℝ) : ℂ) * Complex.I))) := by
   have h1 : Continuous (fun q : ℂ × ℂ => (4 * Real.pi * (q.1 * q.2).re : ℝ)) :=
@@ -103,15 +94,12 @@ private theorem continuous_character : Continuous (fun q : ℂ × ℂ =>
     Complex.continuous_ofReal.comp h1
   exact Complex.continuous_exp.comp ((h2.mul continuous_const).neg)
 
--- pin: continuous_bracketC (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:73)
 private theorem continuous_bracketC : Continuous (fun z : ℂ => (((1 + ‖z‖ ^ 2 : ℝ) : ℂ))) :=
   Complex.continuous_ofReal.comp (continuous_const.add (continuous_norm.pow 2))
 
--- pin: bracketC_mem_slitPlane (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:76)
 private theorem bracketC_mem_slitPlane (z : ℂ) : (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ∈ Complex.slitPlane :=
   Complex.ofReal_mem_slitPlane.2 (one_add_norm_sq_pos z)
 
--- pin: continuous_G (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:79)
 private theorem continuous_G (a b : ℕ) : Continuous (fun q : ℂ × ℂ × ℂ => G a b q.1 q.2.1 q.2.2) := by
   have h1 : Continuous (fun q : ℂ × ℂ × ℂ => q.2.2 ^ a * conj q.2.2 ^ b) :=
     (continuous_snd.snd.pow a).mul ((Complex.continuous_conj.comp continuous_snd.snd).pow b)
@@ -122,7 +110,6 @@ private theorem continuous_G (a b : ℕ) : Continuous (fun q : ℂ × ℂ × ℂ
     continuous_character.comp continuous_snd
   exact (h1.mul h2).mul h3
 
--- pin: continuous_G_z (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:89)
 private theorem continuous_G_z (a b : ℕ) (w ζ : ℂ) : Continuous (fun z => G a b w ζ z) := by
   have h1 : Continuous (fun z : ℂ => z ^ a * conj z ^ b) :=
     (continuous_id.pow a).mul (Complex.continuous_conj.pow b)
@@ -132,7 +119,6 @@ private theorem continuous_G_z (a b : ℕ) (w ζ : ℂ) : Continuous (fun z => G
     continuous_character.comp (Continuous.prodMk continuous_const continuous_id)
   exact (h1.mul h2).mul h3
 
--- pin: continuous_G_wζ (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:98)
 private theorem continuous_G_wζ (a b : ℕ) (z : ℂ) : Continuous (fun p : ℂ × ℂ => G a b p.1 p.2 z) := by
   have h1 : Continuous (fun _ : ℂ × ℂ => z ^ a * conj z ^ b) := continuous_const
   have h2 : Continuous (fun p : ℂ × ℂ => (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ^ (-p.1)) :=
@@ -142,16 +128,13 @@ private theorem continuous_G_wζ (a b : ℕ) (z : ℂ) : Continuous (fun p : ℂ
     continuous_character.comp (Continuous.prodMk continuous_snd continuous_const)
   exact (h1.mul h2).mul h3
 
--- pin: integrable_G (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:107)
 private theorem integrable_G (a b : ℕ) {w : ℂ} (hw : ((a + b : ℕ) : ℝ) / 2 + 1 < w.re) (ζ : ℂ) :
     Integrable (fun z => G a b w ζ z) :=
   (integrable_bracket a b hw).mono' (continuous_G_z a b w ζ).aestronglyMeasurable
     (Filter.Eventually.of_forall fun z => norm_G_le a b le_rfl ζ z)
 
--- pin: isOpen_halfPlane (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:112)
 private theorem isOpen_halfPlane (σ : ℝ) : IsOpen {w : ℂ | σ < w.re} := isOpen_lt continuous_const Complex.continuous_re
 
--- pin: continuousOn_integral_G (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:114)
 private theorem continuousOn_integral_G (a b : ℕ) :
     ContinuousOn (fun p : ℂ × ℂ => ∫ z, G a b p.1 p.2 z)
       ({w : ℂ | ((a + b : ℕ) : ℝ) / 2 + 1 < w.re} ×ˢ Set.univ) := by
@@ -170,19 +153,16 @@ private theorem continuousOn_integral_G (a b : ℕ) :
     exact Filter.Eventually.of_forall fun z => norm_G_le a b (le_of_lt hx1) x.2 z
   exact (hcont.continuousAt (hS.mem_nhds ⟨hσp, Set.mem_univ _⟩)).continuousWithinAt
 
--- pin: G' (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:132)
 private def G' (a b : ℕ) (w ζ z : ℂ) : ℂ :=
   z ^ a * conj z ^ b * ((((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ^ (-w) * Complex.log (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) * (-1))
     * Complex.exp (-(((4 * Real.pi * (ζ * z).re : ℝ) : ℂ) * Complex.I))
 
--- pin: hasDerivAt_G (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:136)
 private theorem hasDerivAt_G (a b : ℕ) (w ζ z : ℂ) : HasDerivAt (fun w => G a b w ζ z) (G' a b w ζ z) w := by
   unfold G G'
   have hR : (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ≠ 0 := Complex.ofReal_ne_zero.2 (one_add_norm_sq_pos z).ne'
   have h := ((Complex.hasStrictDerivAt_const_cpow (Or.inl hR)).hasDerivAt.comp w (hasDerivAt_id w).neg)
   exact (h.const_mul _).mul_const _
 
--- pin: norm_G' (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:142)
 private theorem norm_G' (a b : ℕ) (w ζ z : ℂ) :
     ‖G' a b w ζ z‖ = ‖z‖ ^ (a + b) * (1 + ‖z‖ ^ 2) ^ (-w.re) * Real.log (1 + ‖z‖ ^ 2) := by
   unfold G'
@@ -193,7 +173,6 @@ private theorem norm_G' (a b : ℕ) (w ζ z : ℂ) :
     norm_neg, norm_one, mul_one]
   ring
 
--- pin: continuous_G'_z (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:152)
 private theorem continuous_G'_z (a b : ℕ) (w ζ : ℂ) : Continuous (fun z => G' a b w ζ z) := by
   have h1 : Continuous (fun z : ℂ => z ^ a * conj z ^ b) :=
     (continuous_id.pow a).mul (Complex.continuous_conj.pow b)
@@ -204,7 +183,6 @@ private theorem continuous_G'_z (a b : ℕ) (w ζ : ℂ) : Continuous (fun z => 
     continuous_character.comp (Continuous.prodMk continuous_const continuous_id)
   exact (h1.mul h2).mul h3
 
--- pin: norm_G'_le (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:162)
 private theorem norm_G'_le (a b : ℕ) {σ ε : ℝ} (hε : 0 < ε) {w : ℂ} (hw : σ ≤ w.re) (ζ z : ℂ) :
     ‖G' a b w ζ z‖ ≤ ε⁻¹ * (1 + ‖z‖ ^ 2) ^ (-(2 * (σ - ε) - ((a + b : ℕ) : ℝ)) / 2) := by
   rw [norm_G', ← norm_G a b w ζ z]
@@ -218,7 +196,6 @@ private theorem norm_G'_le (a b : ℕ) {σ ε : ℝ} (hε : 0 < ε) {w : ℂ} (h
           Real.rpow_add hR0]
         ring
 
--- pin: differentiableOn_integral_G (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:175)
 private theorem differentiableOn_integral_G (a b : ℕ) (ζ : ℂ) :
     DifferentiableOn ℂ (fun w : ℂ => ∫ z, G a b w ζ z) {w : ℂ | ((a + b : ℕ) : ℝ) / 2 + 1 < w.re} := by
   intro w₀ hw₀
@@ -241,11 +218,9 @@ private theorem differentiableOn_integral_G (a b : ℕ) (ζ : ℂ) :
     (Filter.Eventually.of_forall fun z w _ => hasDerivAt_G a b w ζ z)
   exact key.2.differentiableAt.differentiableWithinAt
 
--- pin: BddSmooth (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:197)
 private def BddSmooth (f : ℂ → ℂ) : Prop :=
   ContDiff ℝ ∞ f ∧ ∀ n : ℕ, ∃ C : ℝ, ∀ z : ℂ, ‖iteratedFDeriv ℝ n f z‖ ≤ C
 
--- pin: bddSmooth_const (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:200)
 private theorem bddSmooth_const (c : ℂ) : BddSmooth (fun _ : ℂ => c) := by
   refine ⟨contDiff_const, fun n => ⟨‖c‖, fun z => ?_⟩⟩
   rcases n with _ | n
@@ -253,7 +228,6 @@ private theorem bddSmooth_const (c : ℂ) : BddSmooth (fun _ : ℂ => c) := by
   · rw [iteratedFDeriv_succ_const]
     simp
 
--- pin: BddSmooth.mul (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:207)
 private theorem BddSmooth.mul {f g : ℂ → ℂ} (hf : BddSmooth f) (hg : BddSmooth g) : BddSmooth (fun z => f z * g z) := by
   refine ⟨hf.1.mul hg.1, fun n => ?_⟩
   choose Cf hCf using hf.2
@@ -265,7 +239,6 @@ private theorem BddSmooth.mul {f g : ℂ → ℂ} (hf : BddSmooth f) (hg : BddSm
   refine mul_le_mul (mul_le_mul_of_nonneg_left (hCf i z) h0) (hCg (n - i) z) (norm_nonneg _) ?_
   exact mul_nonneg h0 ((norm_nonneg _).trans (hCf i z))
 
--- pin: BddSmooth.pow (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:218)
 private theorem BddSmooth.pow {f : ℂ → ℂ} (hf : BddSmooth f) : ∀ k : ℕ, BddSmooth (fun z => f z ^ k)
   | 0 => by
       simp only [pow_zero]
@@ -274,7 +247,6 @@ private theorem BddSmooth.pow {f : ℂ → ℂ} (hf : BddSmooth f) : ∀ k : ℕ
       simp only [pow_succ]
       exact (hf.pow k).mul hf
 
--- pin: bddSmooth_kC_one (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:226)
 private theorem bddSmooth_kC_one (i j : Fin 2) : BddSmooth (fun z => kC 1 z i j) := by
   have hdet : (1 : Matrix (Fin 2) (Fin 2) ℂ).det ≠ 0 := by
     rw [Matrix.det_one]
@@ -284,14 +256,11 @@ private theorem bddSmooth_kC_one (i j : Fin 2) : BddSmooth (fun z => kC 1 z i j)
     obtain ⟨C, -, h⟩ := hB n
     exact ⟨C, h i j⟩⟩
 
--- pin: P (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:235)
 private def P (a b : ℕ) (z : ℂ) : ℂ := kC 1 z 1 1 ^ a * kC 1 z 0 0 ^ b
 
--- pin: bddSmooth_P (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:237)
 private theorem bddSmooth_P (a b : ℕ) : BddSmooth (P a b) :=
   ((bddSmooth_kC_one 1 1).pow a).mul ((bddSmooth_kC_one 0 0).pow b)
 
--- pin: L (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:240)
 private def L : ℂ →L[ℝ] ℂ →L[ℝ] ℝ :=
   LinearMap.mkContinuous₂
     (LinearMap.mk₂ ℝ (fun z ζ : ℂ => 2 * (ζ * z).re)
@@ -314,11 +283,9 @@ private def L : ℂ →L[ℝ] ℂ →L[ℝ] ℝ :=
             exact Complex.abs_re_le_norm _
         _ = 2 * ‖z‖ * ‖ζ‖ := by rw [norm_mul]; ring)
 
--- pin: L_apply (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:262)
 private theorem L_apply (z ζ : ℂ) : L z ζ = 2 * (ζ * z).re := by
   simp only [L, LinearMap.mkContinuous₂_apply, LinearMap.mk₂_apply]
 
--- pin: L_coercive (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:265)
 private theorem L_coercive (ξ : ℂ) : ∃ v : ℂ, ‖v‖ ≤ 1 ∧ 2 * ‖ξ‖ ≤ ‖L v ξ‖ := by
   by_cases hξ : ξ = 0
   · refine ⟨0, by simp, ?_⟩
@@ -334,19 +301,15 @@ private theorem L_coercive (ξ : ℂ) : ∃ v : ℂ, ‖v‖ ≤ 1 ∧ 2 * ‖ξ
         rw [sq, mul_div_assoc, div_self hn, mul_one]
       rw [h, Complex.ofReal_re, Real.norm_eq_abs, abs_of_nonneg (by positivity)]
 
--- pin: radC_one (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:280)
 private theorem radC_one (z : ℂ) : radC 1 z = Real.sqrt (1 + ‖z‖ ^ 2) := by
   simp [radC, botP, botQ, Complex.normSq_eq_norm_sq]
 
--- pin: kC_one_apply_one_one (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:283)
 private theorem kC_one_apply_one_one (z : ℂ) : kC 1 z 1 1 = z / (radC 1 z : ℂ) := by
   simp [kC, botQ]
 
--- pin: kC_one_apply_zero_zero (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:286)
 private theorem kC_one_apply_zero_zero (z : ℂ) : kC 1 z 0 0 = conj z / (radC 1 z : ℂ) := by
   simp [kC, botQ]
 
--- pin: weight_identity (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:289)
 private theorem weight_identity (a b : ℕ) (w z : ℂ) :
     ((radC 1 z : ℂ)) ^ (-(2 * w - ((a + b : ℕ) : ℂ))) * P a b z
       = z ^ a * conj z ^ b * (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ^ (-w) := by
@@ -369,7 +332,6 @@ private theorem weight_identity (a b : ℕ) (w z : ℂ) :
   rw [hsplit, div_pow, div_pow]
   field_simp
 
--- pin: fourier_integrand_eq (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:311)
 private theorem fourier_integrand_eq (a b : ℕ) (w ζ z : ℂ) :
     𝐞 (-(L z ζ)) • (((radC 1 z : ℂ)) ^ (-(2 * w - ((a + b : ℕ) : ℂ))) * P a b z) = G a b w ζ z := by
   rw [weight_identity, Circle.smul_def, Real.fourierChar_apply, smul_eq_mul, L_apply, G, mul_comm]
@@ -377,7 +339,6 @@ private theorem fourier_integrand_eq (a b : ℕ) (w ζ z : ℂ) :
   push_cast
   ring
 
--- pin: fourierIntegral_eq (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:318)
 private theorem fourierIntegral_eq (a b : ℕ) (w ζ : ℂ) :
     VectorFourier.fourierIntegral 𝐞 volume L.toLinearMap₁₂
         (fun z => ((radC 1 z : ℂ)) ^ (-(2 * w - ((a + b : ℕ) : ℂ))) * P a b z) ζ
@@ -388,7 +349,6 @@ private theorem fourierIntegral_eq (a b : ℕ) (w ζ : ℂ) :
   rw [ContinuousLinearMap.toLinearMap₁₂_apply]
   exact fourier_integrand_eq a b w ζ z
 
--- pin: decay (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:328)
 private theorem decay (a b : ℕ) (K : Set ℂ) (hK : IsCompact K) (hKsub : K ⊆ {w : ℂ | ((a + b : ℕ) : ℝ) / 2 + 1 < w.re})
     (N : ℕ) : ∃ C : ℝ, 0 < C ∧ ∀ w ∈ K, ∀ ζ : ℂ, ‖∫ z, G a b w ζ z‖ ≤ C * (1 + ‖ζ‖) ^ (-(N : ℝ)) := by
   obtain ⟨hPC, hPB⟩ := bddSmooth_P a b
@@ -426,7 +386,6 @@ open Set MeasureTheory
 open scoped ContDiff FourierTransform ComplexConjugate Topology
 
 open HARCHC in
--- pin: continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral (S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:362)
 theorem continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral (a b : ℕ) :
     let j : ℂ → ℂ → ℂ := fun w ζ => ∫ z : ℂ, z ^ a * (starRingEnd ℂ) z ^ b * (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ^ (-w)
           * Complex.exp (-(((4 * Real.pi * (ζ * z).re : ℝ) : ℂ) * Complex.I))

@@ -5,11 +5,14 @@
   `topics/automorphicForm/TOPIC-iwasawa-analytic-core.md`, each transcribed verbatim from its pin
   `Theorems/Thm_AutomorphicForm_RealIwasawa_<name>.lean` wrapper (the statement authority) and
   proved by a one-line application of the corresponding
-  `AutomorphicForm.RealIwasawa.Engine.<name>` kernel of the tier-3 engine
-  (`Real/{Core,Decay,Continuation}.lean`). The engines stay tier 3 and are recorded in
-  `spec/UNWIRED-PUBLIC.md`.
+  `AutomorphicForm.RealIwasawa.Engine.<name>` kernel of the engine
+  (`Real/{Core,Decay,Continuation}.lean`). The four engines are wired like this module.
 
   Pin: `anthropics/fermats-last-theorem` at `aa2d8b3`.
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kR_apply.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean
 -/
 import FLTForHuman.AutomorphicForm.Iwasawa.Real.Core
 import FLTForHuman.AutomorphicForm.Iwasawa.Real.Decay
@@ -25,7 +28,6 @@ open scoped ContDiff FourierTransform
 
 namespace AutomorphicForm.RealIwasawa
 
--- pin: contDiff_and_exists_bound_iteratedFDeriv_kR_apply (Theorems/Thm_AutomorphicForm_RealIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kR_apply.lean:8)
 theorem contDiff_and_exists_bound_iteratedFDeriv_kR_apply
     {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : g.det ≠ 0) :
     (∀ i j : Fin 2, ContDiff ℝ ∞
@@ -38,7 +40,6 @@ theorem contDiff_and_exists_bound_iteratedFDeriv_kR_apply
               g 0 0 + x * g 1 0, g 0 1 + x * g 1 1] : Matrix (Fin 2) (Fin 2) ℝ) i j) u‖ ≤ C :=
   Engine.contDiff_and_exists_bound_iteratedFDeriv_kR_apply hg
 
--- pin: norm_fourierIntegral_cpow_rad_mul_le_polyDecay (Theorems/Thm_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:9)
 theorem norm_fourierIntegral_cpow_rad_mul_le_polyDecay
     {g : Matrix (Fin 2) (Fin 2) ℝ} (hg : g.det ≠ 0) {u : ℂ} (hu : 1 < u.re)
     {P : ℝ → ℂ} (hPC : ContDiff ℝ ∞ P)
@@ -52,7 +53,6 @@ theorem norm_fourierIntegral_cpow_rad_mul_le_polyDecay
         ≤ C * (1 + ‖ξ‖) ^ (-(N : ℝ)) :=
   Engine.norm_fourierIntegral_cpow_rad_mul_le_polyDecay hg hu hPC hPB L hc hL N
 
--- pin: exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact (Theorems/Thm_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean:12)
 theorem exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact
     (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℝ)) (h𝒢 : IsCompact 𝒢) (hdet : ∀ g ∈ 𝒢, g.det ≠ 0)
     (U : Set ℂ) (hU : IsCompact U) (hU1 : ∀ u ∈ U, 1 < u.re)
@@ -68,7 +68,6 @@ theorem exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompac
   Engine.exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact
     𝒢 h𝒢 hdet U hU hU1 P hPC hPB L hc hL N
 
--- pin: continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral (Theorems/Thm_AutomorphicForm_RealIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean:11)
 theorem continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral (k : ℤ) :
     let j : ℂ → ℝ → ℂ := fun w t => ∫ x : ℝ, ((((x : ℝ) : ℂ) - Complex.I) / ((Real.sqrt (1 + x ^ 2) : ℝ) : ℂ)) ^ k
           * (((1 + x ^ 2 : ℝ) : ℂ)) ^ (-w)

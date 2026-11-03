@@ -485,6 +485,22 @@ Two side findings: FR-0115 recurred for 10 lines (two helpers whose port copies 
 delete the copies — was **reverted**, because that "home" is the pin's *transcription namespace*
 (`Elem17LR`, `OsAlg17`) and the import does not resolve the unqualified names; that is FR-0116.
 
+The eleventh **is scoped, not dispatched** (2026-11-02):
+[automorphicForm/SET-AF11.md](automorphicForm/SET-AF11.md), the **Whittaker coefficient's API and its
+archimedean differentiability** — the column's return to the recipe's cheapest cut after four
+composition sets. **9 rows / 1,595 silo / 1,211 net (`port_plan`), 1,267 lines in 49 declarations**: the
+transformation law under the unipotent (95 lines, **54 project consumers**), additivity over a locally
+constant coefficient, continuity, the diagonal reduction, shell surgery on the `diagOne` value, the two
+realization-scalar identities, and the two differentiability rows along the archimedean flow (real and
+complex). Only **146 of 1,413 declaration lines are in the port** — this is a *transcription* set in the
+AF7 sense, chosen on fan-in (17/54, 10/17, 3/14, 4/12), which is SET 3's cheap-leaf signal. Fourth set
+in a row with **no `Def_` node** (five modules, 0 missing); the home is the object's own module,
+`Adelic/WhittakerCoefficient.lean` (82 lines, legacy), whose migration is measured at **one `spec-pin:`
+line → 8 ok / 0 mismatch / 0 missing**, and which gains three imports (the two arch Casimir modules
+and `AdelicTraceFin`) for the analytic and trace rows. Named next: the **local Casimir ODE pair**
+(`gl2Complex_whittaker_system_…` 695 / 650 in 52 declarations, `gl2Real_whittaker_ode_…` 347 / 315 in 10
+— 1,042 silo / 965 net), the *local* side of the same object, solved with explicit special functions.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

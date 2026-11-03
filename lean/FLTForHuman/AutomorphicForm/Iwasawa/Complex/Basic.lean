@@ -24,6 +24,9 @@
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_AutomorphicForm_ComplexIwasawa.lean
 
   spec-pin: Definitions/Def_AutomorphicForm_ComplexIwasawa.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean
 -/
 -- The pin's `Mathlib.Data.Complex.Basic` / `Mathlib.Data.Real.Sqrt` are deprecated module paths
 -- in v4.34.0; the declarations are unchanged.

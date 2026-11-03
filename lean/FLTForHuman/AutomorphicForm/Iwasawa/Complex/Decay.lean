@@ -1,26 +1,30 @@
 /-
-  The complex-place Iwasawa engine -- decay (tier 3, unlisted).
+  The complex-place Iwasawa engine -- decay.
 
   The archimedean integrability and Fourier-decay half of the complex Iwasawa
   development of the pinned FLT repository `anthropics/fermats-last-theorem@aa2d8b3`.
   It rests on `Core.lean`'s `CplxIwasawa`/`CplxSmooth` blocks and writes once:
 
-  * `B2bCL2` -- away from `det g = 0`, `radC g z ^ 2` grows like `1 + ‖z‖ ^ 2`
+  * `Decay` -- away from `det g = 0`, `radC g z ^ 2` grows like `1 + ‖z‖ ^ 2`
     uniformly on compacta, so `radC g z ^ (-κ)` is integrable for `κ > 2`;
   * `CplxDecay` -- the symbol estimate for `radC ^ (-u)` and the integration by
     parts that gives faster-than-polynomial decay of the Fourier transform;
   * `Engine` -- the two decay kernels.
 
-  The pin's `B2bCL2` re-carries `botNormSqC`/`centerC` and the `radC` prelude that
+  The pin's `Decay` re-carries `botNormSqC`/`centerC` and the `radC` prelude that
   `CplxIwasawa` already has (byte-identical statements); they are dropped and the
-  `CplxIwasawa`/`KCUnif` copies imported, so the block is written once. Every
-  transcribed declaration carries a `-- pin:` provenance comment. The pin's
+  `CplxIwasawa`/`KCUnif` copies imported, so the block is written once. Every The pin's
   `M4aP3B.FourierDecay` block is homed at
   `FLTForHuman/MeasureTheory/FourierDecay.lean` (imported through `Core`).
 
   Pin: `anthropics/fermats-last-theorem` at `aa2d8b3`;
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_forall_bound_iteratedFDeriv_cpow_neg_radC_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean
 -/
 import Mathlib.Analysis.Calculus.ContDiff.Defs
 import Mathlib.Analysis.Fourier.FourierTransformDeriv
@@ -56,7 +60,7 @@ namespace AutomorphicForm.ComplexIwasawa
 open MeasureTheory CplxSmooth Real VectorFourier Complex
 open scoped ContDiff FourierTransform
 
-namespace B2bCL2
+namespace Decay
 
 open ComplexConjugate
 open CplxIwasawa KCUnif
@@ -64,7 +68,6 @@ open scoped Nat
 
 variable {g : Matrix (Fin 2) (Fin 2) ℂ}
 
--- pin: main (S_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean:134)
 theorem main (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℂ)) (h𝒢 : IsCompact 𝒢) (hdet : ∀ g ∈ 𝒢, g.det ≠ 0)
     (κ₀ κ₁ : ℝ) (hκ₀ : 2 < κ₀) :
     ∃ M : ℝ, 0 < M ∧ ∀ g ∈ 𝒢, ∀ κ : ℝ, κ₀ ≤ κ → κ ≤ κ₁ →
@@ -153,7 +156,7 @@ theorem main (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℂ)) (h𝒢 : IsCompact 𝒢) 
     _ = B * ∫ z : ℂ, h (z - centerC g) := integral_const_mul _ _
     _ = B * ∫ z : ℂ, h z := by rw [integral_sub_right_eq_self h (centerC g)]
     _ ≤ B * (∫ z, h z) + 1 := by linarith
-end B2bCL2
+end Decay
 
 namespace CplxDecay
 
@@ -162,29 +165,23 @@ open CplxIwasawa (botNormSqC botNormSqC_pos centerC radC_pos radC_sq_eq
 
 variable {g : Matrix (Fin 2) (Fin 2) ℂ}
 
--- pin: radC_pos' (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1585)
 private theorem radC_pos' (hg : g.det ≠ 0) (z : ℂ) : 0 < radC g z := radC_pos hg z
 
--- pin: radC_sq_eq' (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1587)
 private theorem radC_sq_eq' (hg : g.det ≠ 0) (z : ℂ) :
     radC g z ^ 2 = botNormSqC g * Complex.normSq (z - centerC g)
       + Complex.normSq g.det / botNormSqC g := radC_sq_eq hg z
 
--- pin: norm_det_div_sqrt_le_radC' (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1591)
 private theorem norm_det_div_sqrt_le_radC' (hg : g.det ≠ 0) (z : ℂ) :
     ‖g.det‖ / Real.sqrt (botNormSqC g) ≤ radC g z := norm_det_div_sqrt_le_radC hg z
 
--- pin: contDiff_radC' (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1594)
 private theorem contDiff_radC' (hg : g.det ≠ 0) : ContDiff ℝ ∞ (radC g) := contDiff_radC hg
 
--- pin: exists_decay_bound_iteratedFDeriv_radC' (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1596)
 private theorem exists_decay_bound_iteratedFDeriv_radC' (hg : g.det ≠ 0) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ,
       ‖iteratedFDeriv ℝ n (radC g) z‖
         ≤ C * (1 + ‖z - centerC g‖) / (1 + ‖z - centerC g‖) ^ n :=
   exists_decay_bound_iteratedFDeriv_radC hg n
 
--- pin: iteratedDerivWithin_ofReal_cpow (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1602)
 theorem iteratedDerivWithin_ofReal_cpow {c : ℝ} (hc : 0 < c) (u : ℂ) (k : ℕ) :
     Set.EqOn (iteratedDerivWithin k (fun y : ℝ => ((y : ℂ)) ^ u) (Set.Ioi c))
       (fun y => (∏ j ∈ Finset.range k, (u - (j : ℂ))) * ((y : ℂ)) ^ (u - (k : ℂ)))
@@ -206,7 +203,6 @@ theorem iteratedDerivWithin_ofReal_cpow {c : ℝ} (hc : 0 < c) (u : ℂ) (k : �
     rw [(HasDerivAt.const_mul _ hd).deriv, Finset.prod_range_succ, Nat.cast_succ]
     ring_nf
 
--- pin: norm_iteratedDerivWithin_ofReal_cpow_le (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1623)
 theorem norm_iteratedDerivWithin_ofReal_cpow_le {c : ℝ} (hc : 0 < c) (u : ℂ) (k : ℕ)
     {y : ℝ} (hy : y ∈ Set.Ioi c) :
     ‖iteratedDerivWithin k (fun t : ℝ => ((t : ℂ)) ^ (-u)) (Set.Ioi c) y‖
@@ -222,7 +218,6 @@ theorem norm_iteratedDerivWithin_ofReal_cpow_le {c : ℝ} (hc : 0 < c) (u : ℂ)
   calc ‖-u - (j : ℂ)‖ ≤ ‖-u‖ + ‖(j : ℂ)‖ := norm_sub_le _ _
     _ = ‖u‖ + (j : ℝ) := by rw [norm_neg, Complex.norm_natCast]
 
--- pin: contDiffOn_ofReal_cpow_neg (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1638)
 theorem contDiffOn_ofReal_cpow_neg {c : ℝ} (hc : 0 < c) (u : ℂ) :
     ContDiffOn ℝ ∞ (fun y : ℝ => ((y : ℂ)) ^ (-u)) (Set.Ioi c) := by
   intro y hy
@@ -233,7 +228,6 @@ theorem contDiffOn_ofReal_cpow_neg {c : ℝ} (hc : 0 < c) (u : ℂ) :
   exact ((hana.contDiffAt.restrict_scalars ℝ).comp y
     Complex.ofRealCLM.contDiff.contDiffAt).contDiffWithinAt
 
--- pin: exists_bound_iteratedFDeriv_cpow_neg_radC (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1648)
 theorem exists_bound_iteratedFDeriv_cpow_neg_radC (hg : g.det ≠ 0) (u : ℂ) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ,
       ‖iteratedFDeriv ℝ n (fun w => ((radC g w : ℂ)) ^ (-u)) z‖ ≤ C * radC g z ^ (-u.re) := by
@@ -338,7 +332,6 @@ theorem exists_bound_iteratedFDeriv_cpow_neg_radC (hg : g.det ≠ 0) (u : ℂ) (
   refine hcomp.trans (le_of_eq ?_)
   ring
 
--- pin: integrable_rpow_neg_radC (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1752)
 theorem integrable_rpow_neg_radC (hg : g.det ≠ 0) {κ : ℝ} (hκ : 2 < κ) :
     Integrable (fun z => radC g z ^ (-κ)) (volume : Measure ℂ) := by
   have hA : (0:ℝ) < botNormSqC g := botNormSqC_pos hg
@@ -375,7 +368,6 @@ theorem integrable_rpow_neg_radC (hg : g.det ≠ 0) {κ : ℝ} (hκ : 2 < κ) :
     (Filter.Eventually.of_forall fun z => by
       rw [Real.norm_of_nonneg (Real.rpow_nonneg (radC_pos' hg z).le _)]; exact hcmp z)
 
--- pin: contDiff_cpow_neg_radC (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1788)
 theorem contDiff_cpow_neg_radC (hg : g.det ≠ 0) (u : ℂ) :
     ContDiff ℝ ∞ (fun w => ((radC g w : ℂ)) ^ (-u)) := by
   have hm : (0:ℝ) < ‖g.det‖ / Real.sqrt (botNormSqC g) :=
@@ -388,7 +380,6 @@ theorem contDiff_cpow_neg_radC (hg : g.det ≠ 0) (u : ℂ) :
   rw [hfun]
   exact (contDiffOn_ofReal_cpow_neg (by linarith) u).comp_contDiff (contDiff_radC' hg) hrange
 
--- pin: exists_bound_iteratedFDeriv_cpow_neg_radC_mul (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1800)
 theorem exists_bound_iteratedFDeriv_cpow_neg_radC_mul (hg : g.det ≠ 0) (u : ℂ)
     {P : ℂ → ℂ} (hPC : ContDiff ℝ ∞ P)
     (hPB : ∀ n : ℕ, ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ, ‖iteratedFDeriv ℝ n P z‖ ≤ C) :
@@ -420,7 +411,6 @@ theorem exists_bound_iteratedFDeriv_cpow_neg_radC_mul (hg : g.det ≠ 0) (u : �
         · exact (hCh (n - i)).2 z
     _ = (n.choose i : ℝ) * Cf i * Ch (n - i) * radC g z ^ (-u.re) := by ring
 
--- pin: norm_fourierIntegral_cpow_radC_mul_le_polyDecay (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1831)
 theorem norm_fourierIntegral_cpow_radC_mul_le_polyDecay
     (hg : g.det ≠ 0) {u : ℂ} (hu : 2 < u.re)
     {P : ℂ → ℂ} (hPC : ContDiff ℝ ∞ P)
@@ -524,15 +514,13 @@ namespace Engine
 open MeasureTheory CplxSmooth Real VectorFourier Complex
 open scoped FourierTransform
 
--- pin: exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact (S_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean:229)
 theorem exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact
     (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℂ)) (_h𝒢 : IsCompact 𝒢) (_hdet : ∀ g ∈ 𝒢, g.det ≠ 0)
     (κ₀ κ₁ : ℝ) (_hκ₀ : 2 < κ₀) :
     ∃ M : ℝ, 0 < M ∧ ∀ g ∈ 𝒢, ∀ κ : ℝ, κ₀ ≤ κ → κ ≤ κ₁ →
       Integrable (fun z : ℂ => radC g z ^ (-κ)) ∧ ∫ z : ℂ, radC g z ^ (-κ) ≤ M :=
-  B2bCL2.main 𝒢 _h𝒢 _hdet κ₀ κ₁ _hκ₀
+  Decay.main 𝒢 _h𝒢 _hdet κ₀ κ₁ _hκ₀
 
--- pin: norm_fourierIntegral_cpow_radC_mul_le_polyDecay (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1939)
 theorem norm_fourierIntegral_cpow_radC_mul_le_polyDecay
     {g : Matrix (Fin 2) (Fin 2) ℂ} (hg : g.det ≠ 0) {u : ℂ} (hu : 2 < u.re)
     {P : ℂ → ℂ} (hPC : ContDiff ℝ ∞ P)

@@ -644,7 +644,20 @@ With a pinned source, correctness is checkable rather than trusted. Four instrum
    stripped with all six wires → `135 ok / 0 mismatch / 0 missing` over the same declaration
    set. So the gate is `0 mismatch / 0 missing`, never a particular `ok` count, and the cure
    for a `missing` is a `spec-pin:` line (or, for a rename the wire cannot express, a `pin:`
-   row in this table), never a marker. The table is checker metadata: editing it never changes a Lean build, and
+   row in this table), never a marker.
+
+   **The pin's pipeline labels sit on *namespaces* too, and are stripped there as well
+   (2026-11-02).** `CasCore17`, `CommAway17`, `Elem17LR`, `CasLR17`, `OsAlg17`, `OsInf17`,
+   `InvZero22`, `CommAway40`, `CommConv17`, `CasLeft2`, and the file wrappers `Ws23`/`M0a`/`Ws26`/
+   `Ws50KDER0` are the generation pipeline's task/stage ids on sub-namespace names — the same family as
+   the `_s17` suffix the checker's stage-label tier already drops, and the pin's README says so
+   ("labels such as `P2M` or hexadecimal suffixes are pipeline labels rather than mathematics"). The
+   port keeps the abbreviation and drops the id (`CasCore17` → `CasCore`, `CommAway40` → `CommAwayC`
+   for the complex twin); the wrappers go. **This is free for the checker**: the last-name and
+   content-hash tiers never look at a namespace segment, so `check_port` reports the same counts
+   before and after (measured on three wired modules: 135 / 106 / 5 ok, unchanged), and no wire moves.
+   Stripping is a three-file edit in this column (`ArchCasimir`, `ArchCasimirComplex`,
+   `ArchDerivRightConv`) plus the two hubs' rebuilds. The table is checker metadata: editing it never changes a Lean build, and
    an entry that no longer names a declaration is reported (`--strict-markers` makes it fail).
 
    The **frozen** `spec/old_check_stmts.py` is being retired; it still owns the modules its

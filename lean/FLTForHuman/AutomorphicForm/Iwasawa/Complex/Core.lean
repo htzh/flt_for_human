@@ -1,5 +1,5 @@
 /-
-  The complex-place Iwasawa engine -- core (tier 3, unlisted).
+  The complex-place Iwasawa engine -- core.
 
   At an archimedean place the Iwasawa decomposition writes a translate of an
   invertible `2x2` complex matrix as a triangular (Borel) factor times a compact
@@ -21,8 +21,7 @@
   The pin's proof-local copies of `botP`/`botQ`/`radC`/`kC` are byte-identical
   to `FLTForHuman/AutomorphicForm/Iwasawa/Complex/Basic.lean` and are dropped
   in its favour (playbook section 2.4); the pin's `B2bCL2` prelude is dropped in
-  favour of the `CplxIwasawa` copy it duplicates. Every transcribed declaration
-  carries a `-- pin:` provenance comment. The pin's own `M4aP3B.FourierDecay`
+  favour of the `CplxIwasawa` copy it duplicates. Every transcribed declaration The pin's own `M4aP3B.FourierDecay`
   block is homed at `FLTForHuman/MeasureTheory/FourierDecay.lean` and imported.
 
   Pin: `anthropics/fermats-last-theorem` at `aa2d8b3`;
@@ -30,6 +29,14 @@
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_AutomorphicForm_ComplexIwasawa_weyl_mul_unipotent_mul_eq_borel_mul_kC.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_forall_bound_iteratedFDeriv_cpow_neg_radC_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_ComplexIwasawa_weyl_mul_unipotent_mul_eq_borel_mul_kC.lean
 -/
 import Mathlib.Analysis.Calculus.ContDiff.Defs
 import Mathlib.Analysis.Calculus.ContDiff.Bounds
@@ -70,19 +77,15 @@ namespace CplxIwasawa
 
 variable (g : Matrix (Fin 2) (Fin 2) ℂ)
 
--- pin: weylUnipC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:21)
 def weylUnipC (z : ℂ) : Matrix (Fin 2) (Fin 2) ℂ := !![0, 1; 1, 0] * !![1, z; 0, 1] * g
 
 
--- pin: botNormSqC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:27)
 def botNormSqC : ℝ := Complex.normSq (g 1 0) + Complex.normSq (g 1 1)
 
--- pin: centerC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:29)
 def centerC : ℂ := -(conj (g 1 0) * g 0 0 + conj (g 1 1) * g 0 1) / (botNormSqC g : ℂ)
 
 
 
--- pin: borelC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:37)
 def borelC (z : ℂ) : Matrix (Fin 2) (Fin 2) ℂ :=
   !![-g.det / (radC g z : ℂ),
      (g 1 0 * conj (botP g z) + g 1 1 * conj (botQ g z)) / (radC g z : ℂ);
@@ -90,18 +93,15 @@ def borelC (z : ℂ) : Matrix (Fin 2) (Fin 2) ℂ :=
 
 variable {g}
 
--- pin: radC_sq (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:44)
 theorem radC_sq (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     radC g z ^ 2 = Complex.normSq (botP g z) + Complex.normSq (botQ g z) := by
   rw [radC, Real.sq_sqrt (add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))]
 
--- pin: weylUnipC_eq (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:48)
 theorem weylUnipC_eq (z : ℂ) :
     weylUnipC g z = !![g 1 0, g 1 1; g 0 0 + z * g 1 0, g 0 1 + z * g 1 1] := by
   ext i j
   fin_cases i <;> fin_cases j <;> simp [weylUnipC, Matrix.mul_apply, Fin.sum_univ_two]
 
--- pin: botNormSqC_pos (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:53)
 theorem botNormSqC_pos (hg : g.det ≠ 0) : 0 < botNormSqC g := by
   rw [botNormSqC]
   rcases (add_nonneg (Complex.normSq_nonneg (g 1 0)) (Complex.normSq_nonneg (g 1 1))).lt_or_eq
@@ -116,7 +116,6 @@ theorem botNormSqC_pos (hg : g.det ≠ 0) : 0 < botNormSqC g := by
     rw [Matrix.det_fin_two, Complex.normSq_eq_zero.1 hc, Complex.normSq_eq_zero.1 hd,
       mul_zero, mul_zero, sub_zero]
 
--- pin: radC_sq_eq (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:67)
 theorem radC_sq_eq (hg : g.det ≠ 0) (z : ℂ) :
     radC g z ^ 2 = botNormSqC g * Complex.normSq (z - centerC g)
       + Complex.normSq g.det / botNormSqC g := by
@@ -134,7 +133,6 @@ theorem radC_sq_eq (hg : g.det ≠ 0) (z : ℂ) :
     Complex.ofReal_im, Complex.conj_re, Complex.conj_im]
   ring
 
--- pin: radC_pos (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:84)
 theorem radC_pos (hg : g.det ≠ 0) (z : ℂ) : 0 < radC g z := by
   rw [radC]
   apply Real.sqrt_pos.2
@@ -157,7 +155,6 @@ theorem radC_pos (hg : g.det ≠ 0) (z : ℂ) : 0 < radC g z := by
     rw [ha, hb]
     ring
 
--- pin: norm_det_div_sqrt_le_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:106)
 theorem norm_det_div_sqrt_le_radC (hg : g.det ≠ 0) (z : ℂ) :
     ‖g.det‖ / Real.sqrt (botNormSqC g) ≤ radC g z := by
   have hA := botNormSqC_pos hg
@@ -172,7 +169,6 @@ theorem norm_det_div_sqrt_le_radC (hg : g.det ≠ 0) (z : ℂ) :
     _ ≤ Real.sqrt (radC g z ^ 2) := Real.sqrt_le_sqrt hsq
     _ = radC g z := Real.sqrt_sq (radC_pos hg z).le
 
--- pin: kC_mul_conjTranspose (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:120)
 theorem kC_mul_conjTranspose (hg : g.det ≠ 0) (z : ℂ) :
     kC g z * (kC g z).conjTranspose = 1 := by
   have hr : (radC g z : ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 (radC_pos hg z).ne'
@@ -192,7 +188,6 @@ theorem kC_mul_conjTranspose (hg : g.det ≠ 0) (z : ℂ) :
     | linear_combination key
     | ring
 
--- pin: conjTranspose_mul_kC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:139)
 theorem conjTranspose_mul_kC (hg : g.det ≠ 0) (z : ℂ) :
     (kC g z).conjTranspose * kC g z = 1 := by
   have hr : (radC g z : ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 (radC_pos hg z).ne'
@@ -212,7 +207,6 @@ theorem conjTranspose_mul_kC (hg : g.det ≠ 0) (z : ℂ) :
     | linear_combination key
     | ring
 
--- pin: det_kC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:158)
 theorem det_kC (hg : g.det ≠ 0) (z : ℂ) : (kC g z).det = 1 := by
   have hr : (radC g z : ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 (radC_pos hg z).ne'
   have e : (kC g z).det = (botQ g z * (starRingEnd ℂ) (botQ g z)
@@ -228,12 +222,10 @@ theorem det_kC (hg : g.det ≠ 0) (z : ℂ) : (kC g z).det = 1 := by
   rw [e, Complex.mul_conj, Complex.mul_conj, ← Complex.ofReal_add, num,
     div_self (mul_ne_zero hr hr)]
 
--- pin: det_borelC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:173)
 theorem det_borelC (hg : g.det ≠ 0) (z : ℂ) : (borelC g z).det = -g.det := by
   have hr : (radC g z : ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 (radC_pos hg z).ne'
   rw [borelC, Matrix.det_fin_two_of, mul_zero, sub_zero, div_mul_cancel₀ _ hr]
 
--- pin: weylUnipC_eq_borelC_mul_kC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:177)
 theorem weylUnipC_eq_borelC_mul_kC (hg : g.det ≠ 0) (z : ℂ) :
     weylUnipC g z = borelC g z * kC g z := by
   have hr : (radC g z : ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 (radC_pos hg z).ne'
@@ -252,7 +244,6 @@ theorem weylUnipC_eq_borelC_mul_kC (hg : g.det ≠ 0) (z : ℂ) :
     (rw [pow_two ((radC g z : ℂ)), ← key]
      ring)
 
--- pin: norm_row_sq_kC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:197)
 theorem norm_row_sq_kC (hg : g.det ≠ 0) (z : ℂ) (x y : ℂ) :
     ‖x * kC g z 0 0 + y * kC g z 1 0‖ ^ 2 + ‖x * kC g z 0 1 + y * kC g z 1 1‖ ^ 2
       = ‖x‖ ^ 2 + ‖y‖ ^ 2 := by
@@ -278,7 +269,6 @@ theorem norm_row_sq_kC (hg : g.det ≠ 0) (z : ℂ) (x y : ℂ) :
     Complex.neg_re, Complex.neg_im, Complex.conj_re, Complex.conj_im]
   ring
 
--- pin: contDiff_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:222)
 theorem contDiff_radC (hg : g.det ≠ 0) : ContDiff ℝ ∞ (radC g) := by
   have hnormSq : ContDiff ℝ ∞ Complex.normSq := by
     have h : (Complex.normSq : ℂ → ℝ) = fun z => z.re * z.re + z.im * z.im := by
@@ -304,7 +294,6 @@ theorem contDiff_radC (hg : g.det ≠ 0) : ContDiff ℝ ∞ (radC g) := by
   simp [radC, Function.comp_def] at h
   exact h
 
--- pin: contDiff_kC_apply (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:247)
 theorem contDiff_kC_apply (hg : g.det ≠ 0) (i j : Fin 2) :
     ContDiff ℝ ∞ (fun z => kC g z i j) := by
   have hradInv : ContDiff ℝ ∞ (fun z => (radC g z)⁻¹) :=
@@ -334,7 +323,6 @@ theorem contDiff_kC_apply (hg : g.det ≠ 0) (i j : Fin 2) :
   · exact hP.mul hradInvC
   · exact hQ.mul hradInvC
 
--- pin: contDiff_borelC_apply (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:276)
 theorem contDiff_borelC_apply (hg : g.det ≠ 0) (i j : Fin 2) :
     ContDiff ℝ ∞ (fun z => borelC g z i j) := by
   have hradC : ContDiff ℝ ∞ (fun z => ((radC g z : ℝ) : ℂ)) :=
@@ -366,36 +354,29 @@ theorem contDiff_borelC_apply (hg : g.det ≠ 0) (i j : Fin 2) :
   · exact contDiff_const
   · exact hradC
 
--- pin: kCGL (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:307)
 def kCGL (hg : g.det ≠ 0) (z : ℂ) : GL (Fin 2) ℂ :=
   ⟨kC g z, (kC g z).conjTranspose, kC_mul_conjTranspose hg z, conjTranspose_mul_kC hg z⟩
 
--- pin: coe_kCGL (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:310)
 @[scoped simp] theorem coe_kCGL (hg : g.det ≠ 0) (z : ℂ) :
     ((kCGL hg z : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) = kC g z := rfl
 
--- pin: borelCGL (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:313)
 def borelCGL (hg : g.det ≠ 0) (z : ℂ) : GL (Fin 2) ℂ :=
   Matrix.GeneralLinearGroup.mkOfDetNeZero (borelC g z)
     (by rw [det_borelC hg z]; exact neg_ne_zero.2 hg)
 
--- pin: coe_borelCGL (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:317)
 @[scoped simp] theorem coe_borelCGL (hg : g.det ≠ 0) (z : ℂ) :
     ((borelCGL hg z : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) = borelC g z := rfl
 
--- pin: weylC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:320)
 def weylC : GL (Fin 2) ℂ :=
   ⟨!![0, 1; 1, 0], !![0, 1; 1, 0],
     by simp [Matrix.one_fin_two],
     by simp [Matrix.one_fin_two]⟩
 
--- pin: unipC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:325)
 def unipC (z : ℂ) : GL (Fin 2) ℂ :=
   ⟨!![1, z; 0, 1], !![1, -z; 0, 1],
     by simp [Matrix.one_fin_two],
     by simp [Matrix.one_fin_two]⟩
 
--- pin: weylC_mul_unipC_mul_eq (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:330)
 theorem weylC_mul_unipC_mul_eq (g : GL (Fin 2) ℂ) (z : ℂ) :
     weylC * unipC z * g
       = borelCGL (g := (g : Matrix (Fin 2) (Fin 2) ℂ))
@@ -405,37 +386,31 @@ theorem weylC_mul_unipC_mul_eq (g : GL (Fin 2) ℂ) (z : ℂ) :
   simp only [Units.val_mul, coe_borelCGL, coe_kCGL]
   exact weylUnipC_eq_borelC_mul_kC (Matrix.GeneralLinearGroup.det_ne_zero g) z
 
--- pin: ctrl_weylUnipC_w (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:339)
 theorem ctrl_weylUnipC_w : weylUnipC !![(0 : ℂ), 1; 1, 0] 0 = 1 := by
   rw [weylUnipC, Matrix.one_fin_two]
   ext i j
   fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
 
--- pin: ctrl_radC_w (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:344)
 theorem ctrl_radC_w : radC !![(0 : ℂ), 1; 1, 0] 0 = 1 := by
   rw [radC, show (1 : ℝ) = Real.sqrt 1 from Real.sqrt_one.symm]
   congr 1
   norm_num [botP, botQ, Complex.normSq_apply]
 
--- pin: ctrl_kC_w (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:349)
 theorem ctrl_kC_w : kC !![(0 : ℂ), 1; 1, 0] 0 = 1 := by
   rw [kC, Matrix.one_fin_two, ctrl_radC_w, botP, botQ]
   ext i j
   fin_cases i <;> fin_cases j <;> simp
 
--- pin: ctrl_borelC_w (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:354)
 theorem ctrl_borelC_w : borelC !![(0 : ℂ), 1; 1, 0] 0 = 1 := by
   rw [borelC, Matrix.one_fin_two, ctrl_radC_w, botP, botQ]
   ext i j
   fin_cases i <;> fin_cases j <;> simp [Matrix.det_fin_two_of]
 
--- pin: ctrl_radC_c1 (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:359)
 theorem ctrl_radC_c1 : radC !![Complex.I, 0; 0, 1] 0 = 1 := by
   rw [radC, show (1 : ℝ) = Real.sqrt 1 from Real.sqrt_one.symm]
   congr 1
   norm_num [botP, botQ, Complex.normSq_apply]
 
--- pin: ctrl_decomp_c1 (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:364)
 theorem ctrl_decomp_c1 :
     weylUnipC !![Complex.I, 0; 0, 1] 0
       = borelC !![Complex.I, 0; 0, 1] 0 * kC !![Complex.I, 0; 0, 1] 0 := by
@@ -444,14 +419,12 @@ theorem ctrl_decomp_c1 :
   fin_cases i <;> fin_cases j <;>
     simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.det_fin_two_of]
 
--- pin: ctrl_radC_c2 (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:372)
 theorem ctrl_radC_c2 : radC !![(1 : ℂ), 0; 0, 2] (1 + Complex.I) = 3 := by
   rw [radC, show (3 : ℝ) = Real.sqrt 9 by
     rw [show (9 : ℝ) = 3 ^ 2 by norm_num, Real.sqrt_sq (by norm_num : (0 : ℝ) ≤ 3)]]
   congr 1
   norm_num [botP, botQ, Complex.normSq_apply]
 
--- pin: ctrl_decomp_c2 (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:378)
 theorem ctrl_decomp_c2 :
     weylUnipC !![(1 : ℂ), 0; 0, 2] (1 + Complex.I)
       = borelC !![(1 : ℂ), 0; 0, 2] (1 + Complex.I) * kC !![(1 : ℂ), 0; 0, 2] (1 + Complex.I) := by
@@ -461,14 +434,12 @@ theorem ctrl_decomp_c2 :
     simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.det_fin_two_of, Complex.ext_iff] <;>
     norm_num
 
--- pin: ctrl_radC_c3 (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:387)
 theorem ctrl_radC_c3 : radC !![(0 : ℂ), 1; 2, 0] (1 + Complex.I) = 3 := by
   rw [radC, show (3 : ℝ) = Real.sqrt 9 by
     rw [show (9 : ℝ) = 3 ^ 2 by norm_num, Real.sqrt_sq (by norm_num : (0 : ℝ) ≤ 3)]]
   congr 1
   norm_num [botP, botQ, Complex.normSq_apply]
 
--- pin: ctrl_decomp_c3 (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:393)
 theorem ctrl_decomp_c3 :
     weylUnipC !![(0 : ℂ), 1; 2, 0] (1 + Complex.I)
       = borelC !![(0 : ℂ), 1; 2, 0] (1 + Complex.I) * kC !![(0 : ℂ), 1; 2, 0] (1 + Complex.I) := by
@@ -478,7 +449,6 @@ theorem ctrl_decomp_c3 :
     simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.det_fin_two_of, Complex.ext_iff] <;>
     norm_num
 
--- pin: ctrl_kC_unitary_c2 (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:402)
 theorem ctrl_kC_unitary_c2 :
     kC !![(1 : ℂ), 0; 0, 2] (1 + Complex.I)
       * (kC !![(1 : ℂ), 0; 0, 2] (1 + Complex.I)).conjTranspose = 1 := by
@@ -499,13 +469,11 @@ open CplxIwasawa
 
 variable {g : Matrix (Fin 2) (Fin 2) ℂ}
 
--- pin: ctrl_radC_one_zero (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:430)
 theorem ctrl_radC_one_zero : radC (1 : Matrix (Fin 2) (Fin 2) ℂ) 0 = 1 := by
   rw [radC, show (1 : ℝ) = Real.sqrt 1 from Real.sqrt_one.symm]
   congr 1
   norm_num [botP, botQ, Complex.normSq_apply, Matrix.one_apply]
 
--- pin: ctrl_kC_one_zero (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:435)
 theorem ctrl_kC_one_zero :
     kC (1 : Matrix (Fin 2) (Fin 2) ℂ) 0 = !![0, -1; 1, 0] := by
   rw [kC, ctrl_radC_one_zero]
@@ -513,7 +481,6 @@ theorem ctrl_kC_one_zero :
   fin_cases i <;> fin_cases j <;>
     simp [botP, botQ, Matrix.one_apply]
 
--- pin: ctrl_fderiv_botQ_one (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:442)
 theorem ctrl_fderiv_botQ_one (z : ℂ) :
     fderiv ℝ (botQ (1 : Matrix (Fin 2) (Fin 2) ℂ)) z = ContinuousLinearMap.id ℝ ℂ := by
   have h : botQ (1 : Matrix (Fin 2) (Fin 2) ℂ) = id := by
@@ -521,7 +488,6 @@ theorem ctrl_fderiv_botQ_one (z : ℂ) :
     simp [botQ, Matrix.one_apply]
   rw [h, fderiv_id]
 
--- pin: iteratedDerivWithin_rpow_const (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:449)
 theorem iteratedDerivWithin_rpow_const {c : ℝ} (hc : 0 < c) (r : ℝ) (k : ℕ) :
     Set.EqOn (iteratedDerivWithin k (fun v : ℝ => v ^ r) (Set.Ioi c))
       (fun v => (∏ i ∈ Finset.range k, (r - i)) * v ^ (r - k)) (Set.Ioi c) := by
@@ -547,7 +513,6 @@ theorem iteratedDerivWithin_rpow_const {c : ℝ} (hc : 0 < c) (r : ℝ) (k : ℕ
     push_cast
     ring_nf
 
--- pin: norm_iteratedDerivWithin_rpow_neg_half_le (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:474)
 theorem norm_iteratedDerivWithin_rpow_neg_half_le {c : ℝ} (hc : 0 < c) (k : ℕ) {v : ℝ}
     (hv : v ∈ Set.Ioi c) :
     ‖iteratedDerivWithin k (fun v : ℝ => v ^ (-(1 : ℝ) / 2)) (Set.Ioi c) v‖
@@ -576,15 +541,12 @@ theorem norm_iteratedDerivWithin_rpow_neg_half_le {c : ℝ} (hc : 0 < c) (k : �
       ≤ (k ! : ℝ) * c ^ (-(1 : ℝ) / 2 - k) :=
         mul_le_mul h1 h2 (abs_nonneg _) (by positivity)
 
--- pin: uQuad (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:502)
 def uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) : ℂ → ℝ := fun w =>
   botNormSqC g * Complex.normSq (w - centerC g) + Complex.normSq g.det / botNormSqC g
 
--- pin: uQuad_eq_radC_sq (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:505)
 theorem uQuad_eq_radC_sq (hg : g.det ≠ 0) (w : ℂ) : uQuad g w = radC g w ^ 2 :=
   (radC_sq_eq hg w).symm
 
--- pin: uQuad_ge (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:508)
 theorem uQuad_ge (hg : g.det ≠ 0) (w : ℂ) :
     Complex.normSq g.det / botNormSqC g ≤ uQuad g w := by
   have h : 0 ≤ botNormSqC g * Complex.normSq (w - centerC g) :=
@@ -592,7 +554,6 @@ theorem uQuad_ge (hg : g.det ≠ 0) (w : ℂ) :
   unfold uQuad
   linarith
 
--- pin: uQuad_eq_coords (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:515)
 theorem uQuad_eq_coords (w : ℂ) :
     uQuad g w = botNormSqC g * ((w.re - (centerC g).re) ^ 2 + (w.im - (centerC g).im) ^ 2)
       + Complex.normSq g.det / botNormSqC g := by
@@ -600,7 +561,6 @@ theorem uQuad_eq_coords (w : ℂ) :
   rw [Complex.normSq_apply, Complex.sub_re, Complex.sub_im]
   ring
 
--- pin: hasFDerivAt_uQuad (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:522)
 theorem hasFDerivAt_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) (w : ℂ) :
     HasFDerivAt (uQuad g)
       ((2 * botNormSqC g * (w - centerC g).re) • Complex.reCLM
@@ -632,18 +592,15 @@ theorem hasFDerivAt_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) (w : ℂ) :
     Complex.sub_re, Complex.sub_im]
   ring
 
--- pin: lamQuad (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:553)
 def lamQuad (g : Matrix (Fin 2) (Fin 2) ℂ) : ℂ →L[ℝ] ℂ →L[ℝ] ℝ :=
   Complex.reCLM.smulRight ((2 * botNormSqC g) • (Complex.reCLM : ℂ →L[ℝ] ℝ))
     + Complex.imCLM.smulRight ((2 * botNormSqC g) • (Complex.imCLM : ℂ →L[ℝ] ℝ))
 
--- pin: lamQuad_apply_apply (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:557)
 @[scoped simp] theorem lamQuad_apply_apply (g : Matrix (Fin 2) (Fin 2) ℂ) (v w : ℂ) :
     lamQuad g v w = 2 * botNormSqC g * v.re * w.re + 2 * botNormSqC g * v.im * w.im := by
   simp [lamQuad, ContinuousLinearMap.smulRight_apply]
   ring
 
--- pin: norm_lamQuad_apply_le (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:562)
 theorem norm_lamQuad_apply_le (g : Matrix (Fin 2) (Fin 2) ℂ) (v : ℂ) :
     ‖lamQuad g v‖ ≤ 4 * botNormSqC g * ‖v‖ := by
   have hA : 0 ≤ botNormSqC g := by
@@ -666,7 +623,6 @@ theorem norm_lamQuad_apply_le (g : Matrix (Fin 2) (Fin 2) ℂ) (v : ℂ) :
     nlinarith [mul_le_mul_of_nonneg_left hre'.2 hA, mul_le_mul_of_nonneg_left hre'.1 hA,
       mul_le_mul_of_nonneg_left him'.2 hA, mul_le_mul_of_nonneg_left him'.1 hA]
 
--- pin: norm_lamQuad_le (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:584)
 theorem norm_lamQuad_le (g : Matrix (Fin 2) (Fin 2) ℂ) : ‖lamQuad g‖ ≤ 4 * botNormSqC g := by
   have hA : 0 ≤ botNormSqC g := by
     unfold botNormSqC
@@ -674,7 +630,6 @@ theorem norm_lamQuad_le (g : Matrix (Fin 2) (Fin 2) ℂ) : ‖lamQuad g‖ ≤ 4
   exact ContinuousLinearMap.opNorm_le_bound _ (mul_nonneg (by norm_num) hA)
     fun v => norm_lamQuad_apply_le g v
 
--- pin: fderiv_uQuad (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:591)
 theorem fderiv_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     fderiv ℝ (uQuad g) z = lamQuad g (z - centerC g) := by
   rw [(hasFDerivAt_uQuad g z).fderiv]
@@ -683,7 +638,6 @@ theorem fderiv_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     Complex.sub_re, Complex.sub_im]
   ring
 
--- pin: hasFDerivAt_fderiv_uQuad (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:599)
 theorem hasFDerivAt_fderiv_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     HasFDerivAt (fderiv ℝ (uQuad g)) (lamQuad g) z := by
   have heq : fderiv ℝ (uQuad g) = fun w => lamQuad g (w - centerC g) :=
@@ -692,7 +646,6 @@ theorem hasFDerivAt_fderiv_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
   have hcomp := (lamQuad g).hasFDerivAt.comp z ((hasFDerivAt_id z).sub_const (centerC g))
   exact hcomp
 
--- pin: norm_iteratedFDeriv_uQuad_one (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:607)
 theorem norm_iteratedFDeriv_uQuad_one (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     ‖iteratedFDeriv ℝ 1 (uQuad g) z‖ ≤ 4 * botNormSqC g * ‖z - centerC g‖ := by
   have h1 : ‖iteratedFDeriv ℝ 1 (uQuad g) z‖
@@ -701,7 +654,6 @@ theorem norm_iteratedFDeriv_uQuad_one (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ)
   rw [h1, norm_iteratedFDeriv_zero, fderiv_uQuad]
   exact norm_lamQuad_apply_le g _
 
--- pin: norm_iteratedFDeriv_uQuad_two (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:615)
 theorem norm_iteratedFDeriv_uQuad_two (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     ‖iteratedFDeriv ℝ 2 (uQuad g) z‖ ≤ 4 * botNormSqC g := by
   have h2 : ‖iteratedFDeriv ℝ 2 (uQuad g) z‖
@@ -715,7 +667,6 @@ theorem norm_iteratedFDeriv_uQuad_two (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ)
   rw [h2, h1, norm_iteratedFDeriv_zero, hfd]
   exact norm_lamQuad_le g
 
--- pin: norm_iteratedFDeriv_uQuad_ge_three (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:628)
 theorem norm_iteratedFDeriv_uQuad_ge_three (g : Matrix (Fin 2) (Fin 2) ℂ) {i : ℕ}
     (hi : 3 ≤ i) (z : ℂ) : ‖iteratedFDeriv ℝ i (uQuad g) z‖ = 0 := by
   obtain ⟨k, rfl⟩ : ∃ k, i = k + 3 := ⟨i - 3, by omega⟩
@@ -730,7 +681,6 @@ theorem norm_iteratedFDeriv_uQuad_ge_three (g : Matrix (Fin 2) (Fin 2) ℂ) {i :
   rw [h3, h4, hfd2, iteratedFDeriv_const_of_ne (by omega : k + 1 ≠ 0)]
   simp
 
--- pin: contDiff_uQuad (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:642)
 theorem contDiff_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) : ContDiff ℝ ∞ (uQuad g) := by
   have h : uQuad g = fun w =>
       botNormSqC g * ((w.re - (centerC g).re) ^ 2 + (w.im - (centerC g).im) ^ 2)
@@ -740,17 +690,14 @@ theorem contDiff_uQuad (g : Matrix (Fin 2) (Fin 2) ℂ) : ContDiff ℝ ∞ (uQua
   exact (contDiff_const.mul (((Complex.reCLM.contDiff.sub contDiff_const).pow 2).add
     ((Complex.imCLM.contDiff.sub contDiff_const).pow 2))).add contDiff_const
 
--- pin: contDiff_inv_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:651)
 theorem contDiff_inv_radC (hg : g.det ≠ 0) : ContDiff ℝ ∞ fun w => (radC g w)⁻¹ :=
   (contDiff_radC hg).inv fun z => (radC_pos hg z).ne'
 
--- pin: rpow_neg_half_eq_inv_sqrt (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:654)
 theorem rpow_neg_half_eq_inv_sqrt {x : ℝ} (hx : 0 ≤ x) :
     x ^ (-(1:ℝ)/2) = (Real.sqrt x)⁻¹ := by
   rw [Real.sqrt_eq_rpow, ← Real.rpow_neg hx]
   norm_num
 
--- pin: uQuad_le (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:659)
 theorem uQuad_le (hg : g.det ≠ 0) (w : ℂ) :
     uQuad g w ≤ (botNormSqC g + Complex.normSq g.det / botNormSqC g)
       * (1 + ‖w - centerC g‖) ^ 2 := by
@@ -764,7 +711,6 @@ theorem uQuad_le (hg : g.det ≠ 0) (w : ℂ) :
   rw [h1]
   nlinarith [sq_nonneg (‖w - centerC g‖)]
 
--- pin: norm_iteratedFDeriv_uQuad_one_le (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:672)
 theorem norm_iteratedFDeriv_uQuad_one_le (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     ‖iteratedFDeriv ℝ 1 (uQuad g) z‖ ≤ 4 * botNormSqC g * (1 + ‖z - centerC g‖) := by
   refine (norm_iteratedFDeriv_uQuad_one g z).trans ?_
@@ -773,18 +719,15 @@ theorem norm_iteratedFDeriv_uQuad_one_le (g : Matrix (Fin 2) (Fin 2) ℂ) (z : �
     exact add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _)
   exact mul_le_mul_of_nonneg_left (by linarith [norm_nonneg (z - centerC g)]) (by linarith)
 
--- pin: floorK (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:680)
 def floorK (g : Matrix (Fin 2) (Fin 2) ℂ) : ℝ :=
   min (botNormSqC g) (Complex.normSq g.det / botNormSqC g) / 18
 
--- pin: floorK_pos (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:683)
 theorem floorK_pos (hg : g.det ≠ 0) : 0 < floorK g := by
   have hA : (0:ℝ) < botNormSqC g := botNormSqC_pos hg
   have hM : (0:ℝ) < Complex.normSq g.det / botNormSqC g :=
     div_pos (Complex.normSq_pos.2 hg) hA
   exact div_pos (lt_min hA hM) (by norm_num)
 
--- pin: floorK_mul_lt_uQuad (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:689)
 theorem floorK_mul_lt_uQuad (hg : g.det ≠ 0) (z : ℂ) {v : ℂ} (hv : v ∈ Metric.ball z 1) :
     floorK g * (1 + ‖z - centerC g‖) ^ 2 < uQuad g v := by
   have hA : (0:ℝ) < botNormSqC g := botNormSqC_pos hg
@@ -830,7 +773,6 @@ theorem floorK_mul_lt_uQuad (hg : g.det ≠ 0) (z : ℂ) {v : ℂ} (hv : v ∈ M
     rw [huv]
     nlinarith [sq_nonneg (‖z - centerC g‖ - 1), hmin.le, hM.le]
 
--- pin: exists_decay_bound_iteratedFDeriv_inv_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:734)
 theorem exists_decay_bound_iteratedFDeriv_inv_radC (hg : g.det ≠ 0) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ,
       ‖iteratedFDeriv ℝ n (fun w => (radC g w)⁻¹) z‖
@@ -970,7 +912,6 @@ theorem exists_decay_bound_iteratedFDeriv_inv_radC (hg : g.det ≠ 0) (n : ℕ) 
         have hsne : Real.sqrt (floorK g) ≠ 0 := (Real.sqrt_pos.2 hK).ne'
         field_simp
 
--- pin: exists_decay_bound_iteratedFDeriv_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:873)
 theorem exists_decay_bound_iteratedFDeriv_radC (hg : g.det ≠ 0) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ,
       ‖iteratedFDeriv ℝ n (radC g) z‖
@@ -1090,13 +1031,10 @@ theorem exists_decay_bound_iteratedFDeriv_radC (hg : g.det ≠ 0) (n : ℕ) :
           * (1 + ‖z - centerC g‖) / (1 + ‖z - centerC g‖) ^ n := by
         ring
 
--- pin: conjCLM (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:992)
 def conjCLM : ℂ →L[ℝ] ℂ := Complex.conjCLE.toContinuousLinearMap
 
--- pin: conjCLM_apply (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:994)
 @[scoped simp] theorem conjCLM_apply (w : ℂ) : conjCLM w = (starRingEnd ℂ) w := rfl
 
--- pin: exists_bound_iteratedFDeriv_inv_radC_smul_affine (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:996)
 theorem exists_bound_iteratedFDeriv_inv_radC_smul_affine (hg : g.det ≠ 0)
     (c₀ : ℂ) (L : ℂ →L[ℝ] ℂ) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ,
@@ -1194,7 +1132,6 @@ theorem exists_bound_iteratedFDeriv_inv_radC_smul_affine (hg : g.det ≠ 0)
         ring
     _ ≤ 2 ^ n * ((‖c₀‖ + ‖L‖ * ‖centerC g‖ + ‖L‖) * C0 + ‖L‖ * C1) + 1 := by linarith
 
--- pin: norm_iteratedDerivWithin_rpow_le (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:1093)
 theorem norm_iteratedDerivWithin_rpow_le {c : ℝ} (hc : 0 < c) (r : ℝ) (k : ℕ) {v : ℝ}
     (hv : v ∈ Set.Ioi c) :
     ‖iteratedDerivWithin k (fun y : ℝ => y ^ r) (Set.Ioi c) v‖
@@ -1210,7 +1147,6 @@ theorem norm_iteratedDerivWithin_rpow_le {c : ℝ} (hc : 0 < c) (r : ℝ) (k : �
     _ ≤ ‖r‖ + ‖-(j:ℝ)‖ := norm_add_le _ _
     _ = |r| + (j:ℝ) := by rw [Real.norm_eq_abs, norm_neg, Real.norm_eq_abs, Nat.abs_cast]
 
--- pin: exists_bound_iteratedFDeriv_rpow_neg_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:1108)
 theorem exists_bound_iteratedFDeriv_rpow_neg_radC (hg : g.det ≠ 0) (κ : ℝ) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ,
       ‖iteratedFDeriv ℝ n (fun w => radC g w ^ (-κ)) z‖ ≤ C * radC g z ^ (-κ) := by
@@ -1328,7 +1264,6 @@ theorem exists_bound_iteratedFDeriv_rpow_neg_radC (hg : g.det ≠ 0) (κ : ℝ) 
   refine hcomp.trans (le_of_eq ?_)
   ring
 
--- pin: exists_bound_iteratedFDeriv_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:1225)
 theorem exists_bound_iteratedFDeriv_radC (hg : g.det ≠ 0) :
     ∀ (n : ℕ), 1 ≤ n → ∃ C : ℝ, 0 < C ∧ ∀ (z : ℂ),
       ‖iteratedFDeriv ℝ n (radC g) z‖ ≤ C := by
@@ -1340,7 +1275,6 @@ theorem exists_bound_iteratedFDeriv_radC (hg : g.det ≠ 0) :
   rw [div_le_iff₀ (by positivity)]
   exact mul_le_mul_of_nonneg_left h1 hC.le
 
--- pin: exists_bound_iteratedFDeriv_inv_radC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:1236)
 theorem exists_bound_iteratedFDeriv_inv_radC (hg : g.det ≠ 0) :
     ∀ (n : ℕ), ∃ C : ℝ, 0 < C ∧ ∀ (z : ℂ),
       ‖iteratedFDeriv ℝ n (fun w => (radC g w)⁻¹) z‖ ≤ C := by
@@ -1350,7 +1284,6 @@ theorem exists_bound_iteratedFDeriv_inv_radC (hg : g.det ≠ 0) :
   have hW1 : (1:ℝ) ≤ 1 + ‖z - centerC g‖ := by linarith [norm_nonneg (z - centerC g)]
   exact div_le_self hC.le (one_le_pow₀ hW1)
 
--- pin: exists_bound_iteratedFDeriv_kC (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:1245)
 theorem exists_bound_iteratedFDeriv_kC (hg : g.det ≠ 0) :
     ∀ (n : ℕ), ∃ C : ℝ, 0 < C ∧ ∀ (i j : Fin 2) (z : ℂ),
       ‖iteratedFDeriv ℝ n (fun w => kC g w i j) z‖ ≤ C := by
@@ -1407,7 +1340,6 @@ theorem exists_bound_iteratedFDeriv_kC (hg : g.det ≠ 0) :
     rw [heq]
     exact (hb11 z).trans (by linarith)
 
--- pin: exists_bound_iteratedFDeriv_borelC (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1301)
 theorem exists_bound_iteratedFDeriv_borelC (hg : g.det ≠ 0) :
     ∀ (n : ℕ), 1 ≤ n → ∃ C : ℝ, 0 < C ∧ ∀ (i j : Fin 2) (z : ℂ),
       ‖iteratedFDeriv ℝ n (fun w => borelC g w i j) z‖ ≤ C := by
@@ -1455,7 +1387,6 @@ theorem exists_bound_iteratedFDeriv_borelC (hg : g.det ≠ 0) :
       (contDiff_radC hg).contDiffAt (mod_cast le_top)]
     exact (hbr z).trans (by linarith)
 
--- pin: exists_norm_borelC_le (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1348)
 theorem exists_norm_borelC_le (hg : g.det ≠ 0) :
     ∃ C : ℝ, 0 < C ∧ ∀ (i j : Fin 2) (z : ℂ), ‖borelC g z i j‖ ≤ C * (1 + ‖z‖) := by
   have hA : (0:ℝ) < botNormSqC g := botNormSqC_pos hg
@@ -1571,7 +1502,6 @@ theorem exists_norm_borelC_le (hg : g.det ≠ 0) :
               * (1 + ‖centerC g‖)) * (1 + ‖z‖) :=
           mul_le_mul_of_nonneg_right (by linarith) (by linarith)
 
--- pin: exists_bound_iteratedFDeriv_mul (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1463)
 theorem exists_bound_iteratedFDeriv_mul {f h : ℂ → ℂ}
     (hf : ContDiff ℝ ∞ f) (hh : ContDiff ℝ ∞ h)
     (hbf : ∀ (n : ℕ), ∃ C : ℝ, 0 < C ∧ ∀ (z : ℂ), ‖iteratedFDeriv ℝ n f z‖ ≤ C)
@@ -1597,7 +1527,6 @@ theorem exists_bound_iteratedFDeriv_mul {f h : ℂ → ℂ}
         mul_le_mul_of_nonneg_left ((hCh (n - i)).2 z)
           (mul_nonneg (Nat.cast_nonneg _) (hCf i).1.le)
 
--- pin: exists_bound_iteratedFDeriv_add (S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean:1488)
 theorem exists_bound_iteratedFDeriv_add {f h : ℂ → ℂ}
     (hf : ContDiff ℝ ∞ f) (hh : ContDiff ℝ ∞ h)
     (hbf : ∀ (n : ℕ), ∃ C : ℝ, 0 < C ∧ ∀ (z : ℂ), ‖iteratedFDeriv ℝ n f z‖ ≤ C)
@@ -1622,7 +1551,6 @@ open scoped ContDiff Nat ComplexConjugate
 
 variable {g : Matrix (Fin 2) (Fin 2) ℂ}
 
--- pin: decay_explicit (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1317)
 theorem decay_explicit (hg : g.det ≠ 0) (n : ℕ) (z : ℂ) :
       ‖iteratedFDeriv ℝ n (fun w => (radC g w)⁻¹) z‖
         ≤ ((n ! : ℝ) * n ! * (4 * botNormSqC g / floorK g + 1) ^ n * (Real.sqrt (floorK g))⁻¹) / (1 + ‖z - centerC g‖) ^ (n + 1) := by
@@ -1759,7 +1687,6 @@ theorem decay_explicit (hg : g.det ≠ 0) (n : ℕ) (z : ℂ) :
         have hsne : Real.sqrt (floorK g) ≠ 0 := (Real.sqrt_pos.2 hK).ne'
         field_simp
 
--- pin: affine_of_bounds (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1453)
 theorem affine_of_bounds (hg : g.det ≠ 0)
     (c₀ : ℂ) (L : ℂ →L[ℝ] ℂ) (n : ℕ) {C0 C1 : ℝ} (hC0 : 0 < C0) (hC1 : 0 < C1)
     (hB0 : ∀ z : ℂ, ‖iteratedFDeriv ℝ n (fun w => (radC g w)⁻¹) z‖ ≤ C0 / (1 + ‖z - centerC g‖) ^ (n + 1))
@@ -1862,37 +1789,30 @@ namespace KCUnif
 open CplxIwasawa CplxSmooth
 open scoped ContDiff Nat ComplexConjugate
 
--- pin: continuous_botNormSqC (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1561)
 theorem continuous_botNormSqC : Continuous fun g : Matrix (Fin 2) (Fin 2) ℂ => botNormSqC g := by
   unfold botNormSqC
   exact (Complex.continuous_normSq.comp (continuous_id.matrix_elem 1 0)).add
     (Complex.continuous_normSq.comp (continuous_id.matrix_elem 1 1))
 
--- pin: continuous_detC (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1566)
 theorem continuous_detC : Continuous fun g : Matrix (Fin 2) (Fin 2) ℂ => g.det := by
   have : (fun g : Matrix (Fin 2) (Fin 2) ℂ => g.det) = fun g => g 0 0 * g 1 1 - g 0 1 * g 1 0 :=
     funext fun g => Matrix.det_fin_two g
   rw [this]; fun_prop
 
--- pin: continuous_centerC_num (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1571)
 theorem continuous_centerC_num : Continuous fun g : Matrix (Fin 2) (Fin 2) ℂ => -(conj (g 1 0) * g 0 0 + conj (g 1 1) * g 0 1) := by
   fun_prop
 
--- pin: Kdec (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1574)
 def Kdec (g : Matrix (Fin 2) (Fin 2) ℂ) (n : ℕ) : ℝ :=
   (n ! : ℝ) * n ! * (4 * botNormSqC g / floorK g + 1) ^ n * (Real.sqrt (floorK g))⁻¹
 
--- pin: KdecU (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1577)
 def KdecU (A₁ f₀ : ℝ) (n : ℕ) : ℝ := (n ! : ℝ) * n ! * (4 * A₁ / f₀ + 1) ^ n * (Real.sqrt f₀)⁻¹
 
--- pin: KdecU_pos (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1579)
 theorem KdecU_pos {A₁ f₀ : ℝ} (hA : 0 ≤ A₁) (hf : 0 < f₀) (n : ℕ) : 0 < KdecU A₁ f₀ n := by
   unfold KdecU
   have h1 : (0 : ℝ) < n ! := by positivity
   have h2 : 0 < 4 * A₁ / f₀ + 1 := by positivity
   exact mul_pos (mul_pos (mul_pos h1 h1) (pow_pos h2 n)) (inv_pos.2 (Real.sqrt_pos.2 hf))
 
--- pin: Kdec_le_KdecU (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1585)
 theorem Kdec_le_KdecU {g : Matrix (Fin 2) (Fin 2) ℂ} (hg : g.det ≠ 0) {A₁ f₀ : ℝ} (hf : 0 < f₀)
     (hA : botNormSqC g ≤ A₁) (hfl : f₀ ≤ floorK g) (n : ℕ) : Kdec g n ≤ KdecU A₁ f₀ n := by
   unfold Kdec KdecU
@@ -1912,7 +1832,6 @@ theorem Kdec_le_KdecU {g : Matrix (Fin 2) (Fin 2) ℂ} (hg : g.det ≠ 0) {A₁ 
   exact mul_le_mul (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by positivity) h1 n) h0) h2
     (inv_nonneg.2 (Real.sqrt_nonneg _)) (mul_nonneg h0 (pow_nonneg h3 n))
 
--- pin: exists_uniform_constants (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1604)
 theorem exists_uniform_constants (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℂ)) (h𝒢 : IsCompact 𝒢) (hdet : ∀ g ∈ 𝒢, g.det ≠ 0) :
     ∃ A₁ f₀ Zc E : ℝ, 0 ≤ A₁ ∧ 0 < f₀ ∧ 0 ≤ Zc ∧ 0 ≤ E ∧ ∀ g ∈ 𝒢,
       botNormSqC g ≤ A₁ ∧ f₀ ≤ floorK g ∧ ‖centerC g‖ ≤ Zc ∧ ∀ i j : Fin 2, ‖g i j‖ ≤ E := by
@@ -1965,7 +1884,6 @@ theorem exists_uniform_constants (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℂ)) (h�
     refine (hEf i j g hg).trans ?_
     fin_cases i <;> fin_cases j <;> simp [hEdef]
 
--- pin: main (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1656)
 theorem main (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℂ)) (h𝒢 : IsCompact 𝒢) (hdet : ∀ g ∈ 𝒢, g.det ≠ 0) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ g ∈ 𝒢, ∀ (i j : Fin 2) (z : ℂ),
       ‖iteratedFDeriv ℝ n (fun w => kC g w i j) z‖ ≤ C := by
@@ -2058,12 +1976,10 @@ namespace RhoTwoAux
 
 variable {g : Matrix (Fin 2) (Fin 2) ℂ}
 
--- pin: radC_sq_aux (S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean:19)
 private theorem radC_sq_aux (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     radC g z ^ 2 = Complex.normSq (botP g z) + Complex.normSq (botQ g z) := by
   rw [radC, Real.sq_sqrt (add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))]
 
--- pin: radC_pos_aux (S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean:23)
 private theorem radC_pos_aux (hg : g.det ≠ 0) (z : ℂ) : 0 < radC g z := by
   rw [radC]
   apply Real.sqrt_pos.2
@@ -2086,7 +2002,6 @@ private theorem radC_pos_aux (hg : g.det ≠ 0) (z : ℂ) : 0 < radC g z := by
     rw [ha, hb]
     ring
 
--- pin: key_aux (S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean:45)
 private theorem key_aux (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
     botP g z * (starRingEnd ℂ) (botP g z) + botQ g z * (starRingEnd ℂ) (botQ g z)
       = (radC g z : ℂ) * (radC g z : ℂ) := by
@@ -2095,14 +2010,12 @@ private theorem key_aux (g : Matrix (Fin 2) (Fin 2) ℂ) (z : ℂ) :
   rw [← pow_two]
   linarith [radC_sq_aux g z]
 
--- pin: weylUnip_eq_aux (S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean:53)
 private theorem weylUnip_eq_aux (z : ℂ) :
     !![(0 : ℂ), 1; 1, 0] * !![1, z; 0, 1] * g
       = !![g 1 0, g 1 1; g 0 0 + z * g 1 0, g 0 1 + z * g 1 1] := by
   ext i j
   fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
 
--- pin: conjTranspose_mul_kC_aux (S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean:59)
 private theorem conjTranspose_mul_kC_aux (hg : g.det ≠ 0) (z : ℂ) :
     (kC g z).conjTranspose * kC g z = 1 := by
   have hr : (radC g z : ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 (radC_pos_aux hg z).ne'
@@ -2117,7 +2030,6 @@ private theorem conjTranspose_mul_kC_aux (hg : g.det ≠ 0) (z : ℂ) :
     | linear_combination key
     | ring
 
--- pin: det_kC_aux (S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean:73)
 private theorem det_kC_aux (hg : g.det ≠ 0) (z : ℂ) : (kC g z).det = 1 := by
   have hr : (radC g z : ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 (radC_pos_aux hg z).ne'
   have e : (kC g z).det = (botQ g z * (starRingEnd ℂ) (botQ g z)
@@ -2137,7 +2049,6 @@ end RhoTwoAux
 
 namespace Engine
 
--- pin: contDiff_and_exists_bound_iteratedFDeriv_kC_apply (S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean:1313)
 theorem contDiff_and_exists_bound_iteratedFDeriv_kC_apply
     {g : Matrix (Fin 2) (Fin 2) ℂ} (hg : g.det ≠ 0) :
     (∀ i j : Fin 2, ContDiff ℝ ∞ (fun w => kC g w i j)) ∧
@@ -2146,7 +2057,6 @@ theorem contDiff_and_exists_bound_iteratedFDeriv_kC_apply
   ⟨fun i j => CplxIwasawa.contDiff_kC_apply hg i j,
     CplxSmooth.exists_bound_iteratedFDeriv_kC hg⟩
 
--- pin: exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact (S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean:1750)
 theorem exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact
     (𝒢 : Set (Matrix (Fin 2) (Fin 2) ℂ)) (h𝒢 : IsCompact 𝒢) (hdet : ∀ g ∈ 𝒢, g.det ≠ 0) (n : ℕ) :
     ∃ C : ℝ, 0 < C ∧ ∀ g ∈ 𝒢, ∀ (i j : Fin 2) (z : ℂ),
@@ -2154,7 +2064,6 @@ theorem exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact
   KCUnif.main 𝒢 h𝒢 hdet n
 
 open RhoTwoAux in
--- pin: kC_mem_specialUnitaryGroup (S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean:93)
 theorem kC_mem_specialUnitaryGroup
     {g : Matrix (Fin 2) (Fin 2) ℂ} (hg : g.det ≠ 0) (z : ℂ) :
     kC g z ∈ Matrix.specialUnitaryGroup (Fin 2) ℂ := by
@@ -2162,7 +2071,6 @@ theorem kC_mem_specialUnitaryGroup
   exact ⟨by rw [Matrix.star_eq_conjTranspose]; exact conjTranspose_mul_kC_aux hg z, det_kC_aux hg z⟩
 
 open RhoTwoAux in
--- pin: weyl_mul_unipotent_mul_eq_borel_mul_kC (S_AutomorphicForm_ComplexIwasawa_weyl_mul_unipotent_mul_eq_borel_mul_kC.lean:93)
 theorem weyl_mul_unipotent_mul_eq_borel_mul_kC
     {g : Matrix (Fin 2) (Fin 2) ℂ} (hg : g.det ≠ 0) (z : ℂ) :
     !![(0 : ℂ), 1; 1, 0] * !![1, z; 0, 1] * g
