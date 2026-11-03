@@ -117,6 +117,12 @@ out, both mechanical:
   proves `descent_abstract` (and `core`) twice; both have consumers, so both are written, in two
   sub-namespaces — the checker matches statements by hash, and the pin's own precedent for such a
   pair is a split.
+- **A sibling pair cannot always be inverted.** "Port the general, derive the special" (`port_plan`'s
+  *siblings* block) is available only when the general statement does not already *cite* the special
+  one: the pin often proves the special case first and builds the general one on top of it, with
+  `needed = 1` and the special row as the premise. SET-AF14 §0.3 proposed inverting its two evaluation
+  rows and SET-AF15 §1 withdrew it — the general rows call the special ones (pin `:318` / `:171`). Read
+  the premise, not the shape, before proposing the inversion.
 - **Binder variants are not duplication.** Nine names in SET 3's set had 2–3 statements differing
   only in binders (`mem_of_ord_nonneg` in 37 pin files, `ord_nonneg_of_mem` in 36,
   `evalAt_algebraMap` in 7): take the `Theorems/` wrapper's binders, which is what the port's

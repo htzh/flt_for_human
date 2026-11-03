@@ -129,9 +129,14 @@ second reduces to row 5's `π/(2s)`. The pin proves the special case first and t
 of it, which is why `port_plan`'s *siblings* block is empty here (its sibling test only looks
 *inside* the slice). Two consequences the order must carry: **(i)** rows 4 and 5 are not "the
 mathematics", they are the `k = 0` / `a = b = 0` cases of two rows that are one premise away — write
-them at the pin's proofs, but do not *invest* in them; **(ii)** when AF15 takes the pair, the port may
-derive rows 4 and 5 from them in a line each instead of keeping two analytic proofs, and that
-decision is AF15's, not this set's.
+them at the pin's proofs, but do not *invest* in them; **(ii)** ~~when AF15 takes the pair, the port may
+derive rows 4 and 5 from them in a line each instead of keeping two analytic proofs~~ — **withdrawn at
+the next pass**: the inversion is not available, because each general row takes its special case as a
+**premise** (the 465 row calls `integral_one_add_sq_cpow_neg_eq_GammaReal_div s hs` at pin `:318`, the
+264 row calls `integral_one_add_norm_sq_cpow_neg_eq_pi_div ((t-1)/2) hs` at pin `:171`, each with
+`needed = 1`). The pin proves special → general, so deriving the special from the general would be
+circular: AF15 writes the two general rows on top of these, and both analytic proofs here stay
+([SET-AF15.md](SET-AF15.md) §1).
 
 ### 0.4 An ingredient block, not an organizer
 
