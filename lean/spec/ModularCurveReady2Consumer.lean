@@ -34,7 +34,7 @@ import FLTForHuman.ModularCurve.ModularPolynomialCoset
 import FLTForHuman.ModularCurve.ModularPolynomialFibreTwo
 import FLTForHuman.ModularCurve.X1.FunctionFieldConstExt
 import FLTForHuman.ModularCurve.LevelN.SpecialRamification
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.ModularPolynomialExistence
 import FLTForHuman.ModularCurve.SiegelUnit.Integrality
 
 set_option autoImplicit false

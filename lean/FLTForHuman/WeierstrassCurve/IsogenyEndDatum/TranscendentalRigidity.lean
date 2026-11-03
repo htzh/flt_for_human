@@ -27,7 +27,7 @@
   (`ModularCurve/ModularPolynomialLeadingCoeff.lean`), the characteristic-polynomial
   count (`IsogenyEndDatum/CharPolySquare.lean`), the squarefree-values theorem
   (`NumberTheory/SquarefreeValues.lean`), the `Φ_N` datum at every level
-  (`ModularCurve/FunctionFieldGeneration/Capstone.lean`) and the diagonal vanishing
+  (`ModularCurve/FunctionFieldGeneration/ModularPolynomialExistence.lean`) and the diagonal vanishing
   capstone (`IsogenyEndDatum/DiagonalPhi.lean`).
 
   Pin `anthropics/fermats-last-theorem@aa2d8b3`:
@@ -38,7 +38,7 @@
   spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_isUnit_leadingCoeff_diag.lean
   spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_forall_pointEnd_eq_zsmul_of_transcendental_j.lean
 -/
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.ModularPolynomialExistence
 import FLTForHuman.ModularCurve.ModularPolynomialLeadingCoeff
 import FLTForHuman.NumberTheory.SquarefreeValues
 import FLTForHuman.WeierstrassCurve.GenusOnePlaceGateCentred

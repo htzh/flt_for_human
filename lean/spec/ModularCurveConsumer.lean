@@ -16,9 +16,8 @@
 
   It **compiles today** — the error count, which is the metric, is 0 — but it is
   deliberately kept out of every library, so it can never break a verified build.
-  The remaining `sorry`s are deliberate: the deferred capstone theorem, and (from
-  Zone M on) the still-unported `Inputs` fields in the partial-structure wire
-  tests. None counts as an error.
+  The capstone is proved and the seven significant statements are direct theorems,
+  so this file carries no `sorry`.
 
   HOW TO READ IT
   --------------
@@ -59,8 +58,8 @@ import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
 -- The topic module: the low coefficients of `jq`, via mathlib's pentagonal route.
 import FLTForHuman.ModularCurve.JqCoefficients
--- The conditional capstone: the spine, with FLT's significant statements as `Inputs`.
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.Spine
+-- The capstone: FLT's strong induction applied directly to the seven statements.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 -- The R1 analytic model of `jq` (topic 6): `jq` sums to `E₄³/Δ` on `ℍ`.
 import FLTForHuman.ModularForms.JqAnalyticModel
 -- T7: R1's Hauptmodul form, and the `RealL`/Cauchy-product interface for T8.
@@ -96,8 +95,8 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
 -- T19: the slot product and the prime non-membership.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
--- T20: the unconditional capstone — the total `Inputs`, the theorem, the corollaries.
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
+-- T20's interface tail: integrality and the irreducible modular polynomial datum.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.ModularPolynomialExistence
 -- T21: the degree-one place theorem for the bar field (`deg_eq_one_modularFunctionFieldBar`).
 import FLTForHuman.ModularCurve.Degree.PlaceDegree
 -- The divisor API the T21 wire test composes the degree-one theorem with.
@@ -194,17 +193,17 @@ example {L : Type*} [Field L] [Algebra ℚ L] (u : Lˣ) (N : ℕ) [NeZero N] :
   exact qTwist_qExpand u N (coeffEmb (L := L) jq)
 
 -- The target statement is *expressible* from Zone A alone; the unconditional
--- theorem is T20's `Capstone.lean` (Zone R), which closes this example.
+-- theorem is the capstone in `Capstone.lean` (Zone R), which closes this example.
 example (N : ℕ) [NeZero N] : FunctionFieldGeneration N := functionFieldGeneration N
 #check functionFieldGeneration_one   -- FunctionFieldGeneration 1, proved in the Def layer
 
 /-! ## Zone B — [0b] the fields and the polynomial datum
 
-Bound by Layer 0b, plus the *conditional* capstone from `Spine.lean` (a topic
-module). Nothing here is needed to state the target (`FunctionFieldGeneration`
-does not mention `modularFunctionField`), which is why Zone A could ship without
-it. The conditional capstone is the collapse's companion and is **proved**; only
-the unconditional Zone A example remains a `sorry`. -/
+Bound by Layer 0b, plus the capstone from `Capstone.lean` (a topic module).
+Nothing here is needed to state the target (`FunctionFieldGeneration` does not
+mention `modularFunctionField`), which is why Zone A could ship without it. The
+capstone is the collapse's companion and is **proved**, so the Zone A example is
+no longer a `sorry`. -/
 
 #check ModularPolynomialData       -- (N : ℕ) [NeZero N] : Type
 #check modularFunctionField      -- (N : ℕ) [NeZero N] : IntermediateField ℚ (LaurentSeries ℚ)
@@ -222,13 +221,9 @@ example (N : ℕ) [NeZero N] :
     FunctionFieldGeneration N ↔ modularFunctionFieldFull N = modularFunctionField N :=
   functionFieldGeneration_iff_full_eq N
 
--- The *conditional* capstone (`FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean`), the
--- collapse's companion: it proves `FunctionFieldGeneration` outright from FLT's
--- significant remaining statements bundled as `Inputs`, so unlike the Zone A
--- example below it carries no `sorry`. The Zone A example is the *unconditional*
--- theorem, which stays deferred.
-example (h : Inputs) (N : ℕ) [NeZero N] : FunctionFieldGeneration N :=
-  functionFieldGeneration_of h N
+-- The capstone (`FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean`)
+-- proves `FunctionFieldGeneration` outright; `hall_all` is private and the seven
+-- statements are consumed directly. See Zone R for the corollary layer.
 
 /-! ## Zone C — the claims the Definitions layer does not deliver
 
@@ -705,24 +700,12 @@ the one-prime reduction of `Gen`). It composes T14's slot prelude
 `Polynomial.mem_range_of_unique_common_root`; its `htw`/`hsp` stay arguments,
 exactly as the pin's node has them and as T19 will later discharge them.
 
-**The wire test is T20's own move, not a binding.** It builds a *partially
-discharged* `Inputs` value: the two fields T15 proves are filled by the new
-theorems, and the five still-unported fields are `sorry`. That is literally the
-capstone's debt being paid down, so the test fails if either theorem's type
-stops matching its `Inputs` field. -/
+**The wire test is the statement's type.** The two `#check`s below compare the
+statements with the seven the capstone consumes; `hall_all` calls them directly,
+so a type drift breaks the capstone build. -/
 
 #check @ModularCurve.jqN_div_mem_modularFunctionField
 #check @ModularCurve.modularFunctionField_eq_full_of
-
--- T15 fills its two `Inputs` fields (the other five are the unported debt).
-example : ModularCurve.Inputs :=
-  { full_eq_adjoin_full_div_prime := sorry
-    jqN_prime_not_mem_full := sorry
-    jqN_pow_not_mem_adjoin_full := sorry
-    minpoly_jqN_map_eq_prod_slots := sorry
-    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
-    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
-    relfinrank_full_eq_mul := sorry }
 
 /-! ## Zone N — [T16] the degree of one prime-power step
 
@@ -739,10 +722,8 @@ mathlib's cyclotomic-automorphism API (`IsCyclotomicExtension.autEquivPow`,
 `iota_injective`/`w1_relfinrank_insert`, deleting the private twins in
 `PhiGenDescent.lean`/`PhiGenSplits.lean`/`PhiGenIntegrality.lean`.
 
-**The wire test is the `Inputs` composition, so the debt visibly drops to four.**
-`relfinrank_full_eq_mul` is the third `Inputs` field discharged (5 → 4); this
-example fills all three proved fields and leaves the four still-unported ones as
-`sorry`.
+**The wire test is the statement's type.** `relfinrank_full_eq_mul` is the
+statement the capstone's `Tight` step calls; the three `#check`s pin its shape.
 
 **The nontrivial `irreducible_of_transitive_ringAut` wire test is still out of
 reach.** A concrete `p = 3` instance needs a cubic over `ℚ` with Galois group
@@ -761,16 +742,6 @@ already exercises the engine for real over the abstract `F` with the non-identit
 #check @ModularCurve.iota_injective
 #check @ModularCurve.w1_relfinrank_insert
 
--- T16 fills the third `Inputs` field; the other four are the unported debt.
-example : ModularCurve.Inputs :=
-  { full_eq_adjoin_full_div_prime := sorry
-    jqN_prime_not_mem_full := sorry
-    jqN_pow_not_mem_adjoin_full := sorry
-    minpoly_jqN_map_eq_prod_slots := sorry
-    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
-    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
-    relfinrank_full_eq_mul := ModularCurve.relfinrank_full_eq_mul }
-
 /-! ## Zone O — [T17] the non-membership tower and the two-prime separation
 
 `FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean` proves
@@ -783,25 +754,13 @@ T12's `exists_phiIrreducible_evalSymm`, T16's degree step and mathlib's
 `mem_range_of_eval_eq_const` engine with T16's `finrank_adjoin_jqN_prime_of_not_mem`
 and T13's `finrank_adjoin_jqN_eq_of_prime`.
 
-**The wire test is the `Inputs` composition again, so the debt visibly drops to
-three.** `jqN_pow_not_mem_adjoin_full` is the fourth `Inputs` field discharged
-(4 → 3); this example fills all four proved fields and leaves the three
-still-unported ones as `sorry`. The base's statement is added as a second,
-non-`Inputs` entry — it is public API consumed by `relfinrank_adjoin_primes`,
-`relfinrank_full_mul_prime` and `jqN_sq_not_mem_adjoin`, not a capstone input. -/
+**The wire test is the statement's type.** `jqN_pow_not_mem_adjoin_full` is the
+statement the capstone's tower step calls. The base's statement is a second,
+non-capstone entry — it is public API consumed by `relfinrank_adjoin_primes`,
+`relfinrank_full_mul_prime` and `jqN_sq_not_mem_adjoin`. -/
 
 #check @ModularCurve.jqN_pow_not_mem_adjoin_full
 #check @ModularCurve.jqN_prime_not_mem_adjoin
-
--- T17 fills the fourth `Inputs` field; the other three are the unported debt.
-example : ModularCurve.Inputs :=
-  { full_eq_adjoin_full_div_prime := sorry
-    jqN_prime_not_mem_full := sorry
-    jqN_pow_not_mem_adjoin_full := ModularCurve.jqN_pow_not_mem_adjoin_full
-    minpoly_jqN_map_eq_prod_slots := sorry
-    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
-    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
-    relfinrank_full_eq_mul := ModularCurve.relfinrank_full_eq_mul }
 
 -- The base: the two-prime separation in hypothesis form.
 example (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) (r : ℕ) [hr : Fact (Nat.Prime r)]
@@ -813,7 +772,7 @@ example (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) (r : ℕ) [hr : Fact (Nat.P
 /-! ## Zone P — [T18] one new generator per prime power
 
 `FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean` proves
-`full_eq_adjoin_full_div_prime`, the fifth `Inputs` field:
+`full_eq_adjoin_full_div_prime`:
 `F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))` for
 `p ∤ M`. Its engine is the once-ported two-prime descent `jqN_mem_of_div_primes`
 (the unique-common-root principle on `φ_p` and `φ_q`), driven by the strong
@@ -821,31 +780,21 @@ induction `w1_jqN_mem_adjoin_top_insert`; it composes T14's slot vocabulary,
 T13's `splits_prime_at_slot` and T4's `mem_range_of_unique_common_root`.
 
 The zone also binds the T19 substitution landed in `Defs/Fields.lean`: the
-`Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` promoted out of
-`Spine.lean`, plus `gen_prime` (`Gen p` is definitional). This is the audit's
+`Tight`/`Gen`/`Hall` invariants with `tight_one`/`gen_one`, plus `gen_prime`
+(`Gen p` is definitional). This is the audit's
 replacement (`TOPIC-t17-t19-route-audit.md` §1) for the pin's
 `functionFieldGeneration_of_squarefree p` call at
 `S_ModularCurve_jqN_prime_not_mem_full.lean:1638`, so T19 does not depend on the
 deferred squarefree block.
 
-**The wire test is the `Inputs` composition, so the debt visibly drops to two.**
-`full_eq_adjoin_full_div_prime` is the fifth field discharged (3 → 2); this example
-fills all five proved fields and leaves the two still-unported ones as `sorry`. -/
+**The wire test is the statement's type.** `full_eq_adjoin_full_div_prime` is the
+statement the capstone's `Gen` step calls; the four `#check`s pin the
+`Tight`/`Gen`/`Hall` vocabulary and `gen_prime` as well. -/
 
 #check @ModularCurve.full_eq_adjoin_full_div_prime
 #check @ModularCurve.tight_one
 #check @ModularCurve.gen_one
 #check @ModularCurve.gen_prime
-
--- T18 fills the fifth `Inputs` field; the other two are the unported debt.
-example : ModularCurve.Inputs :=
-  { full_eq_adjoin_full_div_prime := ModularCurve.full_eq_adjoin_full_div_prime
-    jqN_prime_not_mem_full := sorry
-    jqN_pow_not_mem_adjoin_full := ModularCurve.jqN_pow_not_mem_adjoin_full
-    minpoly_jqN_map_eq_prod_slots := sorry
-    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
-    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
-    relfinrank_full_eq_mul := ModularCurve.relfinrank_full_eq_mul }
 
 -- The T19 substitution: `Gen p` at a concrete prime, from `gen_prime`.
 example : ModularCurve.Gen 2 := ModularCurve.gen_prime 2 (hp := ⟨Nat.prime_two⟩)
@@ -859,7 +808,8 @@ example (p : ℕ) [hp : Fact (Nat.Prime p)] : ModularCurve.Gen p := by
 
 `FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean` proves
 `minpoly_jqN_map_eq_prod_slots` (the slot list, the pin's `rval_aux`) and
-`jqN_prime_not_mem_full` (the prime non-membership), the last two `Inputs` fields.
+`jqN_prime_not_mem_full` (the prime non-membership), the last two statements the
+capstone consumes.
 The slot count is the audit's closed form (`slotAt n d = (d / gcd (n/d) d) * φ
 (gcd (n/d) d)`, with `slots_mul` via mathlib `Nat.Coprime.divisors_mul`, replacing
 the pin's 108-line CRT `slotAt_mul`); the `ψ` facts are the public `Defs/Jq.lean`
@@ -871,34 +821,29 @@ lemmas; `mem_range_of_eval_eq_const` is T4's engine imported from
 with the `Module.Free` instance over the adjoin tower supplied explicitly rather
 than left to instance search.
 
-**The wire test is the fully discharged `Inputs`: the debt reaches zero.** All
-seven fields are the proved theorems, so this is exactly T20's capstone input —
-applying `functionFieldGeneration_of` to it makes the capstone unconditional. -/
+**The wire test is the statement's type.** Both are called directly by
+`hall_all`; the capstone is unconditional, and this zone closes the seven-statement
+list. -/
 
 #check @ModularCurve.minpoly_jqN_map_eq_prod_slots
 #check @ModularCurve.jqN_prime_not_mem_full
 #check @ModularCurve.card_slotFilter_eq_dedekindPsi
 
--- T19 fills the last two `Inputs` fields; T20's `Capstone.lean` bundles all seven.
-example : ModularCurve.Inputs := ModularCurve.inputs
-
--- The capstone's debt is paid: the unconditional `FunctionFieldGeneration N`,
--- now the public theorem rather than a locally built term.
+-- The capstone is unconditional: this is the public theorem, not a locally
+-- built term.
 example (N : ℕ) [NeZero N] : FunctionFieldGeneration N := ModularCurve.functionFieldGeneration N
 
 /-! ## Zone R — [T20] the unconditional capstone and its corollary layer
 
-`FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean` constructs the
-total `Inputs` from T15–T19's seven theorems and discharges the conditional
-capstone: `ModularCurve.functionFieldGeneration` is now unconditional, and the
-corollary layer (`modularFunctionField_eq_full`, `finrank_adjoin_jqN_eq_dedekindPsi`,
-`relfinrank_full_eq_dedekindPsi`) plus the interface tail
-(`exists_monic_evalAtJ_jqN_eq_zero`, `exists_phiIrreducible_of_finrank_eq`,
-`exists_phiIrreducible`) is public. The Zone A example above is that same theorem.
-The file's remaining `sorry`s are the partially-discharged `Inputs` of Zones M–P,
-kept as the historical wire tests. -/
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean` proves the
+capstone by FLT's own strong induction: `ModularCurve.functionFieldGeneration` is
+unconditional, and the corollary layer (`modularFunctionField_eq_full`,
+`finrank_adjoin_jqN_eq_dedekindPsi`, `relfinrank_full_eq_dedekindPsi`) is public.
+The interface tail (`exists_monic_evalAtJ_jqN_eq_zero`,
+`exists_phiIrreducible_of_finrank_eq`, `exists_phiIrreducible`) lives in
+`ModularPolynomialExistence.lean`. The Zone A example above is the same theorem.
+The file carries no `sorry`. -/
 
-#check @ModularCurve.inputs
 #check @ModularCurve.modularFunctionField_eq_full
 #check @ModularCurve.finrank_adjoin_jqN_eq_dedekindPsi
 #check @ModularCurve.relfinrank_full_eq_dedekindPsi
@@ -1134,6 +1079,12 @@ ported — every one a deliberate `sorry`, none an error. (Zone C was originally
 expected to stay red; the topic showed it was reachable from the
 Definitions layer plus mathlib, and the scope decision to take it is recorded in
 `topics/functionFieldGeneration/TOPIC-jq-coefficients.md`.)
+
+**Capstone refactor (2026-11-03).** The `Inputs` bundle was removed and
+`hall_all` is now private and FLT's original induction; the capstone lives in
+`Capstone.lean` and the interface tail in `ModularPolynomialExistence.lean`. The
+`Inputs`/debt notes below are the historical record of T15–T20 and no longer
+describe the current API. The file carries no `sorry`.
 
 **Layer 0a result (2026-09-21).** Zone A is at **0 errors**; the file reports
 **10 errors**, all of them Zone B (8: the six `#check`s plus the two unbound

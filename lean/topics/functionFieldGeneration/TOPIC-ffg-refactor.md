@@ -1,10 +1,10 @@
 # Topic: the FFG capstone refactor and the `spec-pin` upgrade
 
-**Status: in progress (2026-11-03).** Waves 1–3 are landed and green: the
-`Inputs` bundle is gone, `hall_all` is private and FLT's, the capstone is in the
-new `Capstone.lean`, the tail is in `ModularPolynomialExistence.lean`, and every
-FFG module except `SlotValues` is `spec-pin:`-wired. Waves 4–6 (consumers and
-presentation) are deliberately held pending the build-time check; see §10.
+**Status: in progress (2026-11-03).** Waves 1–5 are landed and green: the
+`Inputs` bundle is gone, `hall_all` is private and FLT's, the capstone is in
+`Capstone.lean`, the tail is in `ModularPolynomialExistence.lean`, every FFG module
+except `SlotValues` is `spec-pin:`-wired, the Lean/spec consumers are rewired, and
+the presentation is retargeted. Wave 6 (final verification and docs) remains.
 
 **Naming, read this first.** The two module names swap roles, so the plan is
 explicit about "old" and "new":
@@ -805,7 +805,15 @@ imported `Spine` was `spec/ModularCurveConsumer.lean`, which also imported the o
 `Capstone`, so its cone was already the union. The tail consumers will import
 `ModularPolynomialExistence`, whose cone is `Capstone` plus the tail's own
 imports — the same set the old `Capstone` pulled. No library consumer gains a new
-dependency. The five consumers are *not* built yet; that is the pending check.
+dependency.
+
+**Consumer verification (2026-11-03).** The two rewired library consumers build:
+`FinrankAdjoinJqNModC` 8.6 s (after `SlotProductAnyField` 34 s, `MffCMulPrime`
+9.5 s, `PrimePowerStepAnyField` 10 s), and `TranscendentalRigidity` 3.4 s after
+the one-time cascade (`Isogeny.IntermediateField` 58 s, `TwoCurveDescent` 54 s).
+The five capstone consumers typecheck unchanged (0 errors). The spec consumers
+report 0 errors; the presentation sheet compiles with 0 errors. The cascade is a
+one-time effect of the changed `Capstone`/`SlotProduct` sources, not a new edge.
 
 ### Decisions (recommended; confirm before executing)
 
@@ -858,9 +866,9 @@ dependency. The five consumers are *not* built yet; that is the pending check.
       expected `check_port` counts in §5.2 hold, all `0 mismatch / 0 missing`.
 - [x] The eight FFG entries are out of `PORT_FILES`; the four dead `OWN_PROOFS`
       entries are out; `SOURCES` is untouched.
-- [ ] `spec/ModularCurveConsumer.lean` and `spec/ModularCurveReady2Consumer.lean`
+- [x] `spec/ModularCurveConsumer.lean` and `spec/ModularCurveReady2Consumer.lean`
       compile with **0 errors**; the consumer has no code `sorry`.
-- [ ] `capstone.json` presents `Capstone`; `hall_all` is a `private` declaration with
+- [x] `capstone.json` presents `Capstone`; `hall_all` is a `private` declaration with
       `lean_goal` and its proof steps; `inputs`, `functionFieldGeneration_of` and
       the tail sections D/E are gone. The capstone sheet compiles.
 - [x] `unwired_register.py --check` is clean.
@@ -898,13 +906,20 @@ added, prose de-`Inputs`-ed, old checker entries removed, `check_port --force`
 run: 2/1/2/3/2/1 ok, all `0 mismatch / 0 missing`. Logs:
 `lean/tmp/ffg-six-build.log`, `ffg-specpin.log`.
 
-**Wave 4 — consumers.** `spec/ModularCurveConsumer.lean` (the substantive edit),
-`spec/ModularCurveReady2Consumer.lean` (import), the header prose in §6.1. Check:
-0 errors, 0 code `sorry`. Log to `lean/tmp/ffg-consumers.log`.
+**Wave 4 — consumers. ✅ done 2026-11-03.** Imported the tail in
+`Degree/FinrankAdjoinJqNModC` and `TranscendentalRigidity` (both `spec-pin:`-clean:
+24 and 2 ok), rewired `spec/ModularCurveConsumer.lean` (removed the five
+partial-`Inputs` examples and the `inputs` checks, updated the zone prose) and
+`spec/ModularCurveReady2Consumer`. The two spec consumers report 0 errors; the
+five capstone consumers typecheck unchanged. Logs: `lean/tmp/ffg-consumer*.log`,
+`ffg-build-finrank.log`, `ffg-build-transcendental*.log`.
 
-**Wave 5 — presentation.** Retarget `capstone.json` to `Capstone`, delete the
-`Inputs`/assembly and tail sections, update `presentation/README.md`, render and
-compile the capstone sheet. Log to `lean/tmp/ffg-presentation.log`.
+**Wave 5 — presentation. ✅ done 2026-11-03.** Retargeted `capstone.json` to the
+new `Capstone`: removed `Inputs`/`inputs`/`functionFieldGeneration_of` and the
+tail sections D/E, added the private `hall_all` with `lean_goal` and its proof,
+and updated the metadata. The sheet renders and compiles with 0 errors. Logs:
+`lean/tmp/ffg-presentation-compile-3.log`, backup
+`tmp/ffg-warm/capstone.before-presentation.json`.
 
 **Wave 6 — verification and docs.** Run §9 in full, add the postscripts, update
 this file's status to done with the measured numbers. Report the final

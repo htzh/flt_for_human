@@ -57,9 +57,9 @@
   * `jqNModC_prime_not_mem_adjoin_of_forall_aeval_ne`,
     `jqNModC_prime_not_mem_adjoin_of_charZero` — `Degree/PrimeNonAdjoin.lean`;
   * `package_of_socket` — `FunctionFieldGeneration/PrimePowerStepAnyField.lean`;
-  * `exists_phiIrreducible` — `FunctionFieldGeneration/Capstone.lean` (the pin's
-    `Theorems/Thm_ModularCurve_exists_phiIrreducible`; the port homes it in the
-    non-`C` capstone, which is upstream of this layer);
+  * `exists_phiIrreducible` — `FunctionFieldGeneration/ModularPolynomialExistence.lean`
+    (the pin's `Theorems/Thm_ModularCurve_exists_phiIrreducible`; the port homes it
+    in the non-`C` interface tail, which is upstream of this layer);
   * `qExpand_jqModC_eq_pow_unconditional` — `Defs/QExpandCharP.lean`.
 
   `coeffMap_jqModC_eq` is the port's `map_jqModC` read through `coeffMap`; it is
@@ -129,7 +129,7 @@ spec-pin: Theorems/Thm_ModularCurve_c4_pow_three_tateLaurent.lean
 -/
 import FLTForHuman.ModularCurve.Defs.QExpandCharP
 import FLTForHuman.ModularCurve.Degree.PrimeNonAdjoin
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.ModularPolynomialExistence
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.PrimePowerStepAnyField
 import FLTForHuman.ModularCurve.X1.IntegralityJqNModC
 import Mathlib.Algebra.Polynomial.Eval.Irreducible

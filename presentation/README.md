@@ -185,18 +185,16 @@ by different Lean proofs.
 presents `lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean`,
 the unconditional capstone of the function-field-generation segment:
 
-- `inputs` is the seven significant statements of the segment, discharged one by
-  one by T15–T19;
+- `hall_all` is the private strong induction over the divisor lattice; it calls
+  the seven significant statements of T15–T19 directly, with no `Inputs` bundle;
 - `functionFieldGeneration` is the target statement, and the three corollaries
   are the field equality, the degree of the modular equation, and the relative
-  degree of the full field;
-- `exists_monic_evalAtJ_jqN_eq_zero` proves integrality of $`j(q^N)`$ over
-  $`\mathbb{Z}[j(q)]`$ by induction on the prime factorization;
-- `exists_phiIrreducible_of_finrank_eq` turns the degree count into an
-  irreducible modular polynomial by comparing the minimal polynomials over
-  $`\mathbb{Z}[j]`$ and $`\mathbb{Q}(j)`$;
-- `exists_phiIrreducible` and `nonempty_modularPolynomialData` are the packaged
-  exports.
+  degree of the full field.
+
+The interface tail (`exists_monic_evalAtJ_jqN_eq_zero`,
+`exists_phiIrreducible_of_finrank_eq`, `exists_phiIrreducible`,
+`nonempty_modularPolynomialData`) is not part of this sheet: it lives in
+`ModularPolynomialExistence.lean` and is checked there.
 
 The mathematics is written up at length in
 [`math/010-function-field-generation.md`](../../math/010-function-field-generation.md);
@@ -204,7 +202,7 @@ the JSON is the proof-shaped projection of it, with every statement anchored to
 the port's Lean names. The FLT provenance is pinned at
 `anthropics/fermats-last-theorem@aa2d8b3`; for example the theorem wrapper is
 [`Theorems/Thm_ModularCurve_functionFieldGeneration.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_functionFieldGeneration.lean)
-and the assembly is
+and the strong induction is
 [`P2M/Sol/S_ModularCurve_functionFieldGeneration.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_functionFieldGeneration.lean#L614-L700).
 
 What the instance taught, and is now part of the format:
