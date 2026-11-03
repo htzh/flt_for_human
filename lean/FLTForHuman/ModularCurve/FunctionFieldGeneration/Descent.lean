@@ -15,9 +15,8 @@
     the one-prime step `jqN M ∈ F_N` and `Gen M` for every factorization
     `N = M * p` give `modularFunctionField N = modularFunctionFieldFull N`.
 
-  Both are `Inputs` fields of `FunctionFieldGeneration/Spine.lean`, so proving
-  them shrinks the conditional capstone's debt **7 → 5** without changing the
-  structure.
+  These are two of the seven significant statements the capstone consumes
+  directly; `hall_all` calls them without an intervening bundle.
 
   ## Source
 
@@ -42,6 +41,8 @@
   `roots_prime_at_slot_roots_nodup`, `iota_jqN`, `TS_congr`; `Defs/Laurent`'s
   `coeffMap_injective`/`qExpand_injective`; `Defs/Fields`'s
   `modularFunctionField*`/`adjoin_jq_le`/`jqd_mem_full`.
+  spec-pin: Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean
+  spec-pin: Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean
 -/
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import FLTForHuman.FieldTheory.CommonRoot

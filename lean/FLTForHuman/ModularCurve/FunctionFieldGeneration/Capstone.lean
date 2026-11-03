@@ -1,5 +1,5 @@
 /-
-  The spine of `functionFieldGeneration`: a proved conditional capstone.
+  The capstone of `functionFieldGeneration`: the unconditional theorem.
 
   FLT provenance, pinned `aa2d8b3`:
   `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean` —
@@ -10,48 +10,34 @@
   614–700 (`hall_all`).
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_functionFieldGeneration.lean
 
-  This is the artifact `PORTING-FFG.md` §7.4 prescribes: a **conditional**
-  capstone whose hypotheses are FLT's significant remaining statements, proved
-  outright so that it contains no `sorryAx`. `hall_all` is the strong induction
-  of math/010 §7 carrying the two invariants `Tight` (the relative degree of
-  `ℚ⟮jq⟯(jqN d)` over `ℚ⟮jq⟯` is `ψ(d)`) and `Gen` (the two-generator field is
-  already the full divisor field) over the divisor lattice; the block above it is
-  glue. `functionFieldGeneration_of` applies Layer 0's
-  `functionFieldGeneration_iff_full_eq` to `hall_all`.
+  `hall_all` is the strong induction of math/010 §7 carrying the two invariants
+  `Tight` (the relative degree of `ℚ⟮jq⟯(jqN d)` over `ℚ⟮jq⟯` is `ψ(d)`) and `Gen`
+  (the two-generator field is already the full divisor field) over the divisor
+  lattice; the block above it is glue. It is private because it is an internal
+  induction with no consumer of its own; `functionFieldGeneration` and the three
+  corollaries below are the public surface, stated as in the pin. The induction
+  consumes the seven significant statements directly, as FLT's does.
 
-  `Inputs` collects the significant statements the spine consumes, stated as in
-  the pin so that discharging one is a drop-in replacement. Three of the original
-  ten have since been discharged — `dedekindPsi_mul_of_coprime` and
-  `dedekindPsi_prime_pow`, now public lemmas in `Defs/Jq.lean` beside
-  `dedekindPsi`, and `relfinrank_modularFunctionField`, now a public lemma in
-  `Defs/Fields.lean` beside `adjoin_jq_le` — so the structure has **seven**
-  fields. **T15–T19 proved all seven**, so this file's conditional artifact is no
-  longer the end of the story: `Capstone.lean` constructs `inputs : Inputs` from
-  them and proves the unconditional `functionFieldGeneration`. `hall_all` is
-  public here for that module's corollary layer. The auxiliary block is `private`;
-  the public surface is `Inputs`, `hall_all` and `functionFieldGeneration_of`. T18
-  moved the `Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` (and the T19
-  substitution `gen_prime`) to `Defs/Fields.lean`; they are imported, not declared
-  here.
+  spec-pin: Theorems/Thm_ModularCurve_functionFieldGeneration.lean
+  spec-pin: Theorems/Thm_ModularCurve_modularFunctionField_eq_full.lean
+  spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean
+  spec-pin: Theorems/Thm_ModularCurve_relfinrank_full_eq_dedekindPsi.lean
 
-  Two of the seven fields state FLT's `hall` hypothesis as `Hall M →` rather than
-  writing the conjunction out. `Hall` is an `abbrev` for exactly that conjunction
-  (`Tight`-and-`Gen` at every divisor), so the two are definitionally the pin's;
-  the abbreviation is what the induction actually consumes. FLT's `iota_jq`
-  (110–112) is not ported here. The cyclotomic roots (`cycUnit`, `cycUnit_spec`,
-  `isPrimitiveRoot_pow_div`) are public in `Defs/Cyclotomic.lean` and are
-  imported, not re-declared.
-
-  Assumes `coeffMap`/`coeffEmb`/`qExpand` (`Defs/Laurent`), `qTwist`
-  (`Defs/Twist`), `jq`/`jqN`/`dedekindPsi`/`jGen` (`Defs/Jq`), the two function
-  fields and `jqd_mem_full`/`full_degeneracy_le`/`relfinrank_modularFunctionField`
-  (`Defs/Fields`), `TS` and its lemmas (`Defs/TS`), and the §2 collapse
-  (`Collapse.lean`).
+  Assumes the seven significant statements (descent, the prime-power degree step,
+  the non-membership tower, one new generator per prime power, the slot product
+  and the prime non-membership), the `Tight`/`Gen`/`Hall` vocabulary with
+  `tight_one`/`gen_one`, the cyclotomic roots, `TS` and its lemmas, and the §2
+  collapse.
 -/
 import Mathlib.NumberTheory.Cyclotomic.Basic
 import Mathlib.FieldTheory.Relrank
 import Mathlib.Data.Nat.Factorization.Basic
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
 import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 
@@ -99,78 +85,6 @@ T13 and moved by T18 to `Defs/Fields.lean` beside the two fields they concern;
 `Defs/TS`/`Collapse` import that module, so they are in scope here without a
 local copy. `gen_prime` (T19's substitution) lives there too. -/
 
-/-! ## `Inputs`: the significant statements
-
-Each field is one of the 24 nodes of `PORTING-FFG.md` §7.3 that the spine
-consumes but does not prove, stated as in the pin. The docstring on each says why
-it survives pruning. The three fields the spine originally carried for
-`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow` and
-`relfinrank_modularFunctionField` have since been discharged, into `Defs/Jq.lean`
-and `Defs/Fields.lean`; the `ψ` helpers below now use the real lemmas, and
-`relfinrank_full_of` calls the real `relfinrank_modularFunctionField`. -/
-
-structure Inputs where
-  /-- The tower step for `Gen`: `jqN (p ^ (a+1))` generates `modularFunctionFieldFull`
-  over `modularFunctionFieldFull (M * p ^ a)` when `p ∤ M`. -/
-  full_eq_adjoin_full_div_prime :
-    ∀ (M : ℕ) [NeZero M] (p : ℕ) [Fact (Nat.Prime p)] (a : ℕ), ¬ p ∣ M →
-      modularFunctionFieldFull (M * p ^ (a + 1)) =
-        IntermediateField.adjoin ℚ (insert (jqN (p ^ (a + 1)))
-          (modularFunctionFieldFull (M * p ^ a) : Set (LaurentSeries ℚ)))
-  /-- `jqN p ∉ modularFunctionFieldFull M` for `p ∤ M`: the non-membership the
-  prime-power tower needs. -/
-  jqN_prime_not_mem_full :
-    ∀ (M : ℕ) [NeZero M] (p : ℕ) [Fact (Nat.Prime p)], ¬ p ∣ M → Hall M →
-      jqN p ∉ modularFunctionFieldFull M
-  /-- The prime-power non-membership, propagated up the tower of `jqN (p ^ i)`. -/
-  jqN_pow_not_mem_adjoin_full :
-    ∀ (M : ℕ) [NeZero M] (p : ℕ) [Fact (Nat.Prime p)] (a : ℕ),
-      jqN p ∉ modularFunctionFieldFull M →
-        jqN (p ^ (a + 2)) ∉ IntermediateField.adjoin ℚ
-          ((modularFunctionFieldFull M : Set (LaurentSeries ℚ)) ∪
-            {x : LaurentSeries ℚ | ∃ i : ℕ, i ≤ a + 1 ∧ x = jqN (p ^ i)})
-  /-- The explicit minimal polynomial of `jqN M` over `ℚ⟮jq⟯`, mapped into `K`: the
-  slot description `root_shape` reads its roots off. -/
-  minpoly_jqN_map_eq_prod_slots :
-    ∀ {K : Type} [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M] (ζ : Kˣ)
-      (_hζ : IsPrimitiveRoot (ζ : K) M), Hall M →
-      (minpoly ℚ⟮jq⟯ (jqN M)).map
-          (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) =
-        ∏ a ∈ M.divisors,
-          ∏ b ∈ (Finset.range (M / a)).filter (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
-            (Polynomial.X - Polynomial.C (if h : a = 0 then 0
-              else letI : NeZero a := ⟨h⟩
-                qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq))))
-  /-- The `Gen` step of the induction: if every proper divisor `M` of `N` with
-  `M * p = N` satisfies both step conditions, then `modularFunctionField N` is full. -/
-  modularFunctionField_eq_full_of :
-    ∀ (N : ℕ) [NeZero N],
-      (∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N → jqN M ∈ modularFunctionField N) →
-      (∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →
-        modularFunctionField M = modularFunctionFieldFull M) →
-      modularFunctionField N = modularFunctionFieldFull N
-  /-- The slot-analysis input feeding `Gen`: `jqN M ∈ modularFunctionField (M * p)`
-  from the twist and slot hypotheses `htw_of`/`hsp_of` discharge. -/
-  jqN_div_mem_modularFunctionField :
-    ∀ (M : ℕ) [NeZero M] (p : ℕ) [Fact (Nat.Prime p)] {K : Type} [Field K] [Algebra ℚ K]
-      (ζ : Kˣ) (_hζ : IsPrimitiveRoot (ζ : K) (M * p))
-      (_htw : ∀ y : LaurentSeries K, Polynomial.eval y ((minpoly ℚ⟮jq⟯ (jqN M)).map
-        (((coeffEmb K).comp (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) = 0 →
-        ∀ w : Kˣ, y = qExpand K (M * p * M) (qTwist w (coeffEmb K jq)) → w = 1)
-      (_hsp : ∀ y : LaurentSeries K, Polynomial.eval y ((minpoly ℚ⟮jq⟯ (jqN M)).map
-        (((coeffEmb K).comp (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) = 0 →
-        y ≠ coeffEmb K (qExpand ℚ (M * p) (jqN (M * p * p)))),
-      jqN M ∈ modularFunctionField (M * p)
-  /-- The degree-multiplication step for `Tight`: each prime-power tower step has
-  relative degree `p + 1` (first step) or `p` (later steps). -/
-  relfinrank_full_eq_mul :
-    ∀ (M : ℕ) [NeZero M] (p : ℕ) [Fact (Nat.Prime p)] (a : ℕ),
-      modularFunctionFieldFull (M * p ^ (a + 1)) = IntermediateField.adjoin ℚ (insert
-        (jqN (p ^ (a + 1))) (modularFunctionFieldFull (M * p ^ a) : Set (LaurentSeries ℚ))) →
-      jqN (p ^ (a + 1)) ∉ modularFunctionFieldFull (M * p ^ a) →
-      IntermediateField.relfinrank (modularFunctionFieldFull (M * p ^ a))
-        (modularFunctionFieldFull (M * p ^ (a + 1))) = if a = 0 then p + 1 else p
-
 /-! ## The auxiliary block -/
 
 -- The two prime-step case splits `dedekindPsi_mul_prime_{dvd,not_dvd}` were
@@ -189,7 +103,7 @@ private theorem F0_le_full (N : ℕ) [NeZero N] : ℚ⟮jq⟯ ≤ modularFunctio
   rw [qExpand_one_apply] at h
   exact h
 
-private theorem full_le_adjoin_chain (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
+private theorem full_le_adjoin_chain (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
     (hpM : ¬ p ∣ M) : ∀ a : ℕ,
     modularFunctionFieldFull (M * p ^ a) ≤ IntermediateField.adjoin ℚ
       ((modularFunctionFieldFull M : Set (LaurentSeries ℚ))
@@ -200,7 +114,7 @@ private theorem full_le_adjoin_chain (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ)
       rw [full_congr (show M * p ^ 0 = M by rw [pow_zero, mul_one])]
       exact fun x hx => IntermediateField.subset_adjoin ℚ _ (Set.mem_union_left _ hx)
   | succ k ih =>
-      rw [h.full_eq_adjoin_full_div_prime M p k hpM, IntermediateField.adjoin_le_iff,
+      rw [full_eq_adjoin_full_div_prime M p k hpM, IntermediateField.adjoin_le_iff,
         Set.insert_subset_iff]
       refine ⟨IntermediateField.subset_adjoin ℚ _ (Set.mem_union_right _
         (show jqN (p ^ (k + 1)) ∈ {x : LaurentSeries ℚ | ∃ i : ℕ, i ≤ k + 1 ∧ x = jqN (p ^ i)}
@@ -212,29 +126,29 @@ private theorem full_le_adjoin_chain (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ)
       obtain ⟨i, hi, hy⟩ := hy
       exact ⟨i, Nat.le_succ_of_le hi, hy⟩
 
-private theorem jqN_pow_not_mem_full (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
+private theorem jqN_pow_not_mem_full (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
     (hpM : ¬ p ∣ M) (hallM : Hall M) (a : ℕ) :
     jqN (p ^ (a + 1)) ∉ modularFunctionFieldFull (M * p ^ a) := by
-  have h0 : jqN p ∉ modularFunctionFieldFull M := h.jqN_prime_not_mem_full M p hpM hallM
+  have h0 : jqN p ∉ modularFunctionFieldFull M := jqN_prime_not_mem_full M p hpM hallM
   rcases a with - | k
   · rw [jqN_congr (show p ^ (0 + 1) = p by rw [zero_add, pow_one]),
       full_congr (show M * p ^ 0 = M by rw [pow_zero, mul_one])]
     exact h0
   · intro hmem
-    have h1 := h.jqN_pow_not_mem_adjoin_full M p k h0
-    exact h1 (full_le_adjoin_chain h M p hpM (k + 1) hmem)
+    have h1 := jqN_pow_not_mem_adjoin_full M p k h0
+    exact h1 (full_le_adjoin_chain M p hpM (k + 1) hmem)
 
 section Shapes
 
 variable {K : Type} [Field K] [Algebra ℚ K]
 
-private theorem root_shape (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
+private theorem root_shape (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M) (y : LaurentSeries K)
     (hy : Polynomial.eval y ((minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
       (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) = 0) :
     ∃ a : ℕ, ∃ _ : NeZero a, a ∣ M ∧ ∃ b : ℕ, b < M / a ∧
       y = TS K (p * (a * a)) (ζ ^ (b * a)) := by
-  have hid := h.minpoly_jqN_map_eq_prod_slots (K := K) M ζ hζ hallM
+  have hid := minpoly_jqN_map_eq_prod_slots (K := K) M ζ hζ hallM
   have hcomp : (qExpand K p).comp (((coeffEmb K).comp (qExpand ℚ M)).comp
       (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
       = ((coeffEmb K).comp (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) := by
@@ -255,12 +169,12 @@ private theorem root_shape (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fac
   rw [hy, coeffEmb_jq]
   exact qExpand_TS p (a * a) (ζ ^ (b * a))
 
-private theorem htw_of (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
+private theorem htw_of (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M) (y : LaurentSeries K)
     (hy : Polynomial.eval y ((minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
       (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) = 0)
     (w : Kˣ) (hw : y = qExpand K (M * p * M) (qTwist w (coeffEmb K jq))) : w = 1 := by
-  obtain ⟨a, _, haM, b, hb, rfl⟩ := root_shape h M p ζ hζ hallM y hy
+  obtain ⟨a, _, haM, b, hb, rfl⟩ := root_shape M p ζ hζ hallM y hy
   rw [coeffEmb_jq] at hw
   change TS K (p * (a * a)) (ζ ^ (b * a)) = TS K (M * p * M) w at hw
   obtain ⟨he, hu⟩ := TS_injective hw
@@ -278,12 +192,12 @@ private theorem htw_of (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (N
   rw [zero_mul, pow_zero] at hu
   exact hu.symm
 
-private theorem hsp_of (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
+private theorem hsp_of (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M) (y : LaurentSeries K)
     (hy : Polynomial.eval y ((minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
       (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) = 0) :
     y ≠ coeffEmb K (qExpand ℚ (M * p) (jqN (M * p * p))) := by
-  obtain ⟨a, _, haM, b, _, rfl⟩ := root_shape h M p ζ hζ hallM y hy
+  obtain ⟨a, _, haM, b, _, rfl⟩ := root_shape M p ζ hζ hallM y hy
   rw [iota_jqN]
   intro hh
   obtain ⟨he, _⟩ := TS_injective hh
@@ -300,15 +214,14 @@ private theorem hsp_of (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (N
 
 end Shapes
 
-/-! ## The strong induction and the conditional capstone -/
+/-! ## The strong induction and the capstone -/
 
 /-- **The strong induction of math/010 §7.** From the seven significant
-statements bundled in `Inputs`, `Tight` and `Gen` hold at every divisor of every
-`N ≠ 0`. It is the source of the capstone's corollary layer
-(`modularFunctionField_eq_full`, `finrank_adjoin_jqN_eq_dedekindPsi`,
-`relfinrank_full_eq_dedekindPsi`), so it is public; `functionFieldGeneration_of`
-consumes it just below. -/
-theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
+statements, `Tight` and `Gen` hold at every divisor of every `N ≠ 0`. It is the
+source of the capstone's corollary layer (`modularFunctionField_eq_full`,
+`finrank_adjoin_jqN_eq_dedekindPsi`, `relfinrank_full_eq_dedekindPsi`), so it is
+kept in this module; `functionFieldGeneration` consumes it just below. -/
+private theorem hall_all : ∀ N : ℕ, N ≠ 0 → Hall N := by
   intro N
   induction N using Nat.strong_induction_on with
   | _ N ih =>
@@ -323,17 +236,17 @@ theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
   · subst h1; exact ⟨tight_one, gen_one⟩
   have hgen : Gen d := by
     unfold Gen
-    refine h.modularFunctionField_eq_full_of d ?_ ?_
+    refine modularFunctionField_eq_full_of d ?_ ?_
     · intro M _ p hp hMp
       have : Fact (Nat.Prime p) := ⟨hp⟩
       have hMlt : M < d := by
         rw [← hMp]; exact lt_mul_of_one_lt_right (Nat.pos_of_ne_zero (NeZero.ne M)) hp.one_lt
       have hallM : Hall M := hprop M ⟨p, hMp.symm⟩ hMlt
-      have hmem := h.jqN_div_mem_modularFunctionField M p (K := CyclotomicField (M * p) ℚ)
+      have hmem := jqN_div_mem_modularFunctionField M p (K := CyclotomicField (M * p) ℚ)
         (cycUnit (M * p)) (cycUnit_spec (M * p))
-        (fun y hy w hw => htw_of h M p (cycUnit (M * p) ^ (M * p / M))
+        (fun y hy w hw => htw_of M p (cycUnit (M * p) ^ (M * p / M))
           (isPrimitiveRoot_pow_div (cycUnit_spec (M * p)) ⟨p, rfl⟩) hallM y hy w hw)
-        (fun y hy => hsp_of h M p (cycUnit (M * p) ^ (M * p / M))
+        (fun y hy => hsp_of M p (cycUnit (M * p) ^ (M * p / M))
           (isPrimitiveRoot_pow_div (cycUnit_spec (M * p)) ⟨p, rfl⟩) hallM y hy)
       rw [mff_congr hMp] at hmem
       exact hmem
@@ -368,8 +281,8 @@ theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
       dedekindPsi (M * p ^ a) := by
     have hh := hall_low (M * p ^ a) dvd_rfl
     exact relfinrank_full_of _ hh.1 hh.2
-  have hstep := h.relfinrank_full_eq_mul M p a
-    (h.full_eq_adjoin_full_div_prime M p a hpM) (jqN_pow_not_mem_full h M p hpM hallM a)
+  have hstep := relfinrank_full_eq_mul M p a
+    (full_eq_adjoin_full_div_prime M p a hpM) (jqN_pow_not_mem_full M p hpM hallM a)
   have htower := IntermediateField.relfinrank_mul_relfinrank (F0_le_full (M * p ^ a))
     (full_degeneracy_le (N := M * p ^ a) (M := M * p ^ (a + 1)) ⟨p, by rw [pow_succ, mul_assoc]⟩)
   rw [← relfinrank_modularFunctionField d]
@@ -389,8 +302,34 @@ theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
       rw [Nat.succ_sub_one, pow_succ]; ring
   rw [hpsi]
 
-theorem functionFieldGeneration_of (h : Inputs) (N : ℕ) [NeZero N] : FunctionFieldGeneration N :=
-  (functionFieldGeneration_iff_full_eq N).mpr (hall_all h N (NeZero.ne N) N dvd_rfl).2.symm
+/-- **The theorem.** For every `N ≠ 0`, every `j(q ^ d)` with `d ∣ N` lies in
+`ℚ(j(q), j(q ^ N))`: the function field of `X₀(N)` is generated by `j` and `j_N`.
+Unconditional. Verbatim from
+`Theorems/Thm_ModularCurve_functionFieldGeneration.lean`. -/
+theorem functionFieldGeneration (N : ℕ) [NeZero N] : FunctionFieldGeneration N :=
+  (functionFieldGeneration_iff_full_eq N).mpr (hall_all N (NeZero.ne N) N dvd_rfl).2.symm
+
+/-- The two-generator field is the full divisor field. Verbatim from
+`Theorems/Thm_ModularCurve_modularFunctionField_eq_full.lean`. -/
+theorem modularFunctionField_eq_full (N : ℕ) [NeZero N] :
+    modularFunctionField N = modularFunctionFieldFull N :=
+  (hall_all N (NeZero.ne N) N dvd_rfl).2
+
+/-- The modular equation at level `N` has full degree `ψ(N)`. Verbatim from
+`Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean`. -/
+theorem finrank_adjoin_jqN_eq_dedekindPsi (N : ℕ) [NeZero N] :
+    Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+      (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+        ({jqN N} : Set (LaurentSeries ℚ))) = dedekindPsi N :=
+  (hall_all N (NeZero.ne N) N dvd_rfl).1
+
+/-- The full field has degree `ψ(N)` over `ℚ(j)`. Verbatim from
+`Theorems/Thm_ModularCurve_relfinrank_full_eq_dedekindPsi.lean`. -/
+theorem relfinrank_full_eq_dedekindPsi (N : ℕ) [NeZero N] :
+    IntermediateField.relfinrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+      (modularFunctionFieldFull N) = dedekindPsi N := by
+  rw [← modularFunctionField_eq_full N, relfinrank_modularFunctionField N]
+  exact finrank_adjoin_jqN_eq_dedekindPsi N
 
 end ModularCurve
 

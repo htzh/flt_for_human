@@ -4,7 +4,8 @@
   This is the non-membership half of the strong induction (math/010 §6a), two
   statements in one module:
 
-  * `jqN_pow_not_mem_adjoin_full` — the **prime-power tower**, an `Inputs` field:
+  * `jqN_pow_not_mem_adjoin_full` — the **prime-power tower**, one of the seven
+    statements the capstone consumes:
     `j(q ^ (p ^ (a + 2))) ∉ ℚ(F_M^full, j(q ^ p), …, j(q ^ (p ^ (a + 1))))`. The
     proof builds the tower of intermediate fields
     `C_i = ℚ(F_M^full, j(q ^ (p ^ j)) : j ≤ i)` and, by strong induction on `a`,
@@ -23,10 +24,10 @@
     `[ℚ(j)(j(q ^ p)) : ℚ(j)] = p + 1` — T16's first statement. The Finset
     induction over `S` is `jqN_prime_not_mem_adjoin_key`.
 
-  The tower is an `Inputs` field, so proving it takes the conditional capstone's
-  debt down by one. The base is **not** on the capstone's path (T19's private
-  M-arbitrary lemma is what discharges `Inputs.jqN_prime_not_mem_full`); it is
-  public `Theorems/` API, consumed by `relfinrank_adjoin_primes`,
+  The tower is one of the seven statements the capstone consumes directly. The base
+  is **not** on the capstone's path (T19's private M-arbitrary lemma is what
+  discharges the prime non-membership); it is public `Theorems/` API, consumed by
+  `relfinrank_adjoin_primes`,
   `relfinrank_full_mul_prime` and `jqN_sq_not_mem_adjoin`.
 
   ## Source
@@ -58,6 +59,8 @@
   `qExpand_injective`; `Defs/Cyclotomic`'s `cycUnit`/`cycUnit_spec`;
   `Defs/Fields`'s `modularFunctionFieldFull`/`jqd_mem_full`; `Defs/Jq`'s
   `coeff_jq_neg_one`/`jqN_one`/`jqN_congr`.
+  spec-pin: Theorems/Thm_ModularCurve_jqN_pow_not_mem_adjoin_full.lean
+  spec-pin: Theorems/Thm_ModularCurve_jqN_prime_not_mem_adjoin.lean
 -/
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import FLTForHuman.FieldTheory.CommonRoot
@@ -609,8 +612,8 @@ private theorem jqN_pow_not_mem_adjoin_full_key (M : ℕ) [NeZero M] (p : ℕ)
     dp hsp hF IH hmem
 
 /-- **The prime-power tower**: for `jqN p ∉ F_M^full`,
-`j(q ^ (p ^ (a + 2))) ∉ ℚ(F_M^full, j(q ^ p), …, j(q ^ (p ^ (a + 1))))`. This is
-the `Inputs.jqN_pow_not_mem_adjoin_full` field. Verbatim from
+`j(q ^ (p ^ (a + 2))) ∉ ℚ(F_M^full, j(q ^ p), …, j(q ^ (p ^ (a + 1))))`. Verbatim
+from
 `Theorems/Thm_ModularCurve_jqN_pow_not_mem_adjoin_full.lean`. -/
 theorem jqN_pow_not_mem_adjoin_full (M : ℕ) [NeZero M] (p : ℕ)
     [hp : Fact (Nat.Prime p)] (a : ℕ)

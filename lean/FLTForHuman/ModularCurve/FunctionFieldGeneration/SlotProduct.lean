@@ -1,8 +1,7 @@
 /-
   T19 — the slot product and the prime non-membership.
 
-  The last two `Inputs` fields, so with them the conditional capstone's debt is
-  **2 → 0**:
+  The last two of the seven significant statements the capstone consumes:
 
   * `minpoly_jqN_map_eq_prod_slots` (the pin's `rval_aux`) — the explicit
     conjugate list: for a primitive `M`-th root `ζ`,
@@ -1239,8 +1238,7 @@ end RValCore
 /-! ## The public node -/
 
 /-- **The slot product**: the mapped minimal polynomial of `jqN M` is the product
-of `(X - C (sv K ζ a b))` over the slots. This is the `Inputs` field
-`minpoly_jqN_map_eq_prod_slots`. Verbatim from
+of `(X - C (sv K ζ a b))` over the slots. Verbatim from
 `Theorems/Thm_ModularCurve_minpoly_jqN_map_eq_prod_slots.lean` (explicit `hall`
 conjunction, explicit `if` form). -/
 theorem minpoly_jqN_map_eq_prod_slots {K : Type*} [Field K] [Algebra ℚ K]
@@ -1583,8 +1581,7 @@ end NonMem0
 
 /-! ## The public node -/
 
-/-- **Prime non-membership**: `j(q ^ p) ∉ F_M^full` for `p ∤ M`. This is the last
-`Inputs` field. Verbatim from
+/-- **Prime non-membership**: `j(q ^ p) ∉ F_M^full` for `p ∤ M`. Verbatim from
 `Theorems/Thm_ModularCurve_jqN_prime_not_mem_full.lean` (explicit `hall`
 conjunction). -/
 theorem jqN_prime_not_mem_full (M : ℕ) [NeZero M] (p : ℕ)

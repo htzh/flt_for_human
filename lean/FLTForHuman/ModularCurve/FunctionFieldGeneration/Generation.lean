@@ -1,11 +1,10 @@
 /-
   T18 — one new generator per prime power.
 
-  The mandatory scope of T18 is the single `Inputs` field
+  T18 proves the one statement the capstone consumes from this module,
   `full_eq_adjoin_full_div_prime`: for `p ∤ M`,
   `F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))`. It is the
-  generation half of the strong induction; with it the conditional capstone's debt
-  is **3 → 2**.
+  generation half of the strong induction, called directly by `hall_all`.
 
   The engine is the **two-prime descent** `jqN_mem_of_div_primes`: if
   `j(q ^ (d / p))` and `j(q ^ (d / q))` both lie in a field `F`, then `j(q ^ d)`
@@ -49,6 +48,7 @@
   `iota_jqN`, `TS_congr`/`TS_injective`; `Defs/Cyclotomic`'s `cycUnit`/`cycUnit_spec`;
   `Defs/Fields`'s `modularFunctionFieldFull`/`jqd_mem_full`/`full_degeneracy_le`;
   `Defs/Laurent`'s `coeffMap_injective`/`qExpand_injective`.
+  spec-pin: Theorems/Thm_ModularCurve_full_eq_adjoin_full_div_prime.lean
 -/
 import FLTForHuman.FieldTheory.CommonRoot
 import FLTForHuman.ModularCurve.Defs.Laurent
@@ -291,8 +291,7 @@ private theorem w1_jqN_mem_adjoin_top_insert (M : ℕ) [NeZero M] (p : ℕ)
 /-! ## The node -/
 
 /-- **One new generator per prime power**: for `p ∤ M`,
-`F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))`. This is the
-`Inputs.full_eq_adjoin_full_div_prime` field. Verbatim from
+`F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))`. Verbatim from
 `Theorems/Thm_ModularCurve_full_eq_adjoin_full_div_prime.lean`. -/
 theorem full_eq_adjoin_full_div_prime (M : ℕ) [NeZero M] (p : ℕ)
     [hp : Fact (Nat.Prime p)] (a : ℕ) (hpM : ¬ p ∣ M) :

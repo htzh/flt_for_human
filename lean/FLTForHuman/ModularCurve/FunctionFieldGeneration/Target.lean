@@ -14,6 +14,7 @@
   Assumes `qExpand` from `FLTForHuman.ModularCurve.Defs.Laurent` and `jq` from
   `FLTForHuman.ModularCurve.Defs.Jq`; it mentions nothing from Layer 0b, which is why the
   target is statable already.
+  spec-pin: Definitions/Def_ModularCurve_X0.lean
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
 

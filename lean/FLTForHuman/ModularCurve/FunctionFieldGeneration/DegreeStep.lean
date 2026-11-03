@@ -19,8 +19,8 @@
     full prime-power step is `p + 1` when `a = 0` and `p` otherwise, by the two
     statements above plus `w1_relfinrank_insert`.
 
-  The third is an `Inputs` field, so proving all three takes the conditional
-  capstone's debt **5 → 4**.
+  All three are statements the capstone consumes directly;
+  `relfinrank_full_eq_mul` is the one `hall_all` calls.
 
   ## Source
 
@@ -51,6 +51,9 @@
   `qTwistEquiv`/`_apply`, `qTwist_iota_of_pow_eq_one`, `qTwist_TS_one_cycle`,
   `phiProd`, `roots_phiProd_conj(_nodup)`, `roots_prime_at_slot*`, `iota_jqN`,
   `TS_congr`; the T16 promotions; mathlib's cyclotomic-automorphism API.
+  spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqN_prime_of_not_mem.lean
+  spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean
+  spec-pin: Theorems/Thm_ModularCurve_relfinrank_full_eq_mul.lean
 -/
 import Mathlib.NumberTheory.Cyclotomic.Gal
 import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots

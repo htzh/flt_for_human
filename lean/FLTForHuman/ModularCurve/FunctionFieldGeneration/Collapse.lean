@@ -17,6 +17,7 @@
   Assumes `FunctionFieldGeneration` (`FunctionFieldGeneration/Target`) and `modularFunctionField`,
   `modularFunctionFieldFull`, `modularFunctionField_le_full`, `jqd_mem_full`
   (`Defs/Fields`). Not under `Defs/` because it is a result, not a definition.
+  spec-pin: Theorems/Thm_ModularCurve_functionFieldGeneration_iff_full_eq.lean
 -/
 import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Target

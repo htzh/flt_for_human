@@ -3491,16 +3491,13 @@ PORT_FILES = [
     # diffed twice — harmless, and it keeps the moved statements verified even if
     # the shim is ever dropped.
     "FLTForHuman/ModularCurve/Defs/DedekindPsi.lean",
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean",
     "FLTForHuman/ModularCurve/Defs/Polynomial.lean",
     "FLTForHuman/ModularCurve/Defs/Fields.lean",
     "FLTForHuman/ModularCurve/Defs/PhiGen.lean",
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean",
     # MIGRATED 2026-10-27 (the leaves' row wave): `JqCoefficients.lean` now carries its own
     # `spec-pin:` block for the three leaves rows it gained (52 ok / 0 mismatch / 0 missing /
     # 2 own, the two `own:` rows recorded in `spec/decl_markers.tsv`) and is owned by
     # `spec/check_port.py`. Its `SOURCES` entries stay. Do not re-list it.
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
     "FLTForHuman/ModularCurve/Defs/Cyclotomic.lean",
     "FLTForHuman/ModularForms/QExpansionPrinciple.lean",
     "FLTForHuman/ModularForms/JqAnalyticModel.lean",
@@ -3543,16 +3540,15 @@ PORT_FILES = [
     # downstream at-slot roots API.
     "FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
     "FLTForHuman/ModularCurve/PhiSlotRoots.lean",
+    # MIGRATED 2026-11-03 (the FFG capstone refactor): `Target`, `Collapse`,
+    # `Capstone` (the renamed `Spine`), `Descent`, `DegreeStep`, `Nonmembership`
+    # and `Generation` now carry their own `spec-pin:` blocks and are owned by
+    # `spec/check_port.py`. Do not re-list them here.
     # Topic 15, the descent and the one-prime reduction.
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
     # Topic 16, the degree step.
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/DegreeStep.lean",
     # Topic 17, the non-membership tower and the two-prime separation.
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean",
     # Topic 18, one new generator per prime power.
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean",
     # Topic 20, the unconditional capstone.
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean",
     # SET 1 (AC0 + T1), the generic curve vocabulary and the ord interface.
     "FLTForHuman/AlgebraicCurve/Defs/Place.lean",
     # `Divisor.lean` is now wired to `spec/check_port.py` (2026-10-27) by its own
@@ -5270,29 +5266,18 @@ OWN_PROOFS = {
     "dedekindPsi_mul_prime_not_dvd",
     "coeff_jq_zero",
     "coeff_jq_one",
-    # `Spine.lean`'s public surface. `Tight`/`Gen`/`Hall` are FLT's private
+    # The FFG strong-induction vocabulary. `Tight`/`Gen`/`Hall` are FLT's private
     # abbreviations in `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean`
-    # (lines 413–419), promoted to public here so a later discharge can name them;
-    # the script only reads non-private declarations, so it cannot see the pin's.
-    # `Inputs` and `functionFieldGeneration_of` are ours: `Inputs` bundles FLT's
-    # significant statements and has no counterpart to diff, and the capstone is
-    # the conditional artifact of TOPIC-conditional-capstone.md, not a node in the
-    # pin. Their auxiliaries are `private` and so are invisible to the checker.
+    # (lines 413–419), promoted to public in `Defs/Fields.lean` so a later
+    # discharge can name them; the script only reads non-private declarations, so
+    # it cannot see the pin's.
     "Tight",
     "Gen",
     "Hall",
-    "Inputs",
-    "functionFieldGeneration_of",
-    # `hall_all` (T20) is FLT's strong induction, but the pin states its seven
-    # hypotheses as section variables (`: ∀ N : ℕ, N ≠ 0 → Hall N`), while the port
-    # bundles them as `Inputs` — the device immediately above, which is ours.
-    # So the port's statement is the pin's modulo that bundling, exactly as
-    # `functionFieldGeneration_of` is.
-    "hall_all",
-    # `inputs` (T20) is the port's assembly of the seven proved field theorems
-    # into `Inputs`. FLT has no counterpart: its `hall_all` is applied directly to
-    # the hypotheses. This is the one declaration the capstone adds that is ours.
-    "inputs",
+    # `Inputs`, `functionFieldGeneration_of`, `hall_all` and `inputs` were the
+    # conditional capstone's port device. Removed 2026-11-03: the capstone calls
+    # the seven statements directly and `hall_all` is private and the pin's
+    # verbatim, so none of them is a port-own declaration any more.
     # `mem_adjoin_jq_of_poleOrderLE_zero` is ours, like `coeff_jq_zero` /
     # `coeff_jq_one`: it states the `n = 0` end of R1's Hauptmodul form
     # (base/013 §3, §5.5) as a corollary of the transcribed kernel. FLT has no
