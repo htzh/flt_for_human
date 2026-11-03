@@ -10,10 +10,13 @@
   archimedean component's behaviour.
 
   Transcribed verbatim from `Definitions/Def_NumberField_StandardGlobalAddCharRat.lean`
-  (pinned `aa2d8b3`, 724 lines, 44 public declarations, no `private`; 760 pin importers). Its
-  single `Definitions/` import is the already-ported
-  `FLTForHuman.AutomorphicForm.Adelic.WhittakerCoefficient`; the rest of its imports are the
-  specific mathlib modules the pin names, kept as they are.
+  (pinned `aa2d8b3`, 724 lines, 44 public declarations, no `private`; 760 pin importers). The
+  pin's single `Definitions/` import names the `Definitions/` module whose character-theoretic
+  half (`AutomorphicForm.IsPrincipalInvariantAddChar`, `…IsGlobalAddChar`) is what this
+  development uses; that half is transcribed in the character-layer module `GlobalAddChar`,
+  imported here, and the coefficient that shared the pin file is not. The rest of the imports
+  are the specific mathlib modules the pin names, kept as they are.
+  spec-pin: Definitions/Def_NumberField_StandardGlobalAddCharRat.lean
 -/
 import Mathlib.NumberTheory.Padics.PadicNumbers
 import Mathlib.NumberTheory.Padics.RingHoms
@@ -27,7 +30,7 @@ import Mathlib.Algebra.BigOperators.Finprod
 import Mathlib.Analysis.SpecialFunctions.Complex.Log
 import Mathlib.Analysis.Normed.Group.Ultra
 import Mathlib.Analysis.Normed.Ring.Ultra
-import FLTForHuman.AutomorphicForm.Adelic.WhittakerCoefficient
+import FLTForHuman.NumberTheory.NumberField.GlobalAddChar
 
 set_option autoImplicit false
 

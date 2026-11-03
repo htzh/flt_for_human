@@ -5170,8 +5170,15 @@ PORT_FILES = [
     # `spec/check_port.py` (SET-AF9's manager layer: its three `spec-pin:` lines check
     # 131 ok / 0 mismatch / 0 missing, so its whole public surface is diffed); its three
     # `SOURCES` rows above stay, they are the same three pin files.
-    "FLTForHuman/AutomorphicForm/Adelic/WhittakerCoefficient.lean",
-    "FLTForHuman/NumberTheory/NumberField/StandardGlobalAddCharRat.lean",
+    # FLTForHuman/AutomorphicForm/Adelic/WhittakerCoefficient.lean — wired by its own
+    # `spec-pin:` header (the coefficient's definition layer plus the nine API headlines of
+    # SET-AF11); its PORT_FILES row was retired. Its character-theoretic half (the two
+    # predicates and the two degenerate cases) is `NumberField/GlobalAddChar.lean`, wired the
+    # same way. The old SOURCES row for `Definitions/Def_AutomorphicForm_WhittakerCoefficient.lean`
+    # stays: both modules name that pin file.
+    # FLTForHuman/NumberTheory/NumberField/StandardGlobalAddCharRat.lean — wired by its own
+    # `spec-pin:` header (44 ok / 0 mismatch / 0 missing); its PORT_FILES row was retired when
+    # its one `Definitions/` import was split into `NumberField/GlobalAddChar.lean`.
     "FLTForHuman/NumberTheory/NumberField/StandardGlobalAddChar.lean",
     "FLTForHuman/NumberTheory/NumberField/AdelicTraceProducer.lean",
     "FLTForHuman/NumberTheory/NumberField/IntegralAdelicTrace.lean",

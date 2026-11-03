@@ -1,6 +1,10 @@
 # SET-AF11 — the Whittaker coefficient: its API and its archimedean differentiability
 
-**Status: scoped 2026-11-02, not dispatched.** Read off the D–S shelf with the recipe in
+**Status: LANDED 2026-11-02** — manager's layer plus one dispatch, all gates green; **§5.1 records
+the landing and the re-read**. The order is
+[WORKORDER-AF11-whittaker-api.md](WORKORDER-AF11-whittaker-api.md). Two scoping measurements were
+wrong on the tree and are corrected at dispatch in the note after §0 (§3 and §4 carry pointers);
+the scoping text below is otherwise left as read. Read off the D–S shelf with the recipe in
 [../deligneSerre/TOPIC-scoping-a-ds-set.md](../deligneSerre/TOPIC-scoping-a-ds-set.md), on the tree
 SET-AF10 left. It is the **eleventh** `AutomorphicForm`-serving set, and it is the column's return to
 the recipe's *cheapest* cut after four composition sets: not an engine reuse but **nine rows of small,
@@ -64,7 +68,6 @@ mathematics is "what `whittakerCoefficient` does", and after this set a consumer
 or cusp-realization development can read the coefficient's algebra and analysis off one module.
 
 ### 0.3 Why this is a transcription set, and what that costs
-
 The last three sets were compositions (915, 892 and 145 lines already in the port); this one is not.
 Its nine `S_` files are flat — `port_plan` finds 55 duplicate lines and 184 boilerplate out of 1,595 raw,
 and only 145 lines in the port — so the work is the pin's proofs, 1,267 lines in 49 declarations. Two of
@@ -72,6 +75,48 @@ the nine are close to the port already: the complex differentiability row shares
 declarations** with the complex archimedean prelude SET-AF9 landed (`hasDerivAt_archFlowMatrixComplex_apply`,
 `archComplexLiftAt_mul_archComplexGLAt`, `hasDerivAt_of_symm_mul_archFlowMatrixComplex`, …), which is the
 port-once block; the real twin has no such block and is written whole.
+
+### 0.4 At dispatch (2026-11-02): two corrections, and what the manager landed
+
+Measured on the tree, not read off the shelf. The order is
+[WORKORDER-AF11-whittaker-api.md](WORKORDER-AF11-whittaker-api.md).
+
+1. **The definition gate was not free (§3 is corrected).** `spec/gate_scan.py` over
+   `Def_UnramifiedWhittaker_HeckeRecursion.lean` against the two `SmoothCuspRealizationAt.` rows:
+   row 6 uses **3/8** (`placeEmbed`, `repSome`, `repInf`), row 7 uses **2/8** (`placeEmbed`,
+   `scalarPi`) — **4 declarations missing from the port**, and all four are spelled in the rows'
+   *statements*, so rows 6 and 7 could not be stated, let alone proved. The manager ported the
+   whole `Def_` node (8 declarations) as `RepTheory/LocalLanglands/UnramifiedWhittaker.lean`,
+   wired, **8 ok / 0 mismatch / 0 missing**; the gate scan now reads 0 missing on both rows.
+2. **The import list had a cycle (§4 is corrected).** `NumberTheory/NumberField/AdelicTraceFin.lean`
+   — needed by three rows (5, 8, 9) for `NumberField.StandardAddChar.stdAddChar` — imports
+   `AdelicTraceProducer` → `StandardGlobalAddChar` → `StandardGlobalAddCharRat`, and that module
+   imported `WhittakerCoefficient`: the coefficient's module could not import the character. The
+   cut is by subject, not by convenience: the pin's
+   `Definitions/Def_AutomorphicForm_WhittakerCoefficient.lean` files **two subjects**, so its
+   character-theoretic half (`IsPrincipalInvariantAddChar`, `IsGlobalAddChar` and the two
+   degenerate cases) now lives in `NumberTheory/NumberField/GlobalAddChar.lean`
+   (**4 ok / 0 / 0**), and `StandardGlobalAddCharRat.lean` imports that instead — handed over on
+   the way (`spec-pin:` in, `PORT_FILES` row out, **44 ok / 0 / 0**).
+3. **The wire and the counts.** `WhittakerCoefficient.lean` carries **10 `spec-pin:` lines** (the
+   pin `Definitions/` file + the nine `Theorems/` wrappers) and checks **4 ok / 0 mismatch / 0
+   missing** — the coefficient's definition layer; the other four declarations of the pin file are
+   in `GlobalAddChar.lean`. So the landing target is **4 + 9 = 13 ok**, not the 8 + 9 §5 forecast.
+   `lean/tmp/probe-af11-statements.lean` states all nine headlines as `example … := by sorry`
+   against the migrated module alone and elaborates: the statements fit, and the module's `open`
+   list covers them. One import was added after dispatch, at the worker's row-4 blocker:
+   `NumberTheory/AdelicModulus` (the pin's `distribHaarChar_algebraMap` and
+   `isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox` — the product formula, already in the
+   port but outside the module's closure; the manager's edit, not the worker's).
+4. **The price falls by 77 lines (§2 is corrected), not by the plan's dedup.** The pin carries
+   `continuous_unipotentGL2` four times (rows 2, 3, 8, 9); the port has one, strictly more general
+   copy at `AutomorphicForm.continuous_unipotentGL2` (`Adelic/ConstantTerm.lean`), already
+   imported. Effective work: **~1,190 lines in 45 declarations**. The 12 substitutions of row 9
+   (143 lines) are the complex port-once block in `ArchDerivCasimirComplexAPI.lean` and are
+   imported, not transcribed.
+5. **No `Def_` promotion, no `set_option`, no `sorry`; the two new modules are mathlib-like
+   definition modules** (they host declarations without consumers by design: `heckeRecursionSeq`,
+   `torusFactor`, `unipotent`, `diagZ` have no consumer in this set).
 
 ## 1. The nine rows
 
@@ -105,7 +150,11 @@ write in 49 declarations**. The two biggest single blocks are the differentiabil
 16 declarations) and the diagonal reduction (180 lines in 15 declarations — the largest declaration
 count after the complex one).
 
-## 3. The definition gate: complete, no `Def_` node
+## 3. The definition gate — corrected at dispatch: **one** `Def_` node, 8 declarations
+
+*(As scoped this section said "complete, no `Def_` node"; `gate_scan` at dispatch found four
+declarations of `Def_UnramifiedWhittaker_HeckeRecursion` missing from the port, used by rows 6 and
+7 at their statements. See §0.4.1; the measurement below was otherwise right.)*
 
 `spec/gate_scan.py` over the five `Def_` modules of the nine wrappers' closure, all nine rows:
 
@@ -129,8 +178,8 @@ migration is measured, not assumed: with its one `Def_` wire added, `check_port 
 **8 ok / 0 mismatch / 0 missing**. So the manager's layer is: the `Def_` wire in, the `PORT_FILES` row
 out, `UNWIRED-PUBLIC.md` regenerated, and then the nine rows' wires (10 `spec-pin:` lines in total).
 
-**Imports the module must gain** (all acyclic — checked: none of them imports
-`WhittakerCoefficient.lean`):
+**Imports the module must gain** — corrected at dispatch: **not** all acyclic, and all of them are
+now in the module (§0.4.2). The list as scoped, kept for the record:
 
 | for | module |
 |---|---|
@@ -159,11 +208,98 @@ that cost SET-AF8 an hour and has caught a missing `open` in every set since.
 
 **Gates.** No tree build; the module's own `lake env lean -DautoImplicit=false -DmaxHeartbeats=200000`
 and its own `flock`/`timeout 280 lake build`; `check_port --force` → `0 mismatch / 0 missing` (the `ok`
-count is 8 + 9 = 17 if every headline resolves by hash, but measure it); `#print axioms` on all nine
+count is **4 + 9 = 13** — corrected at dispatch, §0.4.3; the definition layer is 4 after the split,
+and measure it rather than assume it); `#print axioms` on all nine
 → `[propext, Classical.choice, Quot.sound]`; zero warnings; `dedup`/`move_dead`; and one
 `spec/AutomorphicFormSetAF11Consumer.lean` zone that composes the transformation law with the
 differentiability identity (the derivative of the coefficient written through the transformation law
 is a real composition).
+
+### 5.1 The landing (2026-11-02)
+
+**Files.** `AutomorphicForm/Adelic/WhittakerCoefficient.lean` 138 → **1,404** (the nine headlines, the
+33 private helpers and six section headers, +1,266); `spec/AutomorphicFormSetAF11Consumer.lean`
+(93 lines, new); `NumberTheory/NumberField/GlobalAddChar.lean` (57) and
+`RepTheory/LocalLanglands/UnramifiedWhittaker.lean` (95) from the manager's layer, and
+`StandardGlobalAddCharRat.lean` handed over. **42 declarations: 9 public headlines + 33 private
+helpers.**
+
+**What the worklist's 49 became 42.** The nine `solution` entries are the nine public headlines with
+the pin's body inlined (the pin has no separate headline in its `S_` files — the `Theorems/` wrapper
+carries the name). Of the 40 helpers, seven went: the pin's four `continuous_unipotentGL2` copies
+(rows 2, 3, 8, 9 — the port's `AutomorphicForm.continuous_unipotentGL2` is strictly more general),
+row 5's `gl_ext` (the imported `ArchDerivCasimir.eq_of_glArch_eq_of_glFin_eq`), row 1's
+`addChar_neg_eq_conj` (dead in its own file, pin `:30`), and row 1's two prelude instances, folded
+into one 3-line `private instance` delegating to the port's
+`FltWs24.AdelicModulusOne.countable_principalSubgroup`. Nine private helpers are *deliberately*
+private though the pin has them public (`whittakerCoefficient_eq_one_diagGL2_mul` and the row-4/5/7/8/9
+preludes): publishing them would need a wire per pin `S_` file and would move the checker's count off
+the set's gate. Promoting any of them is a one-line edit plus a `spec-pin:` line, and is a consumer's
+call (§3.8 of the playbook).
+
+**Gates, re-run by the manager.** Edit loop at `-DmaxHeartbeats=200000` **silent, 6.0 s**; own
+`flock`/`timeout 280 lake build` green (3,608 jobs, no warnings); `check_port --force` **13 ok / 0
+mismatch / 0 missing / 0 own / 0 kw** — the nine resolve by name against their `Theorems/` wrappers
+(4 → 13, and the two manager modules hold at 4 / 8); `#print axioms` on all nine
+`[propext, Classical.choice, Quot.sound]`; `dedup --within` 0 clusters / 0 lines, `move_dead` 0/0;
+the whole wired corpus `check_port --changed` 10,498 ok / 0 / 0; the frozen checker unchanged
+(6,892 identical / 3 mismatched / 18 missing, all pre-existing in `AlgebraicCurve/`); the statements
+probe still elaborates; the consumer zone compiles in 0 errors, 0 warnings.
+
+**Deviations from the pin, all recorded.** One `attribute [local instance]` block replaces the pin's
+per-proof `letI`/`haveI` (FR-0121: `linter.style.haveILetI` is live and `set_option` is forbidden),
+and the flow-coefficient lemmas are restated in the port's `archMatrixUpdate` form (still `rfl`);
+**`add_left_injective` → `add_right_injective`** in row 1 is the one substantive correction — without
+it the `conv_lhs` set-integral rewrite silently aims at `fun u => x + u`, so the pin's spelling does
+not transport; the rest are v4.34 deprecations and simp-arg lints (FR-0122). The headlines shadow the
+module's `variable (F)` with an explicit `(F : Type) [Field F] [NumberField F]` because the checker
+hashes the signature text and the wrappers spell the binders inline (FR-0123) — measured, not
+assumed: `13 ok` is the proof. **No `set_option`, no `sorry`, no `native_decide`, no new import, no
+hub edit.**
+
+**The two parametric-integral rows were carried by mathlib, not by the port's engines.** Rows 8 and 9
+both end at `hasDerivAt_integral_of_dominated_loc_of_deriv_le`, the engine the pin invokes, with the
+pin's `M₁ * M₂` dominating bound transcribed over port API (`exists_isCompact_adelicBox_subset`,
+`IsCompact.exists_bound_of_continuousOn` on `C ×ˢ [-2,2]`, `adelicAddHaar_adelicBox_lt_top`,
+`Measure.integrableOn_of_bounded`, `IsArchSmoothAt(.Complex).differentiableAt_flow`). The port's own
+`hasDerivAt_integral_*` / `contDiff_parametricIntegral_*` are shaped for right convolution against
+compact-support factorizable test functions and are `private` outside the module's closure: the risk
+register's "look at the port's engines first" produced a recorded negative, and the pin transcribed.
+
+**The consumer's one extra hypothesis, and why it is not a weakening.** The zone composes row 1 with
+row 8 by rewriting the derivative of a *unipotent translate* of the coefficient. Row 1's invariance
+premise `hper` is stated at a fixed `g` while the flow moves `g`, so the zone states the uniform
+left-unipotent invariance `∀ β g, φ (n β · g) = φ g` — the standard automorphy of an automorphic form —
+as a **consumer-side hypothesis** and derives row 1's premise from it at each point. Neither headline
+is weakened; the gap is real and it is the shape a Rankin–Selberg consumer will meet.
+
+**Plan against actual.** Lines: **1,210** against the estimate's 1,190 (+1.7 %) and the worklist's
+1,267 — the excess over the estimate is rows 8/9's restated flow-coefficient lemmas and row 4's
+private engine, the shortfall against the worklist is the seven dropped helpers. Declarations: **42**
+against 45; the three are exactly the dropped `gl_ext` plus the two prelude instances folded into one.
+Checker: **13 ok**, the forecast to the declaration. No build-time incident: the largest declaration
+is far under the 200,000 cap and the module builds in 6–7 s.
+
+**The re-read.** The demand side is the forecast to the line (−9 / −1,595); the return is on the leaf
+side, and it is **seven for seven**:
+
+| figure | before | **after** | Δ |
+|---|---:|---:|---:|
+| `needed [F terminal]` | 877 / 354,646 | **868 / 353,051** | −9 / −1,595 ✓ (exact) |
+| `needed [literal]` | 890 / 358,121 | **881 / 356,526** | −9 / −1,595 ✓ |
+| frontier F | 1,538 / 772,720 | **1,547 / 774,315** | +9 / +1,595 ✓ |
+| ready rows, all namespaces | 68 / 18,250 | 67 — | the set's two ready rows leave; one row net-enters from another column (the read is global) |
+| `AutomorphicForm` ready rows | 39 / 12,906 | 37 (forecast) | −2, the set's two ready rows |
+| leaves, all namespaces | 241 / 61,078 | **234** | −7 ✓ |
+| `AutomorphicForm` leaves | 72 / 15,039 | 65 (forecast) | −7 ✓ (all nine of the set's rows are gone from both blocks) |
+| withheld by the FR-0044 guard | 4 / 831 | 4 / 831 | — |
+| `--selfcheck` | PASS (1,357 / 1,538) | **PASS** (1,366 `Thm_` sources, 1,547 declared names) | — |
+
+The readied rows are what the four API headlines were for: the seven leaves were the set's own, and
+the return the fan-in promised (54 / 17 / 14 / 12 project consumers) is a *future* read — the
+coefficient's API now exists, so the Rankin–Selberg and cusp-realization rows that read a `diagOne`
+value can import it. This is the first set in four where the demand side is the smaller half of the
+payoff, and the figures are consistent with that (§0.2 of the scoping).
 
 ## 6. Risk register
 
@@ -508,3 +644,8 @@ python3 spec/check_port.py --force tmp/probe-WC-wired.lean     # 8 ok / 0 mismat
 seven leaves leave). What the set in turn readies is a re-read question; the fan-in of the four API
 rows (54, 17, 14, 12 project consumers) is the reason to expect a positive return, and AF11 is the
 first set in four where the *demand* side is the smaller half of the payoff.
+
+**Measured at landing (§5.1):** the first three rows are exact to the line; of the last two, the
+*leaves* are exact (241 → **234**, −7), while the ready shelf reads 68 → **67** all-namespaces rather
+than 66 — the read is global, so a row from another column entered in the same interval. The
+`AutomorphicForm`-only figures (39 → 37 ready, 72 → 65 leaves) are as forecast.

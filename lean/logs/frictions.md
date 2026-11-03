@@ -2444,3 +2444,182 @@ round promotes what generalizes.
   as a separate refactor (it needs its own home, its own wire and a cascade budget). Never apply the
   delete rule to it without measuring the call sites: the import alone does not resolve the name.
 - **seen**: 2026-11-02, SET-AF10 (worker report §4, manager's reverted experiment).
+
+
+## FR-0117 [tooling] [method] — a `Def_` gate can be **free by the module-level scan and expensive by the row-level one**: `port_advise --with-defs`'s closure is premise-shaped, and a definition spelled only in a row's *statement* still gates it
+
+- **where**: SET-AF11's scoping ([topics/automorphicForm/SET-AF11.md](topics/automorphicForm/SET-AF11.md)
+  §3: "the definition gate: complete, no `Def_` node"), rows 6 and 7, at dispatch.
+- **symptom**: `spec/gate_scan.py --pin Definitions/Def_UnramifiedWhittaker_HeckeRecursion.lean` against
+  the two `SmoothCuspRealizationAt.` wrappers reports **4 missing from the port** (`placeEmbed`,
+  `repSome`, `repInf`, `scalarPi`) — and those names are *in the rows' statements*, so the rows could
+  not be stated at all. The scoping had run the gate over "the five `Def_` modules of the nine
+  wrappers' closure" and found 0 missing.
+- **cause**: the closure that produced the five modules is the *premise* closure of the rows, and
+  `UnramifiedWhittaker` entered by a different route — the rows' `S_` files import it, and the
+  statement names come from there. A `Def_` node pulled in by an `S_` file's import rather than by a
+  premise of the headline is invisible to a premise-shaped closure, while being maximal for the work:
+  the statement does not elaborate.
+- **rule**: before declaring a set's definition gate free, run `gate_scan` **per row** over *every*
+  `Definitions/` module any of the set's `S_` files imports (union of the `import` lines, not only the
+  premises), and treat "0 missing" as a claim about that union, not about the shelf's reading. The
+  cheap check is the statements probe: state all headlines against the intended home before the
+  order is written — it catches this class in one compile.
+- **seen**: 2026-11-02, SET-AF11 dispatch (manager's layer, `RepTheory/LocalLanglands/UnramifiedWhittaker.lean`).
+
+
+## FR-0118 [tooling] [method] — the **import cycle** of a hub: a `Definitions/` module's faithful `import` can put the *coefficient* above the *character*, and then the coefficient's API module cannot import the trace
+
+- **where**: SET-AF11, `AutomorphicForm/Adelic/WhittakerCoefficient.lean` gaining
+  `import NumberTheory/NumberField/AdelicTraceFin`; the cycle is
+  `WhittakerCoefficient → AdelicTraceFin → AdelicTraceProducer → StandardGlobalAddChar →
+  StandardGlobalAddCharRat → WhittakerCoefficient`.
+- **symptom**: `lake env lean` on the module aborts with `import … failed, environment already
+  contains 'AutomorphicForm.IsPrincipalInvariantAddChar'` (or, before the split, `has already been
+  declared` on all eight of the module's own declarations) — Lean names the *root* module, which
+  reads like a duplicate-declaration bug in your own file. A stale `.olean` of the edited hub makes
+  it persist after the fix: `lake env lean` writes no `.olean`, so the *old* import edge survives in
+  the hub's olean until `lake build <hub>`.
+- **cause**: the pin's `Def_NumberField_StandardGlobalAddCharRat.lean` imports
+  `Def_AutomorphicForm_WhittakerCoefficient.lean` — verbatim transcribed — for **two predicates**
+  (`IsPrincipalInvariantAddChar`, `IsGlobalAddChar`) that the coefficient file also happens to hold.
+  A `Definitions/` file with two subjects becomes, on the port's side, two modules; until they are
+  split, whichever subject is *upstream in the pin* drags the other one's whole import closure with
+  it, and the closure now reaches back.
+- **rule**: when a module must gain an import from the `NumberTheory/NumberField/` character side,
+  read the *port's* import DAG for the pin file the module transcribes and split it by subject before
+  adding the import: the predicates about a character belong below both the coefficient and the
+  standard-character development, not inside either. And after rewiring a hub's import, `lake build`
+  the **hub** (not just `lake env lean`) — the `.olean` is the thing every other module reads.
+- **seen**: 2026-11-02, SET-AF11 dispatch; the split is `NumberTheory/NumberField/GlobalAddChar.lean`
+  (4 declarations, wired, 4 ok), the hub handed over at 44 ok / 0 mismatch / 0 missing.
+
+
+## FR-0119 [tooling] [method] — "the port already has it" is a claim about the **import closure**, not the file tree: an in-file pin prelude can be unreachable from the module being written
+
+- **where**: SET-AF11, `AutomorphicForm/Adelic/WhittakerCoefficient.lean`, all nine rows.
+- **symptom**: four names the order lists as *already in the port* — `countable_principalSubgroup`,
+  `distribHaarChar_algebraMap`, `isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox`, and (in a
+  different module) the pin's row-5 `gl_ext` — are `unknownIdentifier` under `lake env lean` on the
+  module. `FltWs24.AdelicModulusOne.countable_principalSubgroup` lives in
+  `NumberTheory/AdelicHaar/ProductFormula.lean`; `NumberTheory/AdelicModulus.lean` (which holds the
+  other two) and `AutomorphicForm/Adelic/MaximalCompactFactors.lean` are *not* in the module's
+  transitive `import` closure (53 `FLTForHuman` modules), although they are in the tree.
+- **cause**: "the port has it" was measured with a grep over the tree; the compiler only sees the
+  closure. `MaximalCompactFactors` shows the trap in its sharpest form: it *imports*
+  `AdelicMaximalCompact`, so `gl_ext` is upstream-side of the module and cannot be imported without
+  adding the arrow the wrong way.
+- **rule**: before writing a row, compute the module's transitive `import` closure (a 20-line walk
+  over `^import FLTForHuman`), and check every "already in the port" name against *that* list, not
+  against `grep -r FLTForHuman/`. For a helper that exists only outside the closure, prefer the
+  closure-internal substitute when there is one (row 5 used `ArchDerivCasimir.eq_of_glArch_eq_of_glFin_eq`,
+  which is imported, instead of the pin's 15-line `gl_ext`); otherwise it is a blocker, not a
+  transcription.
+- **seen**: 2026-11-02, SET-AF11 (rows 1, 4, 5); the row-4 half was reported as a blocker and fixed
+  by the manager adding `import FLTForHuman.NumberTheory.AdelicModulus` (the amended order §0.5).
+
+
+## FR-0120 [tooling] — `lake env lean file.lean` writes **no** `.olean`, so a probe that does `import <module>` reads the *last built* environment, not the file you just edited
+
+- **where**: SET-AF11, all name- and statement-probes over
+  `FLTForHuman/AutomorphicForm/Adelic/WhittakerCoefficient.lean` after the module gained
+  `import …AdelicModulus`.
+- **symptom**: `tmp/probe-names.lean` (`import FLTForHuman.AutomorphicForm.Adelic.WhittakerCoefficient`)
+  reports `unknownIdentifier` for a name that a fresh `lake env lean` on the module itself accepts,
+  and the statements probe keeps accepting the module's *old* set of declarations. The module's
+  `.olean` in `.lake` predates the edit; every `import`-ing probe loads it.
+- **cause**: `lean` on a file elaborates it but does not write its `.olean`; only `lake build` does.
+  So the edit loop (`lake env lean <module>`) validates the source while probes validate the stale
+  artifact — the two disagree exactly when the edit *adds* something (a name, an import edge).
+- **rule**: reachability of a name from module `M` is answered by `lake env lean M` (the compile) or
+  by `lake build M` (which also refreshes what the probes see) — never by a probe whose import is
+  `M`. When a probe must see the current environment, `lake build` the module first (serialized with
+  the usual `flock`), or have the probe import the *source* module that declares the name directly.
+- **seen**: 2026-11-02, SET-AF11 (this cost one false "the manager's import did not work" round).
+
+
+## FR-0121 [style] [method] — `linter.style.haveILetI` is live here: the pin's `letI := adeleBorel` / `haveI : μ.Regular := …` proof preludes must become one file-local `attribute [local instance]` block
+
+- **where**: SET-AF11, every `S_` file's preamble: `attribute [local instance] NumberField.AdelicHaar.adeleBorel
+  NumberField.AdelicHaar.borelSpace_adeleBorel NumberField.AdelicHaar.isAddHaarMeasure_adelicAddHaar`,
+  plus per-proof `letI := adeleBorel (𝓞 F) F`, `haveI := isAddHaarMeasure_adelicAddHaar (𝓞 F) F`,
+  `haveI : (adelicAddHaar (𝓞 F) F).Regular := Measure.regular_addHaarMeasure`.
+- **symptom**: transcribed verbatim, each `letI`/`haveI` in a *proof* emits
+  ``warning: The goal is a proposition, so `have` is preferred over `haveI` `` — fatal under the
+  "zero warnings, no `set_option`" rule, and `set_option linter.style.haveILetI false` is forbidden.
+  The port's module has no such block to inherit (the pin's is in the wrapper files).
+- **cause**: the linter is on by default in this toolchain, and the pin's measure-theory prelude is
+  *instance* setup, which the port registers with `attribute [local instance]` (a command, not a
+  proof step) — the port's `NumberField.AdelicHaar.adeleBorel` &c. are `def`s, not instances, so
+  something must register them.
+- **rule**: put **one** `attribute [local instance]` block at the top of the appended region, listing
+  `adeleBorel`, `borelSpace_adeleBorel`, `isAddHaarMeasure_adelicAddHaar` (and, when a row reaches
+  `distribHaarChar_mul`, `FltWs24.regular_adelicAddHaar`); then delete every `letI`/`haveI` from the
+  transcribed proofs. Where an instance is needed only for a `def`'s `letI` (`whittakerCoefficient`
+  itself), nothing is needed — the definition carries it. A `private instance` re-export
+  (`Countable ↥(principalSubgroup)`) is the other shape that stays silent.
+- **seen**: 2026-11-02, SET-AF11 (rows 1–9; the subagent porting rows 6/7 hit it first, on the pin's
+  `letI := adeleBorel (𝓞 F) F` at `S_…sum_whittakerCoefficient…:102`).
+
+
+## FR-0122 [api drift] — mathlib `v4.34.0` renames that the pinned `S_` proofs spell the old way: each is a *warning*, and a warning fails the gate
+
+- **where**: SET-AF11 transcription, `AutomorphicForm/Adelic/WhittakerCoefficient.lean`.
+- **symptom** (four, all silent-blocking under "zero warnings"):
+  * `Measure.regular_addHaarMeasure` (pin row 4 `haveI : (adelicAddHaar …).Regular := …`) **does not
+    exist** in `v4.34.0`; the port's copy is `FltWs24.regular_adelicAddHaar F`, and `Regular` is an
+    instance argument of `distribHaarChar_mul`, so the transcribed `rw [← distribHaarChar_mul …]`
+    fails without it.
+  * `integral_finset_sum` is deprecated in favour of `integral_finsetSum` (pin row 2).
+  * `if_pos` is deprecated in favour of `ite_eq_left` (pin row 5, the `_hμbox` rewrite).
+  * `add_left_injective` / `add_right_injective` are the *other* side from what the pin's
+    `Set.preimage_image_eq (adelicBox F) (add_left_injective x)` needs for `fun u => u + x`: the
+    rewrite silently targets `fun u => x + u` and fails with a pattern-not-found on the set integral.
+- **cause**: the pin is on Lean 4.33.1 / mathlib v4.33.0; the port is `v4.34.0`. Deprecation warnings
+  are warnings in both, but the pin's build does not run with "zero warnings" as a gate.
+- **rule**: when transcribing, treat every deprecation hint as a rename *and* grep the port for a
+  same-subject copy before inventing one (`FltWs24.regular_adelicAddHaar` was already there, in the
+  closure, one import away). For the injectivity pair, state the intended function explicitly
+  (`add_right_injective` for `· + x` in this version) and re-check the `conv_lhs` target.
+- **seen**: 2026-11-02, SET-AF11 (rows 1, 2, 4, 5).
+
+
+## FR-0123 [method] — the checker hashes the **signature text**, so a headline appended to a module with a section `variable (F : Type)` must still spell `(F : Type) [Field F] [NumberField F]` out, and must copy the wrapper's *qualified* names
+
+- **where**: SET-AF11, appending the nine headlines to `WhittakerCoefficient.lean`, whose
+  `namespace AutomorphicForm` opens with `variable (F : Type) [Field F] [NumberField F]` at line 108.
+- **symptom**: two traps, both silent at compile time and only visible in `check_port`'s hash tier:
+  (1) relying on the section variable makes `F` an *auto-bound* parameter — the statement elaborates
+  and proves, but its `nhash` differs from the wrapper's, so the row is `missing`; (2) the wrappers
+  are not uniform in spelling — row 3/4 say `IsDedekindDomain.HeightOneSpectrum`, rows 1/2 say
+  `HeightOneSpectrum`; row 4 says `AdelicBox.adelicBox F`, the others `adelicBox F`.
+- **cause**: `statement_db.nhash` is `sha1` of the signature with comments stripped and whitespace
+  collapsed — tokens, not terms. A section variable and an explicit binder are different tokens; a
+  qualified and an unqualified name are different tokens. (`check_port` therefore diffs *text*, and
+  `private` is what keeps helpers out of the diff.)
+- **rule**: transcribe each headline's binders **from the wrapper** (or from the verified statements
+  probe), not from the pin's `S_` file and not from the module's context; when the module has a
+  section variable with the same name, shadow it with an explicit `(F : Type) [Field F] [NumberField F]`
+  (Lean accepts the shadowing; verified here). Then re-run `check_port --force` — it is the only
+  gate that reads the hash.
+- **seen**: 2026-11-02, SET-AF11 (rows 1–9; the probe file already carried the right spellings,
+  which is what made the check a diff rather than an investigation).
+
+
+## FR-0124 [tooling] — the gate's own command line: `dedup.py --module` and `move_dead.py --source` do **not** take a module name the same way
+
+- **where**: SET-AF11 gate 5, run verbatim from the order §3.5:
+  `python3 ../tools/deps/dedup.py --within --module <module>` and
+  `python3 ../tools/deps/move_dead.py --source <module> --target /dev/null --dry-run`.
+- **symptom**: `dedup.py --module FLTForHuman.AutomorphicForm.Adelic.WhittakerCoefficient` works
+  (dotted module name), but the same dotted name in `move_dead.py --source` crashes with
+  `FileNotFoundError: 'FLTForHuman.AutomorphicForm.Adelic.WhittakerCoefficient'` — it treats
+  `--source` as a *path*, so it needs `--source FLTForHuman/AutomorphicForm/Adelic/WhittakerCoefficient.lean`.
+  Both flags are documented as "module" in their `--help`.
+- **cause**: the two tools resolve their argument differently (`dedup` joins the module path from the
+  dotted name; `move_dead` opens `--source` directly). A dotted name is only a valid path when the
+  module sits at the root of the tree.
+- **rule**: quote the gate with the *file path* for `move_dead` and the *dotted name* for `dedup`, or
+  just pass the path to both (`dedup --module` accepts it too) — and when a gate tool tracebacks with
+  `FileNotFoundError` on its own subject, try the other spelling before suspecting the module.
+- **seen**: 2026-11-02, SET-AF11 (0 clusters / 0 dead either way; the crash is argument-only).
