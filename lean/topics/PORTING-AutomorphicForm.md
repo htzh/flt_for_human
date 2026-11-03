@@ -458,6 +458,33 @@ exact), frontier 1,531 / 771,153, the AF shelf **45 / 14,152** — the two rows 
 readied**, not the 0–1 the brief predicted (FR-0106's multi-premise effect at full strength).
 
 
+The tenth is **scoped, its wires landed, and dispatched** (2026-11-02):
+[automorphicForm/SET-AF10.md](automorphicForm/SET-AF10.md), the **complex Casimir algebra** — the
+seven rows SET-AF9 readied, taken as the shelf's own reply to that landing (five of them import only
+`Definitions/` plus AF9's complex commutator headline, and four open by destructuring its fifteen-fold
+conjunction positionally). **7 rows / 1,567 silo / 570 lines to write in 27 declarations**: 915 of its
+1,485 declaration lines are already in the port, one row carries 289 of the work in a 21-declaration
+prelude, and the other six are one `solution` each. Third set in a row with **no `Def_` node** (six
+modules, 0 missing), no legacy migration, no promotion, no new module and no new import: the homes are
+`ArchCasimirComplex.lean` (5 rows, wire 5 → 10) and `ArchDerivRightConv.lean` (2 rows, wire 4 → 6), and
+the manager's whole layer is **7 `spec-pin:` lines** (landed: both modules re-check 101 and 3 ok,
+0 mismatch / 0 missing) plus a statements probe that states all seven headlines as `example`s and
+elaborates — no per-declaration markers (playbook §5). One order; it is below the recipe's 1,100–1,400-line band and the brief says so, taking it as its own set
+because the engine, the homes and the wires already exist. Named next: the Whittaker/Casimir ODE
+quartet (4 leaves / 1,744 silo), a different subject, measured so the next pass starts from the number.
+
+**Landed** in one dispatch: `ArchCasimirComplex.lean` 2,127 lines and `…/ArchDerivRightConv.lean`
+1,291, 27 declarations (7 public headlines + 20 private helpers), both files silent, zero warnings, all
+seven headlines on `[propext, Classical.choice, Quot.sound]`, checker **106 / 5 ok, 0 mismatch / 0
+missing**, `dedup --within` 0 and `move_dead` 0 on both. The re-read: `needed` **877 / 354,646**
+(−7 / −1,567, exact), frontier 1,538 / 772,720, the AF shelf **39 / 12,906** — and the return was
+**one** row (`archCasimirAtComplex_rightConv_of_…`, 321) against AF9's seven, which is the sign
+difference FR-0106 predicted: AF10's rows sat at the end of a chain whose premises were already ported.
+Two side findings: FR-0115 recurred for 10 lines (two helpers whose port copies live in
+`ArchCasimir.lean`), and the manager's attempt to apply the dedup rule to them — import the home,
+delete the copies — was **reverted**, because that "home" is the pin's *transcription namespace*
+(`Elem17LR`, `OsAlg17`) and the import does not resolve the unqualified names; that is FR-0116.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

@@ -2415,3 +2415,32 @@ round promotes what generalizes.
   port's copy is downstream") so the worker is not blamed for a worklist artefact, and the brief's net
   figure should count those lines as work.
 - **seen**: 2026-11-02, SET-AF9 (worker report §6.1–6.2 and deviation 4–5).
+
+
+## FR-0116 [method] [tooling] — "delete the copy, import the home" fails when the home is a **transcription namespace**: `dedup --cross` flags the pin's own per-file prelude copies, and the import does not even make the name resolve
+
+- **where**: the AF10 landing ([topics/automorphicForm/SET-AF10.md](topics/automorphicForm/SET-AF10.md)),
+  `ArchCasimirComplex.lean` against `ArchCasimir.lean`: `dedup --cross` reported 6 clusters, of which
+  4 are the ℝ/ℂ twins (`U`, `D1`, `D2`, `conjCLM` — type-distinct, not removable) and 2 are `glArch_ext`
+  and `rightTranslate_mul`, byte-identical `private` re-statements of declarations the port holds in
+  `ArchCasimir.lean`.
+- **symptom**: the rule "duplicate → delete the copy and import the home" was applied and **reverted**.
+  The port's copies do not live at `AutomorphicForm.glArch_ext`; they live at
+  `AutomorphicForm.Elem17LR.glArch_ext` and `…OsAlg17.rightTranslate_mul` — inside the *transcription
+  namespaces* of the real engine (`Elem17LR`, `OsAlg17`, `CasCore17`, `CommAway17`, …), which exist only
+  because the pin's generated files wrapped each prelude in its own namespace. Adding
+  `import …ArchCasimir` pulls a 1,640-line engine into the complex module and **still** leaves the
+  unqualified references (`glArch_ext` inside `namespace ElemC`) unresolved: six errors, and the cure is
+  requalifying every call site. Two 5-line `private` re-statements are the cheaper, clearer shape.
+- **cause**: the dedup instrument is name- and statement-anchored, so it cannot see that a "home" is a
+  *transcription artefact* rather than a subject-level API. The port's `-- pin:`/`spec-pin:` discipline
+  keeps the pin's names, and the pin namespaces are part of that: a helper that the pin copies into
+  every file of a family stays a per-file copy in the port unless someone promotes it *out* of the
+  transcription namespace into a subject module (which is what SET-AF6 did for the chart halves, and
+  what would be needed here).
+- **rule**: a `dedup --cross` cluster whose two sides sit in *different pin-derived namespaces* of the
+  same development is the pin's own prelude duplication, not a port defect: keep it, record the
+  namespace pair and the pin line, and treat "promote the helper out of the transcription namespace"
+  as a separate refactor (it needs its own home, its own wire and a cascade budget). Never apply the
+  delete rule to it without measuring the call sites: the import alone does not resolve the name.
+- **seen**: 2026-11-02, SET-AF10 (worker report §4, manager's reverted experiment).

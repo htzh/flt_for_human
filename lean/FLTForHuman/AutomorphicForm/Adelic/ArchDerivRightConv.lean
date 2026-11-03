@@ -33,6 +33,8 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivAt.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofChar.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_and_rightConv_of_continuous_archDerivAt.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_isArchSmoothAt_rightConv_and_exists_archCasimirAt_rightConv_eq_of_isArchBiFinite_ofChar.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmoothLeft
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmooth
@@ -59,7 +61,7 @@ import FLTForHuman.NumberTheory.AdelicHaar.MulRightInvariant
 
 set_option autoImplicit false
 
-open NumberField AutomorphicForm NumberField.AdelicLevel
+open NumberField AutomorphicForm NumberField.AdelicLevel NumberField.AdelicBox
 open NumberField.InfinitePlace.Completion (ringEquivRealOfIsReal isometryEquivRealOfIsReal)
 open scoped Topology
 
@@ -1161,6 +1163,128 @@ theorem isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofC
         (rightConv_mem_archTypeSubmoduleAt_ofChar K v (χ v) x' β (hβLmem v))
 
 end CasimirBridge
+
+/-! #### SET-AF10 — the Casimir commutes with a right translate by a row isometry and with right
+convolution
+
+Two headlines: the Casimir of a right translate by a row isometry at any place (and of a right
+convolution by a factorisable test function) is the translate/convolve of the Casimir; and for a
+character-typed factorisable test function, `rightConv x' α` is arch-smooth, its Casimir is again a
+right convolution by a factorisable bi-finite function, and it stays in
+`levelInvariantSubmodule ⊓ archCutSubmodule`. -/
+
+-- The pin's `attribute [-ext]` (pin `:5`): `subst` must not use `Completion.ext` on `w' = w`.
+attribute [-ext] NumberField.InfinitePlace.Completion.ext
+
+open AutomorphicForm.CuspidalConstituent
+
+/-- **Headline.** The Casimir commutes with right translation by a row isometry (every place) and with
+right convolution by a factorisable test function; smoothness and the first/second derivative
+continuities are preserved. -/
+theorem archCasimirAt_rightTranslate_and_rightConv_of_continuous_archDerivAt
+    (K : Type) [Field K] [NumberField K]
+    (w : InfinitePlace K) (hw : w.IsReal)
+    (x : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x) (hxs : IsArchSmoothAt hw x)
+    (hD1 : ∀ d : ArchDir, Continuous (archDerivAt hw d x))
+    (hD2 : ∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' x))) :
+    (∀ (w' : InfinitePlace K) (k : rowIsometrySubgroup₀ w'.Completion),
+        IsArchSmoothAt hw (rightTranslate K (rowIsometryInclAt₀ K w' k) x) ∧
+        (∀ d : ArchDir, Continuous (archDerivAt hw d (rightTranslate K (rowIsometryInclAt₀ K w' k) x))) ∧
+        (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d'
+          (rightTranslate K (rowIsometryInclAt₀ K w' k) x)))) ∧
+        archCasimirAt hw (rightTranslate K (rowIsometryInclAt₀ K w' k) x) =
+          rightTranslate K (rowIsometryInclAt₀ K w' k) (archCasimirAt hw x)) ∧
+    (∀ (f : AdelicGL2 (𝓞 K) K → ℂ) (tys : AutomorphicForm.ArchTypeFamily K),
+        IsFactorizableTestFn K f → IsArchBiFinite K tys f →
+        IsArchSmoothAt hw (rightConv K x f) ∧
+        (∀ d : ArchDir, Continuous (archDerivAt hw d (rightConv K x f))) ∧
+        (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' (rightConv K x f)))) ∧
+        archCasimirAt hw (rightConv K x f) = rightConv K (archCasimirAt hw x) f) := by
+  classical
+  refine ⟨?_, AutomorphicForm.archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivAt K w hw x hxc hxs hD1 hD2⟩
+  intro w' k
+  by_cases hw' : w' = w
+  · subst hw'
+
+    set e := ringEquivRealOfIsReal hw with he
+    let m : GL (Fin 2) ℝ := glEquivOfRingEquiv e (k : GL (Fin 2) w'.Completion)
+    have hkm : rowIsometryInclAt₀ K w' k = archRealGLAt hw m := by
+      show adelicArchGLInclAt K w' (k : GL (Fin 2) w'.Completion) =
+        adelicArchGLInclAt K w' (glEquivOfRingEquiv e.symm (glEquivOfRingEquiv e (k : GL (Fin 2) w'.Completion)))
+      congr 1
+      apply Units.ext; ext i j
+      show ((k : GL (Fin 2) w'.Completion) : Matrix (Fin 2) (Fin 2) w'.Completion) i j =
+        e.symm (e (((k : GL (Fin 2) w'.Completion) : Matrix (Fin 2) (Fin 2) w'.Completion) i j))
+      exact (e.symm_apply_apply _).symm
+    rw [hkm]
+    exact AutomorphicForm.archCasimirAt_rightTranslate_archRealGLAt K w' hw x hxc hxs hD1 hD2 m
+  · exact AutomorphicForm.archCasimirAt_rightTranslate_rowIsometryInclAt_of_ne K w hw x hxc hxs hD1 hD2 w' hw' k
+
+/-- **Headline.** For a character-typed factorisable test function `α`, `rightConv x' α` is
+arch-smooth with continuous first and second derivatives, its Casimir is `rightConv x' β` for a
+factorisable `β` that is arch-bi-finite of the same type, and the Casimir stays in
+`levelInvariantSubmodule ⊓ archCutSubmodule`. -/
+theorem isArchSmoothAt_rightConv_and_exists_archCasimirAt_rightConv_eq_of_isArchBiFinite_ofChar
+    (K : Type) [Field K] [NumberField K]
+    (D : Set (AdelicGL2 (𝓞 K) K))
+    (w : InfinitePlace K) (hw : w.IsReal)
+    (hreal : ∀ v : InfinitePlace K, v.IsReal)
+    (N : Ideal (𝓞 K)) (χ : ∀ v : InfinitePlace K, rowIsometrySubgroup₀ v.Completion →* ℂˣ)
+    (x' : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x')
+    (hxl : x' ∈ levelInvariantSubmodule K (productionPinsOf K D
+        (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N)
+    (hxt : x' ∈ archCutSubmodule K (ArchTypeFamily.ofChar K χ))
+    (α : AdelicGL2 (𝓞 K) K → ℂ) (hαf : IsFactorizableTestFn K α) (hαb : IsArchBiFinite K (ArchTypeFamily.ofChar K χ) α)
+    (hαU : ∀ g : AdelicGL2 (𝓞 K) K, ∀ k ∈ (levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K), α (k * g) = α g ∧ α (g * k) = α g) :
+    IsArchSmoothAt hw (rightConv K x' α) ∧
+    (∀ d : ArchDir, Continuous (archDerivAt hw d (rightConv K x' α))) ∧
+    (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' (rightConv K x' α)))) ∧
+    (∃ β : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K β ∧ IsArchBiFinite K (ArchTypeFamily.ofChar K χ) β ∧
+        archCasimirAt hw (rightConv K x' α) = rightConv K x' β) ∧
+    archCasimirAt hw (rightConv K x' α) ∈ levelInvariantSubmodule K (productionPinsOf K D
+        (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N ⊓
+      archCutSubmodule K (ArchTypeFamily.ofChar K χ) := by
+  classical
+
+  set L : ArchDir → (AdelicGL2 (𝓞 K) K → ℂ) → (AdelicGL2 (𝓞 K) K → ℂ) :=
+    fun d γ y => deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0 with hL
+  have hcalc := fun d : ArchDir =>
+    AutomorphicForm.archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d
+  have hLfact : ∀ (d : ArchDir) (γ : AdelicGL2 (𝓞 K) K → ℂ), IsFactorizableTestFn K γ → IsFactorizableTestFn K (L d γ) := by
+    intro d γ hγ
+    obtain ⟨fa, ff, hfa, hff, hγ'⟩ := hγ
+    obtain ⟨fa', hfa', heq⟩ := (hcalc d).2.1 fa ff hfa
+    refine ⟨fa', ff, hfa', hff, fun y => ?_⟩
+    have hfun : (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) =
+        fun t : ℝ => fa (glArch (𝓞 K) K (archFlowAt hw d (-t) * y)) * ff (glFin (𝓞 K) K (archFlowAt hw d (-t) * y)) := by
+      funext t; rw [hγ']
+    show deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0 = fa' (glArch (𝓞 K) K y) * ff (glFin (𝓞 K) K y)
+    rw [hfun]
+    exact congrFun heq y
+
+  have hD1 : ∀ d : ArchDir, IsArchSmoothAt hw (rightConv K x' α) ∧
+      archDerivAt hw d (rightConv K x' α) = rightConv K x' (L d α) := fun d => (hcalc d).1 x' α hxc hαf
+  have hcontL : ∀ γ : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K γ → Continuous (rightConv K x' γ) := fun γ hγ =>
+    (AutomorphicForm.continuous_rightConv_and_contDiff_of_isFactorizableTestFn K x' hxc γ hγ).1
+  have hsmooth : IsArchSmoothAt hw (rightConv K x' α) := (hD1 .H).1
+  have hder1 : ∀ d : ArchDir, archDerivAt hw d (rightConv K x' α) = rightConv K x' (L d α) := fun d => (hD1 d).2
+  have hder2 : ∀ d d' : ArchDir, archDerivAt hw d (archDerivAt hw d' (rightConv K x' α)) = rightConv K x' (L d (L d' α)) := by
+    intro d d'
+    rw [hder1 d']
+    exact ((hcalc d).1 x' (L d' α) hxc (hLfact d' α hαf)).2
+
+  obtain ⟨⟨hβf, hβb⟩, hlin, hmem⟩ :=
+    AutomorphicForm.isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofChar K D w hw hreal N χ α hαf hαb hαU
+  have hΩ : archCasimirAt hw (rightConv K x' α) =
+      rightConv K x' (fun y => -((1 / 4 : ℂ) * L .H (L .H α) y - (1 / 2 : ℂ) * L .H α y + L .E (L .Fm α) y)) := by
+    rw [hlin x' hxc]
+    funext g
+    simp only [archCasimirAt, Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul]
+    rw [hder2 .H .H, hder1 .H, hder2 .E .Fm]
+  refine ⟨hsmooth, fun d => ?_, fun d d' => ?_, ⟨_, hβf, hβb, hΩ⟩, ?_⟩
+  · rw [hder1 d]; exact hcontL _ (hLfact d α hαf)
+  · rw [hder2 d d']; exact hcontL _ (hLfact d _ (hLfact d' α hαf))
+  · rw [hΩ]; exact hmem x' hxc hxl hxt
 
 end AutomorphicForm
 
