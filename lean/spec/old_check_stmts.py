@@ -5166,11 +5166,10 @@ PORT_FILES = [
     # statement-diffed (+84). Appended last.
     "FLTForHuman/LanglandsTunnell/ArchParam.lean",
     "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimir.lean",
-    # --- Set A (`WORKORDER-AC2-cascore-trio.md`): one listed module whose wire is exactly the
-    # three headlines (+3). The shared `CasCore17` engine and the three pin tails are public and
-    # tier 3 — `-- pin:`-marked into the three `S_` files above, which `SOURCES` does not read —
-    # so a later proof can import them; they are registered in spec/UNWIRED-PUBLIC.md.
-    "FLTForHuman/AutomorphicForm/Adelic/ArchCasimir.lean",
+    # --- Set A (`WORKORDER-AC2-cascore-trio.md`): `ArchCasimir.lean` has moved to
+    # `spec/check_port.py` (SET-AF9's manager layer: its three `spec-pin:` lines check
+    # 131 ok / 0 mismatch / 0 missing, so its whole public surface is diffed); its three
+    # `SOURCES` rows above stay, they are the same three pin files.
     "FLTForHuman/AutomorphicForm/Adelic/WhittakerCoefficient.lean",
     "FLTForHuman/NumberTheory/NumberField/StandardGlobalAddCharRat.lean",
     "FLTForHuman/NumberTheory/NumberField/StandardGlobalAddChar.lean",
@@ -5188,12 +5187,11 @@ PORT_FILES = [
     # tier 3 in `PeterssonSlabPairing.lean` (already listed).
     "FLTForHuman/AutomorphicForm/Adelic/DetNormSlab.lean",
     "FLTForHuman/AutomorphicForm/Adelic/MeasurableFundamentalDomainCover.lean",
-    # --- The complex archimedean Casimir definition layer and engine. The two definition
-    # modules are checked whole; the engine `ArchCasimirComplex.lean` wires only the headline
-    # and keeps its ~96 declarations public tier 3 (registered in `spec/UNWIRED-PUBLIC.md`).
+    # --- The complex archimedean Casimir definition layer. The two definition modules are checked
+    # whole; the engine `ArchCasimirComplex.lean` has moved to `spec/check_port.py` (SET-AF9's
+    # manager layer: 97 ok / 0 mismatch / 0 missing over its whole public surface).
     "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimirComplex.lean",
     "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimirComplexAPI.lean",
-    "FLTForHuman/AutomorphicForm/Adelic/ArchCasimirComplex.lean",
     # --- WORKORDER-T4: the continuous norm section. One headline (+1); the engine
     # (`NumberTheory/NumberField/TateGlobal/NormSection.lean`) stays tier 3 and is registered
     # in `spec/UNWIRED-PUBLIC.md`. No existing module was edited, so no hub wave is owed.

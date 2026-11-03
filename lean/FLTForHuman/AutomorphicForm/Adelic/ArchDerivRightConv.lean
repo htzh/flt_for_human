@@ -31,10 +31,20 @@
 
   spec-pin: Theorems/Thm_AutomorphicForm_archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivAt.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofChar.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmoothLeft
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmooth
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimir
+-- The Casimir engine (the `leftCasimir_eq_archCasimirAt_of_isArchSmoothAt` half): the two
+-- Casimir rows of SET-AF9 are transcribed against it, and nothing below this module imports it.
+import FLTForHuman.AutomorphicForm.Adelic.ArchCasimir
+-- The cusp/level vocabulary of the second Casimir row's statement
+-- (`levelInvariantSubmodule`, `productionPinsOf`, `levelOne`, `heckeGen`, `adelicBox`).
+import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
+import FLTForHuman.NumberTheory.AdelicLevel.Level
+import FLTForHuman.NumberTheory.AdelicLevel.HeckeGen
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimirComplexAPI
 import FLTForHuman.AutomorphicForm.Adelic.RightConvRegularity
 import FLTForHuman.AutomorphicForm.Adelic.RightConvolution
@@ -690,6 +700,467 @@ theorem archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn
   exact l5_rightConv_archDerivAt_mul hw d hφ hφs hφ' hγ hγc hγs hγ' hω hωinv
 
 end Head
+
+/-! ### The Casimir bridge into right convolution
+
+Two rows, both headlines: the bridge `archCasimirAt (rightConv x f) = rightConv (archCasimirAt x) f`
+for an arch-smooth `x` with continuous first and second derivatives (the Casimir analogue of
+`archDerivAt_rightConv_eq_rightConv_deriv`, using `leftCasimir_eq_archCasimirAt_of_isArchSmoothAt` for
+the left-acting element), and the row that keeps a character-typed test function's Casimir
+factorisable, bi-finite, and inside `levelInvariantSubmodule ⊓ archCutSubmodule`. -/
+
+section CasimirBridge
+
+open MeasureTheory
+
+open AutomorphicForm.CuspidalConstituent
+open NumberField.AdelicBox
+
+variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K}
+
+namespace CommConv17
+
+open CasCore17
+
+variable (hw : w.IsReal)
+
+private def Lf (d : ArchDir) (β : AdelicGL2 (𝓞 K) K → ℂ) : AdelicGL2 (𝓞 K) K → ℂ :=
+  fun y => deriv (fun t : ℝ => β (archFlowAt hw d (-t) * y)) 0
+
+private theorem isFactorizableTestFn_Lf (d : ArchDir) {β : AdelicGL2 (𝓞 K) K → ℂ}
+    (hβ : IsFactorizableTestFn K β) :
+    IsFactorizableTestFn K (Lf hw d β) := by
+  obtain ⟨fa, ff, hfa, hff, hβeq⟩ := hβ
+  obtain ⟨fa', hfa', heq⟩ :=
+    (AutomorphicForm.archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d).2.1 fa ff hfa
+  refine ⟨fa', ff, hfa', hff, fun y => ?_⟩
+  have h1 : Lf hw d β y = deriv (fun t : ℝ => fa (glArch (𝓞 K) K (archFlowAt hw d (-t) * y)) *
+      ff (glFin (𝓞 K) K (archFlowAt hw d (-t) * y))) 0 := by
+    simp only [Lf, hβeq]
+  rw [h1]
+  exact congrFun heq y
+
+private theorem conv_smooth_and_deriv {x : AdelicGL2 (𝓞 K) K → ℂ} (hx : Continuous x) (d : ArchDir)
+    {β : AdelicGL2 (𝓞 K) K → ℂ} (hβ : IsFactorizableTestFn K β) :
+    IsArchSmoothAt hw (rightConv K x β) ∧ archDerivAt hw d (rightConv K x β) = rightConv K x (Lf hw d β) :=
+  (AutomorphicForm.archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d).1 x β hx hβ
+
+private theorem continuous_conv {x : AdelicGL2 (𝓞 K) K → ℂ} (hx : Continuous x) {β : AdelicGL2 (𝓞 K) K → ℂ}
+    (hβ : IsFactorizableTestFn K β) : Continuous (rightConv K x β) :=
+  (AutomorphicForm.continuous_rightConv_and_contDiff_of_isFactorizableTestFn K x hx β hβ).1
+
+section Lin
+
+variable {x : AdelicGL2 (𝓞 K) K → ℂ}
+
+set_option linter.style.haveILetI false in
+private theorem integrable_integrand (hx : Continuous x) {β : AdelicGL2 (𝓞 K) K → ℂ} (hβ : Continuous β)
+    (hβc : HasCompactSupport β) (g : AdelicGL2 (𝓞 K) K) :
+    Integrable (fun y => x (g * y) * β y) (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := by
+  letI : MeasurableSpace (AdelicGL2 (𝓞 K) K) := AdelicHaar.glBorel (Fin 2) (𝓞 K) K
+  haveI : BorelSpace (AdelicGL2 (𝓞 K) K) := AdelicHaar.borelSpace_glBorel (Fin 2) (𝓞 K) K
+  haveI : (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K).IsHaarMeasure := AdelicHaar.isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 K) K
+  have hc : Continuous fun y : AdelicGL2 (𝓞 K) K => x (g * y) * β y := (hx.comp (continuous_const.mul continuous_id)).mul hβ
+  exact hc.integrable_of_hasCompactSupport hβc.mul_left
+
+private theorem rightConv_add_right (hx : Continuous x) {β₁ β₂ : AdelicGL2 (𝓞 K) K → ℂ} (h₁ : Continuous β₁)
+    (h₁c : HasCompactSupport β₁) (h₂ : Continuous β₂) (h₂c : HasCompactSupport β₂) :
+    rightConv K x (β₁ + β₂) = rightConv K x β₁ + rightConv K x β₂ := by
+  funext g
+  simp only [rightConv_apply, Pi.add_apply, mul_add]
+  exact integral_add (integrable_integrand hx h₁ h₁c g) (integrable_integrand hx h₂ h₂c g)
+
+private theorem rightConv_sub_right (hx : Continuous x) {β₁ β₂ : AdelicGL2 (𝓞 K) K → ℂ} (h₁ : Continuous β₁)
+    (h₁c : HasCompactSupport β₁) (h₂ : Continuous β₂) (h₂c : HasCompactSupport β₂) :
+    rightConv K x (β₁ - β₂) = rightConv K x β₁ - rightConv K x β₂ := by
+  funext g
+  simp only [rightConv_apply, Pi.sub_apply, mul_sub]
+  exact integral_sub (integrable_integrand hx h₁ h₁c g) (integrable_integrand hx h₂ h₂c g)
+
+omit hw in
+private theorem rightConv_smul_right (x β : AdelicGL2 (𝓞 K) K → ℂ) (c : ℂ) :
+    rightConv K x (c • β) = c • rightConv K x β := by
+  funext g
+  simp only [rightConv_apply, Pi.smul_apply, smul_eq_mul]
+  rw [← integral_const_mul]
+  congr 1
+  funext y
+  ring
+
+omit hw in
+private theorem rightConv_neg_right (x β : AdelicGL2 (𝓞 K) K → ℂ) : rightConv K x (-β) = -rightConv K x β := by
+  rw [← neg_one_smul ℂ β, rightConv_smul_right, neg_one_smul]
+
+omit hw in
+private theorem rightConv_smul_left' (x β : AdelicGL2 (𝓞 K) K → ℂ) (c : ℂ) :
+    rightConv K (c • x) β = c • rightConv K x β :=
+  convOp_smul K β c x
+
+omit hw in
+private theorem rightConv_neg_left (x β : AdelicGL2 (𝓞 K) K → ℂ) : rightConv K (-x) β = -rightConv K x β := by
+  rw [← neg_one_smul ℂ x, rightConv_smul_left', neg_one_smul]
+
+omit hw in
+private theorem rightConv_sub_left {u v β : AdelicGL2 (𝓞 K) K → ℂ} (hu : Continuous u) (hv : Continuous v)
+    (hβ : Continuous β) (hβc : HasCompactSupport β) :
+    rightConv K (u - v) β = rightConv K u β - rightConv K v β := by
+  rw [sub_eq_add_neg, rightConv_add_left K (u := u) (w := -v) hu hv.neg hβ hβc, rightConv_neg_left, ← sub_eq_add_neg]
+
+omit hw in
+private theorem hcs_smul (c : ℂ) {β : AdelicGL2 (𝓞 K) K → ℂ} (h : HasCompactSupport β) :
+    HasCompactSupport (c • β) :=
+  h.mono fun y hy => by
+    simp only [Function.mem_support, Pi.smul_apply, smul_eq_mul, ne_eq, mul_eq_zero, not_or] at hy ⊢
+    exact hy.2
+
+end Lin
+
+private theorem main (x : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x) (hxs : IsArchSmoothAt hw x)
+    (hD1 : ∀ d : ArchDir, Continuous (archDerivAt hw d x))
+    (hD2 : ∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' x)))
+    (α : AdelicGL2 (𝓞 K) K → ℂ) (hα : IsFactorizableTestFn K α) :
+    IsArchSmoothAt hw (rightConv K x α) ∧
+    (∀ d : ArchDir, Continuous (archDerivAt hw d (rightConv K x α))) ∧
+    (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' (rightConv K x α)))) ∧
+    archCasimirAt hw (rightConv K x α) = rightConv K (archCasimirAt hw x) α := by
+  obtain ⟨hαs, fa, ff, hfa, hff, hαeq, hDα⟩ :=
+    AutomorphicForm.IsFactorizableTestFn.isArchSmoothAt_and_archDerivAt_eq_tensor K w hw α hα
+  have hfactD : ∀ d : ArchDir, IsFactorizableTestFn K (archDerivAt hw d α) := by
+    intro d
+    obtain ⟨fa', hfa', h⟩ := hDα d
+    exact ⟨fa', ff, hfa', hff, h⟩
+  have hreg : ∀ {β : AdelicGL2 (𝓞 K) K → ℂ}, IsFactorizableTestFn K β → Continuous β ∧ HasCompactSupport β :=
+    fun hβ => AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn K _ hβ
+  have hfactDD : ∀ d d' : ArchDir, IsFactorizableTestFn K (archDerivAt hw d (archDerivAt hw d' α)) := by
+    intro d d'
+    obtain ⟨-, fa₁, ff₁, hfa₁, hff₁, -, hD⟩ :=
+      AutomorphicForm.IsFactorizableTestFn.isArchSmoothAt_and_archDerivAt_eq_tensor K w hw _ (hfactD d')
+    obtain ⟨fa', hfa', h⟩ := hD d
+    exact ⟨fa', ff₁, hfa', hff₁, h⟩
+
+  have hLfact : ∀ d, IsFactorizableTestFn K (Lf hw d α) := fun d => isFactorizableTestFn_Lf hw d hα
+  have hLLfact : ∀ d d', IsFactorizableTestFn K (Lf hw d (Lf hw d' α)) := fun d d' => isFactorizableTestFn_Lf hw d (hLfact d')
+  have hDconv : ∀ d, archDerivAt hw d (rightConv K x α) = rightConv K x (Lf hw d α) := fun d => (conv_smooth_and_deriv hw hxc d hα).2
+  have hDDconv : ∀ d d', archDerivAt hw d (archDerivAt hw d' (rightConv K x α)) =
+      rightConv K x (Lf hw d (Lf hw d' α)) := by
+    intro d d'
+    rw [hDconv d', (conv_smooth_and_deriv hw hxc d (hLfact d')).2]
+  refine ⟨(conv_smooth_and_deriv hw hxc .H hα).1, fun d => ?_, fun d d' => ?_, ?_⟩
+  · rw [hDconv d]; exact continuous_conv hxc (hLfact d)
+  · rw [hDDconv d d']; exact continuous_conv hxc (hLLfact d d')
+
+  have hΩL : archCasimirAt hw (rightConv K x α) =
+      rightConv K x (-((1 / 4 : ℂ) • Lf hw .H (Lf hw .H α) - (1 / 2 : ℂ) • Lf hw .H α + Lf hw .E (Lf hw .Fm α))) := by
+    have c1 : Continuous ((1 / 4 : ℂ) • Lf hw .H (Lf hw .H α) - (1 / 2 : ℂ) • Lf hw .H α) :=
+      ((hreg (hLLfact .H .H)).1.const_smul (1 / 4 : ℂ)).sub ((hreg (hLfact .H)).1.const_smul (1 / 2 : ℂ))
+    have s1 : HasCompactSupport ((1 / 4 : ℂ) • Lf hw .H (Lf hw .H α) - (1 / 2 : ℂ) • Lf hw .H α) :=
+      (hcs_smul _ (hreg (hLLfact .H .H)).2).sub (hcs_smul _ (hreg (hLfact .H)).2)
+    have c2 : Continuous ((1 / 4 : ℂ) • Lf hw .H (Lf hw .H α)) := (hreg (hLLfact .H .H)).1.const_smul (1 / 4 : ℂ)
+    have s2 : HasCompactSupport ((1 / 4 : ℂ) • Lf hw .H (Lf hw .H α)) := hcs_smul _ (hreg (hLLfact .H .H)).2
+    have c3 : Continuous ((1 / 2 : ℂ) • Lf hw .H α) := (hreg (hLfact .H)).1.const_smul (1 / 2 : ℂ)
+    have s3 : HasCompactSupport ((1 / 2 : ℂ) • Lf hw .H α) := hcs_smul _ (hreg (hLfact .H)).2
+    rw [archCasimirAt, hDDconv, hDconv, hDDconv, rightConv_neg_right,
+      rightConv_add_right hxc (β₁ := (1 / 4 : ℂ) • Lf hw .H (Lf hw .H α) - (1 / 2 : ℂ) • Lf hw .H α)
+        (β₂ := Lf hw .E (Lf hw .Fm α)) c1 s1 (hreg (hLLfact _ _)).1 (hreg (hLLfact _ _)).2,
+      rightConv_sub_right hxc (β₁ := (1 / 4 : ℂ) • Lf hw .H (Lf hw .H α)) (β₂ := (1 / 2 : ℂ) • Lf hw .H α) c2 s2 c3 s3,
+      rightConv_smul_right, rightConv_smul_right]
+
+  have hLR : -((1 / 4 : ℂ) • Lf hw .H (Lf hw .H α) - (1 / 2 : ℂ) • Lf hw .H α + Lf hw .E (Lf hw .Fm α)) =
+      archCasimirAt hw α := by
+    funext y
+    simp only [Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul]
+    exact AutomorphicForm.leftCasimir_eq_archCasimirAt_of_isArchSmoothAt K w hw α hαs y
+
+  have hIBP : ∀ (d : ArchDir) {φ γ : AdelicGL2 (𝓞 K) K → ℂ}, Continuous φ → IsArchSmoothAt hw φ →
+      Continuous (archDerivAt hw d φ) → Continuous γ → HasCompactSupport γ → IsArchSmoothAt hw γ →
+      Continuous (archDerivAt hw d γ) →
+      rightConv K (archDerivAt hw d φ) γ = -rightConv K φ (archDerivAt hw d γ) := by
+    intro d φ γ hφ hφs hφ' hγ hγc hγs hγ'
+    have h := (AutomorphicForm.archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d).2.2 φ γ
+      (fun _ => 1) hφ hφs hφ' hγ hγc hγs hγ' continuous_const (fun _ _ => rfl)
+    simp only [mul_one] at h
+    rw [h, neg_neg]
+  have hα1 := hreg hα
+  have hDα1 : ∀ d, Continuous (archDerivAt hw d α) ∧ HasCompactSupport (archDerivAt hw d α) := fun d => hreg (hfactD d)
+  have hDDα1 : ∀ d d', Continuous (archDerivAt hw d (archDerivAt hw d' α)) := fun d d' => (hreg (hfactDD d d')).1
+
+  have e1 : rightConv K (archDerivAt hw .H (archDerivAt hw .H x)) α =
+      rightConv K x (archDerivAt hw .H (archDerivAt hw .H α)) := by
+    rw [hIBP .H (hD1 .H) (hxs.archDerivAt .H) (hD2 .H .H) hα1.1 hα1.2 hαs (hDα1 .H).1,
+      hIBP .H hxc hxs (hD1 .H) (hDα1 .H).1 (hDα1 .H).2 (hαs.archDerivAt .H) (hDDα1 .H .H), neg_neg]
+
+  have e2 : rightConv K (archDerivAt hw .H x) α = -rightConv K x (archDerivAt hw .H α) :=
+    hIBP .H hxc hxs (hD1 .H) hα1.1 hα1.2 hαs (hDα1 .H).1
+
+  have e3 : rightConv K (archDerivAt hw .E (archDerivAt hw .Fm x)) α =
+      rightConv K x (archDerivAt hw .Fm (archDerivAt hw .E α)) := by
+    rw [hIBP .E (hD1 .Fm) (hxs.archDerivAt .Fm) (hD2 .E .Fm) hα1.1 hα1.2 hαs (hDα1 .E).1,
+      hIBP .Fm hxc hxs (hD1 .Fm) (hDα1 .E).1 (hDα1 .E).2 (hαs.archDerivAt .E) (hDDα1 .Fm .E), neg_neg]
+  have hΩR : rightConv K (archCasimirAt hw x) α =
+      rightConv K x (-((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α) + (1 / 2 : ℂ) • archDerivAt hw .H α +
+        archDerivAt hw .Fm (archDerivAt hw .E α))) := by
+    have c4 : Continuous ((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H x) - (1 / 2 : ℂ) • archDerivAt hw .H x) :=
+      ((hD2 .H .H).const_smul (1 / 4 : ℂ)).sub ((hD1 .H).const_smul (1 / 2 : ℂ))
+    have c5 : Continuous ((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H x)) := (hD2 .H .H).const_smul (1 / 4 : ℂ)
+    have c6 : Continuous ((1 / 2 : ℂ) • archDerivAt hw .H x) := (hD1 .H).const_smul (1 / 2 : ℂ)
+    have c7 : Continuous ((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α) + (1 / 2 : ℂ) • archDerivAt hw .H α) :=
+      ((hDDα1 .H .H).const_smul (1 / 4 : ℂ)).add ((hDα1 .H).1.const_smul (1 / 2 : ℂ))
+    have s7 : HasCompactSupport ((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α) + (1 / 2 : ℂ) • archDerivAt hw .H α) :=
+      (hcs_smul _ (hreg (hfactDD .H .H)).2).add (hcs_smul _ (hDα1 .H).2)
+    have c8 : Continuous ((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α)) := (hDDα1 .H .H).const_smul (1 / 4 : ℂ)
+    have s8 : HasCompactSupport ((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α)) := hcs_smul _ (hreg (hfactDD .H .H)).2
+    have c9 : Continuous ((1 / 2 : ℂ) • archDerivAt hw .H α) := (hDα1 .H).1.const_smul (1 / 2 : ℂ)
+    have s9 : HasCompactSupport ((1 / 2 : ℂ) • archDerivAt hw .H α) := hcs_smul _ (hDα1 .H).2
+    rw [archCasimirAt, rightConv_neg_left, rightConv_neg_right,
+      rightConv_add_left K (u := (1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H x) - (1 / 2 : ℂ) • archDerivAt hw .H x)
+        (w := archDerivAt hw .E (archDerivAt hw .Fm x)) c4 (hD2 .E .Fm) hα1.1 hα1.2,
+      rightConv_sub_left (u := (1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H x)) (v := (1 / 2 : ℂ) • archDerivAt hw .H x)
+        c5 c6 hα1.1 hα1.2,
+      rightConv_smul_left', rightConv_smul_left', e1, e2, e3,
+      rightConv_add_right hxc (β₁ := (1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α) + (1 / 2 : ℂ) • archDerivAt hw .H α)
+        (β₂ := archDerivAt hw .Fm (archDerivAt hw .E α)) c7 s7 (hDDα1 .Fm .E) (hreg (hfactDD .Fm .E)).2,
+      rightConv_add_right hxc (β₁ := (1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α)) (β₂ := (1 / 2 : ℂ) • archDerivAt hw .H α)
+        c8 s8 c9 s9,
+      rightConv_smul_right, rightConv_smul_right, smul_neg, sub_neg_eq_add]
+
+  have hnat : -((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α) + (1 / 2 : ℂ) • archDerivAt hw .H α +
+        archDerivAt hw .Fm (archDerivAt hw .E α)) = archCasimirAt hw α := by
+    funext y
+    show _ = (-((1 / 4 : ℂ) • archDerivAt hw .H (archDerivAt hw .H α) - (1 / 2 : ℂ) • archDerivAt hw .H α +
+      archDerivAt hw .E (archDerivAt hw .Fm α))) y
+    simp only [Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, CasCore17.rel_Fm_E hw hαs y]
+    ring
+  rw [hΩL, hLR, hΩR, hnat]
+
+end CommConv17
+
+/-- **Headline (the bridge).** If `x` is archimedean-smooth with continuous first and second flow
+derivatives and `f` is a factorizable test function, then `rightConv x f` is arch-smooth with the
+same, and its Casimir is the right convolution of the Casimir: `archCasimirAt (rightConv x f) =
+rightConv (archCasimirAt x) f`. -/
+theorem archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivAt
+    (K : Type) [Field K] [NumberField K]
+    (w : InfinitePlace K) (hw : w.IsReal)
+    (x : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x) (hxs : IsArchSmoothAt hw x)
+    (hD1 : ∀ d : ArchDir, Continuous (archDerivAt hw d x))
+    (hD2 : ∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' x))) :
+    ∀ (f : AdelicGL2 (𝓞 K) K → ℂ) (tys : AutomorphicForm.ArchTypeFamily K),
+        IsFactorizableTestFn K f → IsArchBiFinite K tys f →
+        IsArchSmoothAt hw (rightConv K x f) ∧
+        (∀ d : ArchDir, Continuous (archDerivAt hw d (rightConv K x f))) ∧
+        (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' (rightConv K x f)))) ∧
+        archCasimirAt hw (rightConv K x f) = rightConv K (archCasimirAt hw x) f := by
+  intro f tys hf _
+  exact CommConv17.main hw x hxc hxs hD1 hD2 f hf
+
+namespace CasLeft2
+
+open CasCore17
+
+variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K} (hw : w.IsReal)
+
+private def Tens (ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) → ℂ)
+    (γ : AdelicGL2 (𝓞 K) K → ℂ) : Prop :=
+  ∃ fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ, IsArchTestFactor K fa ∧
+    ∀ y, γ y = fa (glArch (𝓞 K) K y) * ff (glFin (𝓞 K) K y)
+
+private theorem tens_Ld {ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) → ℂ}
+    {γ : AdelicGL2 (𝓞 K) K → ℂ} (hγ : Tens ff γ) (d : ArchDir) : Tens ff (CommConv17.Lf hw d γ) := by
+  obtain ⟨fa, hfa, hγeq⟩ := hγ
+  obtain ⟨fa', hfa', heq⟩ :=
+    (AutomorphicForm.archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d).2.1 fa ff hfa
+  refine ⟨fa', hfa', fun y => ?_⟩
+  have hfun : (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) =
+      fun t : ℝ => fa (glArch (𝓞 K) K (archFlowAt hw d (-t) * y)) *
+        ff (glFin (𝓞 K) K (archFlowAt hw d (-t) * y)) := by
+    funext t; exact hγeq _
+  show deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0 = _
+  rw [hfun]
+  exact congrFun heq y
+
+private theorem isFactorizableTestFn_of_tens {ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) → ℂ}
+    (hff : IsFinTestFactor K ff) {γ : AdelicGL2 (𝓞 K) K → ℂ} (hγ : Tens ff γ) : IsFactorizableTestFn K γ := by
+  obtain ⟨fa, hfa, hγeq⟩ := hγ
+  exact ⟨fa, ff, hfa, hff, hγeq⟩
+
+private theorem Ld_right_law {γ : AdelicGL2 (𝓞 K) K → ℂ} {k : AdelicGL2 (𝓞 K) K} {c : ℂ}
+    (h : ∀ g, γ (g * k) = c * γ g) (d : ArchDir) (g : AdelicGL2 (𝓞 K) K) :
+    CommConv17.Lf hw d γ (g * k) = c * CommConv17.Lf hw d γ g := by
+  show deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * (g * k))) 0 =
+    c * deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * g)) 0
+  have hfun : (fun t : ℝ => γ (archFlowAt hw d (-t) * (g * k))) =
+      fun t => c * γ (archFlowAt hw d (-t) * g) := by
+    funext t; rw [← mul_assoc, h]
+  rw [hfun]
+  exact deriv_const_mul_field c
+
+private theorem Ld_left_inv {γ : AdelicGL2 (𝓞 K) K → ℂ} {k : AdelicGL2 (𝓞 K) K}
+    (hk : glArch (𝓞 K) K k = 1) (h : ∀ y, γ (k * y) = γ y) (d : ArchDir) (y : AdelicGL2 (𝓞 K) K) :
+    CommConv17.Lf hw d γ (k * y) = CommConv17.Lf hw d γ y := by
+  show deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * (k * y))) 0 =
+    deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0
+  congr 1
+  funext t
+  rw [← mul_assoc, archFlowAt_mul_comm_of_glArch_eq_one hw d (-t) hk, mul_assoc, h]
+
+end CasLeft2
+
+open CasLeft2 MeasureTheory in
+set_option linter.unusedVariables false in
+set_option linter.style.haveILetI false in
+/-- **Headline.** The Casimir of a character-typed test function is again factorisable and
+arch-bi-finite of the same type, its right convolution is linear in the three `L`-summands, and right
+convolution by it preserves `levelInvariantSubmodule ⊓ archCutSubmodule`. -/
+theorem isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofChar
+    (K : Type) [Field K] [NumberField K]
+    (D : Set (AdelicGL2 (𝓞 K) K))
+    (w : InfinitePlace K) (hw : w.IsReal)
+    (hreal : ∀ v : InfinitePlace K, v.IsReal)
+    (N : Ideal (𝓞 K)) (χ : ∀ v : InfinitePlace K, rowIsometrySubgroup₀ v.Completion →* ℂˣ)
+    (α : AdelicGL2 (𝓞 K) K → ℂ) (hαf : IsFactorizableTestFn K α) (hαb : IsArchBiFinite K (ArchTypeFamily.ofChar K χ) α)
+    (hαU : ∀ g : AdelicGL2 (𝓞 K) K, ∀ k ∈ (levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K), α (k * g) = α g ∧ α (g * k) = α g) :
+    let L : ArchDir → (AdelicGL2 (𝓞 K) K → ℂ) → (AdelicGL2 (𝓞 K) K → ℂ) :=
+      fun d γ y => deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0
+    let β : AdelicGL2 (𝓞 K) K → ℂ :=
+      fun y => -((1 / 4 : ℂ) * L .H (L .H α) y - (1 / 2 : ℂ) * L .H α y + L .E (L .Fm α) y)
+    (IsFactorizableTestFn K β ∧ IsArchBiFinite K (ArchTypeFamily.ofChar K χ) β) ∧
+    (∀ x' : AdelicGL2 (𝓞 K) K → ℂ, Continuous x' →
+      rightConv K x' β = fun g => -((1 / 4 : ℂ) * rightConv K x' (L .H (L .H α)) g
+        - (1 / 2 : ℂ) * rightConv K x' (L .H α) g + rightConv K x' (L .E (L .Fm α)) g)) ∧
+    (∀ x' : AdelicGL2 (𝓞 K) K → ℂ, Continuous x' →
+      x' ∈ levelInvariantSubmodule K (productionPinsOf K D (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N → x' ∈ archCutSubmodule K (ArchTypeFamily.ofChar K χ) →
+      rightConv K x' β ∈ levelInvariantSubmodule K (productionPinsOf K D (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N ⊓ archCutSubmodule K (ArchTypeFamily.ofChar K χ)) := by
+  classical
+  intro L β
+  obtain ⟨fa, ff, hfa, hff, hαeq⟩ := hαf
+  have hT0 : CasLeft2.Tens ff α := ⟨fa, hfa, hαeq⟩
+  have hT1 : CasLeft2.Tens ff (L .H α) := CasLeft2.tens_Ld hw hT0 .H
+  have hT2 : CasLeft2.Tens ff (L .H (L .H α)) := CasLeft2.tens_Ld hw hT1 .H
+  have hT3 : CasLeft2.Tens ff (L .Fm α) := CasLeft2.tens_Ld hw hT0 .Fm
+  have hT4 : CasLeft2.Tens ff (L .E (L .Fm α)) := CasLeft2.tens_Ld hw hT3 .E
+  obtain ⟨fa1, ⟨⟨Φ1, hΦ1, hfa1⟩, hs1⟩, h1⟩ := hT1
+  obtain ⟨fa2, ⟨⟨Φ2, hΦ2, hfa2⟩, hs2⟩, h2⟩ := hT2
+  obtain ⟨fa4, ⟨⟨Φ4, hΦ4, hfa4⟩, hs4⟩, h4⟩ := hT4
+
+  have hβeq : ∀ y, β y = (fun z => (-(1 / 4 : ℂ)) * fa2 z + (1 / 2 : ℂ) * fa1 z + (-1 : ℂ) * fa4 z) (glArch (𝓞 K) K y) *
+      ff (glFin (𝓞 K) K y) := by
+    intro y
+    show -((1 / 4 : ℂ) * L .H (L .H α) y - (1 / 2 : ℂ) * L .H α y + L .E (L .Fm α) y) = _
+    rw [h1, h2, h4]
+    ring
+  have hβf : IsFactorizableTestFn K β := by
+    refine ⟨fun z => (-(1 / 4 : ℂ)) * fa2 z + (1 / 2 : ℂ) * fa1 z + (-1 : ℂ) * fa4 z, ff,
+      ⟨⟨fun m => (-(1 / 4 : ℂ)) * Φ2 m + (1 / 2 : ℂ) * Φ1 m + (-1 : ℂ) * Φ4 m, ?_, fun z => ?_⟩, ?_⟩, hff, hβeq⟩
+    · exact ((contDiff_const.mul hΦ2).add (contDiff_const.mul hΦ1)).add (contDiff_const.mul hΦ4)
+    · show (-(1 / 4 : ℂ)) * fa2 z + (1 / 2 : ℂ) * fa1 z + (-1 : ℂ) * fa4 z = _
+      rw [hfa2, hfa1, hfa4]
+    · exact (hs2.mul_left.add hs1.mul_left).add hs4.mul_left
+
+  have hαs : IsArchSmoothAt hw α :=
+    (AutomorphicForm.IsFactorizableTestFn.isArchSmoothAt_and_archDerivAt_eq_tensor K w hw α ⟨fa, ff, hfa, hff, hαeq⟩).1
+  have hβΩ : ∀ y, β y = archCasimirAt hw α y :=
+    AutomorphicForm.leftCasimir_eq_archCasimirAt_of_isArchSmoothAt K w hw α hαs
+
+  have hαL : ∀ (v : InfinitePlace K) (k : rowIsometrySubgroup₀ v.Completion) (y : AdelicGL2 (𝓞 K) K),
+      α (rowIsometryInclAt₀ K v k * y) = ((χ v k⁻¹ : ℂˣ) : ℂ) * α y := by
+    intro v
+    have h := (mem_archCutSubmodule_ofChar_iff K χ _).mp hαb.1 v
+    exact (comp_inv_mem_archTypeSubmoduleAt_ofChar_iff K v (χ v) α).mp
+      ((mem_archTypeSubmoduleAt_ofChar_iff K v (χ v) _).mpr h)
+  have hαR : ∀ (v : InfinitePlace K) (k : rowIsometrySubgroup₀ v.Completion) (g : AdelicGL2 (𝓞 K) K),
+      α (g * rowIsometryInclAt₀ K v k) = ((χ v k⁻¹ : ℂˣ) : ℂ) * α g := by
+    intro v
+    have h : α ∈ ⨅ v : InfinitePlace K, ⨆ _ : Fin 1, archDualTypeSubmoduleAt K v (ArchRepAt.ofChar K (χ v)) := hαb.2
+    simp only [iSup_const, Submodule.mem_iInf] at h
+    exact (mem_archDualTypeSubmoduleAt_ofChar_iff K v (χ v) α).mp (h v)
+
+  have hβL : ∀ (v : InfinitePlace K) (k : rowIsometrySubgroup₀ v.Completion) (y : AdelicGL2 (𝓞 K) K),
+      β (rowIsometryInclAt₀ K v k * y) = ((χ v k⁻¹ : ℂˣ) : ℂ) * β y := by
+    intro v k y
+    rw [hβΩ, hβΩ]
+    have hfun : (fun g => α (rowIsometryInclAt₀ K v k * g)) = ((χ v k⁻¹ : ℂˣ) : ℂ) • α := by
+      funext g; rw [hαL, Pi.smul_apply, smul_eq_mul]
+    have h := congrFun (archCasimirAt_comp_mul_left hw α (rowIsometryInclAt₀ K v k)) y
+    rw [hfun, archCasimirAt_smul, Pi.smul_apply, smul_eq_mul] at h
+    exact h.symm
+  have hβR : ∀ (v : InfinitePlace K) (k : rowIsometrySubgroup₀ v.Completion) (g : AdelicGL2 (𝓞 K) K),
+      β (g * rowIsometryInclAt₀ K v k) = ((χ v k⁻¹ : ℂˣ) : ℂ) * β g := by
+    intro v k g
+    have e1 := CasLeft2.Ld_right_law hw (hαR v k) .H g
+    have e2 := CasLeft2.Ld_right_law hw (fun g' => CasLeft2.Ld_right_law hw (hαR v k) .H g') .H g
+    have e3 := CasLeft2.Ld_right_law hw (fun g' => CasLeft2.Ld_right_law hw (hαR v k) .Fm g') .E g
+    show -((1 / 4 : ℂ) * L .H (L .H α) (g * _) - (1 / 2 : ℂ) * L .H α (g * _) + L .E (L .Fm α) (g * _)) =
+      _ * -((1 / 4 : ℂ) * L .H (L .H α) g - (1 / 2 : ℂ) * L .H α g + L .E (L .Fm α) g)
+    change -((1 / 4 : ℂ) * CommConv17.Lf hw .H (CommConv17.Lf hw .H α) (g * _) - (1 / 2 : ℂ) * CommConv17.Lf hw .H α (g * _) +
+        CommConv17.Lf hw .E (CommConv17.Lf hw .Fm α) (g * _)) =
+      _ * -((1 / 4 : ℂ) * CommConv17.Lf hw .H (CommConv17.Lf hw .H α) g - (1 / 2 : ℂ) * CommConv17.Lf hw .H α g +
+        CommConv17.Lf hw .E (CommConv17.Lf hw .Fm α) g)
+    rw [e1, e2, e3]
+    ring
+  have hβLmem : ∀ v : InfinitePlace K, (fun x => β x⁻¹) ∈ archTypeSubmoduleAt K v (ArchRepAt.ofChar K (χ v)) :=
+    fun v => (comp_inv_mem_archTypeSubmoduleAt_ofChar_iff K v (χ v) β).mpr (hβL v)
+  have hβb : IsArchBiFinite K (ArchTypeFamily.ofChar K χ) β := by
+    refine ⟨(mem_archCutSubmodule_ofChar_iff K χ _).mpr fun v =>
+      (mem_archTypeSubmoduleAt_ofChar_iff K v (χ v) _).mp (hβLmem v), ?_⟩
+    show β ∈ ⨅ v : InfinitePlace K, ⨆ _ : Fin 1, archDualTypeSubmoduleAt K v (ArchRepAt.ofChar K (χ v))
+    simp only [iSup_const, Submodule.mem_iInf]
+    exact fun v => (mem_archDualTypeSubmoduleAt_ofChar_iff K v (χ v) β).mpr (hβR v)
+
+  have hfac1 : IsFactorizableTestFn K (L .H α) :=
+    CasLeft2.isFactorizableTestFn_of_tens hff ⟨fa1, ⟨⟨Φ1, hΦ1, hfa1⟩, hs1⟩, h1⟩
+  have hfac2 : IsFactorizableTestFn K (L .H (L .H α)) :=
+    CasLeft2.isFactorizableTestFn_of_tens hff ⟨fa2, ⟨⟨Φ2, hΦ2, hfa2⟩, hs2⟩, h2⟩
+  have hfac4 : IsFactorizableTestFn K (L .E (L .Fm α)) :=
+    CasLeft2.isFactorizableTestFn_of_tens hff ⟨fa4, ⟨⟨Φ4, hΦ4, hfa4⟩, hs4⟩, h4⟩
+  have hlin : ∀ x' : AdelicGL2 (𝓞 K) K → ℂ, Continuous x' →
+      rightConv K x' β = fun g => -((1 / 4 : ℂ) * rightConv K x' (L .H (L .H α)) g
+        - (1 / 2 : ℂ) * rightConv K x' (L .H α) g + rightConv K x' (L .E (L .Fm α)) g) := by
+    intro x' hx'
+    letI := AdelicHaar.glBorel (Fin 2) (𝓞 K) K
+    haveI := AdelicHaar.borelSpace_glBorel (Fin 2) (𝓞 K) K
+    haveI := AdelicHaar.isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 K) K
+    have hint : ∀ {γ : AdelicGL2 (𝓞 K) K → ℂ}, IsFactorizableTestFn K γ → ∀ g : AdelicGL2 (𝓞 K) K,
+        Integrable (fun y => x' (g * y) * γ y) (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := by
+      intro γ hγ g
+      obtain ⟨hγc, hγs⟩ := AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn K γ hγ
+      exact ((hx'.comp (continuous_const.mul continuous_id)).mul hγc).integrable_of_hasCompactSupport hγs.mul_left
+    funext g
+    rw [rightConv_apply, rightConv_apply, rightConv_apply, rightConv_apply]
+    have hfun : (fun y => x' (g * y) * β y) = fun y => -((1 / 4 : ℂ) * (x' (g * y) * L .H (L .H α) y) -
+        (1 / 2 : ℂ) * (x' (g * y) * L .H α y) + x' (g * y) * L .E (L .Fm α) y) := by
+      funext y
+      show x' (g * y) * -((1 / 4 : ℂ) * L .H (L .H α) y - (1 / 2 : ℂ) * L .H α y + L .E (L .Fm α) y) = _
+      ring
+    have hA : Integrable (fun y => (1 / 4 : ℂ) * (x' (g * y) * L .H (L .H α) y))
+        (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := (hint hfac2 g).const_mul _
+    have hB : Integrable (fun y => (1 / 2 : ℂ) * (x' (g * y) * L .H α y))
+        (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := (hint hfac1 g).const_mul _
+    have hAB : Integrable (fun y => (1 / 4 : ℂ) * (x' (g * y) * L .H (L .H α) y) -
+        (1 / 2 : ℂ) * (x' (g * y) * L .H α y)) (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := hA.sub hB
+    rw [hfun, integral_neg, integral_add hAB (hint hfac4 g), integral_sub hA hB, integral_const_mul,
+      integral_const_mul]
+
+  have hβU : ∀ k ∈ (levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K), ∀ y : AdelicGL2 (𝓞 K) K, β (k * y) = β y := by
+    intro k hk y
+    have hk1 : glArch (𝓞 K) K k = 1 := (mem_finiteAdelicGL2Subgroup_iff K k).mp (Subgroup.mem_inf.mp hk).2
+    have hα' : ∀ y, α (k * y) = α y := fun y => (hαU y k hk).1
+    have e1 : ∀ y, L .H α (k * y) = L .H α y := fun y => CasLeft2.Ld_left_inv hw hk1 hα' .H y
+    have e2 : ∀ y, L .H (L .H α) (k * y) = L .H (L .H α) y := fun y => CasLeft2.Ld_left_inv hw hk1 e1 .H y
+    have e3 : ∀ y, L .Fm α (k * y) = L .Fm α y := fun y => CasLeft2.Ld_left_inv hw hk1 hα' .Fm y
+    have e4 : ∀ y, L .E (L .Fm α) (k * y) = L .E (L .Fm α) y := fun y => CasLeft2.Ld_left_inv hw hk1 e3 .E y
+    show -((1 / 4 : ℂ) * L .H (L .H α) (k * y) - (1 / 2 : ℂ) * L .H α (k * y) + L .E (L .Fm α) (k * y)) =
+      -((1 / 4 : ℂ) * L .H (L .H α) y - (1 / 2 : ℂ) * L .H α y + L .E (L .Fm α) y)
+    rw [e1, e2, e4]
+  refine ⟨⟨hβf, hβb⟩, hlin, fun x' hx' _ _ => Submodule.mem_inf.mpr ⟨?_, ?_⟩⟩
+  · intro g u hu
+    rw [AutomorphicForm.rightConv_apply_mul_eq_rightConv_comp_inv_mul_apply]
+    have hfun : (fun y => β (u⁻¹ * y)) = β := funext fun y => hβU u⁻¹ (Subgroup.inv_mem _ hu) y
+    rw [hfun]
+  · exact (mem_archCutSubmodule_ofChar_iff K χ _).mpr fun v =>
+      (mem_archTypeSubmoduleAt_ofChar_iff K v (χ v) _).mp
+        (rightConv_mem_archTypeSubmoduleAt_ofChar K v (χ v) x' β (hβLmem v))
+
+end CasimirBridge
 
 end AutomorphicForm
 

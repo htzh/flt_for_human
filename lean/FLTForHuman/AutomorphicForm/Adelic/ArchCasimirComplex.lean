@@ -10,12 +10,24 @@
   `archComplexGLAt hw m` preserves complex archimedean smoothness, the first and
   second derivatives, and both Casimirs.
 
-  Transcribed from
-  `P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean`
-  (pinned `aa2d8b3`, 857 lines / 97 declarations). The engine is public and
-  registered tier 3, like `ArchCasimir.lean`; the headline is the wire. The
-  definition layer is `ArchDerivCasimirComplex.lean` +
-  `ArchDerivCasimirComplexAPI.lean` (also this wave).
+  Appended below it are the four complex leaves (SET-AF9), each stated at its `Theorems/` wrapper:
+  the fifteen commutator identities of the six complex directions
+  (`archDerivAtComplex_commutator_of_isArchSmoothAtComplex`, a `3 × 3` bracket table), the
+  weight-one character identities `iH = 0`, `F⁻ = E`, `iF⁻ = −iE`, the Casimir's (and the
+  conjugate Casimir's) commutation with a right translation by a row isometry at a different
+  place, and `GL₂(ℂ)`-invariance for a function killed by all six derivatives. Their helpers are
+  the pin's own and `private`.
+
+  Transcribed from the five pin `S_` files of this header's wire (pinned `aa2d8b3`); the engine
+  rests on `ArchDerivCasimirComplex.lean` + `ArchDerivCasimirComplexAPI.lean` (an earlier wave).
+  The engine is public and `spec/check_port.py` owns all of it (`101 ok / 0 mismatch / 0
+  missing`), like `ArchCasimir.lean`: the checker resolves each public statement by name and,
+  failing that, by the statement's content hash.
+  spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archDerivAtComplex_commutator_of_isArchSmoothAtComplex.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archDerivAtComplex_iH_eq_zero_and_Fm_eq_E_and_iFm_eq_neg_iE_of_hasArchCharacterAtZero_one.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_apply_mul_archComplexGLAt_eq_of_forall_archDerivAtComplex_eq_zero.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimirComplexAPI
@@ -37,7 +49,6 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archComplexGLAt_eq_archComplexLiftAt (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:24)
 theorem archComplexGLAt_eq_archComplexLiftAt (M : GL (Fin 2) ℂ) :
     archComplexGLAt hw M = archComplexLiftAt hw (Matrix.of.symm (M : Matrix (Fin 2) (Fin 2) ℂ)) := by
   have hdet : (Matrix.of (Matrix.of.symm (M : Matrix (Fin 2) (Fin 2) ℂ))).det ≠ 0 := by
@@ -48,7 +59,6 @@ theorem archComplexGLAt_eq_archComplexLiftAt (M : GL (Fin 2) ℂ) :
   ext i j
   simp [GeneralLinearGroup.mkOfDetNeZero]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archComplexGLAt_mul_archComplexLiftAt (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:34)
 theorem archComplexGLAt_mul_archComplexLiftAt (M : GL (Fin 2) ℂ) {e : Fin 2 → Fin 2 → ℂ} (h : (Matrix.of e).det ≠ 0) :
     archComplexGLAt hw M * archComplexLiftAt hw e =
       archComplexLiftAt hw (Matrix.of.symm ((M : Matrix (Fin 2) (Fin 2) ℂ) * Matrix.of e)) := by
@@ -61,11 +71,9 @@ theorem archComplexGLAt_mul_archComplexLiftAt (M : GL (Fin 2) ℂ) {e : Fin 2 �
   ext i j
   simp [GeneralLinearGroup.mkOfDetNeZero]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.conjArr (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:46)
 def conjArr (M : GL (Fin 2) ℂ) (e : Fin 2 → Fin 2 → ℂ) : Fin 2 → Fin 2 → ℂ :=
   Matrix.of.symm (((M⁻¹ : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) * Matrix.of e * (M : Matrix (Fin 2) (Fin 2) ℂ))
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.det_conjArr (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:49)
 theorem det_conjArr (M : GL (Fin 2) ℂ) (e : Fin 2 → Fin 2 → ℂ) :
     (Matrix.of (conjArr M e)).det = (Matrix.of e).det := by
   rw [conjArr, Equiv.apply_symm_apply, Matrix.det_mul, Matrix.det_mul]
@@ -77,7 +85,6 @@ theorem det_conjArr (M : GL (Fin 2) ℂ) (e : Fin 2 → Fin 2 → ℂ) :
         ring
     _ = (Matrix.of e).det := by rw [hMM, one_mul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archComplexLiftAt_mul_archComplexGLAt_eq (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:60)
 theorem archComplexLiftAt_mul_archComplexGLAt_eq (M : GL (Fin 2) ℂ) (e : Fin 2 → Fin 2 → ℂ) :
     archComplexLiftAt hw e * archComplexGLAt hw M = archComplexGLAt hw M * archComplexLiftAt hw (conjArr M e) := by
   by_cases h : (Matrix.of e).det ≠ 0
@@ -92,18 +99,15 @@ theorem archComplexLiftAt_mul_archComplexGLAt_eq (M : GL (Fin 2) ℂ) (e : Fin 2
     have h0 : ¬ (Matrix.of e).det ≠ 0 := fun hh => hh h
     rw [archComplexLiftAt, dite_eq_right h0, archComplexLiftAt, dite_eq_right h', one_mul, mul_one]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.chart (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:74)
 def chart (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) : (Fin 2 → Fin 2 → ℂ) → ℂ :=
   fun e => φ (g * archComplexLiftAt hw e)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.chart_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:77)
 theorem chart_rightTranslate (M : GL (Fin 2) ℂ) (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
     chart hw (rightTranslate F (archComplexGLAt hw M) φ) g = chart hw φ (g * archComplexGLAt hw M) ∘ conjArr M := by
   funext e
   show φ (g * archComplexLiftAt hw e * archComplexGLAt hw M) = φ (g * archComplexGLAt hw M * archComplexLiftAt hw (conjArr M e))
   rw [mul_assoc, archComplexLiftAt_mul_archComplexGLAt_eq hw M e, ← mul_assoc]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.conjCLM (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:83)
 def conjCLM (M : GL (Fin 2) ℂ) : (Fin 2 → Fin 2 → ℂ) →L[ℝ] (Fin 2 → Fin 2 → ℂ) :=
   LinearMap.toContinuousLinearMap
     { toFun := conjArr M
@@ -116,13 +120,10 @@ def conjCLM (M : GL (Fin 2) ℂ) : (Fin 2 → Fin 2 → ℂ) →L[ℝ] (Fin 2 �
         rw [show Matrix.of (c • x) = c • Matrix.of x from rfl, Matrix.mul_smul, Matrix.smul_mul]
         rfl }
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.conjCLM_apply (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:95)
 theorem conjCLM_apply (M : GL (Fin 2) ℂ) (e : Fin 2 → Fin 2 → ℂ) : conjCLM M e = conjArr M e := rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.coe_conjCLM (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:97)
 theorem coe_conjCLM (M : GL (Fin 2) ℂ) : (conjCLM M : (Fin 2 → Fin 2 → ℂ) → (Fin 2 → Fin 2 → ℂ)) = conjArr M := rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.conjArr_one (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:99)
 theorem conjArr_one (M : GL (Fin 2) ℂ) : conjArr M (Matrix.of.symm 1) = Matrix.of.symm 1 := by
   unfold conjArr
   rw [Equiv.apply_symm_apply, Matrix.mul_one,
@@ -137,31 +138,25 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.U (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:113)
 abbrev U : Set (Fin 2 → Fin 2 → ℂ) := {e | (Matrix.of e).det ≠ 0}
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.one_mem_U (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:115)
 theorem one_mem_U : (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ)) ∈ U := by
   show (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ))).det ≠ 0
   rw [Equiv.apply_symm_apply, Matrix.det_one]
   exact one_ne_zero
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D1 (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:120)
 def D1 (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y : Matrix (Fin 2) (Fin 2) ℂ) : ℂ :=
   fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm Y)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.contDiffAt_chart (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:123)
 theorem contDiffAt_chart {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F)
     {e : Fin 2 → Fin 2 → ℂ} (he : (Matrix.of e).det ≠ 0) : ContDiffAt ℝ (⊤ : ℕ∞) (chart hw φ g) e :=
   (hφ g).contDiffAt (isOpen_setOf_det_ne_zero_complex.mem_nhds he)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.hasFDerivAt_chart (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:127)
 theorem hasFDerivAt_chart {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F)
     {e : Fin 2 → Fin 2 → ℂ} (he : (Matrix.of e).det ≠ 0) :
     HasFDerivAt (chart hw φ g) (fderiv ℝ (chart hw φ g) e) e :=
   ((contDiffAt_chart hw hφ g he).differentiableAt (by simp)).hasFDerivAt
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplexComplex_apply_mul_lift (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:132)
 theorem archDerivAtComplexComplex_apply_mul_lift {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDirComplex)
     (g : AdelicGL2 (𝓞 F) F) {e : Fin 2 → Fin 2 → ℂ} (he : (Matrix.of e).det ≠ 0) :
     archDerivAtComplex hw d φ (g * archComplexLiftAt hw e) =
@@ -180,14 +175,12 @@ theorem archDerivAtComplexComplex_apply_mul_lift {φ : AdelicGL2 (𝓞 F) F → 
   simpa only [Function.comp_def] using
     (hdiff.comp_hasDerivAt (0 : ℝ) (hasDerivAt_of_symm_mul_archFlowMatrixComplex e d)).deriv
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_eq_D1 (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:150)
 theorem archDerivAtComplex_eq_D1 {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDirComplex)
     (g : AdelicGL2 (𝓞 F) F) : archDerivAtComplex hw d φ g = D1 hw φ g (archDirMatrixComplex d) := by
   have h := archDerivAtComplexComplex_apply_mul_lift hw hφ d g (e := Matrix.of.symm 1) one_mem_U
   rw [archComplexLiftAt_of_symm_one, mul_one, Equiv.apply_symm_apply, Matrix.one_mul] at h
   exact h
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.isArchSmoothAtComplex_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:156)
 theorem isArchSmoothAtComplex_rightTranslate (M : GL (Fin 2) ℂ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) :
     IsArchSmoothAtComplex hw (rightTranslate F (archComplexGLAt hw M) φ) := by
   intro g
@@ -198,13 +191,11 @@ theorem isArchSmoothAtComplex_rightTranslate (M : GL (Fin 2) ℂ) {φ : AdelicGL
   rw [det_conjArr]
   exact he
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.conjCLM_of_symm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:166)
 theorem conjCLM_of_symm (M : GL (Fin 2) ℂ) (Y : Matrix (Fin 2) (Fin 2) ℂ) :
     conjCLM M (Matrix.of.symm Y) =
       Matrix.of.symm (((M⁻¹ : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) * Y * (M : Matrix (Fin 2) (Fin 2) ℂ)) := by
   rw [conjCLM_apply, conjArr, Equiv.apply_symm_apply]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:171)
 theorem archDerivAtComplex_rightTranslate (M : GL (Fin 2) ℂ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ)
     (d : ArchDirComplex) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAtComplex hw d (rightTranslate F (archComplexGLAt hw M) φ) g =
@@ -226,12 +217,10 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D2 (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:192)
 def D2 (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℂ) : ℂ :=
   fderiv ℝ (fderiv ℝ (chart hw φ g)) (Matrix.of.symm 1) (Matrix.of.symm Y) (Matrix.of.symm Z)
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.hasDerivAt_flow_entries (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:196)
 theorem hasDerivAt_flow_entries (d : ArchDirComplex) :
     HasDerivAt (fun t : ℝ => Matrix.of.symm ((archFlowMatrixComplex d t : Matrix (Fin 2) (Fin 2) ℂ)))
       (Matrix.of.symm (archDirMatrixComplex d)) 0 := by
@@ -240,7 +229,6 @@ theorem hasDerivAt_flow_entries (d : ArchDirComplex) :
   exact h
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.hasDerivAt_flow_mul_const (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:204)
 theorem hasDerivAt_flow_mul_const (d : ArchDirComplex) (X : Matrix (Fin 2) (Fin 2) ℂ) :
     HasDerivAt (fun t : ℝ => Matrix.of.symm ((archFlowMatrixComplex d t : Matrix (Fin 2) (Fin 2) ℂ) * X))
       (Matrix.of.symm (archDirMatrixComplex d * X)) 0 := by
@@ -251,7 +239,6 @@ theorem hasDerivAt_flow_mul_const (d : ArchDirComplex) (X : Matrix (Fin 2) (Fin 
   simp only [Matrix.of_symm_apply, Matrix.mul_apply]
   exact HasDerivAt.fun_sum fun k _ => (hasDerivAt_archFlowMatrixComplex_apply d i k).mul_const (X k j)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_archDerivAtComplex_eq (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:214)
 theorem archDerivAtComplex_archDerivAtComplex_eq {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (i j : ArchDirComplex)
     (g : AdelicGL2 (𝓞 F) F) :
     archDerivAtComplex hw i (archDerivAtComplex hw j φ) g =
@@ -279,33 +266,28 @@ theorem archDerivAtComplex_archDerivAtComplex_eq {φ : AdelicGL2 (𝓞 F) F → 
   rw [hfun, h.deriv]
   simp only [archFlowMatrixComplex_zero, Units.val_one, Matrix.one_mul, D2, D1]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D2_symm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:241)
 theorem D2_symm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F)
     (Y Z : Matrix (Fin 2) (Fin 2) ℂ) : D2 hw φ g Y Z = D2 hw φ g Z Y :=
   ((contDiffAt_chart hw hφ g one_mem_U).isSymmSndFDerivAt (by simp)).eq _ _
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D1_sub (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:245)
 theorem D1_sub (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℂ) :
     D1 hw φ g (Y - Z) = D1 hw φ g Y - D1 hw φ g Z := by
   show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm Y - Matrix.of.symm Z) = _
   rw [map_sub]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D1_add (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:251)
 theorem D1_add (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℂ) :
     D1 hw φ g (Y + Z) = D1 hw φ g Y + D1 hw φ g Z := by
   show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm Y + Matrix.of.symm Z) = _
   rw [map_add]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D1_smul (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:257)
 theorem D1_smul (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (c : ℝ) (Y : Matrix (Fin 2) (Fin 2) ℂ) :
     D1 hw φ g (c • Y) = (c : ℂ) * D1 hw φ g Y := by
   show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (c • Matrix.of.symm Y) = _
   rw [map_smul, Complex.real_smul]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_comm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:263)
 theorem archDerivAtComplex_comm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (i j : ArchDirComplex)
     (g : AdelicGL2 (𝓞 F) F) :
     archDerivAtComplex hw i (archDerivAtComplex hw j φ) g - archDerivAtComplex hw j (archDerivAtComplex hw i φ) g =
@@ -321,27 +303,23 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_sub' (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:278)
 theorem archDerivAtComplex_sub' {φ ψ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ)
     (hψ : IsArchSmoothAtComplex hw ψ) (d : ArchDirComplex) :
     archDerivAtComplex hw d (φ - ψ) = archDerivAtComplex hw d φ - archDerivAtComplex hw d ψ := by
   rw [sub_eq_add_neg, archDerivAtComplex_add hφ hψ.neg, ← neg_one_smul ℂ ψ, archDerivAtComplex_smul, neg_one_smul,
     ← sub_eq_add_neg]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D1_neg (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:284)
 theorem D1_neg (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y : Matrix (Fin 2) (Fin 2) ℂ) :
     D1 hw φ g (-Y) = -D1 hw φ g Y := by
   show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (-Matrix.of.symm Y) = _
   rw [map_neg]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_apply (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:290)
 theorem archDelAt_apply (d : ArchDir) (ψ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
     archDelAt hw d ψ g = (1 / 2 : ℂ) * (archDerivAtComplex hw d.toComplex ψ g -
       Complex.I * archDerivAtComplex hw d.toComplexI ψ g) := by
   simp only [archDelAt, Pi.smul_apply, Pi.sub_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_add' (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:295)
 theorem archDelAt_add' {φ ψ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ)
     (hψ : IsArchSmoothAtComplex hw ψ) (d : ArchDir) :
     archDelAt hw d (φ + ψ) = archDelAt hw d φ + archDelAt hw d ψ := by
@@ -351,7 +329,6 @@ theorem archDelAt_add' {φ ψ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoot
   simp only [Pi.add_apply]
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_smul' (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:304)
 theorem archDelAt_smul' (d : ArchDir) (c : ℂ) (φ : AdelicGL2 (𝓞 F) F → ℂ) :
     archDelAt hw d (c • φ) = c • archDelAt hw d φ := by
   funext g
@@ -360,40 +337,33 @@ theorem archDelAt_smul' (d : ArchDir) (c : ℂ) (φ : AdelicGL2 (𝓞 F) F → �
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDirMatrixComplex_toComplexI (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:312)
 theorem archDirMatrixComplex_toComplexI (d : ArchDir) :
     archDirMatrixComplex d.toComplexI = Complex.I • archDirMatrixComplex d.toComplex := by
   cases d <;> ext i j <;> fin_cases i <;> fin_cases j <;>
     simp [archDirMatrixComplex, ArchDir.toComplex, ArchDir.toComplexI]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Del1 (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:317)
 def Del1 (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y : Matrix (Fin 2) (Fin 2) ℂ) : ℂ :=
   (1 / 2 : ℂ) * (D1 hw φ g Y - Complex.I * D1 hw φ g (Complex.I • Y))
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Del2 (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:320)
 def Del2 (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℂ) : ℂ :=
   (1 / 4 : ℂ) * (D2 hw φ g Y Z - D2 hw φ g (Complex.I • Y) (Complex.I • Z) -
     Complex.I * D2 hw φ g Y (Complex.I • Z) - Complex.I * D2 hw φ g (Complex.I • Y) Z)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_eq_Del1 (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:324)
 theorem archDelAt_eq_Del1 {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) : archDelAt hw d φ g = Del1 hw φ g (archDirMatrixComplex d.toComplex) := by
   rw [archDelAt_apply, archDerivAtComplex_eq_D1 hw hφ, archDerivAtComplex_eq_D1 hw hφ, archDirMatrixComplex_toComplexI]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Del1_add (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:329)
 theorem Del1_add (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℂ) :
     Del1 hw φ g (Y + Z) = Del1 hw φ g Y + Del1 hw φ g Z := by
   simp only [Del1, smul_add, D1_add]
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Del1_sub (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:334)
 theorem Del1_sub (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℂ) :
     Del1 hw φ g (Y - Z) = Del1 hw φ g Y - Del1 hw φ g Z := by
   simp only [Del1, smul_sub, D1_sub]
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Del1_smul (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:339)
 theorem Del1_smul (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (c : ℂ) (Y : Matrix (Fin 2) (Fin 2) ℂ) :
     Del1 hw φ g (c • Y) = c * Del1 hw φ g Y := by
   have h1 : c • Y = (c.re : ℝ) • Y + (c.im : ℝ) • (Complex.I • Y) := by
@@ -409,7 +379,6 @@ theorem Del1_smul (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F)
   linear_combination ((1 / 2 : ℂ) * D1 hw φ g Y - (1 / 2 : ℂ) * Complex.I * D1 hw φ g (Complex.I • Y)) *
     Complex.re_add_im c + (1 / 2 : ℂ) * (c.im : ℂ) * D1 hw φ g (Complex.I • Y) * Complex.I_sq
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Del2_symm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:354)
 theorem Del2_symm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F)
     (Y Z : Matrix (Fin 2) (Fin 2) ℂ) : Del2 hw φ g Y Z = Del2 hw φ g Z Y := by
   unfold Del2
@@ -417,7 +386,6 @@ theorem Del2_symm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtCompl
     D2_symm hw hφ g (Complex.I • Y) Z]
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_archDelAt (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:361)
 theorem archDerivAtComplex_archDelAt {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ)
     (c : ArchDirComplex) (b : ArchDir) :
     archDerivAtComplex hw c (archDelAt hw b φ) =
@@ -428,7 +396,6 @@ theorem archDerivAtComplex_archDelAt {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : 
   rw [archDerivAtComplex_smul, archDerivAtComplex_sub' hw (hφ.archDerivAtComplex _) ((hφ.archDerivAtComplex _).smul _),
     archDerivAtComplex_smul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_archDelAt_eq (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:371)
 theorem archDelAt_archDelAt_eq {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (a b : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) :
     archDelAt hw a (archDelAt hw b φ) g =
@@ -446,7 +413,6 @@ theorem archDelAt_archDelAt_eq {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArch
     (Complex.I • archDirMatrixComplex b.toComplex) - D1 hw φ g (archDirMatrixComplex a.toComplex *
       archDirMatrixComplex b.toComplex)) * Complex.I_sq
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_comm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:388)
 theorem archDelAt_comm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (a b : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) :
     archDelAt hw a (archDelAt hw b φ) g - archDelAt hw b (archDelAt hw a φ) g =
@@ -457,24 +423,20 @@ theorem archDelAt_comm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.bracket_H_E (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:398)
 theorem bracket_H_E : archDirMatrixComplex .H * archDirMatrixComplex .E - archDirMatrixComplex .E * archDirMatrixComplex .H =
     (2 : ℂ) • archDirMatrixComplex .E := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; norm_num
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.bracket_H_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:403)
 theorem bracket_H_Fm : archDirMatrixComplex .H * archDirMatrixComplex .Fm - archDirMatrixComplex .Fm * archDirMatrixComplex .H =
     (-2 : ℂ) • archDirMatrixComplex .Fm := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; norm_num
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.bracket_E_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:408)
 theorem bracket_E_Fm : archDirMatrixComplex .E * archDirMatrixComplex .Fm - archDirMatrixComplex .Fm * archDirMatrixComplex .E =
     (1 : ℂ) • archDirMatrixComplex .H := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.rel_E_H (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:412)
 theorem rel_E_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F) :
     archDelAt hw .E (archDelAt hw .H φ) g = archDelAt hw .H (archDelAt hw .E φ) g - 2 * archDelAt hw .E φ g := by
   have h := archDelAt_comm hw hφ .H .E g
@@ -483,7 +445,6 @@ theorem rel_E_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex
   rw [bracket_H_E, Del1_smul] at h
   linear_combination -h
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.rel_Fm_H (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:420)
 theorem rel_Fm_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F) :
     archDelAt hw .Fm (archDelAt hw .H φ) g = archDelAt hw .H (archDelAt hw .Fm φ) g + 2 * archDelAt hw .Fm φ g := by
   have h := archDelAt_comm hw hφ .H .Fm g
@@ -492,7 +453,6 @@ theorem rel_Fm_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComple
   rw [bracket_H_Fm, Del1_smul] at h
   linear_combination -h
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.rel_Fm_E (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:428)
 theorem rel_Fm_E {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F) :
     archDelAt hw .Fm (archDelAt hw .E φ) g = archDelAt hw .E (archDelAt hw .Fm φ) g - archDelAt hw .H φ g := by
   have h := archDelAt_comm hw hφ .E .Fm g
@@ -509,23 +469,19 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.AdM (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:444)
 def AdM (M : GL (Fin 2) ℂ) (X : Matrix (Fin 2) (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ :=
   ((M⁻¹ : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) * X * (M : Matrix (Fin 2) (Fin 2) ℂ)
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.AdM_smul (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:448)
 theorem AdM_smul (M : GL (Fin 2) ℂ) (c : ℂ) (X : Matrix (Fin 2) (Fin 2) ℂ) : AdM M (c • X) = c • AdM M X := by
   unfold AdM
   rw [Matrix.mul_smul, Matrix.smul_mul]
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.trace_archDirMatrixComplex (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:453)
 theorem trace_archDirMatrixComplex (d : ArchDirComplex) : Matrix.trace (archDirMatrixComplex d) = 0 := by
   cases d <;> simp [archDirMatrixComplex, Matrix.trace_fin_two]
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.AdM_traceless (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:457)
 theorem AdM_traceless (M : GL (Fin 2) ℂ) (d : ArchDirComplex) :
     (AdM M (archDirMatrixComplex d)) 1 1 = -(AdM M (archDirMatrixComplex d)) 0 0 := by
   have h : Matrix.trace (AdM M (archDirMatrixComplex d)) = 0 := by
@@ -535,7 +491,6 @@ theorem AdM_traceless (M : GL (Fin 2) ℂ) (d : ArchDirComplex) :
 
 omit hw in
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.eq_smul_archDirMatrixComplex (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:466)
 theorem eq_smul_archDirMatrixComplex (Y : Matrix (Fin 2) (Fin 2) ℂ) (hY : Y 1 1 = -Y 0 0) :
     Y = Y 0 0 • archDirMatrixComplex .H + Y 0 1 • archDirMatrixComplex .E + Y 1 0 • archDirMatrixComplex .Fm := by
   ext i j
@@ -543,7 +498,6 @@ theorem eq_smul_archDirMatrixComplex (Y : Matrix (Fin 2) (Fin 2) ℂ) (hY : Y 1 
 
 omit hw in
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.eq_real_smul_archDirMatrixComplex (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:473)
 theorem eq_real_smul_archDirMatrixComplex (Y : Matrix (Fin 2) (Fin 2) ℂ) (hY : Y 1 1 = -Y 0 0) :
     Y = (Y 0 0).re • archDirMatrixComplex .H + (Y 0 0).im • archDirMatrixComplex .iH +
       (Y 0 1).re • archDirMatrixComplex .E + (Y 0 1).im • archDirMatrixComplex .iE +
@@ -555,14 +509,12 @@ theorem eq_real_smul_archDirMatrixComplex (Y : Matrix (Fin 2) (Fin 2) ℂ) (hY :
     | exact (Complex.re_add_im _).symm
     | (rw [← neg_add, Complex.re_add_im])
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:484)
 def cf (M : GL (Fin 2) ℂ) (d e : ArchDir) : ℂ :=
   match e with
   | .H => (AdM M (archDirMatrixComplex d.toComplex)) 0 0
   | .E => (AdM M (archDirMatrixComplex d.toComplex)) 0 1
   | .Fm => (AdM M (archDirMatrixComplex d.toComplex)) 1 0
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cr (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:490)
 def cr (M : GL (Fin 2) ℂ) (d : ArchDirComplex) (e : ArchDirComplex) : ℝ :=
   match e with
   | .H => ((AdM M (archDirMatrixComplex d)) 0 0).re
@@ -572,42 +524,35 @@ def cr (M : GL (Fin 2) ℂ) (d : ArchDirComplex) (e : ArchDirComplex) : ℝ :=
   | .Fm => ((AdM M (archDirMatrixComplex d)) 1 0).re
   | .iFm => ((AdM M (archDirMatrixComplex d)) 1 0).im
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:499)
 def Dconj (M : GL (Fin 2) ℂ) (d : ArchDirComplex) (θ : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ :=
   (cr M d .H : ℂ) • archDerivAtComplex hw .H θ + (cr M d .iH : ℂ) • archDerivAtComplex hw .iH θ +
     (cr M d .E : ℂ) • archDerivAtComplex hw .E θ + (cr M d .iE : ℂ) • archDerivAtComplex hw .iE θ +
     (cr M d .Fm : ℂ) • archDerivAtComplex hw .Fm θ + (cr M d .iFm : ℂ) • archDerivAtComplex hw .iFm θ
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.DelConj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:504)
 def DelConj (M : GL (Fin 2) ℂ) (d : ArchDir) (θ : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ :=
   cf M d .H • archDelAt hw .H θ + cf M d .E • archDelAt hw .E θ + cf M d .Fm • archDelAt hw .Fm θ
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.isArchSmoothAtComplex_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:507)
 theorem isArchSmoothAtComplex_Dconj (M : GL (Fin 2) ℂ) (d : ArchDirComplex) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAtComplex hw θ) : IsArchSmoothAtComplex hw (Dconj hw M d θ) :=
   ((((((hθ.archDerivAtComplex .H).smul _).add ((hθ.archDerivAtComplex .iH).smul _)).add
     ((hθ.archDerivAtComplex .E).smul _)).add ((hθ.archDerivAtComplex .iE).smul _)).add
     ((hθ.archDerivAtComplex .Fm).smul _)).add ((hθ.archDerivAtComplex .iFm).smul _)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.isArchSmoothAtComplex_DelConj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:513)
 theorem isArchSmoothAtComplex_DelConj (M : GL (Fin 2) ℂ) (d : ArchDir) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAtComplex hw θ) : IsArchSmoothAtComplex hw (DelConj hw M d θ) :=
   (((hθ.archDelAt .H).smul _).add ((hθ.archDelAt .E).smul _)).add ((hθ.archDelAt .Fm).smul _)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Dconj_apply (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:517)
 theorem Dconj_apply (M : GL (Fin 2) ℂ) (d : ArchDirComplex) (θ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
     Dconj hw M d θ g = (cr M d .H : ℂ) * archDerivAtComplex hw .H θ g + (cr M d .iH : ℂ) * archDerivAtComplex hw .iH θ g +
       (cr M d .E : ℂ) * archDerivAtComplex hw .E θ g + (cr M d .iE : ℂ) * archDerivAtComplex hw .iE θ g +
       (cr M d .Fm : ℂ) * archDerivAtComplex hw .Fm θ g + (cr M d .iFm : ℂ) * archDerivAtComplex hw .iFm θ g := by
   simp only [Dconj, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.DelConj_apply (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:523)
 theorem DelConj_apply (M : GL (Fin 2) ℂ) (d : ArchDir) (θ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
     DelConj hw M d θ g = cf M d .H * archDelAt hw .H θ g + cf M d .E * archDelAt hw .E θ g +
       cf M d .Fm * archDelAt hw .Fm θ g := by
   simp only [DelConj, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.D1_AdM (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:528)
 theorem D1_AdM {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAtComplex hw θ) (M : GL (Fin 2) ℂ) (d : ArchDirComplex)
     (g : AdelicGL2 (𝓞 F) F) : D1 hw θ g (AdM M (archDirMatrixComplex d)) = Dconj hw M d θ g := by
   conv_lhs => rw [eq_real_smul_archDirMatrixComplex (AdM M (archDirMatrixComplex d)) (AdM_traceless M d)]
@@ -616,7 +561,6 @@ theorem D1_AdM {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAtComplex 
     ← archDerivAtComplex_eq_D1 hw hθ, ← archDerivAtComplex_eq_D1 hw hθ, ← archDerivAtComplex_eq_D1 hw hθ, Dconj_apply]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.Del1_AdM (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:536)
 theorem Del1_AdM {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAtComplex hw θ) (M : GL (Fin 2) ℂ) (d : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) : Del1 hw θ g (AdM M (archDirMatrixComplex d.toComplex)) = DelConj hw M d θ g := by
   conv_lhs => rw [eq_smul_archDirMatrixComplex (AdM M (archDirMatrixComplex d.toComplex)) (AdM_traceless M _)]
@@ -627,7 +571,6 @@ theorem Del1_AdM {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAtComple
     ← archDelAt_eq_Del1 hw hθ, ← archDelAt_eq_Del1 hw hθ, ← archDelAt_eq_Del1 hw hθ, DelConj_apply]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_rightTranslate_eq_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:546)
 theorem archDerivAtComplex_rightTranslate_eq_Dconj (M : GL (Fin 2) ℂ) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAtComplex hw θ) (d : ArchDirComplex) :
     archDerivAtComplex hw d (rightTranslate F (archComplexGLAt hw M) θ) =
@@ -636,7 +579,6 @@ theorem archDerivAtComplex_rightTranslate_eq_Dconj (M : GL (Fin 2) ℂ) {θ : Ad
   rw [archDerivAtComplex_rightTranslate hw M hθ, ← AdM, D1_AdM hw hθ]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_rightTranslate_eq_DelConj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:554)
 theorem archDelAt_rightTranslate_eq_DelConj (M : GL (Fin 2) ℂ) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAtComplex hw θ) (d : ArchDir) :
     archDelAt hw d (rightTranslate F (archComplexGLAt hw M) θ) =
@@ -648,7 +590,6 @@ theorem archDelAt_rightTranslate_eq_DelConj (M : GL (Fin 2) ℂ) {θ : AdelicGL2
   rw [Del1_AdM hw hθ]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:565)
 theorem archDerivAtComplex_Dconj (M : GL (Fin 2) ℂ) (d i : ArchDirComplex) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAtComplex hw θ) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAtComplex hw i (Dconj hw M d θ) g =
@@ -674,7 +615,6 @@ theorem archDerivAtComplex_Dconj (M : GL (Fin 2) ℂ) (d i : ArchDirComplex) {θ
     archDerivAtComplex_smul, archDerivAtComplex_smul]
   simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelAt_DelConj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:590)
 theorem archDelAt_DelConj (M : GL (Fin 2) ℂ) (d i : ArchDir) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAtComplex hw θ) (g : AdelicGL2 (𝓞 F) F) :
     archDelAt hw i (DelConj hw M d θ) g = cf M d .H * archDelAt hw i (archDelAt hw .H θ) g +
@@ -686,12 +626,10 @@ theorem archDelAt_DelConj (M : GL (Fin 2) ℂ) (d i : ArchDir) {θ : AdelicGL2 (
   simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.continuous_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:601)
 theorem continuous_rightTranslate {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : Continuous θ) (k : AdelicGL2 (𝓞 F) F) :
     Continuous (rightTranslate F k θ) :=
   hθ.comp (continuous_id.mul continuous_const)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.continuous_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:605)
 theorem continuous_Dconj (M : GL (Fin 2) ℂ) (d : ArchDirComplex) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (h : ∀ e : ArchDirComplex, Continuous (archDerivAtComplex hw e θ)) : Continuous (Dconj hw M d θ) := by
   have e : Dconj hw M d θ = fun g =>
@@ -704,7 +642,6 @@ theorem continuous_Dconj (M : GL (Fin 2) ℂ) (d : ArchDirComplex) {θ : AdelicG
     (continuous_const.mul (h .E))).add (continuous_const.mul (h .iE))).add
     (continuous_const.mul (h .Fm))).add (continuous_const.mul (h .iFm))
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.continuous_archDerivAtComplex_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:617)
 theorem continuous_archDerivAtComplex_Dconj (M : GL (Fin 2) ℂ) (d i : ArchDirComplex) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAtComplex hw θ)
     (h2 : ∀ e e' : ArchDirComplex, Continuous (archDerivAtComplex hw e (archDerivAtComplex hw e' θ))) :
@@ -731,14 +668,12 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.AdM_eq (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:643)
 theorem AdM_eq (M : GL (Fin 2) ℂ) (X : Matrix (Fin 2) (Fin 2) ℂ) :
     AdM M X = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ • (Matrix.adjugate (M : Matrix (Fin 2) (Fin 2) ℂ) * X *
       (M : Matrix (Fin 2) (Fin 2) ℂ)) := by
   rw [AdM, Matrix.coe_units_inv, Matrix.inv_def, Ring.inverse_eq_inv', Matrix.smul_mul, Matrix.smul_mul]
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_H_H (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:649)
 theorem cf_H_H (M : GL (Fin 2) ℂ) :
     cf M .H .H = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℂ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℂ) 1 1 +
       (M : Matrix (Fin 2) (Fin 2) ℂ) 0 1 * (M : Matrix (Fin 2) (Fin 2) ℂ) 1 0) := by
@@ -748,7 +683,6 @@ theorem cf_H_H (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_H_E (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:658)
 theorem cf_H_E (M : GL (Fin 2) ℂ) :
     cf M .H .E = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * (2 * (M : Matrix (Fin 2) (Fin 2) ℂ) 0 1 * (M : Matrix (Fin 2) (Fin 2) ℂ) 1 1) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -757,7 +691,6 @@ theorem cf_H_E (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_H_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:666)
 theorem cf_H_Fm (M : GL (Fin 2) ℂ) :
     cf M .H .Fm = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * (-(2 * (M : Matrix (Fin 2) (Fin 2) ℂ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℂ) 1 0)) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -766,7 +699,6 @@ theorem cf_H_Fm (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_E_H (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:674)
 theorem cf_E_H (M : GL (Fin 2) ℂ) :
     cf M .E .H = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℂ) 1 0 * (M : Matrix (Fin 2) (Fin 2) ℂ) 1 1) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -775,7 +707,6 @@ theorem cf_E_H (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_E_E (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:682)
 theorem cf_E_E (M : GL (Fin 2) ℂ) :
     cf M .E .E = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℂ) 1 1 * (M : Matrix (Fin 2) (Fin 2) ℂ) 1 1) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -784,7 +715,6 @@ theorem cf_E_E (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_E_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:690)
 theorem cf_E_Fm (M : GL (Fin 2) ℂ) :
     cf M .E .Fm = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * (-((M : Matrix (Fin 2) (Fin 2) ℂ) 1 0 * (M : Matrix (Fin 2) (Fin 2) ℂ) 1 0)) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -793,7 +723,6 @@ theorem cf_E_Fm (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_Fm_H (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:698)
 theorem cf_Fm_H (M : GL (Fin 2) ℂ) :
     cf M .Fm .H = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * (-((M : Matrix (Fin 2) (Fin 2) ℂ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℂ) 0 1)) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -802,7 +731,6 @@ theorem cf_Fm_H (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_Fm_E (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:706)
 theorem cf_Fm_E (M : GL (Fin 2) ℂ) :
     cf M .Fm .E = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * (-((M : Matrix (Fin 2) (Fin 2) ℂ) 0 1 * (M : Matrix (Fin 2) (Fin 2) ℂ) 0 1)) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -811,7 +739,6 @@ theorem cf_Fm_E (M : GL (Fin 2) ℂ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.cf_Fm_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:714)
 theorem cf_Fm_Fm (M : GL (Fin 2) ℂ) :
     cf M .Fm .Fm = ((M : Matrix (Fin 2) (Fin 2) ℂ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℂ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℂ) 0 0) := by
   simp only [cf, ArchDir.toComplex, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply,
@@ -819,7 +746,6 @@ theorem cf_Fm_Fm (M : GL (Fin 2) ℂ) :
     Matrix.empty_val', Matrix.cons_val_fin_one]
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.casimir_identity (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:721)
 theorem casimir_identity (M : GL (Fin 2) ℂ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ)
     (g : AdelicGL2 (𝓞 F) F) :
     -((1 / 4 : ℂ) * DelConj hw M .H (DelConj hw M .H φ) g - (1 / 2 : ℂ) * DelConj hw M .H φ g +
@@ -836,7 +762,6 @@ theorem casimir_identity (M : GL (Fin 2) ℂ) {φ : AdelicGL2 (𝓞 F) F → ℂ
   field_simp
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archCasimirAtComplex_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:737)
 theorem archCasimirAtComplex_rightTranslate (M : GL (Fin 2) ℂ) {φ : AdelicGL2 (𝓞 F) F → ℂ}
     (hφ : IsArchSmoothAtComplex hw φ) :
     archCasimirAtComplex hw (rightTranslate F (archComplexGLAt hw M) φ) =
@@ -860,20 +785,16 @@ theorem archCasimirAtComplex_rightTranslate (M : GL (Fin 2) ℂ) {φ : AdelicGL2
   simp only [Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, rightTranslate]
   exact casimir_identity hw M hφ (g * archComplexGLAt hw M)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.conjFn (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:760)
 def conjFn (φ : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ := fun g => starRingEnd ℂ (φ g)
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.conjFn_conjFn (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:763)
 theorem conjFn_conjFn (φ : AdelicGL2 (𝓞 F) F → ℂ) : conjFn (conjFn φ) = φ := by
   funext g; exact Complex.conj_conj _
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.rightTranslate_conjFn (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:767)
 theorem rightTranslate_conjFn (k : AdelicGL2 (𝓞 F) F) (φ : AdelicGL2 (𝓞 F) F → ℂ) :
     rightTranslate F k (conjFn φ) = conjFn (rightTranslate F k φ) := rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.isArchSmoothAtComplex_conjFn (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:770)
 theorem isArchSmoothAtComplex_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) :
     IsArchSmoothAtComplex hw (conjFn φ) := by
   intro g
@@ -881,7 +802,6 @@ theorem isArchSmoothAtComplex_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : 
   simp only [Function.comp_def, Complex.conjCLE_apply] at h
   exact h
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDerivAtComplex_conjFn (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:777)
 theorem archDerivAtComplex_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDirComplex) :
     archDerivAtComplex hw d (conjFn φ) = conjFn (archDerivAtComplex hw d φ) := by
   funext g
@@ -891,7 +811,6 @@ theorem archDerivAtComplex_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsA
     simpa only [Function.comp_def, ContinuousLinearEquiv.coe_coe, Complex.conjCLE_apply] using h
   exact h'.deriv
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archDelBarAt_eq_conjFn (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:786)
 theorem archDelBarAt_eq_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDir) :
     archDelBarAt hw d φ = conjFn (archDelAt hw d (conjFn φ)) := by
   funext g
@@ -900,7 +819,6 @@ theorem archDelBarAt_eq_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArch
   simp only [map_mul, map_sub, map_div₀, map_one, map_ofNat, Complex.conj_conj, Complex.conj_I]
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archCasimirBarAtComplex_eq_conjFn (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:794)
 theorem archCasimirBarAtComplex_eq_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ) :
     archCasimirBarAtComplex hw φ = conjFn (archCasimirAtComplex hw (conjFn φ)) := by
   have hc := isArchSmoothAtComplex_conjFn hw hφ
@@ -916,7 +834,6 @@ theorem archCasimirBarAtComplex_eq_conjFn {φ : AdelicGL2 (𝓞 F) F → ℂ} (h
   simp only [conjFn, Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, map_neg, map_add, map_sub,
     map_mul, map_div₀, map_one, map_ofNat]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.archCasimirBarAtComplex_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:809)
 theorem archCasimirBarAtComplex_rightTranslate (M : GL (Fin 2) ℂ) {φ : AdelicGL2 (𝓞 F) F → ℂ}
     (hφ : IsArchSmoothAtComplex hw φ) :
     archCasimirBarAtComplex hw (rightTranslate F (archComplexGLAt hw M) φ) =
@@ -925,7 +842,6 @@ theorem archCasimirBarAtComplex_rightTranslate (M : GL (Fin 2) ℂ) {φ : Adelic
     archCasimirAtComplex_rightTranslate hw M (isArchSmoothAtComplex_conjFn hw hφ), ← rightTranslate_conjFn,
     ← archCasimirBarAtComplex_eq_conjFn hw hφ]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.ArchCxGL.package (P2M/Sol/S_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean:817)
 theorem package (M : GL (Fin 2) ℂ) (x : AdelicGL2 (𝓞 F) F → ℂ) (hxs : IsArchSmoothAtComplex hw x)
     (hD1 : ∀ d : ArchDirComplex, Continuous (archDerivAtComplex hw d x))
     (hD2 : ∀ d d' : ArchDirComplex, Continuous (archDerivAtComplex hw d (archDerivAtComplex hw d' x))) :
@@ -967,5 +883,706 @@ theorem archCasimirAtComplex_rightTranslate_archComplexGLAt
           rightTranslate K (archComplexGLAt hw m) (archCasimirBarAtComplex hw x) := by
   intro m
   exact ArchCxGL.package hw m x hxs hD1 hD2
+
+
+/-! ### The four complex leaves
+
+The complex twin of the four real leaves: the fifteen commutator identities of the six complex
+directions (a `3 × 3` bracket table on `archDirMatrixComplex`), the weight-one character identities
+`iH = 0`, `F⁻ = E`, `iF⁻ = −iE`, the Casimir's commutation with a right translation by a row
+isometry at a different place (both Casimirs), and `GL₂(ℂ)`-invariance for a function killed by all
+six derivatives. Each headline is stated at its `Theorems/` wrapper; the helpers are the pin's own,
+`private` as the pin has them (its local `dirM` is the port's `archDirMatrixComplex`).
+
+The port's `ArchCxGL` already holds the six-direction chart engine this leaf continues
+(`archDerivAtComplex_eq_D1`, `archDerivAtComplex_archDerivAtComplex_eq`, `D2_symm`, `D1_sub`,
+`D1_smul`, `archDerivAtComplex_comm`), stated with `archDirMatrixComplex` where the pin writes its
+local `dirM`; those are imported, not re-stated. -/
+
+/-! #### The bracket table -/
+
+namespace Ws26
+
+namespace CommC
+
+open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
+open ArchCxGL
+
+variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
+
+private theorem D1_zero (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
+    D1 hw φ g 0 = 0 := by
+  show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm 0) = 0
+  have : (Matrix.of.symm (0 : Matrix (Fin 2) (Fin 2) ℂ) : Fin 2 → Fin 2 → ℂ) = 0 := rfl
+  rw [this, map_zero]
+
+private theorem comm_of_bracket {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ)
+    {i j k : ArchDirComplex} {c : ℝ} {c' : ℂ} (hc : (c : ℂ) = c')
+    (hb : archDirMatrixComplex i * archDirMatrixComplex j - archDirMatrixComplex j * archDirMatrixComplex i
+      = c • archDirMatrixComplex k) :
+    archDerivAtComplex hw i (archDerivAtComplex hw j φ) -
+      archDerivAtComplex hw j (archDerivAtComplex hw i φ) = c' • archDerivAtComplex hw k φ := by
+  funext g
+  rw [Pi.sub_apply, Pi.smul_apply, smul_eq_mul, archDerivAtComplex_comm hw hφ, hb, D1_smul,
+    ← archDerivAtComplex_eq_D1 hw hφ, hc]
+
+private theorem comm_of_bracket_zero {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAtComplex hw φ)
+    {i j : ArchDirComplex}
+    (hb : archDirMatrixComplex i * archDirMatrixComplex j - archDirMatrixComplex j * archDirMatrixComplex i = 0) :
+    archDerivAtComplex hw i (archDerivAtComplex hw j φ) - archDerivAtComplex hw j (archDerivAtComplex hw i φ) = 0 := by
+  funext g
+  rw [Pi.sub_apply, Pi.zero_apply, archDerivAtComplex_comm hw hφ, hb, D1_zero]
+
+section brackets
+
+omit hw
+
+private theorem br_H_E :
+    archDirMatrixComplex .H * archDirMatrixComplex .E - archDirMatrixComplex .E * archDirMatrixComplex .H =
+      (2 : ℝ) • archDirMatrixComplex .E := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; norm_num
+
+private theorem br_H_Fm :
+    archDirMatrixComplex .H * archDirMatrixComplex .Fm - archDirMatrixComplex .Fm * archDirMatrixComplex .H =
+      (-2 : ℝ) • archDirMatrixComplex .Fm := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; norm_num
+
+private theorem br_E_Fm :
+    archDirMatrixComplex .E * archDirMatrixComplex .Fm - archDirMatrixComplex .Fm * archDirMatrixComplex .E =
+      (1 : ℝ) • archDirMatrixComplex .H := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
+
+private theorem br_H_iE :
+    archDirMatrixComplex .H * archDirMatrixComplex .iE - archDirMatrixComplex .iE * archDirMatrixComplex .H =
+      (2 : ℝ) • archDirMatrixComplex .iE := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; ring
+
+private theorem br_H_iFm :
+    archDirMatrixComplex .H * archDirMatrixComplex .iFm - archDirMatrixComplex .iFm * archDirMatrixComplex .H =
+      (-2 : ℝ) • archDirMatrixComplex .iFm := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; ring
+
+private theorem br_E_iFm :
+    archDirMatrixComplex .E * archDirMatrixComplex .iFm - archDirMatrixComplex .iFm * archDirMatrixComplex .E =
+      (1 : ℝ) • archDirMatrixComplex .iH := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
+
+private theorem br_iE_Fm :
+    archDirMatrixComplex .iE * archDirMatrixComplex .Fm - archDirMatrixComplex .Fm * archDirMatrixComplex .iE =
+      (1 : ℝ) • archDirMatrixComplex .iH := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
+
+private theorem br_iH_E :
+    archDirMatrixComplex .iH * archDirMatrixComplex .E - archDirMatrixComplex .E * archDirMatrixComplex .iH =
+      (2 : ℝ) • archDirMatrixComplex .iE := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; ring
+
+private theorem br_iH_Fm :
+    archDirMatrixComplex .iH * archDirMatrixComplex .Fm - archDirMatrixComplex .Fm * archDirMatrixComplex .iH =
+      (-2 : ℝ) • archDirMatrixComplex .iFm := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; ring
+
+private theorem br_iH_iE :
+    archDirMatrixComplex .iH * archDirMatrixComplex .iE - archDirMatrixComplex .iE * archDirMatrixComplex .iH =
+      (-2 : ℝ) • archDirMatrixComplex .E := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; ring
+
+private theorem br_iH_iFm :
+    archDirMatrixComplex .iH * archDirMatrixComplex .iFm - archDirMatrixComplex .iFm * archDirMatrixComplex .iH =
+      (2 : ℝ) • archDirMatrixComplex .Fm := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]; ring
+
+private theorem br_iE_iFm :
+    archDirMatrixComplex .iE * archDirMatrixComplex .iFm - archDirMatrixComplex .iFm * archDirMatrixComplex .iE =
+      (-1 : ℝ) • archDirMatrixComplex .H := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
+
+private theorem br_H_iH :
+    archDirMatrixComplex .H * archDirMatrixComplex .iH - archDirMatrixComplex .iH * archDirMatrixComplex .H = 0 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
+
+private theorem br_E_iE :
+    archDirMatrixComplex .E * archDirMatrixComplex .iE - archDirMatrixComplex .iE * archDirMatrixComplex .E = 0 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
+
+private theorem br_Fm_iFm :
+    archDirMatrixComplex .Fm * archDirMatrixComplex .iFm - archDirMatrixComplex .iFm * archDirMatrixComplex .Fm = 0 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrixComplex]
+
+end brackets
+
+private theorem main (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtComplex hw φ) :
+    archDerivAtComplex hw .H (archDerivAtComplex hw .E φ) - archDerivAtComplex hw .E (archDerivAtComplex hw .H φ) =
+      (2 : ℂ) • archDerivAtComplex hw .E φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .H φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .Fm φ ∧
+    archDerivAtComplex hw .E (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .E φ) =
+      (1 : ℂ) • archDerivAtComplex hw .H φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .iE φ) - archDerivAtComplex hw .iE (archDerivAtComplex hw .H φ) =
+      (2 : ℂ) • archDerivAtComplex hw .iE φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .H φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .iFm φ ∧
+    archDerivAtComplex hw .E (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .E φ) =
+      (1 : ℂ) • archDerivAtComplex hw .iH φ ∧
+    archDerivAtComplex hw .iE (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .iE φ) =
+      (1 : ℂ) • archDerivAtComplex hw .iH φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .E φ) - archDerivAtComplex hw .E (archDerivAtComplex hw .iH φ) =
+      (2 : ℂ) • archDerivAtComplex hw .iE φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .iH φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .iFm φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .iE φ) - archDerivAtComplex hw .iE (archDerivAtComplex hw .iH φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .E φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .iH φ) =
+      (2 : ℂ) • archDerivAtComplex hw .Fm φ ∧
+    archDerivAtComplex hw .iE (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .iE φ) =
+      (-1 : ℂ) • archDerivAtComplex hw .H φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .iH φ) - archDerivAtComplex hw .iH (archDerivAtComplex hw .H φ) =
+      0 ∧
+    archDerivAtComplex hw .E (archDerivAtComplex hw .iE φ) - archDerivAtComplex hw .iE (archDerivAtComplex hw .E φ) =
+      0 ∧
+    archDerivAtComplex hw .Fm (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .Fm φ) =
+      0 := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · exact comm_of_bracket hw hφ (by norm_num) br_H_E
+  · exact comm_of_bracket hw hφ (by norm_num) br_H_Fm
+  · exact comm_of_bracket hw hφ (by norm_num) br_E_Fm
+  · exact comm_of_bracket hw hφ (by norm_num) br_H_iE
+  · exact comm_of_bracket hw hφ (by norm_num) br_H_iFm
+  · exact comm_of_bracket hw hφ (by norm_num) br_E_iFm
+  · exact comm_of_bracket hw hφ (by norm_num) br_iE_Fm
+  · exact comm_of_bracket hw hφ (by norm_num) br_iH_E
+  · exact comm_of_bracket hw hφ (by norm_num) br_iH_Fm
+  · exact comm_of_bracket hw hφ (by norm_num) br_iH_iE
+  · exact comm_of_bracket hw hφ (by norm_num) br_iH_iFm
+  · exact comm_of_bracket hw hφ (by norm_num) br_iE_iFm
+  · exact comm_of_bracket_zero hw hφ br_H_iH
+  · exact comm_of_bracket_zero hw hφ br_E_iE
+  · exact comm_of_bracket_zero hw hφ br_Fm_iFm
+
+end CommC
+
+end Ws26
+
+/-- **Headline.** The fifteen `𝔰𝔩₂(ℂ)` commutator identities of the six archimedean directions on a
+complex-smooth `φ`: the `H`/`E`/`F⁻` triple as at a real place, the `iH`/`iE`/`iF⁻` triple, and the
+mixed brackets. -/
+theorem archDerivAtComplex_commutator_of_isArchSmoothAtComplex
+    (F : Type) [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
+    (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtComplex hw φ) :
+    archDerivAtComplex hw .H (archDerivAtComplex hw .E φ) - archDerivAtComplex hw .E (archDerivAtComplex hw .H φ) =
+      (2 : ℂ) • archDerivAtComplex hw .E φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .H φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .Fm φ ∧
+    archDerivAtComplex hw .E (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .E φ) =
+      (1 : ℂ) • archDerivAtComplex hw .H φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .iE φ) - archDerivAtComplex hw .iE (archDerivAtComplex hw .H φ) =
+      (2 : ℂ) • archDerivAtComplex hw .iE φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .H φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .iFm φ ∧
+    archDerivAtComplex hw .E (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .E φ) =
+      (1 : ℂ) • archDerivAtComplex hw .iH φ ∧
+    archDerivAtComplex hw .iE (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .iE φ) =
+      (1 : ℂ) • archDerivAtComplex hw .iH φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .E φ) - archDerivAtComplex hw .E (archDerivAtComplex hw .iH φ) =
+      (2 : ℂ) • archDerivAtComplex hw .iE φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .Fm φ) - archDerivAtComplex hw .Fm (archDerivAtComplex hw .iH φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .iFm φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .iE φ) - archDerivAtComplex hw .iE (archDerivAtComplex hw .iH φ) =
+      (-2 : ℂ) • archDerivAtComplex hw .E φ ∧
+    archDerivAtComplex hw .iH (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .iH φ) =
+      (2 : ℂ) • archDerivAtComplex hw .Fm φ ∧
+    archDerivAtComplex hw .iE (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .iE φ) =
+      (-1 : ℂ) • archDerivAtComplex hw .H φ ∧
+    archDerivAtComplex hw .H (archDerivAtComplex hw .iH φ) - archDerivAtComplex hw .iH (archDerivAtComplex hw .H φ) =
+      0 ∧
+    archDerivAtComplex hw .E (archDerivAtComplex hw .iE φ) - archDerivAtComplex hw .iE (archDerivAtComplex hw .E φ) =
+      0 ∧
+    archDerivAtComplex hw .Fm (archDerivAtComplex hw .iFm φ) - archDerivAtComplex hw .iFm (archDerivAtComplex hw .Fm φ) =
+      0 :=
+  Ws26.CommC.main hw φ hφ
+
+/-! #### The weight-one character identities -/
+
+namespace Ws50KDER0
+
+open Matrix Complex AutomorphicForm.WindowedSiegel NumberField.InfinitePlace NumberField.InfinitePlace.Completion
+
+variable {F : Type} [Field F] [NumberField F]
+
+omit [NumberField F] in
+private theorem norm_ringEquivComplexOfIsComplex_symm {w : InfinitePlace F} (hw : w.IsComplex) (z : ℂ) :
+    ‖(ringEquivComplexOfIsComplex hw).symm z‖ = ‖z‖ := by
+  have h : ∀ x : w.Completion, ‖ringEquivComplexOfIsComplex hw x‖ = ‖x‖ := fun x =>
+    (isometry_extensionEmbedding w).norm_map_of_map_zero (map_zero _) x
+  conv_rhs => rw [← (ringEquivComplexOfIsComplex hw).apply_symm_apply z]
+  rw [h]
+
+private theorem apply_mul_archComplexGLAt_of_mem {w : InfinitePlace F} (hw : w.IsComplex)
+    {φ : AdelicGL2 (𝓞 F) F → ℂ} (hχ : HasArchCharacterAt₀ F w 1 φ)
+    (m : GL (Fin 2) ℂ) (hm : m ∈ rowIsometrySubgroup₀ ℂ) (g : AdelicGL2 (𝓞 F) F) :
+    φ (g * archComplexGLAt hw m) = φ g := by
+  have hk := map_mem_rowIsometrySubgroup₀_of_normPreserving (ringEquivComplexOfIsComplex hw).symm
+    (norm_ringEquivComplexOfIsComplex_symm hw) m hm
+  have h := hχ ⟨_, hk⟩ g
+  rw [MonoidHom.one_apply, Units.val_one, one_mul] at h
+  exact h
+
+private theorem mem_rowIsometrySubgroup₀_complex (m : GL (Fin 2) ℂ)
+    (hdet : (m : Matrix (Fin 2) (Fin 2) ℂ).det = 1)
+    (hiso : ∀ x y : ℂ,
+      ‖x * (m : Matrix (Fin 2) (Fin 2) ℂ) 0 0 + y * (m : Matrix (Fin 2) (Fin 2) ℂ) 1 0‖ ^ 2
+        + ‖x * (m : Matrix (Fin 2) (Fin 2) ℂ) 0 1 + y * (m : Matrix (Fin 2) (Fin 2) ℂ) 1 1‖ ^ 2
+      = ‖x‖ ^ 2 + ‖y‖ ^ 2) :
+    m ∈ rowIsometrySubgroup₀ ℂ :=
+  (mem_rowIsometrySubgroup₀_iff ℂ).mpr ⟨hdet, by rw [hdet]; exact norm_one, hiso⟩
+
+private noncomputable def rotGL (t : ℝ) : GL (Fin 2) ℂ where
+  val := !![(Real.cos t : ℂ), -(Real.sin t : ℂ); (Real.sin t : ℂ), (Real.cos t : ℂ)]
+  inv := !![(Real.cos t : ℂ), (Real.sin t : ℂ); -(Real.sin t : ℂ), (Real.cos t : ℂ)]
+  val_inv := by
+    have h : (Real.cos t : ℂ) ^ 2 + (Real.sin t : ℂ) ^ 2 = 1 := by exact_mod_cast Real.cos_sq_add_sin_sq t
+    ext i j; fin_cases i <;> fin_cases j <;>
+      simp [Matrix.mul_apply, Fin.sum_univ_two, -Complex.ofReal_cos, -Complex.ofReal_sin] <;>
+      ring_nf <;>
+      linear_combination h
+  inv_val := by
+    have h : (Real.cos t : ℂ) ^ 2 + (Real.sin t : ℂ) ^ 2 = 1 := by exact_mod_cast Real.cos_sq_add_sin_sq t
+    ext i j; fin_cases i <;> fin_cases j <;>
+      simp [Matrix.mul_apply, Fin.sum_univ_two, -Complex.ofReal_cos, -Complex.ofReal_sin] <;>
+      ring_nf <;>
+      linear_combination h
+
+private noncomputable def swayGL (t : ℝ) : GL (Fin 2) ℂ where
+  val := !![(Real.cos t : ℂ), (Real.sin t : ℂ) * I; (Real.sin t : ℂ) * I, (Real.cos t : ℂ)]
+  inv := !![(Real.cos t : ℂ), -((Real.sin t : ℂ) * I); -((Real.sin t : ℂ) * I), (Real.cos t : ℂ)]
+  val_inv := by
+    have h : (Real.cos t : ℂ) ^ 2 + (Real.sin t : ℂ) ^ 2 = 1 := by exact_mod_cast Real.cos_sq_add_sin_sq t
+    ext i j; fin_cases i <;> fin_cases j <;>
+      simp [Matrix.mul_apply, Fin.sum_univ_two, -Complex.ofReal_cos, -Complex.ofReal_sin] <;> ring_nf <;>
+      simp only [Complex.I_sq] <;> linear_combination h
+  inv_val := by
+    have h : (Real.cos t : ℂ) ^ 2 + (Real.sin t : ℂ) ^ 2 = 1 := by exact_mod_cast Real.cos_sq_add_sin_sq t
+    ext i j; fin_cases i <;> fin_cases j <;>
+      simp [Matrix.mul_apply, Fin.sum_univ_two, -Complex.ofReal_cos, -Complex.ofReal_sin] <;> ring_nf <;>
+      simp only [Complex.I_sq] <;> linear_combination h
+
+private theorem rotGL_mem (t : ℝ) : rotGL t ∈ rowIsometrySubgroup₀ ℂ := by
+  have h : (Real.cos t : ℂ) ^ 2 + (Real.sin t : ℂ) ^ 2 = 1 := by exact_mod_cast Real.cos_sq_add_sin_sq t
+  refine mem_rowIsometrySubgroup₀_complex _ ?_ ?_
+  · simp [rotGL, Matrix.det_fin_two, -Complex.ofReal_cos, -Complex.ofReal_sin]; linear_combination h
+  · intro x y
+    simp only [rotGL, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
+      Matrix.empty_val', Matrix.cons_val_fin_one, Complex.sq_norm, Complex.normSq_apply]
+    simp only [Complex.add_re, Complex.add_im, Complex.mul_re, Complex.mul_im, Complex.neg_re, Complex.neg_im,
+      Complex.ofReal_re, Complex.ofReal_im]
+    have hr := Real.cos_sq_add_sin_sq t
+    ring_nf
+    nlinarith [hr, sq_nonneg x.re, sq_nonneg x.im, sq_nonneg y.re, sq_nonneg y.im]
+
+private theorem swayGL_mem (t : ℝ) : swayGL t ∈ rowIsometrySubgroup₀ ℂ := by
+  have h : (Real.cos t : ℂ) ^ 2 + (Real.sin t : ℂ) ^ 2 = 1 := by exact_mod_cast Real.cos_sq_add_sin_sq t
+  refine mem_rowIsometrySubgroup₀_complex _ ?_ ?_
+  · simp [swayGL, Matrix.det_fin_two, -Complex.ofReal_cos, -Complex.ofReal_sin]; ring_nf; simp only [Complex.I_sq]; linear_combination h
+  · intro x y
+    simp only [swayGL, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
+      Matrix.empty_val', Matrix.cons_val_fin_one, Complex.sq_norm, Complex.normSq_apply]
+    simp only [Complex.add_re, Complex.add_im, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im,
+      Complex.ofReal_re, Complex.ofReal_im]
+    have hr := Real.cos_sq_add_sin_sq t
+    ring_nf
+    nlinarith [hr, sq_nonneg x.re, sq_nonneg x.im, sq_nonneg y.re, sq_nonneg y.im]
+
+private theorem flow_iH_mem (t : ℝ) : archFlowMatrixComplex .iH t ∈ rowIsometrySubgroup₀ ℂ := by
+  have hcoe : ((archFlowMatrixComplex .iH t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) =
+      !![Complex.exp ((t : ℂ) * I), 0; 0, Complex.exp (-((t : ℂ) * I))] := by
+    show ((splitTorusGL2Complex ((t : ℂ) * I) : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) = _
+    rw [splitTorusGL2Complex_coe]
+  have hn1 : ‖Complex.exp ((t : ℂ) * I)‖ = 1 := Complex.norm_exp_ofReal_mul_I t
+  have hn2 : ‖Complex.exp (-((t : ℂ) * I))‖ = 1 := by
+    rw [show -((t : ℂ) * I) = ((-t : ℝ) : ℂ) * I by push_cast; ring]
+    exact Complex.norm_exp_ofReal_mul_I (-t)
+  refine mem_rowIsometrySubgroup₀_complex _ ?_ ?_
+  · rw [hcoe, Matrix.det_fin_two_of, ← Complex.exp_add]; simp
+  · intro x y
+    rw [hcoe]
+    simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.empty_val',
+      Matrix.cons_val_fin_one, mul_zero, add_zero, zero_add, norm_mul, hn1, hn2, mul_one]
+
+private theorem archComplexGLAt_eq_lift {w : InfinitePlace F} (hw : w.IsComplex) (m : GL (Fin 2) ℂ) :
+    archComplexGLAt hw m = archComplexLiftAt hw (Matrix.of.symm (m : Matrix (Fin 2) (Fin 2) ℂ)) := by
+  have hdet : (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ))).det ≠ 0 := by
+    rw [Equiv.apply_symm_apply, Matrix.det_one]; exact one_ne_zero
+  have h := archComplexLiftAt_mul_archComplexGLAt hw hdet m
+  rw [archComplexLiftAt_of_symm_one, one_mul, Equiv.apply_symm_apply, one_mul] at h
+  exact h
+
+private theorem hasDerivAt_chart {w : InfinitePlace F} {hw : w.IsComplex} {φ : AdelicGL2 (𝓞 F) F → ℂ}
+    (hφ : IsArchSmoothAtComplex hw φ) (g : AdelicGL2 (𝓞 F) F)
+    (M : ℝ → Matrix (Fin 2) (Fin 2) ℂ) (M' : Matrix (Fin 2) (Fin 2) ℂ) (hM0 : M 0 = 1)
+    (hM : HasDerivAt (fun t : ℝ => (Matrix.of.symm (M t) : Fin 2 → Fin 2 → ℂ)) (Matrix.of.symm M') 0) :
+    HasDerivAt (fun t : ℝ => φ (g * archComplexLiftAt hw (Matrix.of.symm (M t))))
+      (fderiv ℝ (fun e : Fin 2 → Fin 2 → ℂ => φ (g * archComplexLiftAt hw e))
+        (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ)) (Matrix.of.symm M')) 0 := by
+  have hopen := isOpen_setOf_det_ne_zero_complex
+  have hdet : (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ))).det ≠ 0 := by
+    rw [Equiv.apply_symm_apply, Matrix.det_one]; exact one_ne_zero
+  have hdiff : HasFDerivAt (fun e : Fin 2 → Fin 2 → ℂ => φ (g * archComplexLiftAt hw e))
+      (fderiv ℝ (fun e : Fin 2 → Fin 2 → ℂ => φ (g * archComplexLiftAt hw e))
+        (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ)))
+      (Matrix.of.symm (M 0)) := by
+    rw [hM0]
+    exact (((hφ g).contDiffAt (hopen.mem_nhds hdet)).differentiableAt (by simp)).hasFDerivAt
+  exact hdiff.comp_hasDerivAt (0 : ℝ) hM
+
+private theorem archDerivAtComplex_eq {w : InfinitePlace F} {hw : w.IsComplex} {φ : AdelicGL2 (𝓞 F) F → ℂ}
+    (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDirComplex) (g : AdelicGL2 (𝓞 F) F) :
+    archDerivAtComplex hw d φ g =
+      fderiv ℝ (fun e : Fin 2 → Fin 2 → ℂ => φ (g * archComplexLiftAt hw e))
+        (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ)) (Matrix.of.symm (archDirMatrixComplex d)) := by
+  have hM : HasDerivAt (fun t : ℝ => (Matrix.of.symm ((archFlowMatrixComplex d t : GL (Fin 2) ℂ) :
+      Matrix (Fin 2) (Fin 2) ℂ) : Fin 2 → Fin 2 → ℂ)) (Matrix.of.symm (archDirMatrixComplex d)) 0 := by
+    have h := hasDerivAt_of_symm_mul_archFlowMatrixComplex (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ)) d
+    simp only [Equiv.apply_symm_apply, one_mul] at h
+    exact h
+  have h := hasDerivAt_chart hφ g (fun t => ((archFlowMatrixComplex d t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ))
+    (archDirMatrixComplex d)
+    (by show ((archFlowMatrixComplex d 0 : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) = 1; rw [archFlowMatrixComplex_zero, Units.val_one])
+    hM
+  have hfun : (fun t : ℝ => φ (g * archFlowAtComplex hw d t)) =
+      fun t : ℝ => φ (g * archComplexLiftAt hw (Matrix.of.symm
+        ((archFlowMatrixComplex d t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ))) := by
+    funext t; rw [archFlowAtComplex, archComplexGLAt_eq_lift]
+  unfold archDerivAtComplex
+  rw [hfun]
+  exact h.deriv
+
+private theorem fderiv_apply_eq_zero_of_mem {w : InfinitePlace F} {hw : w.IsComplex} {φ : AdelicGL2 (𝓞 F) F → ℂ}
+    (hφ : IsArchSmoothAtComplex hw φ) (hχ : HasArchCharacterAt₀ F w 1 φ) (g : AdelicGL2 (𝓞 F) F)
+    (M : ℝ → GL (Fin 2) ℂ) (hmem : ∀ t, M t ∈ rowIsometrySubgroup₀ ℂ) (M' : Matrix (Fin 2) (Fin 2) ℂ)
+    (hM0 : M 0 = 1)
+    (hM : HasDerivAt (fun t : ℝ => (Matrix.of.symm ((M t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) :
+      Fin 2 → Fin 2 → ℂ)) (Matrix.of.symm M') 0) :
+    fderiv ℝ (fun e : Fin 2 → Fin 2 → ℂ => φ (g * archComplexLiftAt hw e))
+        (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ)) (Matrix.of.symm M') = 0 := by
+  have h := hasDerivAt_chart hφ g (fun t => ((M t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ)) M'
+    (by show ((M 0 : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) = 1; rw [hM0, Units.val_one]) hM
+  have hconst : (fun t : ℝ => φ (g * archComplexLiftAt hw (Matrix.of.symm
+      ((M t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ)))) = fun _ => φ g := by
+    funext t
+    rw [← archComplexGLAt_eq_lift, apply_mul_archComplexGLAt_of_mem hw hχ (M t) (hmem t) g]
+  rw [hconst] at h
+  exact (h.unique (hasDerivAt_const (0 : ℝ) (φ g))).symm ▸ rfl
+
+private theorem hasDerivAt_rotGL :
+    HasDerivAt (fun t : ℝ => (Matrix.of.symm ((rotGL t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) :
+      Fin 2 → Fin 2 → ℂ)) (Matrix.of.symm (archDirMatrixComplex .Fm - archDirMatrixComplex .E)) 0 := by
+  have hc : HasDerivAt (fun t : ℝ => (Real.cos t : ℂ)) 0 0 := by
+    simpa using (Real.hasDerivAt_cos 0).ofReal_comp
+  have hs : HasDerivAt (fun t : ℝ => (Real.sin t : ℂ)) 1 0 := by
+    simpa using (Real.hasDerivAt_sin 0).ofReal_comp
+  rw [hasDerivAt_pi]; intro i; rw [hasDerivAt_pi]; intro j
+  fin_cases i <;> fin_cases j
+  · simpa [rotGL, archDirMatrixComplex] using hc
+  · have h__af := hs.neg
+    simp [rotGL, archDirMatrixComplex] at h__af ⊢
+    exact h__af
+  · simpa [rotGL, archDirMatrixComplex] using hs
+  · simpa [rotGL, archDirMatrixComplex] using hc
+
+private theorem hasDerivAt_swayGL :
+    HasDerivAt (fun t : ℝ => (Matrix.of.symm ((swayGL t : GL (Fin 2) ℂ) : Matrix (Fin 2) (Fin 2) ℂ) :
+      Fin 2 → Fin 2 → ℂ)) (Matrix.of.symm (archDirMatrixComplex .iE + archDirMatrixComplex .iFm)) 0 := by
+  have hc : HasDerivAt (fun t : ℝ => (Real.cos t : ℂ)) 0 0 := by
+    simpa using (Real.hasDerivAt_cos 0).ofReal_comp
+  have hs : HasDerivAt (fun t : ℝ => (Real.sin t : ℂ) * I) I 0 := by
+    simpa using ((Real.hasDerivAt_sin 0).ofReal_comp).mul_const I
+  rw [hasDerivAt_pi]; intro i; rw [hasDerivAt_pi]; intro j
+  fin_cases i <;> fin_cases j
+  · simpa [swayGL, archDirMatrixComplex] using hc
+  · simpa [swayGL, archDirMatrixComplex] using hs
+  · simpa [swayGL, archDirMatrixComplex] using hs
+  · simpa [swayGL, archDirMatrixComplex] using hc
+
+private theorem rotGL_zero : rotGL 0 = 1 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [rotGL]
+
+private theorem swayGL_zero : swayGL 0 = 1 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [swayGL]
+
+end Ws50KDER0
+
+open Ws50KDER0 in
+/-- **Headline.** At weight `1` the complex character kills the `iH`-derivative and forces the two
+pairs `F⁻ = E`, `iF⁻ = −iE`: the sway and rotation row-isometry arguments of the pin. -/
+theorem archDerivAtComplex_iH_eq_zero_and_Fm_eq_E_and_iFm_eq_neg_iE_of_hasArchCharacterAtZero_one
+    (F : Type) [Field F] [NumberField F] (w : InfinitePlace F) (hw : w.IsComplex)
+    (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtComplex hw φ)
+    (hχ : HasArchCharacterAt₀ F w 1 φ) :
+    archDerivAtComplex hw .iH φ = 0 ∧
+    archDerivAtComplex hw .Fm φ = archDerivAtComplex hw .E φ ∧
+    archDerivAtComplex hw .iFm φ = -archDerivAtComplex hw .iE φ := by
+  set L := fderiv ℝ (fun e : Fin 2 → Fin 2 → ℂ => φ (1 * archComplexLiftAt hw e))
+    (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℂ)) with hL
+  refine ⟨?_, ?_, ?_⟩
+  ·
+    funext g
+    have hconst : (fun t : ℝ => φ (g * archFlowAtComplex hw .iH t)) = fun _ => φ g := by
+      funext t
+      exact apply_mul_archComplexGLAt_of_mem hw hχ _ (flow_iH_mem t) g
+    show deriv (fun t : ℝ => φ (g * archFlowAtComplex hw .iH t)) 0 = 0
+    rw [hconst, deriv_const]
+  · funext g
+    have h0 := fderiv_apply_eq_zero_of_mem hφ hχ g rotGL rotGL_mem _ rotGL_zero hasDerivAt_rotGL
+    rw [archDerivAtComplex_eq hφ, archDerivAtComplex_eq hφ]
+    have hsub : (Matrix.of.symm (archDirMatrixComplex .Fm - archDirMatrixComplex .E) : Fin 2 → Fin 2 → ℂ) =
+        Matrix.of.symm (archDirMatrixComplex .Fm) - Matrix.of.symm (archDirMatrixComplex .E) := rfl
+    rw [hsub, map_sub, sub_eq_zero] at h0
+    exact h0
+  · funext g
+    have h0 := fderiv_apply_eq_zero_of_mem hφ hχ g swayGL swayGL_mem _ swayGL_zero hasDerivAt_swayGL
+    rw [Pi.neg_apply, archDerivAtComplex_eq hφ, archDerivAtComplex_eq hφ]
+    have hadd : (Matrix.of.symm (archDirMatrixComplex .iE + archDirMatrixComplex .iFm) : Fin 2 → Fin 2 → ℂ) =
+        Matrix.of.symm (archDirMatrixComplex .iE) + Matrix.of.symm (archDirMatrixComplex .iFm) := rfl
+    rw [hadd, map_add, add_eq_zero_iff_neg_eq] at h0
+    exact h0.symm
+
+/-! #### The row isometry at a different place -/
+
+namespace CommAway40
+
+open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
+
+variable {F : Type} [Field F] [NumberField F]
+
+section Commuting
+
+variable {w : InfinitePlace F} (hw : w.IsComplex) {k : AdelicGL2 (𝓞 F) F}
+  (hk : ∀ m : GL (Fin 2) ℂ, archComplexGLAt hw m * k = k * archComplexGLAt hw m)
+
+include hk
+
+private theorem archComplexLiftAt_mul_comm (e : Fin 2 → Fin 2 → ℂ) :
+    archComplexLiftAt hw e * k = k * archComplexLiftAt hw e := by
+  unfold archComplexLiftAt
+  split_ifs
+  · exact hk _
+  · rw [one_mul, mul_one]
+
+private theorem archFlowAtComplex_mul_comm (d : ArchDirComplex) (t : ℝ) :
+    archFlowAtComplex hw d t * k = k * archFlowAtComplex hw d t :=
+  hk _
+
+private theorem isArchSmoothAtComplex_rightTranslate {φ : AdelicGL2 (𝓞 F) F → ℂ}
+    (hφ : IsArchSmoothAtComplex hw φ) :
+    IsArchSmoothAtComplex hw (rightTranslate F k φ) := by
+  intro g
+  show ContDiffOn ℝ (⊤ : ℕ∞) (fun e => φ (g * archComplexLiftAt hw e * k)) _
+  have hfun : (fun e : Fin 2 → Fin 2 → ℂ => φ (g * archComplexLiftAt hw e * k)) =
+      fun e => φ (g * k * archComplexLiftAt hw e) := by
+    funext e
+    rw [mul_assoc, archComplexLiftAt_mul_comm hw hk e, ← mul_assoc]
+  rw [hfun]
+  exact hφ (g * k)
+
+private theorem archDerivAtComplex_rightTranslate (d : ArchDirComplex) (φ : AdelicGL2 (𝓞 F) F → ℂ) :
+    archDerivAtComplex hw d (rightTranslate F k φ) = rightTranslate F k (archDerivAtComplex hw d φ) := by
+  funext g
+  show deriv (fun t : ℝ => φ (g * archFlowAtComplex hw d t * k)) 0 =
+    deriv (fun t : ℝ => φ (g * k * archFlowAtComplex hw d t)) 0
+  congr 1
+  funext t
+  rw [mul_assoc, archFlowAtComplex_mul_comm hw hk d t, ← mul_assoc]
+
+private theorem archDelAt_rightTranslate (d : ArchDir) (φ : AdelicGL2 (𝓞 F) F → ℂ) :
+    archDelAt hw d (rightTranslate F k φ) = rightTranslate F k (archDelAt hw d φ) := by
+  unfold archDelAt
+  rw [archDerivAtComplex_rightTranslate hw hk, archDerivAtComplex_rightTranslate hw hk]
+  rfl
+
+private theorem archDelBarAt_rightTranslate (d : ArchDir) (φ : AdelicGL2 (𝓞 F) F → ℂ) :
+    archDelBarAt hw d (rightTranslate F k φ) = rightTranslate F k (archDelBarAt hw d φ) := by
+  unfold archDelBarAt
+  rw [archDerivAtComplex_rightTranslate hw hk, archDerivAtComplex_rightTranslate hw hk]
+  rfl
+
+private theorem archCasimirAtComplex_rightTranslate (φ : AdelicGL2 (𝓞 F) F → ℂ) :
+    archCasimirAtComplex hw (rightTranslate F k φ) =
+      rightTranslate F k (archCasimirAtComplex hw φ) := by
+  unfold archCasimirAtComplex
+  simp only [archDelAt_rightTranslate hw hk]
+  rfl
+
+private theorem archCasimirBarAtComplex_rightTranslate (φ : AdelicGL2 (𝓞 F) F → ℂ) :
+    archCasimirBarAtComplex hw (rightTranslate F k φ) =
+      rightTranslate F k (archCasimirBarAtComplex hw φ) := by
+  unfold archCasimirBarAtComplex
+  simp only [archDelBarAt_rightTranslate hw hk]
+  rfl
+
+private theorem package (x : AdelicGL2 (𝓞 F) F → ℂ) (hxs : IsArchSmoothAtComplex hw x)
+    (hD1 : ∀ d : ArchDirComplex, Continuous (archDerivAtComplex hw d x))
+    (hD2 : ∀ d d' : ArchDirComplex, Continuous (archDerivAtComplex hw d (archDerivAtComplex hw d' x))) :
+    IsArchSmoothAtComplex hw (rightTranslate F k x) ∧
+    (∀ d : ArchDirComplex, Continuous (archDerivAtComplex hw d (rightTranslate F k x))) ∧
+    (∀ d d' : ArchDirComplex, Continuous (archDerivAtComplex hw d (archDerivAtComplex hw d' (rightTranslate F k x)))) ∧
+    archCasimirAtComplex hw (rightTranslate F k x) = rightTranslate F k (archCasimirAtComplex hw x) ∧
+    archCasimirBarAtComplex hw (rightTranslate F k x) = rightTranslate F k (archCasimirBarAtComplex hw x) := by
+  refine ⟨isArchSmoothAtComplex_rightTranslate hw hk hxs, fun d => ?_, fun d d' => ?_,
+    archCasimirAtComplex_rightTranslate hw hk x, archCasimirBarAtComplex_rightTranslate hw hk x⟩
+  · rw [archDerivAtComplex_rightTranslate hw hk]
+    exact CuspidalConstituent.continuous_rightTranslate F (hD1 d) k
+  · rw [archDerivAtComplex_rightTranslate hw hk, archDerivAtComplex_rightTranslate hw hk]
+    exact CuspidalConstituent.continuous_rightTranslate F (hD2 d d') k
+
+end Commuting
+
+private theorem archComplexGLAt_mul_rowIsometryInclAt₀_comm {w w' : InfinitePlace F} (hw : w.IsComplex)
+    (hne : w' ≠ w) (k : rowIsometrySubgroup₀ w'.Completion) (m : GL (Fin 2) ℂ) :
+    archComplexGLAt hw m * rowIsometryInclAt₀ F w' k = rowIsometryInclAt₀ F w' k * archComplexGLAt hw m := by
+  rw [rowIsometryInclAt₀_apply]
+  show adelicArchGLInclAt F w _ * adelicArchGLInclAt F w' _ = adelicArchGLInclAt F w' _ * adelicArchGLInclAt F w _
+  exact (commute_adelicArchGLInclAt_of_ne F (Ne.symm hne) _ _).eq
+
+end CommAway40
+
+-- The pin's `hw' : w' ≠ w` is a hypothesis the statement carries and no proof step needs; it stays
+-- spelled `hw'` because the checker compares binder spelling.
+set_option linter.unusedVariables false in
+/-- **Headline.** Both Casimirs commute with right translation by a row isometry at a *different*
+place, and complex smoothness with the first/second derivative continuities is preserved. -/
+theorem archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne
+    (K : Type) [Field K] [NumberField K]
+    (w : InfinitePlace K) (hw : w.IsComplex)
+    (x : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x) (hxs : IsArchSmoothAtComplex hw x)
+    (hD1 : ∀ d : ArchDirComplex, Continuous (archDerivAtComplex hw d x))
+    (hD2 : ∀ d d' : ArchDirComplex, Continuous (archDerivAtComplex hw d (archDerivAtComplex hw d' x))) :
+    ∀ (w' : InfinitePlace K) (hw' : w' ≠ w) (k : rowIsometrySubgroup₀ w'.Completion),
+        IsArchSmoothAtComplex hw (rightTranslate K (rowIsometryInclAt₀ K w' k) x) ∧
+        (∀ d : ArchDirComplex, Continuous (archDerivAtComplex hw d (rightTranslate K (rowIsometryInclAt₀ K w' k) x))) ∧
+        (∀ d d' : ArchDirComplex, Continuous (archDerivAtComplex hw d (archDerivAtComplex hw d'
+          (rightTranslate K (rowIsometryInclAt₀ K w' k) x)))) ∧
+        archCasimirAtComplex hw (rightTranslate K (rowIsometryInclAt₀ K w' k) x) =
+          rightTranslate K (rowIsometryInclAt₀ K w' k) (archCasimirAtComplex hw x) ∧
+        archCasimirBarAtComplex hw (rightTranslate K (rowIsometryInclAt₀ K w' k) x) =
+          rightTranslate K (rowIsometryInclAt₀ K w' k) (archCasimirBarAtComplex hw x) := by
+  have _ := hxc
+  intro w' hw' k
+  exact CommAway40.package hw (CommAway40.archComplexGLAt_mul_rowIsometryInclAt₀_comm hw hw' k) x hxs hD1 hD2
+
+/-! #### Killing all six derivatives gives `GL₂(ℂ)`-invariance -/
+
+namespace InvZeroC
+
+open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
+
+variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
+
+private theorem apply_mul_archFlowAtComplex_eq (φ : AdelicGL2 (𝓞 F) F → ℂ)
+    (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDirComplex)
+    (hd : archDerivAtComplex hw d φ = 0) (g : AdelicGL2 (𝓞 F) F) (t : ℝ) :
+    φ (g * archFlowAtComplex hw d t) = φ g := by
+  set f : ℝ → ℂ := fun t => φ (g * archFlowAtComplex hw d t) with hf
+  have hderiv : ∀ t : ℝ, HasDerivAt f 0 t := by
+    intro t
+    have h0 : HasDerivAt (fun s : ℝ => φ ((g * archFlowAtComplex hw d t) * archFlowAtComplex hw d s)) 0 0 := by
+      have hda := (hφ.differentiableAt_flow d (g * archFlowAtComplex hw d t)).hasDerivAt
+      have hz : deriv (fun s : ℝ => φ ((g * archFlowAtComplex hw d t) * archFlowAtComplex hw d s)) 0 = 0 :=
+        congrFun hd (g * archFlowAtComplex hw d t)
+      rwa [hz] at hda
+    have h1 : (fun s : ℝ => φ ((g * archFlowAtComplex hw d t) * archFlowAtComplex hw d s)) =
+        fun s => f (t + s) := by
+      funext s
+      simp only [hf, archFlowAtComplex_add, mul_assoc]
+    rw [h1, show (0 : ℝ) = t - t by simp] at h0
+    have h2 := h0.comp_sub_const t t
+    have h3 : (fun x : ℝ => f (t + (x - t))) = f := by
+      funext x; congr 1; ring
+    rw [h3] at h2
+    exact h2
+  have hdiff : Differentiable ℝ f := fun t => (hderiv t).differentiableAt
+  have hconst := is_const_of_deriv_eq_zero hdiff (fun t => (hderiv t).deriv) t 0
+  have h0 : f 0 = φ g := by simp only [hf, archFlowAtComplex_zero, mul_one]
+  rw [← h0, ← hconst]
+
+private theorem apply_mul_upper (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtComplex hw φ)
+    (hE : archDerivAtComplex hw .E φ = 0) (hiE : archDerivAtComplex hw .iE φ = 0)
+    (g : AdelicGL2 (𝓞 F) F) (z : ℂ) :
+    φ (g * archComplexGLAt hw (unipotentGL2 z)) = φ g := by
+  have hz : unipotentGL2 z = unipotentGL2 ((z.re : ℝ) : ℂ) * unipotentGL2 (((z.im : ℝ) : ℂ) * Complex.I) := by
+    rw [← unipotentGL2_add]; congr 1; exact (Complex.re_add_im z).symm
+  rw [hz, map_mul, ← mul_assoc]
+  have h1 : archComplexGLAt hw (unipotentGL2 ((z.re : ℝ) : ℂ)) = archFlowAtComplex hw .E z.re := rfl
+  have h2 : archComplexGLAt hw (unipotentGL2 (((z.im : ℝ) : ℂ) * Complex.I)) = archFlowAtComplex hw .iE z.im := rfl
+  rw [h1, h2, apply_mul_archFlowAtComplex_eq hw φ hφ .iE hiE, apply_mul_archFlowAtComplex_eq hw φ hφ .E hE]
+
+private theorem apply_mul_lower (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtComplex hw φ)
+    (hFm : archDerivAtComplex hw .Fm φ = 0) (hiFm : archDerivAtComplex hw .iFm φ = 0)
+    (g : AdelicGL2 (𝓞 F) F) (z : ℂ) :
+    φ (g * archComplexGLAt hw (lowerUnipotentGL2 z)) = φ g := by
+  have hz : lowerUnipotentGL2 z =
+      lowerUnipotentGL2 ((z.re : ℝ) : ℂ) * lowerUnipotentGL2 (((z.im : ℝ) : ℂ) * Complex.I) := by
+    rw [← lowerUnipotentGL2_add]; congr 1; exact (Complex.re_add_im z).symm
+  rw [hz, map_mul, ← mul_assoc]
+  have h1 : archComplexGLAt hw (lowerUnipotentGL2 ((z.re : ℝ) : ℂ)) = archFlowAtComplex hw .Fm z.re := rfl
+  have h2 : archComplexGLAt hw (lowerUnipotentGL2 (((z.im : ℝ) : ℂ) * Complex.I)) =
+    archFlowAtComplex hw .iFm z.im := rfl
+  rw [h1, h2, apply_mul_archFlowAtComplex_eq hw φ hφ .iFm hiFm, apply_mul_archFlowAtComplex_eq hw φ hφ .Fm hFm]
+
+omit hw in
+private theorem exists_eq_lower_upper_lower_upper (h : GL (Fin 2) ℂ)
+    (hh : Matrix.GeneralLinearGroup.det h = 1) :
+    ∃ s x c y : ℂ, h = lowerUnipotentGL2 s * unipotentGL2 x * lowerUnipotentGL2 c * unipotentGL2 y := by
+  have hdet : (h : Matrix (Fin 2) (Fin 2) ℂ) 0 0 * (h : Matrix (Fin 2) (Fin 2) ℂ) 1 1
+      - (h : Matrix (Fin 2) (Fin 2) ℂ) 0 1 * (h : Matrix (Fin 2) (Fin 2) ℂ) 1 0 = 1 := by
+    have := congrArg (fun u : ℂˣ => (u : ℂ)) hh
+    simp only [Matrix.GeneralLinearGroup.val_det_apply, Units.val_one, Matrix.det_fin_two] at this
+    exact this
+  set a := (h : Matrix (Fin 2) (Fin 2) ℂ) 0 0 with ha
+  set b := (h : Matrix (Fin 2) (Fin 2) ℂ) 0 1 with hb
+  set c := (h : Matrix (Fin 2) (Fin 2) ℂ) 1 0 with hc
+  set d := (h : Matrix (Fin 2) (Fin 2) ℂ) 1 1 with hd
+  have heta : (h : Matrix (Fin 2) (Fin 2) ℂ) = !![a, b; c, d] := by
+    rw [ha, hb, hc, hd]; exact Matrix.eta_fin_two _
+  by_cases hc0 : c = 0
+  · have ha0 : a ≠ 0 := by
+      intro h0; rw [h0, hc0] at hdet; simp at hdet
+    refine ⟨-1, (a - 1) / a, a, (b + d - 1) / a, ?_⟩
+    apply Units.ext
+    rw [Units.val_mul, Units.val_mul, Units.val_mul, heta, lowerUnipotentGL2_coe, lowerUnipotentGL2_coe,
+      unipotentGL2_coe, unipotentGL2_coe]
+    rw [hc0] at hdet ⊢
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp <;>
+      first | linear_combination hdet | linear_combination -hdet | linear_combination a * hdet |
+        linear_combination (-a) * hdet | linear_combination c * hdet | linear_combination (-c) * hdet | ring1
+  · refine ⟨0, (a - 1) / c, c, (d - 1) / c, ?_⟩
+    apply Units.ext
+    rw [Units.val_mul, Units.val_mul, Units.val_mul, heta, lowerUnipotentGL2_coe, lowerUnipotentGL2_coe,
+      unipotentGL2_coe, unipotentGL2_coe]
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp <;>
+      first | linear_combination hdet | linear_combination -hdet | linear_combination a * hdet |
+        linear_combination (-a) * hdet | linear_combination c * hdet | linear_combination (-c) * hdet | ring1
+
+private theorem main (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtComplex hw φ)
+    (hD : ∀ d : ArchDirComplex, archDerivAtComplex hw d φ = 0)
+    (g : AdelicGL2 (𝓞 F) F) (h : GL (Fin 2) ℂ) (hh : Matrix.GeneralLinearGroup.det h = 1) :
+    φ (g * archComplexGLAt hw h) = φ g := by
+  obtain ⟨s, x, c, y, rfl⟩ := exists_eq_lower_upper_lower_upper h hh
+  rw [map_mul, map_mul, map_mul, ← mul_assoc, ← mul_assoc, ← mul_assoc,
+    apply_mul_upper hw φ hφ (hD .E) (hD .iE), apply_mul_lower hw φ hφ (hD .Fm) (hD .iFm),
+    apply_mul_upper hw φ hφ (hD .E) (hD .iE), apply_mul_lower hw φ hφ (hD .Fm) (hD .iFm)]
+
+end InvZeroC
+
+/-- **Headline.** A complex-smooth function killed by all six complex archimedean derivatives is
+right-invariant under `GL₂(ℂ)` at the place, for determinant-one elements. -/
+theorem apply_mul_archComplexGLAt_eq_of_forall_archDerivAtComplex_eq_zero
+    (F : Type) [Field F] [NumberField F] (w : InfinitePlace F) (hw : w.IsComplex)
+    (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAtComplex hw φ)
+    (hD : ∀ d : ArchDirComplex, archDerivAtComplex hw d φ = 0)
+    (g : AdelicGL2 (𝓞 F) F) (h : GL (Fin 2) ℂ) (hh : Matrix.GeneralLinearGroup.det h = 1) :
+    φ (g * archComplexGLAt hw h) = φ g :=
+  InvZeroC.main hw φ hφ hD g h hh
 
 end AutomorphicForm

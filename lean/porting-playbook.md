@@ -634,8 +634,17 @@ With a pinned source, correctness is checkable rather than trusted. Four instrum
    table, never in the source (2026-10-20).** `spec/decl_markers.tsv` is keyed by
    `(module, full declaration name)` and carries either `pin: <name> (<file>:<line>)` — a
    rename, or a copy in a file the header does not list — or `own: <reason>` — a statement that is
-   ours, not the pin's. The grandfathered in-source `-- pin:` / `-- own:` comments are still read
-   and must not be added. The table is checker metadata: editing it never changes a Lean build, and
+   ours, not the pin's. The grandfathered in-source `-- pin:` / `-- own:` comments are still *read* by
+   the checker, but they are **no longer needed and are stripped when a module is touched**
+   (2026-11-02): the module's `spec-pin:` header is the tracking, nothing else. A marker was
+   also doing a second job — naming the pin file a declaration's original lives in — so the
+   strip is a two-step edit: **remove the markers and put every one of their files in the
+   header**. Measured on `ArchCasimir.lean`: markers stripped, three wires kept →
+   `132 ok / 0 mismatch / 3 missing`, each `missing` naming its file "(not in this wire)";
+   stripped with all six wires → `135 ok / 0 mismatch / 0 missing` over the same declaration
+   set. So the gate is `0 mismatch / 0 missing`, never a particular `ok` count, and the cure
+   for a `missing` is a `spec-pin:` line (or, for a rename the wire cannot express, a `pin:`
+   row in this table), never a marker. The table is checker metadata: editing it never changes a Lean build, and
    an entry that no longer names a declaration is reported (`--strict-markers` makes it fail).
 
    The **frozen** `spec/old_check_stmts.py` is being retired; it still owns the modules its

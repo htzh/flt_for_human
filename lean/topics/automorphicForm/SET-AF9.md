@@ -1,6 +1,6 @@
 # SET-AF9 — the archimedean derivative algebra and the Casimir bridge: a **composition** set
 
-**Status: scoped 2026-11-02, not dispatched.** Read off the D–S shelf with the recipe in
+**Status: LANDED 2026-11-02 — manager's layer plus one dispatch (orders A and B), all gates green; §5.1 records the landing and the re-read.** Read off the D–S shelf with the recipe in
 [../deligneSerre/TOPIC-scoping-a-ds-set.md](../deligneSerre/TOPIC-scoping-a-ds-set.md), on the tree as
 SET-AF8 left it. It is the **ninth** `AutomorphicForm`-serving set and the set SET-AF6 §9 deferred by
 name: the *algebra* of the archimedean derivative (Casimir, the `[E, F⁻]` commutators, the character
@@ -201,6 +201,39 @@ imports neither `ArchDerivRightConv` nor anything that imports it, so the edge i
 | 4 complex leaves | `ArchDerivCasimirComplexAPI` → `ArchDerivCasimirComplex`, `Cusp/Constituent`, `ArchWeightChar` | `ArchCasimirComplex` (imports `Cusp/Constituent` + `ArchDerivCasimirComplexAPI`) ✓ |
 | 2 Casimir rows | `ArchCasimir` (`leftCasimir_eq_…`), `FactorizableTestFnArchSmooth{,Left}`, `ArchDerivRightConv`, `RightConvRegularity`, `RightConvolution`, `TestFnTop` | `ArchDerivRightConv` — **at or above all of them once `ArchCasimir` is imported** ✓ |
 
+### 4.1 The manager's layer, landed (2026-11-02)
+
+Both migrations are done, not planned, and the numbers are the checker's:
+
+| module | wire | `check_port --force` | build | `dedup` / `move_dead` |
+|---|---|---|---|---|
+| `ArchCasimir.lean` | 3 `S_` files | **131 ok / 0 mismatch / 0 missing** (was 130 ok / 1 mismatch at the probe) | 9.6 s, silent | 0 clusters / 0 dead |
+| `ArchCasimirComplex.lean` | 1 `S_` file | **97 ok / 0 / 0** | 7.9 s, silent | 0 clusters / 0 dead |
+
+The one drift was exactly what §4 predicted: `smooth_sub`'s unused hypothesis was spelled `_hθ` while
+the pin writes `hθ` — the checker compares binder spelling, so the two-character rename is the whole
+fix, and it earned one local `set_option linter.unusedVariables false in` (the hypothesis is the pin's
+and stays). Both modules are out of `PORT_FILES`, their headers now describe the wire instead of the
+tier-3 exemption, and `spec/UNWIRED-PUBLIC.md` is regenerated: **112 modules / 3,394 public
+declarations** in the register, the two modules' 228 having left it.
+
+**Markers are gone (policy, 2026-11-02).** The two migrations also revealed what the grandfathered
+`-- pin:` lines were doing: besides naming the declaration, each named the *pin file* its original
+lives in, and 3 of `ArchCasimir.lean`'s 6 and 2 of `ArchCasimirComplex.lean`'s 3 were files outside
+the `spec-pin:` wire. So the strip and the wire are one edit — measured on `ArchCasimir.lean`: markers
+stripped with the original three wires → `132 ok / 0 mismatch / 3 missing`; with all six files wired →
+`135 ok / 0 / 0` over the same declaration set. Tracking is the header alone; the rule is recorded in
+[porting-playbook.md](../porting-playbook.md) §5.
+
+`ArchDerivRightConv.lean` — order B's home — gained the imports the two statements need
+(`ArchCasimir`, `Cusp.Constituent`, `NumberField.AdelicLevel.Level`, `…HeckeGen`; measured, not guessed:
+`levelInvariantSubmodule`, `levelOne`, `heckeGen`, `adelicBox` were all unreachable without them), still
+builds (7.4 s) and is still **1 ok / 0 / 0**. And the three surfaces are verified by probes left in
+`lean/tmp/`: `probe-af9-a.lean` (the eight leaves' vocabulary against the two Casimir modules),
+`probe-af9-b.lean` (order B's vocabulary), and `probe-af9-statements.lean`, which states **both
+order-B headlines as `example … := by sorry`** and elaborates them — the home can host the statements,
+which no `#check` can show (FR-0112). Expected checker counts after the dispatch: **135 / 101 / 3 ok**.
+
 ## 5. The cut
 
 **Order A — the algebra (975 lines).** Files: `AutomorphicForm/Adelic/ArchCasimir.lean` (4 real leaves)
@@ -227,6 +260,67 @@ gate is meaningful at all: a legacy module in `PORT_FILES` cannot be checked by 
 §4 and become the baseline); `#print axioms` on every headline; zero warnings; `dedup`/`move_dead` on
 each module; and a `spec/AutomorphicFormSetAF9Consumer.lean` zone that composes the bridge with the
 algebra (the Casimir identity composed with the commutator relations is a real composition).
+
+### 5.1 The landing (2026-11-02)
+
+**Files.** `ArchCasimir.lean` 1,437 → **1,640** (+354), `ArchCasimirComplex.lean` 973 → **1,588**
+(+712), `ArchDerivRightConv.lean` 704 → **1,167** (+463), plus the new
+`spec/AutomorphicFormSetAF9Consumer.lean` (60 lines). ≈1,529 written lines / **103 declarations**:
+10 public headlines (verbatim from their `Theorems/` wrappers) and 93 private helpers.
+
+**Gates, re-run by the manager on the landed tree.** `check_port --force` **135 ok / 0 mismatch / 0
+missing** (`ArchCasimir`), **101 / 0 / 0** (`ArchCasimirComplex`), **3 / 0 / 0**
+(`ArchDerivRightConv`); all four files `lake env lean`-silent at the project caps (zero warnings); each
+module's own `flock`/`timeout 280` build silent (12.5 s / 15.3 s / 7.9 s); `#print axioms` on **all
+ten** headlines `[propext, Classical.choice, Quot.sound]`; the consumer zone 0 errors; `dedup
+--within` 0 clusters on all three, `--cross` 4 clusters / 21 lines **kept** — they are the ℝ/ℂ twins
+`U`, `D1`, `D2`, `conjCLM` at lines predating this set, and the two copies are type-distinct, so
+neither is removable without breaking a typed public statement; `move_dead` 0 / 0 / 0 after one
+deletion (`rotAt_coe`, a `rfl` restatement, dead in the pin too).
+
+**Markers.** The strip is complete: 151 + 131 `-- pin:` lines removed, 0 left, and the wires carry the
+provenance instead — `ArchCasimir` **3 → 7** `spec-pin:` lines, `ArchCasimirComplex` **1 → 5**,
+`ArchDerivRightConv` 2 → 4 — with the checker counts unchanged after the strip. That is the policy
+`porting-playbook.md` §5 now records; it is also why the strip and the wire had to be one edit (§4.1).
+
+**Two Appendix-B rows became deletions, and one is a duplicate the pin itself carries.** `dirM`
+(pin `S_…commutator….Complex.lean:18`) is `archDirMatrixComplex` (`ArchDerivCasimirComplexAPI.lean:33`,
+the same six bodies): the whole 17-row bracket table and `main` are stated on the port's name instead,
+which is why Appendix B's "302 to write" over-counted ~24 declarations (they already sat in
+`ArchCxGL`). And `CasLeft2.Ld` ≡ `CommConv17.Lf` is the pin's own cross-file duplicate — the one
+`dedup --within` cluster, resolved by deleting `Ld`.
+
+**Eight in-port declarations had to be re-stated privately, and the reason is a finding.** Row 2's
+rotation prelude (`rotMat`, `det_rotMat`, `rotGL`, `rotGL_coe`, `rotGL_mem`, `rotSO`,
+`archWeightOneℝ_rotSO`) *is* in the port — under `TSRot.*` in `Cusp/CutWeightDecomposition.lean`,
+which is **downstream** of `ArchCasimir.lean`, so the home cannot import it; row 6's
+`norm_ringEquivComplexOfIsComplex_symm` sits in `WeylIntegrable/LatticeEstimates.lean`, outside the
+closure. Both were re-stated `private` rather than pulling an import upward into a hub. Appendix B's
+"imported" column is therefore an *existence* claim, not an *importability* claim — FR-0115.
+
+**The re-read.** The set consumed exactly its forecast on the demand side and **readied seven rows**,
+which the brief's §7 predicted as 0–1:
+
+| figure | before | **after** | Δ |
+|---|---:|---:|---:|
+| `needed [F terminal]` | 894 / 358,716 | **884 / 356,213** | −10 / −2,503 ✓ (exact) |
+| `needed [literal]` | 907 / 362,191 | **897 / 359,688** | −10 / −2,503 ✓ |
+| frontier F | 1,521 / 768,650 | **1,531 / 771,153** | +10 / +2,503 ✓ (exact) |
+| ready rows, all namespaces | 69 / 18,922 | 74 / 19,496 | +5 / +574 |
+| `AutomorphicForm` ready rows | 40 / 13,578 | **45 / 14,152** | **+5 / +574** |
+| `AutomorphicForm` leaves | 80 / 16,549 | **72 / 15,039** | −8 / −1,510 ✓ |
+| withheld by the FR-0044 guard | 4 / 831 | 4 / 831 | — |
+
+The seven readied rows are the Casimir-algebra consumers the leaves unblocked:
+`archCasimirAtComplex_add_archCasimirBarAtComplex_eq_of_isArchSmoothAtComplex`,
+`archCasimirAt_rightTranslate_and_rightConv_of_continuous_archDerivAt`,
+`archDelAt_E_archDelAt_Fm_add_archDelBarAt_Fm_archDelBarAt_E_eq_of_archDerivAtComplex_iH_eq_smul`,
+`archDelAt_Fm_archDelAt_E_add_archDelBarAt_E_archDelBarAt_Fm_eq_of_archDerivAtComplex_iH_eq_smul`,
+`archKCasimirAtComplex_eq_smul_of_archDerivAtComplex_iH_eq_smul_of_compactRaise_eq_zero`,
+`isArchSmoothAt_rightConv_and_exists_archCasimirAt_rightConv_eq_of_isArchBiFinite_ofChar`,
+`leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex`. **A per-row return cannot see
+this** — five of the seven needed *two or more* of the leaves at once, exactly the FR-0106 mechanism
+SET-AF6 recorded — and the seven are the next set's obvious start.
 
 ## 6. Risk register
 
@@ -266,9 +360,9 @@ algebra (the Casimir identity composed with the commutator relations is a real c
   finiteness, the prescribed-divisor engine) — not this column's work (§0.1).
 - **No `Def_` node, no new module, no promotion**: the two homes exist and are the right ones, and the
   only metadata surface is the two legacy migrations (§4).
-- **It does not re-read the shelf after landing** — that is the next scoping pass's first move
-  (recipe §7), and it should expect `needed` to fall by ≈2,503 and the `AutomorphicForm` ready shelf by
-  993 with **no** new ready rows (both orders' returns are 0–1).
+- **The re-read is done (§5.1)** and it corrected this brief's forecast: the set readied **seven**
+  rows, not the 0–1 predicted here — a per-row return cannot see a row that needs several leaves at
+  once (FR-0106), which is the shape of the whole Casimir-algebra tail.
 
 ## Appendix A — the shelf, every row accounted for
 

@@ -425,7 +425,7 @@ re-read is exact: `needed` **894 / 358,716**, frontier 1,521 / 768,650, the AF s
 nothing readied (return 0) — and it produced FR-0114: a `spec-pin:` wire on a *skeleton* marks the
 whole pin file ported, so a shelf read taken mid-dispatch must `--unport` the in-flight rows.
 
-The ninth **is scoped, not dispatched** (2026-11-02):
+The ninth is **scoped, its manager layer landed, and dispatched** (2026-11-02):
 [automorphicForm/SET-AF9.md](automorphicForm/SET-AF9.md), the set SET-AF6 §9 deferred by name — the
 **archimedean derivative algebra** (`[E, F⁻]` commutators, the character identities, the row-isometry
 invariance — 8 leaves / 1,510 silo) and the **two Casimir rows** it is the bridge into (993 silo; the
@@ -434,10 +434,28 @@ silo, ≈1,380 lines / 105 declarations of work** (three instruments agree to 2%
 1,001 net agrees with order A's 975 to 2.6%). It is the second composition set in a row — 911 of its
 2,281 declaration lines are already in the port — and it has **no `Def_` node** (6 modules, 0 missing).
 Its homes are the modules that already hold the engines the leaves extend
-(`ArchCasimir{,Complex}.lean`, 0 importers each), whose legacy migration is **measured at one
-hypothesis** (`check_port` on the wired copies: 130 ok / 1 mismatch and 97 ok / 0); the two rows go
-into `ArchDerivRightConv.lean` with one new import. Two orders, sequenced (they share the `ArchCasimir`
-hub): A = the algebra (975), B = the bridge (405).
+(`ArchCasimir{,Complex}.lean`, 0 importers each), and the legacy tax there was measured **at one
+hypothesis**: the migration landed at **131 ok / 0 mismatch / 0 missing** and **97 ok / 0 / 0** (the
+drift was `smooth_sub`'s binder spelled `_hθ`), both modules out of `PORT_FILES`, register 114 → 112.
+The two rows go into `ArchDerivRightConv.lean`, which gained the four imports their statements need and
+still checks 1 ok. Two orders in one dispatch, sequenced (they share the `ArchCasimir` hub): A = the
+algebra (975), B = the bridge (405); the manager also left three surface probes, one of which states
+both order-B headlines as `example`s and elaborates them.
+
+**Landed** in one dispatch: `ArchCasimir.lean` 1,640 lines, `…/ArchCasimirComplex.lean` 1,588,
+`…/ArchDerivRightConv.lean` 1,167, and a 60-line consumer zone — ≈1,529 written lines / 103
+declarations (10 public headlines + 93 private helpers), every file silent, zero warnings, all ten
+headlines on `[propext, Classical.choice, Quot.sound]`, `dedup --within` 0 and `move_dead` 0 after one
+deleted `rfl` restatement. The checker owns all three at **135 / 101 / 3 ok, 0 mismatch / 0 missing**.
+This is also the set that retired the last in-source `-- pin:` markers: 282 lines stripped from the two
+Casimir modules and the wires widened 3 → 7 and 1 → 5 instead, because a marker was also naming the pin
+file its declaration came from — the strip and the wire are one edit (playbook §5). Two Appendix-B rows
+turned out to be deletions (`dirM` ≡ `archDirMatrixComplex`; `CasLeft2.Ld` ≡ `CommConv17.Lf`, the pin's
+own cross-file duplicate), and **eight** "already in the port" declarations had to be re-stated
+privately because their port copies sit *downstream* of the home (`TSRot.*` in
+`Cusp/CutWeightDecomposition.lean`) — FR-0115. The re-read: `needed` **884 / 356,213** (−10 / −2,503,
+exact), frontier 1,531 / 771,153, the AF shelf **45 / 14,152** — the two rows left and **seven rows were
+readied**, not the 0–1 the brief predicted (FR-0106's multi-premise effect at full strength).
 
 
 ## 6. Verification and wiring

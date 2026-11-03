@@ -2391,3 +2391,27 @@ round promotes what generalizes.
   the checker while it works.
 - **seen**: 2026-11-02, the AF9 scoping read
   ([topics/automorphicForm/SET-AF9.md](topics/automorphicForm/SET-AF9.md) §0).
+
+
+## FR-0115 [method] — a worklist's "already in the port" column is an *existence* claim, not an *importability* claim: the copy can sit **downstream** of the home
+
+- **where**: SET-AF9's two orders
+  ([topics/automorphicForm/SET-AF9.md](topics/automorphicForm/SET-AF9.md) §5.1), the per-declaration
+  worklist of `build/af9-worklist.py` that priced the set at ≈1,380 lines.
+- **symptom**: eight of the 911 "already in the port" declaration lines could not be imported. Row 2's
+  rotation prelude (`rotMat`, `det_rotMat`, `rotGL`, `rotGL_coe`, `rotGL_mem`, `rotSO`,
+  `archWeightOneℝ_rotSO`) *is* the port's — under `TSRot.*` in `Cusp/CutWeightDecomposition.lean`,
+  which imports `IsotypicCuspSpace` and sits **downstream** of `ArchCasimir.lean`, the home the row
+  belongs to; row 6's `norm_ringEquivComplexOfIsComplex_symm` lives in
+  `WeylIntegrable/LatticeEstimates.lean`, outside the row's closure. Both were re-stated `private`
+  (8 declarations) rather than pulling an import upward into a zero-importer hub.
+- **cause**: the worklist maps a pin declaration to *some* port declaration with the same statement
+  (`port_advise`'s substitution tier is module-blind). Import direction — the rule that has now cost
+  three sets (FR-0037, FR-0038 and this one) — is a property of the **pair** (home, copy), not of the
+  declaration, and no single-declaration instrument can see it.
+- **rule**: for every row of a set's worklist, read the "already in the port" line together with the
+  copy's **module**, and drop the row from the import column when that module is at or below the home
+  in the import graph. The order should say so explicitly ("imported as-is" vs "re-stated, because the
+  port's copy is downstream") so the worker is not blamed for a worklist artefact, and the brief's net
+  figure should count those lines as work.
+- **seen**: 2026-11-02, SET-AF9 (worker report §6.1–6.2 and deviation 4–5).

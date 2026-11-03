@@ -36,13 +36,20 @@
   * `iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul` — the Maass raising/lowering
     calculus and its two iterated factorisations.
 
-  **Wiring.** This module is listed, and its wire is exactly the three headlines: the checker
-  diffs those three (delta +3) and the rest of the module's public surface is registered tier 3 —
-  every other declaration carries a `-- pin: <pin name> (<S_ file>:<line>)` marker naming a pin
-  file `SOURCES` does not read, which is the checker's `UNWIRED` exemption, and
-  `spec/UNWIRED-PUBLIC.md` lists it. So a later proof can import
-  `AutomorphicForm.CasCore17.*`, `…CommAway17.*`, `…Elem17LR.*`, `…CasLR17.*`, `…OsAlg17.*`
-  directly.
+  **The four real leaves (SET-AF9).** Appended below the three headlines, each stated at its
+  `Theorems/` wrapper, they are the continuation of the same calculus: the three `𝔰𝔩₂` commutators
+  on a smooth `φ` (`archDerivAt_commutator_of_isArchSmoothAt`), the weight identity
+  `D_E − D_{F⁻} = I·n` on a function with an archimedean character
+  (`archDerivAt_E_sub_archDerivAt_Fm_eq_smul_of_hasArchCharacterAt`), the Casimir's commutation with
+  a right translation by a row isometry at a *different* place, and `GL₂(ℝ)`-invariance for a
+  function killed by `E` and `F⁻`. Their helpers are the pin's own and `private`.
+
+  **Wiring.** `spec/check_port.py` owns every public declaration here: the seven `spec-pin:` lines
+  of this header name the seven pin `S_` files the module transcribes, and the checker resolves
+  each public statement against them by name and, failing that, by the statement's content hash.
+  So a later proof can import
+  `AutomorphicForm.CasCore17.*`, `…CommAway17.*`, `…Elem17LR.*`, `…CasLR17.*`, `…OsAlg17.*`,
+  `…Ws23.*`, `…OsInf17.*`, `…InvZero22.*` directly.
 
   Transcribed from the three pin `S_` files (pinned `aa2d8b3`), which are one development written
   three times: `S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean` (569 lines),
@@ -65,6 +72,13 @@
   and renamed `isArchSmoothAt_rightTranslate_of_glArch_eq_one` /
   `archCasimirAt_rightTranslate_of_glArch_eq_one`, which is exactly what distinguishes them from
   the `CasCore17` namesakes.
+  spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archDerivAt_commutator_of_isArchSmoothAt.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archDerivAt_E_sub_archDerivAt_Fm_eq_smul_of_hasArchCharacterAt.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_rowIsometryInclAt_of_ne.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_apply_mul_archRealGLAt_eq_of_archDerivAt_E_eq_zero_of_archDerivAt_Fm_eq_zero.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimir
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
@@ -90,7 +104,6 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archRealGLAt_eq_archRealLiftAt (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:23)
 theorem archRealGLAt_eq_archRealLiftAt (M : GL (Fin 2) ℝ) :
     archRealGLAt hw M = archRealLiftAt hw (Matrix.of.symm (M : Matrix (Fin 2) (Fin 2) ℝ)) := by
   have hdet : (Matrix.of (Matrix.of.symm (M : Matrix (Fin 2) (Fin 2) ℝ))).det ≠ 0 := by
@@ -101,7 +114,6 @@ theorem archRealGLAt_eq_archRealLiftAt (M : GL (Fin 2) ℝ) :
   ext i j
   simp [GeneralLinearGroup.mkOfDetNeZero]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archRealGLAt_mul_archRealLiftAt (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:33)
 theorem archRealGLAt_mul_archRealLiftAt (M : GL (Fin 2) ℝ) {e : Fin 2 → Fin 2 → ℝ} (h : (Matrix.of e).det ≠ 0) :
     archRealGLAt hw M * archRealLiftAt hw e =
       archRealLiftAt hw (Matrix.of.symm ((M : Matrix (Fin 2) (Fin 2) ℝ) * Matrix.of e)) := by
@@ -114,11 +126,9 @@ theorem archRealGLAt_mul_archRealLiftAt (M : GL (Fin 2) ℝ) {e : Fin 2 → Fin 
   ext i j
   simp [GeneralLinearGroup.mkOfDetNeZero]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.conjArr (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:45)
 def conjArr (M : GL (Fin 2) ℝ) (e : Fin 2 → Fin 2 → ℝ) : Fin 2 → Fin 2 → ℝ :=
   Matrix.of.symm (((M⁻¹ : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ) * Matrix.of e * (M : Matrix (Fin 2) (Fin 2) ℝ))
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.det_conjArr (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:48)
 theorem det_conjArr (M : GL (Fin 2) ℝ) (e : Fin 2 → Fin 2 → ℝ) :
     (Matrix.of (conjArr M e)).det = (Matrix.of e).det := by
   rw [conjArr, Equiv.apply_symm_apply, Matrix.det_mul, Matrix.det_mul]
@@ -130,7 +140,6 @@ theorem det_conjArr (M : GL (Fin 2) ℝ) (e : Fin 2 → Fin 2 → ℝ) :
         ring
     _ = (Matrix.of e).det := by rw [hMM, one_mul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archRealLiftAt_mul_archRealGLAt_eq (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:59)
 theorem archRealLiftAt_mul_archRealGLAt_eq (M : GL (Fin 2) ℝ) (e : Fin 2 → Fin 2 → ℝ) :
     archRealLiftAt hw e * archRealGLAt hw M = archRealGLAt hw M * archRealLiftAt hw (conjArr M e) := by
   by_cases h : (Matrix.of e).det ≠ 0
@@ -145,18 +154,15 @@ theorem archRealLiftAt_mul_archRealGLAt_eq (M : GL (Fin 2) ℝ) (e : Fin 2 → F
     have h0 : ¬ (Matrix.of e).det ≠ 0 := fun hh => hh h
     rw [archRealLiftAt, dite_eq_right h0, archRealLiftAt, dite_eq_right h', one_mul, mul_one]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.chart (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:73)
 def chart (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) : (Fin 2 → Fin 2 → ℝ) → ℂ :=
   fun e => φ (g * archRealLiftAt hw e)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.chart_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:76)
 theorem chart_rightTranslate (M : GL (Fin 2) ℝ) (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
     chart hw (rightTranslate F (archRealGLAt hw M) φ) g = chart hw φ (g * archRealGLAt hw M) ∘ conjArr M := by
   funext e
   show φ (g * archRealLiftAt hw e * archRealGLAt hw M) = φ (g * archRealGLAt hw M * archRealLiftAt hw (conjArr M e))
   rw [mul_assoc, archRealLiftAt_mul_archRealGLAt_eq hw M e, ← mul_assoc]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.conjCLM (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:82)
 def conjCLM (M : GL (Fin 2) ℝ) : (Fin 2 → Fin 2 → ℝ) →L[ℝ] (Fin 2 → Fin 2 → ℝ) :=
   LinearMap.toContinuousLinearMap
     { toFun := conjArr M
@@ -169,13 +175,10 @@ def conjCLM (M : GL (Fin 2) ℝ) : (Fin 2 → Fin 2 → ℝ) →L[ℝ] (Fin 2 �
         rw [show Matrix.of (c • x) = c • Matrix.of x from rfl, Matrix.mul_smul, Matrix.smul_mul]
         rfl }
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.conjCLM_apply (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:94)
 theorem conjCLM_apply (M : GL (Fin 2) ℝ) (e : Fin 2 → Fin 2 → ℝ) : conjCLM M e = conjArr M e := rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.coe_conjCLM (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:96)
 theorem coe_conjCLM (M : GL (Fin 2) ℝ) : (conjCLM M : (Fin 2 → Fin 2 → ℝ) → (Fin 2 → Fin 2 → ℝ)) = conjArr M := rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.conjArr_one (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:98)
 theorem conjArr_one (M : GL (Fin 2) ℝ) : conjArr M (Matrix.of.symm 1) = Matrix.of.symm 1 := by
   unfold conjArr
   rw [Equiv.apply_symm_apply, Matrix.mul_one,
@@ -190,31 +193,25 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.U (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:112)
 abbrev U : Set (Fin 2 → Fin 2 → ℝ) := {e | (Matrix.of e).det ≠ 0}
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.one_mem_U (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:114)
 theorem one_mem_U : (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ)) ∈ U := by
   show (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ))).det ≠ 0
   rw [Equiv.apply_symm_apply, Matrix.det_one]
   exact one_ne_zero
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.D1 (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:119)
 def D1 (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y : Matrix (Fin 2) (Fin 2) ℝ) : ℂ :=
   fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm Y)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.contDiffAt_chart (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:122)
 theorem contDiffAt_chart {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (g : AdelicGL2 (𝓞 F) F)
     {e : Fin 2 → Fin 2 → ℝ} (he : (Matrix.of e).det ≠ 0) : ContDiffAt ℝ (⊤ : ℕ∞) (chart hw φ g) e :=
   (hφ g).contDiffAt (isOpen_setOf_det_ne_zero.mem_nhds he)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.hasFDerivAt_chart (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:126)
 theorem hasFDerivAt_chart {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (g : AdelicGL2 (𝓞 F) F)
     {e : Fin 2 → Fin 2 → ℝ} (he : (Matrix.of e).det ≠ 0) :
     HasFDerivAt (chart hw φ g) (fderiv ℝ (chart hw φ g) e) e :=
   ((contDiffAt_chart hw hφ g he).differentiableAt (by simp)).hasFDerivAt
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archDerivAt_apply_mul_archRealLiftAt (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:131)
 theorem archDerivAt_apply_mul_archRealLiftAt {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (d : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) {e : Fin 2 → Fin 2 → ℝ} (he : (Matrix.of e).det ≠ 0) :
     archDerivAt hw d φ (g * archRealLiftAt hw e) =
@@ -233,14 +230,12 @@ theorem archDerivAt_apply_mul_archRealLiftAt {φ : AdelicGL2 (𝓞 F) F → ℂ}
   simpa only [Function.comp_def] using
     (hdiff.comp_hasDerivAt (0 : ℝ) (hasDerivAt_of_symm_mul_archFlowMatrix e d)).deriv
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archDerivAt_eq_D1 (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:149)
 theorem archDerivAt_eq_D1 {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (d : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) : archDerivAt hw d φ g = D1 hw φ g (archDirMatrix d) := by
   have h := archDerivAt_apply_mul_archRealLiftAt hw hφ d g (e := Matrix.of.symm 1) one_mem_U
   rw [archRealLiftAt_of_symm_one, mul_one, Equiv.apply_symm_apply, Matrix.one_mul] at h
   exact h
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.isArchSmoothAt_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:155)
 theorem isArchSmoothAt_rightTranslate (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) :
     IsArchSmoothAt hw (rightTranslate F (archRealGLAt hw M) φ) := by
   intro g
@@ -251,13 +246,11 @@ theorem isArchSmoothAt_rightTranslate (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞
   rw [det_conjArr]
   exact he
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.conjCLM_of_symm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:165)
 theorem conjCLM_of_symm (M : GL (Fin 2) ℝ) (Y : Matrix (Fin 2) (Fin 2) ℝ) :
     conjCLM M (Matrix.of.symm Y) =
       Matrix.of.symm (((M⁻¹ : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ) * Y * (M : Matrix (Fin 2) (Fin 2) ℝ)) := by
   rw [conjCLM_apply, conjArr, Equiv.apply_symm_apply]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archDerivAt_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:170)
 theorem archDerivAt_rightTranslate (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ)
     (d : ArchDir) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw d (rightTranslate F (archRealGLAt hw M) φ) g =
@@ -279,12 +272,10 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.D2 (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:191)
 def D2 (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℝ) : ℂ :=
   fderiv ℝ (fderiv ℝ (chart hw φ g)) (Matrix.of.symm 1) (Matrix.of.symm Y) (Matrix.of.symm Z)
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.hasDerivAt_flow_entries (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:195)
 theorem hasDerivAt_flow_entries (d : ArchDir) :
     HasDerivAt (fun t : ℝ => Matrix.of.symm ((archFlowMatrix d t : Matrix (Fin 2) (Fin 2) ℝ)))
       (Matrix.of.symm (archDirMatrix d)) 0 := by
@@ -293,7 +284,6 @@ theorem hasDerivAt_flow_entries (d : ArchDir) :
   exact h
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.hasDerivAt_flow_mul_const (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:203)
 theorem hasDerivAt_flow_mul_const (d : ArchDir) (X : Matrix (Fin 2) (Fin 2) ℝ) :
     HasDerivAt (fun t : ℝ => Matrix.of.symm ((archFlowMatrix d t : Matrix (Fin 2) (Fin 2) ℝ) * X))
       (Matrix.of.symm (archDirMatrix d * X)) 0 := by
@@ -304,7 +294,6 @@ theorem hasDerivAt_flow_mul_const (d : ArchDir) (X : Matrix (Fin 2) (Fin 2) ℝ)
   simp only [Matrix.of_symm_apply, Matrix.mul_apply]
   exact HasDerivAt.fun_sum fun k _ => (hasDerivAt_archFlowMatrix_apply d i k).mul_const (X k j)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archDerivAt_archDerivAt_eq (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:213)
 theorem archDerivAt_archDerivAt_eq {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (i j : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw i (archDerivAt hw j φ) g =
@@ -332,33 +321,28 @@ theorem archDerivAt_archDerivAt_eq {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : Is
   rw [hfun, h.deriv]
   simp only [archFlowMatrix_zero, Units.val_one, Matrix.one_mul, D2, D1]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.D2_symm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:240)
 theorem D2_symm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (g : AdelicGL2 (𝓞 F) F)
     (Y Z : Matrix (Fin 2) (Fin 2) ℝ) : D2 hw φ g Y Z = D2 hw φ g Z Y :=
   ((contDiffAt_chart hw hφ g one_mem_U).isSymmSndFDerivAt (by simp)).eq _ _
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.D1_sub (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:244)
 theorem D1_sub (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℝ) :
     D1 hw φ g (Y - Z) = D1 hw φ g Y - D1 hw φ g Z := by
   show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm Y - Matrix.of.symm Z) = _
   rw [map_sub]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.D1_add (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:250)
 theorem D1_add (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (Y Z : Matrix (Fin 2) (Fin 2) ℝ) :
     D1 hw φ g (Y + Z) = D1 hw φ g Y + D1 hw φ g Z := by
   show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm Y + Matrix.of.symm Z) = _
   rw [map_add]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.D1_smul (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:256)
 theorem D1_smul (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) (c : ℝ) (Y : Matrix (Fin 2) (Fin 2) ℝ) :
     D1 hw φ g (c • Y) = (c : ℂ) * D1 hw φ g Y := by
   show fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (c • Matrix.of.symm Y) = _
   rw [map_smul, Complex.real_smul]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archDerivAt_comm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:262)
 theorem archDerivAt_comm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (i j : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw i (archDerivAt hw j φ) g - archDerivAt hw j (archDerivAt hw i φ) g =
@@ -374,17 +358,14 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.AdM (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:277)
 def AdM (M : GL (Fin 2) ℝ) (X : Matrix (Fin 2) (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ :=
   ((M⁻¹ : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ) * X * (M : Matrix (Fin 2) (Fin 2) ℝ)
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.trace_archDirMatrix (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:281)
 theorem trace_archDirMatrix (d : ArchDir) : Matrix.trace (archDirMatrix d) = 0 := by
   cases d <;> simp [archDirMatrix, Matrix.trace_fin_two]
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.AdM_traceless (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:285)
 theorem AdM_traceless (M : GL (Fin 2) ℝ) (d : ArchDir) : (AdM M (archDirMatrix d)) 1 1 = -(AdM M (archDirMatrix d)) 0 0 := by
   have h : Matrix.trace (AdM M (archDirMatrix d)) = 0 := by
     rw [AdM, Matrix.trace_units_conj', trace_archDirMatrix]
@@ -393,35 +374,29 @@ theorem AdM_traceless (M : GL (Fin 2) ℝ) (d : ArchDir) : (AdM M (archDirMatrix
 
 omit hw in
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.eq_smul_archDirMatrix (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:293)
 theorem eq_smul_archDirMatrix (Y : Matrix (Fin 2) (Fin 2) ℝ) (hY : Y 1 1 = -Y 0 0) :
     Y = Y 0 0 • archDirMatrix .H + Y 0 1 • archDirMatrix .E + Y 1 0 • archDirMatrix .Fm := by
   ext i j
   fin_cases i <;> fin_cases j <;> simp [archDirMatrix, hY]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:298)
 def cf (M : GL (Fin 2) ℝ) (d e : ArchDir) : ℂ :=
   match e with
   | .H => ((AdM M (archDirMatrix d)) 0 0 : ℝ)
   | .E => ((AdM M (archDirMatrix d)) 0 1 : ℝ)
   | .Fm => ((AdM M (archDirMatrix d)) 1 0 : ℝ)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:304)
 def Dconj (M : GL (Fin 2) ℝ) (d : ArchDir) (θ : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ :=
   cf M d .H • archDerivAt hw .H θ + cf M d .E • archDerivAt hw .E θ + cf M d .Fm • archDerivAt hw .Fm θ
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.isArchSmoothAt_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:307)
 theorem isArchSmoothAt_Dconj (M : GL (Fin 2) ℝ) (d : ArchDir) {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) :
     IsArchSmoothAt hw (Dconj hw M d θ) :=
   (((hθ.archDerivAt .H).smul _).add ((hθ.archDerivAt .E).smul _)).add ((hθ.archDerivAt .Fm).smul _)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.Dconj_apply (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:311)
 theorem Dconj_apply (M : GL (Fin 2) ℝ) (d : ArchDir) (θ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
     Dconj hw M d θ g = cf M d .H * archDerivAt hw .H θ g + cf M d .E * archDerivAt hw .E θ g +
       cf M d .Fm * archDerivAt hw .Fm θ g := by
   simp only [Dconj, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.D1_AdM (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:316)
 theorem D1_AdM {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (M : GL (Fin 2) ℝ) (d : ArchDir)
     (g : AdelicGL2 (𝓞 F) F) : D1 hw θ g (AdM M (archDirMatrix d)) = Dconj hw M d θ g := by
   conv_lhs => rw [eq_smul_archDirMatrix (AdM M (archDirMatrix d)) (AdM_traceless M d)]
@@ -429,14 +404,12 @@ theorem D1_AdM {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) 
     ← archDerivAt_eq_D1 hw hθ, Dconj_apply]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archDerivAt_rightTranslate_eq_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:323)
 theorem archDerivAt_rightTranslate_eq_Dconj (M : GL (Fin 2) ℝ) {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ)
     (d : ArchDir) : archDerivAt hw d (rightTranslate F (archRealGLAt hw M) θ) = rightTranslate F (archRealGLAt hw M) (Dconj hw M d θ) := by
   funext g
   rw [archDerivAt_rightTranslate hw M hθ, ← AdM, D1_AdM hw hθ]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archDerivAt_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:329)
 theorem archDerivAt_Dconj (M : GL (Fin 2) ℝ) (d i : ArchDir) {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ)
     (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw i (Dconj hw M d θ) g = cf M d .H * archDerivAt hw i (archDerivAt hw .H θ) g +
@@ -448,7 +421,6 @@ theorem archDerivAt_Dconj (M : GL (Fin 2) ℝ) (d i : ArchDir) {θ : AdelicGL2 (
   simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.rightTranslate_combo (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:340)
 theorem rightTranslate_combo (k : AdelicGL2 (𝓞 F) F) (a b : ℂ) (θ₁ θ₂ θ₃ : AdelicGL2 (𝓞 F) F → ℂ) :
     -(a • rightTranslate F k θ₁ - b • rightTranslate F k θ₂ + rightTranslate F k θ₃) =
       rightTranslate F k (-(a • θ₁ - b • θ₂ + θ₃)) := by
@@ -464,13 +436,11 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.AdM_eq (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:355)
 theorem AdM_eq (M : GL (Fin 2) ℝ) (X : Matrix (Fin 2) (Fin 2) ℝ) :
     AdM M X = ((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ • (Matrix.adjugate (M : Matrix (Fin 2) (Fin 2) ℝ) * X * (M : Matrix (Fin 2) (Fin 2) ℝ)) := by
   rw [AdM, Matrix.coe_units_inv, Matrix.inv_def, Ring.inverse_eq_inv', Matrix.smul_mul, Matrix.smul_mul]
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_H_H (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:360)
 theorem cf_H_H (M : GL (Fin 2) ℝ) :
     cf M .H .H = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℝ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℝ) 1 1 + (M : Matrix (Fin 2) (Fin 2) ℝ) 0 1 * (M : Matrix (Fin 2) (Fin 2) ℝ) 1 0) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -480,7 +450,6 @@ theorem cf_H_H (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_H_E (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:369)
 theorem cf_H_E (M : GL (Fin 2) ℝ) :
     cf M .H .E = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * (2 * (M : Matrix (Fin 2) (Fin 2) ℝ) 0 1 * (M : Matrix (Fin 2) (Fin 2) ℝ) 1 1) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -490,7 +459,6 @@ theorem cf_H_E (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_H_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:378)
 theorem cf_H_Fm (M : GL (Fin 2) ℝ) :
     cf M .H .Fm = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * (-(2 * (M : Matrix (Fin 2) (Fin 2) ℝ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℝ) 1 0)) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -500,7 +468,6 @@ theorem cf_H_Fm (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_E_H (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:387)
 theorem cf_E_H (M : GL (Fin 2) ℝ) :
     cf M .E .H = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℝ) 1 0 * (M : Matrix (Fin 2) (Fin 2) ℝ) 1 1) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -510,7 +477,6 @@ theorem cf_E_H (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_E_E (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:396)
 theorem cf_E_E (M : GL (Fin 2) ℝ) :
     cf M .E .E = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℝ) 1 1 * (M : Matrix (Fin 2) (Fin 2) ℝ) 1 1) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -520,7 +486,6 @@ theorem cf_E_E (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_E_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:405)
 theorem cf_E_Fm (M : GL (Fin 2) ℝ) :
     cf M .E .Fm = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * (-((M : Matrix (Fin 2) (Fin 2) ℝ) 1 0 * (M : Matrix (Fin 2) (Fin 2) ℝ) 1 0)) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -530,7 +495,6 @@ theorem cf_E_Fm (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_Fm_H (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:414)
 theorem cf_Fm_H (M : GL (Fin 2) ℝ) :
     cf M .Fm .H = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * (-((M : Matrix (Fin 2) (Fin 2) ℝ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℝ) 0 1)) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -540,7 +504,6 @@ theorem cf_Fm_H (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_Fm_E (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:423)
 theorem cf_Fm_E (M : GL (Fin 2) ℝ) :
     cf M .Fm .E = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * (-((M : Matrix (Fin 2) (Fin 2) ℝ) 0 1 * (M : Matrix (Fin 2) (Fin 2) ℝ) 0 1)) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -550,7 +513,6 @@ theorem cf_Fm_E (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.cf_Fm_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:432)
 theorem cf_Fm_Fm (M : GL (Fin 2) ℝ) :
     cf M .Fm .Fm = ((((M : Matrix (Fin 2) (Fin 2) ℝ)).det⁻¹ * ((M : Matrix (Fin 2) (Fin 2) ℝ) 0 0 * (M : Matrix (Fin 2) (Fin 2) ℝ) 0 0) : ℝ) : ℂ) := by
   simp only [cf, AdM_eq, Matrix.adjugate_fin_two, Matrix.smul_apply, smul_eq_mul, Matrix.mul_apply, Fin.sum_univ_two,
@@ -560,21 +522,17 @@ theorem cf_Fm_Fm (M : GL (Fin 2) ℝ) :
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.bracket_H_E (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:441)
 theorem bracket_H_E : archDirMatrix .H * archDirMatrix .E - archDirMatrix .E * archDirMatrix .H = (2 : ℝ) • archDirMatrix .E := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrix]; norm_num
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.bracket_H_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:445)
 theorem bracket_H_Fm : archDirMatrix .H * archDirMatrix .Fm - archDirMatrix .Fm * archDirMatrix .H = (-2 : ℝ) • archDirMatrix .Fm := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrix]; norm_num
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.bracket_E_Fm (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:449)
 theorem bracket_E_Fm : archDirMatrix .E * archDirMatrix .Fm - archDirMatrix .Fm * archDirMatrix .E = (1 : ℝ) • archDirMatrix .H := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [archDirMatrix]
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.rel_E_H (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:452)
 theorem rel_E_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw .E (archDerivAt hw .H φ) g = archDerivAt hw .H (archDerivAt hw .E φ) g - 2 * archDerivAt hw .E φ g := by
   have h := archDerivAt_comm hw hφ .H .E g
@@ -582,7 +540,6 @@ theorem rel_E_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ)
   push_cast at h
   linear_combination -h
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.rel_Fm_H (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:459)
 theorem rel_Fm_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw .Fm (archDerivAt hw .H φ) g = archDerivAt hw .H (archDerivAt hw .Fm φ) g + 2 * archDerivAt hw .Fm φ g := by
   have h := archDerivAt_comm hw hφ .H .Fm g
@@ -590,7 +547,6 @@ theorem rel_Fm_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ
   push_cast at h
   linear_combination -h
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.rel_Fm_E (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:466)
 theorem rel_Fm_E {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw .Fm (archDerivAt hw .E φ) g = archDerivAt hw .E (archDerivAt hw .Fm φ) g - archDerivAt hw .H φ g := by
   have h := archDerivAt_comm hw hφ .E .Fm g
@@ -606,13 +562,11 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.continuous_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:486)
 theorem continuous_Dconj (M : GL (Fin 2) ℝ) (d : ArchDir) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (h : ∀ e : ArchDir, Continuous (archDerivAt hw e θ)) : Continuous (Dconj hw M d θ) := by
   unfold Dconj
   exact (((h .H).const_smul (cf M d .H)).add ((h .E).const_smul (cf M d .E))).add ((h .Fm).const_smul (cf M d .Fm))
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.continuous_archDerivAt_Dconj (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:491)
 theorem continuous_archDerivAt_Dconj (M : GL (Fin 2) ℝ) (d i : ArchDir) {θ : AdelicGL2 (𝓞 F) F → ℂ}
     (hθ : IsArchSmoothAt hw θ) (h2 : ∀ e e' : ArchDir, Continuous (archDerivAt hw e (archDerivAt hw e' θ))) :
     Continuous (archDerivAt hw i (Dconj hw M d θ)) := by
@@ -622,7 +576,6 @@ theorem continuous_archDerivAt_Dconj (M : GL (Fin 2) ℝ) (d i : ArchDir) {θ : 
   rw [this]
   exact ((continuous_const.mul (h2 i .H)).add (continuous_const.mul (h2 i .E))).add (continuous_const.mul (h2 i .Fm))
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.casimir_identity (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:500)
 theorem casimir_identity (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (g : AdelicGL2 (𝓞 F) F) :
     -((1 / 4 : ℂ) * Dconj hw M .H (Dconj hw M .H φ) g - (1 / 2 : ℂ) * Dconj hw M .H φ g + Dconj hw M .E (Dconj hw M .Fm φ) g) =
       archCasimirAt hw φ g := by
@@ -641,7 +594,6 @@ theorem casimir_identity (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞 F) F → ℂ
   field_simp
   ring
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.archCasimirAt_rightTranslate (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:518)
 theorem archCasimirAt_rightTranslate (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) :
     archCasimirAt hw (rightTranslate F (archRealGLAt hw M) φ) = rightTranslate F (archRealGLAt hw M) (archCasimirAt hw φ) := by
   have h1 : archDerivAt hw .H (rightTranslate F (archRealGLAt hw M) φ) = rightTranslate F (archRealGLAt hw M) (Dconj hw M .H φ) :=
@@ -661,7 +613,6 @@ theorem archCasimirAt_rightTranslate (M : GL (Fin 2) ℝ) {φ : AdelicGL2 (𝓞 
   simp only [Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, rightTranslate]
   exact casimir_identity hw M hφ (g * archRealGLAt hw M)
 
--- pin: P2MW.S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.CasCore17.package (P2M/Sol/S_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean:537)
 theorem package (M : GL (Fin 2) ℝ) (x : AdelicGL2 (𝓞 F) F → ℂ) (hxs : IsArchSmoothAt hw x)
     (hD1 : ∀ d : ArchDir, Continuous (archDerivAt hw d x))
     (hD2 : ∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' x))) :
@@ -691,18 +642,15 @@ variable {w : InfinitePlace F} (hw : w.IsReal) {k : AdelicGL2 (𝓞 F) F}
 
 include hk
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CommAway17.archRealLiftAt_mul_comm (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:569)
 theorem archRealLiftAt_mul_comm (e : Fin 2 → Fin 2 → ℝ) : archRealLiftAt hw e * k = k * archRealLiftAt hw e := by
   unfold archRealLiftAt
   split_ifs
   · exact hk _
   · rw [one_mul, mul_one]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CommAway17.archFlowAt_mul_comm (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:575)
 theorem archFlowAt_mul_comm (d : ArchDir) (t : ℝ) : archFlowAt hw d t * k = k * archFlowAt hw d t :=
   hk _
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt._root_.CommAway17.isArchSmoothAt_rightTranslate (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:578)
 theorem isArchSmoothAt_rightTranslate_of_glArch_eq_one {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) :
     IsArchSmoothAt hw (rightTranslate F k φ) := by
   intro g
@@ -714,7 +662,6 @@ theorem isArchSmoothAt_rightTranslate_of_glArch_eq_one {φ : AdelicGL2 (𝓞 F) 
   rw [hfun]
   exact hφ (g * k)
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasCore17.archDerivAt_rightTranslate (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:171)
 theorem archDerivAt_rightTranslate (d : ArchDir) (φ : AdelicGL2 (𝓞 F) F → ℂ) :
     archDerivAt hw d (rightTranslate F k φ) = rightTranslate F k (archDerivAt hw d φ) := by
   funext g
@@ -723,7 +670,6 @@ theorem archDerivAt_rightTranslate (d : ArchDir) (φ : AdelicGL2 (𝓞 F) F → 
   funext t
   rw [mul_assoc, archFlowAt_mul_comm hw hk d t, ← mul_assoc]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt._root_.CommAway17.archCasimirAt_rightTranslate (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:598)
 theorem archCasimirAt_rightTranslate_of_glArch_eq_one (φ : AdelicGL2 (𝓞 F) F → ℂ) :
     archCasimirAt hw (rightTranslate F k φ) = rightTranslate F k (archCasimirAt hw φ) := by
   rw [archCasimirAt, archCasimirAt, archDerivAt_rightTranslate hw hk .H φ,
@@ -731,7 +677,6 @@ theorem archCasimirAt_rightTranslate_of_glArch_eq_one (φ : AdelicGL2 (𝓞 F) F
     archDerivAt_rightTranslate hw hk .E (archDerivAt hw .Fm φ)]
   rfl
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasCore17.package (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:540)
 theorem package (x : AdelicGL2 (𝓞 F) F → ℂ) (hxs : IsArchSmoothAt hw x)
     (hD1 : ∀ d : ArchDir, Continuous (archDerivAt hw d x))
     (hD2 : ∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' x))) :
@@ -747,7 +692,6 @@ theorem package (x : AdelicGL2 (𝓞 F) F → ℂ) (hxs : IsArchSmoothAt hw x)
 
 end Commuting
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CommAway17.archRealGLAt_mul_rowIsometryInclAt₀_comm (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:626)
 theorem archRealGLAt_mul_rowIsometryInclAt₀_comm {w w' : InfinitePlace F} (hw : w.IsReal) (hne : w' ≠ w)
     (k : rowIsometrySubgroup₀ w'.Completion) (m : GL (Fin 2) ℝ) :
     archRealGLAt hw m * rowIsometryInclAt₀ F w' k = rowIsometryInclAt₀ F w' k * archRealGLAt hw m := by
@@ -764,34 +708,28 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 variable {F : Type} [Field F] [NumberField F]
 
 omit [NumberField F] in
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.Elem17LR.glArch_ext (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:642)
 theorem glArch_ext {x y : GL (Fin 2) (InfiniteAdeleRing F)}
     (h : ∀ w : InfinitePlace F, archComponent F w x = archComponent F w y) : x = y := by
   refine Matrix.GeneralLinearGroup.ext fun i j => funext fun w => ?_
   exact congrArg (fun g : GL (Fin 2) w.Completion => (g : Matrix (Fin 2) (Fin 2) w.Completion) i j) (h w)
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.Elem17LR.glArch_archRealGLAt (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:647)
 theorem glArch_archRealGLAt {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
     glArch (𝓞 F) F (archRealGLAt hw m) = archGLIncl F w (glEquivOfRingEquiv (ringEquivRealOfIsReal hw).symm m) :=
   glArch_adelicArchGLIncl F _
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.Elem17LR.archComponent_glArch_archRealGLAt_self (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:651)
 theorem archComponent_glArch_archRealGLAt_self {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
     archComponent F w (glArch (𝓞 F) F (archRealGLAt hw m)) =
       glEquivOfRingEquiv (ringEquivRealOfIsReal hw).symm m := by
   rw [glArch_archRealGLAt, archComponent_archGLIncl_self]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.Elem17LR.archComponent_glArch_archRealGLAt_of_ne (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:656)
 theorem archComponent_glArch_archRealGLAt_of_ne {w w' : InfinitePlace F} (hw : w.IsReal) (hw' : w' ≠ w)
     (m : GL (Fin 2) ℝ) : archComponent F w' (glArch (𝓞 F) F (archRealGLAt hw m)) = 1 := by
   rw [glArch_archRealGLAt, archComponent_archGLIncl_of_ne F hw']
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.Elem17LR.glFin_archRealGLAt (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:660)
 theorem glFin_archRealGLAt {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
     glFin (𝓞 F) F (archRealGLAt hw m) = 1 :=
   glFin_adelicArchGLIncl F _
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.Elem17LR.archRealGLAt_mul_comm_of_archComponent_eq_one (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:664)
 theorem archRealGLAt_mul_comm_of_archComponent_eq_one {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2) ℝ)
     {g : AdelicGL2 (𝓞 F) F} (hg : archComponent F w (glArch (𝓞 F) F g) = 1) :
     archRealGLAt hw m * g = g * archRealGLAt hw m := by
@@ -813,12 +751,10 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix CasCo
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.Ld (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:685)
 def Ld (d : ArchDir) (θ : AdelicGL2 (𝓞 F) F → ℂ) (y : AdelicGL2 (𝓞 F) F) : ℂ :=
   deriv (fun t : ℝ => θ (archFlowAt hw d (-t) * y)) 0
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.hasDerivAt_negflow_mul_const (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:689)
 theorem hasDerivAt_negflow_mul_const (d : ArchDir) (X : Matrix (Fin 2) (Fin 2) ℝ) :
     HasDerivAt (fun t : ℝ => Matrix.of.symm ((archFlowMatrix d (-t) : Matrix (Fin 2) (Fin 2) ℝ) * X))
       (Matrix.of.symm (-(archDirMatrix d * X))) 0 := by
@@ -833,7 +769,6 @@ theorem hasDerivAt_negflow_mul_const (d : ArchDir) (X : Matrix (Fin 2) (Fin 2) �
   simpa using h
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.hasDerivAt_const_mul_negflow (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:703)
 theorem hasDerivAt_const_mul_negflow (d : ArchDir) (X : Matrix (Fin 2) (Fin 2) ℝ) :
     HasDerivAt (fun t : ℝ => Matrix.of.symm (X * (archFlowMatrix d (-t) : Matrix (Fin 2) (Fin 2) ℝ)))
       (Matrix.of.symm (-(X * archDirMatrix d))) 0 := by
@@ -847,13 +782,11 @@ theorem hasDerivAt_const_mul_negflow (d : ArchDir) (X : Matrix (Fin 2) (Fin 2) �
   have h := ((hasDerivAt_archFlowMatrix_apply d k j).comp_of_eq (0 : ℝ) (hasDerivAt_neg (0 : ℝ)) neg_zero.symm).const_mul (X i k)
   simpa using h
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.negflow_mul_lift (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:716)
 theorem negflow_mul_lift (d : ArchDir) (t : ℝ) {e : Fin 2 → Fin 2 → ℝ} (he : (Matrix.of e).det ≠ 0) :
     archFlowAt hw d (-t) * archRealLiftAt hw e =
       1 * archRealLiftAt hw (Matrix.of.symm ((archFlowMatrix d (-t) : Matrix (Fin 2) (Fin 2) ℝ) * Matrix.of e)) := by
   rw [one_mul, archFlowAt, archRealGLAt_mul_archRealLiftAt hw _ he]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.Ld_apply_lift (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:721)
 theorem Ld_apply_lift {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (d : ArchDir)
     {e : Fin 2 → Fin 2 → ℝ} (he : (Matrix.of e).det ≠ 0) :
     Ld hw d θ (archRealLiftAt hw e) = fderiv ℝ (chart hw θ 1) e (Matrix.of.symm (-(archDirMatrix d * Matrix.of e))) := by
@@ -871,7 +804,6 @@ theorem Ld_apply_lift {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt 
   rw [hfun]
   exact (hdiff.comp_hasDerivAt (0 : ℝ) (hasDerivAt_negflow_mul_const d (Matrix.of e))).deriv
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.Ld_one (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:738)
 theorem Ld_one {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (d : ArchDir) :
     Ld hw d θ 1 = -archDerivAt hw d θ 1 := by
   have h := Ld_apply_lift hw hθ d (e := Matrix.of.symm 1) one_mem_U
@@ -880,7 +812,6 @@ theorem Ld_one {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) 
   show fderiv ℝ (chart hw θ 1) (Matrix.of.symm 1) (-Matrix.of.symm (archDirMatrix d)) = _
   rw [map_neg]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.Ld_Ld_one (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:746)
 theorem Ld_Ld_one {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (i j : ArchDir) :
     Ld hw i (Ld hw j θ) 1 = D2 hw θ 1 (archDirMatrix i) (archDirMatrix j) + D1 hw θ 1 (archDirMatrix j * archDirMatrix i) := by
   have hfun : (fun t : ℝ => Ld hw j θ (archFlowAt hw i (-t) * 1)) =
@@ -921,7 +852,6 @@ theorem Ld_Ld_one {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw �
     map_neg _ _
   rw [e1, _root_.neg_apply, e2, neg_neg]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.leftCasimir_one (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:786)
 theorem leftCasimir_one {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) :
     -((1 / 4 : ℂ) * Ld hw .H (Ld hw .H θ) 1 - (1 / 2 : ℂ) * Ld hw .H θ 1 + Ld hw .E (Ld hw .Fm θ) 1) = archCasimirAt hw θ 1 := by
   rw [Ld_Ld_one hw hθ, Ld_Ld_one hw hθ, Ld_one hw hθ]
@@ -940,19 +870,16 @@ theorem leftCasimir_one {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothA
   ring
 
 omit hw in
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.rightTranslate_mul (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:804)
 theorem rightTranslate_mul (a b : AdelicGL2 (𝓞 F) F) (θ : AdelicGL2 (𝓞 F) F → ℂ) :
     rightTranslate F (a * b) θ = rightTranslate F a (rightTranslate F b θ) := by
   funext z
   simp only [rightTranslate, mul_assoc]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.Ld_rightTranslate (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:809)
 theorem Ld_rightTranslate (d : ArchDir) (θ : AdelicGL2 (𝓞 F) F → ℂ) (y : AdelicGL2 (𝓞 F) F) :
     Ld hw d (rightTranslate F y θ) = rightTranslate F y (Ld hw d θ) := by
   funext z
   simp only [Ld, rightTranslate, mul_assoc]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.exists_decomp (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:814)
 theorem exists_decomp (y : AdelicGL2 (𝓞 F) F) :
     ∃ (m : GL (Fin 2) ℝ) (y' : AdelicGL2 (𝓞 F) F), archComponent F w (glArch (𝓞 F) F y') = 1 ∧ y = archRealGLAt hw m * y' := by
   set m : GL (Fin 2) ℝ := (glEquivOfRingEquiv (ringEquivRealOfIsReal hw).symm).symm (archComponent F w (glArch (𝓞 F) F y)) with hm
@@ -960,7 +887,6 @@ theorem exists_decomp (y : AdelicGL2 (𝓞 F) F) :
   rw [map_mul, map_mul, map_inv, map_inv, Elem17LR.archComponent_glArch_archRealGLAt_self, hm, MulEquiv.apply_symm_apply,
     inv_mul_cancel]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.archCasimirAt_rightTranslate_any (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:821)
 theorem archCasimirAt_rightTranslate_any (y : AdelicGL2 (𝓞 F) F) {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) :
     archCasimirAt hw (rightTranslate F y θ) = rightTranslate F y (archCasimirAt hw θ) := by
   obtain ⟨m, y', hy', rfl⟩ := exists_decomp hw y
@@ -969,7 +895,6 @@ theorem archCasimirAt_rightTranslate_any (y : AdelicGL2 (𝓞 F) F) {θ : Adelic
   rw [rightTranslate_mul, rightTranslate_mul, CasCore17.archCasimirAt_rightTranslate hw m (CommAway17.isArchSmoothAt_rightTranslate_of_glArch_eq_one hw hk hθ),
     CommAway17.archCasimirAt_rightTranslate_of_glArch_eq_one hw hk]
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.isArchSmoothAt_rightTranslate_any (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:829)
 theorem isArchSmoothAt_rightTranslate_any (y : AdelicGL2 (𝓞 F) F) {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) :
     IsArchSmoothAt hw (rightTranslate F y θ) := by
   obtain ⟨m, y', hy', rfl⟩ := exists_decomp hw y
@@ -978,7 +903,6 @@ theorem isArchSmoothAt_rightTranslate_any (y : AdelicGL2 (𝓞 F) F) {θ : Adeli
   rw [rightTranslate_mul]
   exact CasCore17.isArchSmoothAt_rightTranslate hw m (CommAway17.isArchSmoothAt_rightTranslate_of_glArch_eq_one hw hk hθ)
 
--- pin: P2MW.S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.CasLR17.leftCasimir_eq (P2M/Sol/S_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean:837)
 theorem leftCasimir_eq {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (y : AdelicGL2 (𝓞 F) F) :
     -((1 / 4 : ℂ) * Ld hw .H (Ld hw .H θ) y - (1 / 2 : ℂ) * Ld hw .H θ y + Ld hw .E (Ld hw .Fm θ) y) = archCasimirAt hw θ y := by
   have h := leftCasimir_one hw (isArchSmoothAt_rightTranslate_any hw y hθ)
@@ -993,14 +917,11 @@ open CasCore17
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.Dk (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:559)
 def Dk (θ : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ := archDerivAt hw .E θ - archDerivAt hw .Fm θ
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.lower (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:561)
 def lower (θ : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ :=
   archDerivAt hw .H θ - Complex.I • (archDerivAt hw .E θ + archDerivAt hw .Fm θ)
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.raise (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:564)
 def raise (θ : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ :=
   archDerivAt hw .H θ + Complex.I • (archDerivAt hw .E θ + archDerivAt hw .Fm θ)
 
@@ -1008,28 +929,25 @@ section Smooth
 
 variable {θ : AdelicGL2 (𝓞 F) F → ℂ}
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.smooth_sub (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:571)
-theorem smooth_sub (_hθ : IsArchSmoothAt hw θ) {φ ψ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (hψ : IsArchSmoothAt hw ψ) :
+-- The `hθ` hypothesis is the pin's (its section variable `θ`), and it is unused in both proofs;
+-- it is kept because the statement is the pin's, hence the one local linter exemption in the file.
+set_option linter.unusedVariables false in
+theorem smooth_sub (hθ : IsArchSmoothAt hw θ) {φ ψ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (hψ : IsArchSmoothAt hw ψ) :
     IsArchSmoothAt hw (φ - ψ) := by
   rw [sub_eq_add_neg]; exact hφ.add hψ.neg
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.archDerivAt_sub' (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:575)
 theorem archDerivAt_sub' {φ ψ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (hψ : IsArchSmoothAt hw ψ) (d : ArchDir) :
     archDerivAt hw d (φ - ψ) = archDerivAt hw d φ - archDerivAt hw d ψ := by
   rw [sub_eq_add_neg, archDerivAt_add hφ hψ.neg, ← neg_one_smul ℂ ψ, archDerivAt_smul, neg_one_smul, ← sub_eq_add_neg]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.smooth_Dk (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:579)
 theorem smooth_Dk (hθ : IsArchSmoothAt hw θ) : IsArchSmoothAt hw (Dk hw θ) := smooth_sub hw hθ (hθ.archDerivAt .E) (hθ.archDerivAt .Fm)
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.smooth_lower (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:581)
 theorem smooth_lower (hθ : IsArchSmoothAt hw θ) : IsArchSmoothAt hw (lower hw θ) :=
   smooth_sub hw hθ (hθ.archDerivAt .H) (((hθ.archDerivAt .E).add (hθ.archDerivAt .Fm)).smul _)
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.smooth_raise (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:584)
 theorem smooth_raise (hθ : IsArchSmoothAt hw θ) : IsArchSmoothAt hw (raise hw θ) :=
   (hθ.archDerivAt .H).add (((hθ.archDerivAt .E).add (hθ.archDerivAt .Fm)).smul _)
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.archDerivAt_lower (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:587)
 theorem archDerivAt_lower (hθ : IsArchSmoothAt hw θ) (d : ArchDir) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw d (lower hw θ) g = archDerivAt hw d (archDerivAt hw .H θ) g -
       Complex.I * (archDerivAt hw d (archDerivAt hw .E θ) g + archDerivAt hw d (archDerivAt hw .Fm θ) g) := by
@@ -1038,7 +956,6 @@ theorem archDerivAt_lower (hθ : IsArchSmoothAt hw θ) (d : ArchDir) (g : Adelic
     archDerivAt_add (hθ.archDerivAt .E) (hθ.archDerivAt .Fm)]
   simp only [Pi.sub_apply, Pi.smul_apply, Pi.add_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.archDerivAt_raise (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:595)
 theorem archDerivAt_raise (hθ : IsArchSmoothAt hw θ) (d : ArchDir) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw d (raise hw θ) g = archDerivAt hw d (archDerivAt hw .H θ) g +
       Complex.I * (archDerivAt hw d (archDerivAt hw .E θ) g + archDerivAt hw d (archDerivAt hw .Fm θ) g) := by
@@ -1047,21 +964,17 @@ theorem archDerivAt_raise (hθ : IsArchSmoothAt hw θ) (d : ArchDir) (g : Adelic
     archDerivAt_add (hθ.archDerivAt .E) (hθ.archDerivAt .Fm)]
   simp only [Pi.smul_apply, Pi.add_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.lower_apply (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:603)
 theorem lower_apply (g : AdelicGL2 (𝓞 F) F) :
     lower hw θ g = archDerivAt hw .H θ g - Complex.I * (archDerivAt hw .E θ g + archDerivAt hw .Fm θ g) := by
   simp only [lower, Pi.sub_apply, Pi.smul_apply, Pi.add_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.raise_apply (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:607)
 theorem raise_apply (g : AdelicGL2 (𝓞 F) F) :
     raise hw θ g = archDerivAt hw .H θ g + Complex.I * (archDerivAt hw .E θ g + archDerivAt hw .Fm θ g) := by
   simp only [raise, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.Dk_apply (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:611)
 theorem Dk_apply (g : AdelicGL2 (𝓞 F) F) : Dk hw θ g = archDerivAt hw .E θ g - archDerivAt hw .Fm θ g := by
   simp only [Dk, Pi.sub_apply]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.weight_deriv (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:614)
 theorem weight_deriv (hθ : IsArchSmoothAt hw θ) {m : ℂ} (hm : Dk hw θ = m • θ) (d : ArchDir) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw d (archDerivAt hw .E θ) g - archDerivAt hw d (archDerivAt hw .Fm θ) g = m * archDerivAt hw d θ g := by
   have h := congrArg (archDerivAt hw d) hm
@@ -1069,13 +982,11 @@ theorem weight_deriv (hθ : IsArchSmoothAt hw θ) {m : ℂ} (hm : Dk hw θ = m �
   have := congrFun h g
   simpa only [Pi.sub_apply, Pi.smul_apply, smul_eq_mul] using this
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.weight_apply (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:621)
 theorem weight_apply {m : ℂ} (hm : Dk hw θ = m • θ) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw .E θ g - archDerivAt hw .Fm θ g = m * θ g := by
   have := congrFun hm g
   simpa only [Dk, Pi.sub_apply, Pi.smul_apply, smul_eq_mul] using this
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.Dk_lower (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:626)
 theorem Dk_lower (hθ : IsArchSmoothAt hw θ) {m : ℂ} (hm : Dk hw θ = m • θ) : Dk hw (lower hw θ) = (m - 2 * Complex.I) • lower hw θ := by
   funext g
   rw [Dk_apply, Pi.smul_apply, smul_eq_mul, archDerivAt_lower hw hθ, archDerivAt_lower hw hθ, lower_apply hw,
@@ -1087,7 +998,6 @@ theorem Dk_lower (hθ : IsArchSmoothAt hw θ) {m : ℂ} (hm : Dk hw θ = m • �
   linear_combination w1 - Complex.I * w2 - Complex.I * w3 +
     (-2 * archDerivAt hw .E θ g - 2 * archDerivAt hw .Fm θ g) * Complex.I_sq
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.Dk_raise (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:637)
 theorem Dk_raise (hθ : IsArchSmoothAt hw θ) {m : ℂ} (hm : Dk hw θ = m • θ) : Dk hw (raise hw θ) = (m + 2 * Complex.I) • raise hw θ := by
   funext g
   rw [Dk_apply, Pi.smul_apply, smul_eq_mul, archDerivAt_raise hw hθ, archDerivAt_raise hw hθ, raise_apply hw,
@@ -1109,28 +1019,23 @@ open CasCore17
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.relF_E_H (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:658)
 theorem relF_E_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) :
     archDerivAt hw .E (archDerivAt hw .H φ) = archDerivAt hw .H (archDerivAt hw .E φ) - (2 : ℂ) • archDerivAt hw .E φ := by
   funext g; rw [Pi.sub_apply, Pi.smul_apply, smul_eq_mul, rel_E_H hw hφ]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.relF_Fm_H (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:662)
 theorem relF_Fm_H {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) :
     archDerivAt hw .Fm (archDerivAt hw .H φ) = archDerivAt hw .H (archDerivAt hw .Fm φ) + (2 : ℂ) • archDerivAt hw .Fm φ := by
   funext g; rw [Pi.add_apply, Pi.smul_apply, smul_eq_mul, rel_Fm_H hw hφ]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.relF_E_Fm (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:666)
 theorem relF_E_Fm {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) :
     archDerivAt hw .E (archDerivAt hw .Fm φ) = archDerivAt hw .Fm (archDerivAt hw .E φ) + archDerivAt hw .H φ := by
   funext g; rw [Pi.add_apply, rel_Fm_E hw hφ]; ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.casimir_apply (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:670)
 theorem casimir_apply (φ : AdelicGL2 (𝓞 F) F → ℂ) (g : AdelicGL2 (𝓞 F) F) :
     archCasimirAt hw φ g = -((1 / 4 : ℂ) * archDerivAt hw .H (archDerivAt hw .H φ) g - (1 / 2 : ℂ) * archDerivAt hw .H φ g +
       archDerivAt hw .E (archDerivAt hw .Fm φ) g) := by
   simp only [archCasimirAt, Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.archDerivAt_casimir (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:675)
 theorem archDerivAt_casimir {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (d : ArchDir) (g : AdelicGL2 (𝓞 F) F) :
     archDerivAt hw d (archCasimirAt hw θ) g = -((1 / 4 : ℂ) * archDerivAt hw d (archDerivAt hw .H (archDerivAt hw .H θ)) g -
       (1 / 2 : ℂ) * archDerivAt hw d (archDerivAt hw .H θ) g + archDerivAt hw d (archDerivAt hw .E (archDerivAt hw .Fm θ)) g) := by
@@ -1142,7 +1047,6 @@ theorem archDerivAt_casimir {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmo
   simp only [Pi.smul_apply, Pi.add_apply, Pi.sub_apply, smul_eq_mul]
   ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.casimir_comm_H (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:686)
 theorem casimir_comm_H {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (g : AdelicGL2 (𝓞 F) F) :
     archCasimirAt hw (archDerivAt hw .H θ) g = archDerivAt hw .H (archCasimirAt hw θ) g := by
   rw [casimir_apply, archDerivAt_casimir hw hθ]
@@ -1154,7 +1058,6 @@ theorem casimir_comm_H {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt
     ring
   rw [h]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.casimir_comm_E (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:697)
 theorem casimir_comm_E {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (g : AdelicGL2 (𝓞 F) F) :
     archCasimirAt hw (archDerivAt hw .E θ) g = archDerivAt hw .E (archCasimirAt hw θ) g := by
   rw [casimir_apply, archDerivAt_casimir hw hθ]
@@ -1176,7 +1079,6 @@ theorem casimir_comm_E {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt
   rw [e1, e2, e3]
   ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.casimir_comm_Fm (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:718)
 theorem casimir_comm_Fm {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (g : AdelicGL2 (𝓞 F) F) :
     archCasimirAt hw (archDerivAt hw .Fm θ) g = archDerivAt hw .Fm (archCasimirAt hw θ) g := by
   rw [casimir_apply, archDerivAt_casimir hw hθ]
@@ -1196,7 +1098,6 @@ theorem casimir_comm_Fm {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothA
   rw [e1, e2, e3]
   ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.casimir_comm (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:737)
 theorem casimir_comm {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) (d : ArchDir) :
     archCasimirAt hw (archDerivAt hw d θ) = archDerivAt hw d (archCasimirAt hw θ) := by
   funext g
@@ -1205,7 +1106,6 @@ theorem casimir_comm {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt h
   · exact casimir_comm_E hw hθ g
   · exact casimir_comm_Fm hw hθ g
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.casimir_lower (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:745)
 theorem casimir_lower {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {lam : ℂ}
     (hΩ : archCasimirAt hw θ = lam • θ) : archCasimirAt hw (lower hw θ) = lam • lower hw θ := by
   have hsum : IsArchSmoothAt hw (archDerivAt hw .E θ + archDerivAt hw .Fm θ) := (hθ.archDerivAt .E).add (hθ.archDerivAt .Fm)
@@ -1217,7 +1117,6 @@ theorem casimir_lower {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt 
   simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
   ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.casimir_raise (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:756)
 theorem casimir_raise {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {lam : ℂ}
     (hΩ : archCasimirAt hw θ = lam • θ) : archCasimirAt hw (raise hw θ) = lam • raise hw θ := by
   have hsum : IsArchSmoothAt hw (archDerivAt hw .E θ + archDerivAt hw .Fm θ) := (hθ.archDerivAt .E).add (hθ.archDerivAt .Fm)
@@ -1229,7 +1128,6 @@ theorem casimir_raise {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt 
   simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
   ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.raise_lower (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:767)
 theorem raise_lower {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {m lam : ℂ}
     (hm : Dk hw θ = m • θ) (hΩ : archCasimirAt hw θ = lam • θ) :
     raise hw (lower hw θ) = (-4 * lam + m ^ 2 - 2 * Complex.I * m) • θ := by
@@ -1246,7 +1144,6 @@ theorem raise_lower {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw
     (-(archDerivAt hw .E (archDerivAt hw .E θ) g) - archDerivAt hw .E (archDerivAt hw .Fm θ) g -
       (archDerivAt hw .E (archDerivAt hw .Fm θ) g - archDerivAt hw .H θ g) - archDerivAt hw .Fm (archDerivAt hw .Fm θ) g) * Complex.I_sq
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.lower_raise (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:783)
 theorem lower_raise {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {m lam : ℂ}
     (hm : Dk hw θ = m • θ) (hΩ : archCasimirAt hw θ = lam • θ) :
     lower hw (raise hw θ) = (-4 * lam + m ^ 2 + 2 * Complex.I * m) • θ := by
@@ -1271,7 +1168,6 @@ open CasCore17
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.lower_smul (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:807)
 theorem lower_smul (c : ℂ) (θ : AdelicGL2 (𝓞 F) F → ℂ) : lower hw (c • θ) = c • lower hw θ := by
   unfold lower
   rw [archDerivAt_smul, archDerivAt_smul, archDerivAt_smul]
@@ -1279,7 +1175,6 @@ theorem lower_smul (c : ℂ) (θ : AdelicGL2 (𝓞 F) F → ℂ) : lower hw (c �
   simp only [Pi.sub_apply, Pi.smul_apply, Pi.add_apply, smul_eq_mul]
   ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.raise_smul (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:814)
 theorem raise_smul (c : ℂ) (θ : AdelicGL2 (𝓞 F) F → ℂ) : raise hw (c • θ) = c • raise hw θ := by
   unfold raise
   rw [archDerivAt_smul, archDerivAt_smul, archDerivAt_smul]
@@ -1287,21 +1182,18 @@ theorem raise_smul (c : ℂ) (θ : AdelicGL2 (𝓞 F) F → ℂ) : raise hw (c �
   simp only [Pi.smul_apply, Pi.add_apply, smul_eq_mul]
   ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.raise_iter_smul (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:821)
 theorem raise_iter_smul (M : ℕ) (c : ℂ) (θ : AdelicGL2 (𝓞 F) F → ℂ) :
     (raise hw)^[M] (c • θ) = c • (raise hw)^[M] θ := by
   induction M generalizing θ with
   | zero => rfl
   | succ M ih => rw [Function.iterate_succ_apply, Function.iterate_succ_apply, raise_smul, ih]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.lower_iter_smul (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:827)
 theorem lower_iter_smul (M : ℕ) (c : ℂ) (θ : AdelicGL2 (𝓞 F) F → ℂ) :
     (lower hw)^[M] (c • θ) = c • (lower hw)^[M] θ := by
   induction M generalizing θ with
   | zero => rfl
   | succ M ih => rw [Function.iterate_succ_apply, Function.iterate_succ_apply, lower_smul, ih]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.lower_iter_props (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:833)
 theorem lower_iter_props {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {m lam : ℂ}
     (hm : Dk hw θ = m • θ) (hΩ : archCasimirAt hw θ = lam • θ) (j : ℕ) :
     IsArchSmoothAt hw ((lower hw)^[j] θ) ∧ Dk hw ((lower hw)^[j] θ) = (m - 2 * Complex.I * j) • (lower hw)^[j] θ ∧
@@ -1320,7 +1212,6 @@ theorem lower_iter_props {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmooth
     push_cast
     ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.raise_iter_props (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:851)
 theorem raise_iter_props {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {m lam : ℂ}
     (hm : Dk hw θ = m • θ) (hΩ : archCasimirAt hw θ = lam • θ) (j : ℕ) :
     IsArchSmoothAt hw ((raise hw)^[j] θ) ∧ Dk hw ((raise hw)^[j] θ) = (m + 2 * Complex.I * j) • (raise hw)^[j] θ ∧
@@ -1339,7 +1230,6 @@ theorem raise_iter_props {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmooth
     push_cast
     ring
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.raise_iter_lower_iter (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:869)
 theorem raise_iter_lower_iter {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {m lam : ℂ}
     (hm : Dk hw θ = m • θ) (hΩ : archCasimirAt hw θ = lam • θ) (M : ℕ) :
     (raise hw)^[M] ((lower hw)^[M] θ) =
@@ -1351,7 +1241,6 @@ theorem raise_iter_lower_iter {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchS
     rw [Function.iterate_succ_apply' (lower hw), Function.iterate_succ_apply (raise hw), raise_lower hw hs hk hc,
       raise_iter_smul, ih, smul_smul, Finset.prod_range_succ, mul_comm]
 
--- pin: P2MW.S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.OsAlg17.lower_iter_raise_iter (P2M/Sol/S_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean:880)
 theorem lower_iter_raise_iter {θ : AdelicGL2 (𝓞 F) F → ℂ} (hθ : IsArchSmoothAt hw θ) {m lam : ℂ}
     (hm : Dk hw θ = m • θ) (hΩ : archCasimirAt hw θ = lam • θ) (M : ℕ) :
     (lower hw)^[M] ((raise hw)^[M] θ) =
@@ -1428,4 +1317,324 @@ theorem iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul
   intro lower raise
   exact ⟨fun j => OsAlg17.lower_iter_props hw hθ hm hΩ j, fun j => OsAlg17.raise_iter_props hw hθ hm hΩ j,
     fun M => OsAlg17.raise_iter_lower_iter hw hθ hm hΩ M, fun M => OsAlg17.lower_iter_raise_iter hw hθ hm hΩ M⟩
+
+
+/-! ### The four real leaves
+
+The continuation of the calculus above: the three `𝔰𝔩₂` commutators on a smooth `φ`, the character
+identity `D_E − D_{F⁻} = 2·(weight)`, the Casimir's commutation with a right translation by a row
+isometry at a *different* place, and the invariance of a function killed by `E` and `F⁻` under
+`GL₂(ℝ)` at the place. Each headline is stated at its `Theorems/` wrapper; the helpers are the pin's
+own, `private` exactly as the pin has them. -/
+
+/-! #### The three commutators -/
+
+namespace Ws23
+
+namespace M0a
+
+open CasCore17
+
+variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
+
+private theorem main
+        (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt hw φ) :
+    archDerivAt hw .H (archDerivAt hw .E φ) - archDerivAt hw .E (archDerivAt hw .H φ) = (2 : ℂ) • archDerivAt hw .E φ ∧
+    archDerivAt hw .H (archDerivAt hw .Fm φ) - archDerivAt hw .Fm (archDerivAt hw .H φ) = (-2 : ℂ) • archDerivAt hw .Fm φ ∧
+    archDerivAt hw .E (archDerivAt hw .Fm φ) - archDerivAt hw .Fm (archDerivAt hw .E φ) = archDerivAt hw .H φ := by
+  refine ⟨?_, ?_, ?_⟩
+  · funext g
+    rw [Pi.sub_apply, Pi.smul_apply, smul_eq_mul, rel_E_H hw hφ g]; ring
+  · funext g
+    rw [Pi.sub_apply, Pi.smul_apply, smul_eq_mul, rel_Fm_H hw hφ g]; ring
+  · funext g
+    rw [Pi.sub_apply, rel_Fm_E hw hφ g]; ring
+
+end M0a
+
+end Ws23
+
+/-- **Headline.** The three `𝔰𝔩₂` commutator identities of the archimedean flows on a smooth `φ`:
+`[H,E] = 2E`, `[H,F⁻] = -2F⁻`, `[E,F⁻] = H`. -/
+theorem archDerivAt_commutator_of_isArchSmoothAt
+    (F : Type) [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
+    (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt hw φ) :
+    archDerivAt hw .H (archDerivAt hw .E φ) - archDerivAt hw .E (archDerivAt hw .H φ) = (2 : ℂ) • archDerivAt hw .E φ ∧
+    archDerivAt hw .H (archDerivAt hw .Fm φ) - archDerivAt hw .Fm (archDerivAt hw .H φ) = (-2 : ℂ) • archDerivAt hw .Fm φ ∧
+    archDerivAt hw .E (archDerivAt hw .Fm φ) - archDerivAt hw .Fm (archDerivAt hw .E φ) = archDerivAt hw .H φ :=
+  Ws23.M0a.main hw φ hφ
+
+/-! #### The character identity -/
+
+namespace OsInf17
+
+open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
+open CasCore17
+
+variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
+
+private def rotMat (t : ℝ) : Matrix (Fin 2) (Fin 2) ℝ := !![Real.cos t, Real.sin t; -Real.sin t, Real.cos t]
+
+omit hw in
+private theorem det_rotMat (t : ℝ) : (rotMat t).det = 1 := by
+  rw [rotMat, Matrix.det_fin_two_of]
+  nlinarith [Real.cos_sq_add_sin_sq t]
+
+private def rotGL (t : ℝ) : GL (Fin 2) ℝ :=
+  Matrix.GeneralLinearGroup.mkOfDetNeZero (rotMat t) (by rw [det_rotMat]; exact one_ne_zero)
+
+omit hw in
+private theorem rotGL_coe (t : ℝ) : ((rotGL t : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ) = rotMat t := rfl
+
+omit hw in
+private theorem rotGL_mem (t : ℝ) : rotGL t ∈ rowIsometrySubgroup₀ ℝ := by
+  rw [mem_rowIsometrySubgroup₀_iff]
+  refine ⟨det_rotMat t, ?_, ?_⟩
+  · rw [rotGL_coe, det_rotMat, norm_one]
+  · intro x y
+    simp only [rotGL_coe, rotMat, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
+      Matrix.empty_val', Matrix.cons_val_fin_one, Real.norm_eq_abs, sq_abs]
+    linear_combination (x ^ 2 + y ^ 2) * Real.cos_sq_add_sin_sq t
+
+private def rotSO (t : ℝ) : rowIsometrySubgroup₀ ℝ := ⟨rotGL t, rotGL_mem t⟩
+
+omit hw in
+private theorem archWeightOneℝ_rotSO (t : ℝ) :
+    ((archWeightOneℝ (rotSO t) : ℂˣ) : ℂ) = Complex.exp (t * Complex.I) := by
+  rw [Complex.exp_mul_I]
+  show (⟨Real.cos t, Real.sin t⟩ : ℂ) = _
+  apply Complex.ext <;> simp [Complex.cos_ofReal_re, Complex.sin_ofReal_re, Complex.cos_ofReal_im, Complex.sin_ofReal_im]
+
+omit [NumberField F] hw in
+private theorem norm_symm (hw : w.IsReal) (x : ℝ) : ‖(ringEquivRealOfIsReal hw).symm x‖ = ‖x‖ := by
+  have := norm_ringEquivRealOfIsReal hw ((ringEquivRealOfIsReal hw).symm x)
+  rw [RingEquiv.apply_symm_apply] at this
+  exact this.symm
+
+private def rotAt (t : ℝ) : rowIsometrySubgroup₀ w.Completion :=
+  rowIsometrySubgroup₀Map (ringEquivRealOfIsReal hw).symm (norm_symm hw) (rotSO t)
+
+private theorem adelicArchGLInclAt_rotAt (t : ℝ) :
+    adelicArchGLInclAt F w ((rotAt hw t : rowIsometrySubgroup₀ w.Completion) : GL (Fin 2) w.Completion) =
+      archRealGLAt hw (rotGL t) := rfl
+
+omit [NumberField F] in
+private theorem archWeightCharAt_rotAt (n : ℤ) (t : ℝ) :
+    ((archWeightCharAt hw n (rotAt hw t) : ℂˣ) : ℂ) = Complex.exp (Complex.I * n * t) := by
+  have hmap : rowIsometrySubgroup₀Map (ringEquivRealOfIsReal hw) (norm_ringEquivRealOfIsReal hw) (rotAt hw t) = rotSO t := by
+    apply Subtype.ext
+    apply Units.ext
+    ext i j
+    show (ringEquivRealOfIsReal hw) ((ringEquivRealOfIsReal hw).symm (rotMat t i j)) = rotMat t i j
+    exact RingEquiv.apply_symm_apply _ _
+  simp only [archWeightCharAt, archWeightOneAt, MonoidHom.comp_apply, hmap, zpowGroupHom_apply, Units.val_zpow_eq_zpow_val,
+    archWeightOneℝ_rotSO, ← Complex.exp_int_mul]
+  congr 1
+  ring
+
+omit hw in
+private theorem hasDerivAt_rotMat_entries :
+    HasDerivAt (fun t : ℝ => Matrix.of.symm (rotMat t)) (Matrix.of.symm (archDirMatrix .E - archDirMatrix .Fm)) 0 := by
+  rw [hasDerivAt_pi]
+  intro i
+  rw [hasDerivAt_pi]
+  intro j
+  fin_cases i <;> fin_cases j <;>
+    simp only [Matrix.of_symm_apply, rotMat, archDirMatrix, Matrix.sub_apply, Matrix.of_apply, Matrix.cons_val',
+      Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.empty_val', Matrix.cons_val_fin_one, Fin.zero_eta, Fin.mk_one, Fin.isValue,
+      sub_zero, zero_sub]
+  · simpa using Real.hasDerivAt_cos 0
+  · simpa using Real.hasDerivAt_sin 0
+  · have h__af := (Real.hasDerivAt_sin 0).neg
+    simp at h__af
+    exact h__af
+  · simpa using Real.hasDerivAt_cos 0
+
+omit hw in
+private theorem rotMat_zero : rotMat 0 = 1 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [rotMat]
+
+private theorem one_mem_U' : (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ))).det ≠ 0 := by
+  rw [Equiv.apply_symm_apply, Matrix.det_one]; exact one_ne_zero
+
+private theorem archDerivAt_eq_fderiv {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsArchSmoothAt hw φ) (d : ArchDir)
+    (g : AdelicGL2 (𝓞 F) F) :
+    archDerivAt hw d φ g = fderiv ℝ (chart hw φ g) (Matrix.of.symm 1) (Matrix.of.symm (archDirMatrix d)) := by
+  have hdiff : HasFDerivAt (chart hw φ g) (fderiv ℝ (chart hw φ g) (Matrix.of.symm 1))
+      (Matrix.of.symm (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ)) * (archFlowMatrix d 0 : Matrix (Fin 2) (Fin 2) ℝ))) := by
+    rw [of_symm_mul_archFlowMatrix_zero]
+    exact (((hφ g).contDiffAt (isOpen_setOf_det_ne_zero.mem_nhds one_mem_U')).differentiableAt (by simp)).hasFDerivAt
+  have hfun : (fun t : ℝ => φ (g * archFlowAt hw d t)) =
+      fun t : ℝ => chart hw φ g (Matrix.of.symm (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ)) *
+        (archFlowMatrix d t : Matrix (Fin 2) (Fin 2) ℝ))) := by
+    funext t
+    show _ = φ (g * archRealLiftAt hw _)
+    rw [← archRealLiftAt_mul_archRealGLAt hw one_mem_U', archRealLiftAt_of_symm_one, one_mul, archFlowAt]
+  show deriv (fun t : ℝ => φ (g * archFlowAt hw d t)) 0 = _
+  rw [hfun]
+  have h := (hdiff.comp_hasDerivAt (0 : ℝ) (hasDerivAt_of_symm_mul_archFlowMatrix _ d)).deriv
+  simp only [Function.comp_def, Equiv.apply_symm_apply, Matrix.one_mul] at h ⊢
+  exact h
+
+private theorem main (n : ℤ) (y : AdelicGL2 (𝓞 F) F → ℂ) (hys : IsArchSmoothAt hw y)
+    (hyn : HasArchCharacterAt₀ F w (archWeightCharAt hw n) y) :
+    archDerivAt hw .E y - archDerivAt hw .Fm y = (Complex.I * n) • y := by
+  funext g
+  rw [Pi.sub_apply, Pi.smul_apply, smul_eq_mul, archDerivAt_eq_fderiv hw hys, archDerivAt_eq_fderiv hw hys]
+  have hpath : ∀ t : ℝ, y (g * archRealGLAt hw (rotGL t)) = Complex.exp (Complex.I * n * t) * y g := by
+    intro t
+    rw [← adelicArchGLInclAt_rotAt hw, hyn (rotAt hw t) g, archWeightCharAt_rotAt]
+  have hfun : (chart hw y g) ∘ (fun t : ℝ => Matrix.of.symm (rotMat t)) =
+      fun t : ℝ => Complex.exp (Complex.I * n * t) * y g := by
+    funext t
+    show chart hw y g (Matrix.of.symm (rotMat t)) = _
+    rw [← hpath t, archRealGLAt_eq_archRealLiftAt]
+    rfl
+  have hdiff : HasFDerivAt (chart hw y g) (fderiv ℝ (chart hw y g) (Matrix.of.symm 1)) (Matrix.of.symm (rotMat 0)) := by
+    rw [rotMat_zero]
+    exact (((hys g).contDiffAt (isOpen_setOf_det_ne_zero.mem_nhds (one_mem_U'))).differentiableAt (by simp)).hasFDerivAt
+  have hL : HasDerivAt ((chart hw y g) ∘ (fun t : ℝ => Matrix.of.symm (rotMat t)))
+      (fderiv ℝ (chart hw y g) (Matrix.of.symm 1) (Matrix.of.symm (archDirMatrix .E - archDirMatrix .Fm))) 0 :=
+    hdiff.comp_hasDerivAt (0 : ℝ) hasDerivAt_rotMat_entries
+  have hR : HasDerivAt (fun t : ℝ => Complex.exp (Complex.I * n * t) * y g) (Complex.I * n * y g) 0 := by
+    have h1 : HasDerivAt (fun t : ℝ => Complex.I * n * (t : ℂ)) (Complex.I * n) 0 := by
+      simpa using (Complex.ofRealCLM.hasDerivAt (x := (0 : ℝ))).const_mul (Complex.I * n)
+    have h2 := (h1.cexp).mul_const (y g)
+    simpa using h2
+  rw [hfun] at hL
+  have heq := hL.unique hR
+  rw [← heq]
+  show _ = (fderiv ℝ (chart hw y g) (Matrix.of.symm 1)) (Matrix.of.symm (archDirMatrix .E) - Matrix.of.symm (archDirMatrix .Fm))
+  rw [map_sub]
+
+end OsInf17
+
+/-- **Headline.** On a function with archimedean character `archWeightCharAt hw n`, the difference of
+the `E` and `F⁻` derivatives is multiplication by `I·n`: the Casimir acts by the character. -/
+theorem archDerivAt_E_sub_archDerivAt_Fm_eq_smul_of_hasArchCharacterAt
+    (K : Type) [Field K] [NumberField K]
+    (w : InfinitePlace K) (hw : w.IsReal) (n : ℤ)
+    (y : AdelicGL2 (𝓞 K) K → ℂ) (hys : IsArchSmoothAt hw y)
+    (hyn : HasArchCharacterAt₀ K w (archWeightCharAt hw n) y) :
+    archDerivAt hw .E y - archDerivAt hw .Fm y = (Complex.I * n) • y :=
+  OsInf17.main hw n y hys hyn
+
+/-! #### The row isometry at a different place -/
+
+-- The pin's `hw' : w' ≠ w` is a hypothesis the statement carries and no proof step needs; it stays
+-- spelled `hw'` because the checker compares binder spelling.
+set_option linter.unusedVariables false in
+/-- **Headline.** The Casimir commutes with right translation by a row isometry at a *different*
+place, and smoothness with the first/second derivative continuities is preserved. -/
+theorem archCasimirAt_rightTranslate_rowIsometryInclAt_of_ne
+    (K : Type) [Field K] [NumberField K]
+    (w : InfinitePlace K) (hw : w.IsReal)
+    (x : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x) (hxs : IsArchSmoothAt hw x)
+    (hD1 : ∀ d : ArchDir, Continuous (archDerivAt hw d x))
+    (hD2 : ∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' x))) :
+    ∀ (w' : InfinitePlace K) (hw' : w' ≠ w) (k : rowIsometrySubgroup₀ w'.Completion),
+        IsArchSmoothAt hw (rightTranslate K (rowIsometryInclAt₀ K w' k) x) ∧
+        (∀ d : ArchDir, Continuous (archDerivAt hw d (rightTranslate K (rowIsometryInclAt₀ K w' k) x))) ∧
+        (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d'
+          (rightTranslate K (rowIsometryInclAt₀ K w' k) x)))) ∧
+        archCasimirAt hw (rightTranslate K (rowIsometryInclAt₀ K w' k) x) =
+          rightTranslate K (rowIsometryInclAt₀ K w' k) (archCasimirAt hw x) := by
+  have _ := hxc
+  intro w' hw' k
+  exact CommAway17.package hw (CommAway17.archRealGLAt_mul_rowIsometryInclAt₀_comm hw hw' k) x hxs hD1 hD2
+
+/-! #### Killing `E` and `F⁻` gives `GL₂(ℝ)`-invariance -/
+
+namespace InvZero22
+
+open NumberField.InfinitePlace NumberField.InfinitePlace.Completion Matrix
+
+variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsReal)
+
+private theorem apply_mul_archFlowAt_eq (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt hw φ) (d : ArchDir)
+    (hd : archDerivAt hw d φ = 0) (g : AdelicGL2 (𝓞 F) F) (t : ℝ) :
+    φ (g * archFlowAt hw d t) = φ g := by
+  set f : ℝ → ℂ := fun t => φ (g * archFlowAt hw d t) with hf
+  have hderiv : ∀ t : ℝ, HasDerivAt f 0 t := by
+    intro t
+    have h0 : HasDerivAt (fun s : ℝ => φ ((g * archFlowAt hw d t) * archFlowAt hw d s)) 0 0 := by
+      have hda := (hφ.differentiableAt_flow d (g * archFlowAt hw d t)).hasDerivAt
+      have hz : deriv (fun s : ℝ => φ ((g * archFlowAt hw d t) * archFlowAt hw d s)) 0 = 0 := by
+        have := congrFun hd (g * archFlowAt hw d t)
+        exact this
+      rwa [hz] at hda
+    have h1 : (fun s : ℝ => φ ((g * archFlowAt hw d t) * archFlowAt hw d s)) = fun s => f (t + s) := by
+      funext s
+      simp only [hf, archFlowAt_add, mul_assoc]
+    rw [h1, show (0 : ℝ) = t - t by simp] at h0
+    have h2 := h0.comp_sub_const t t
+    have h3 : (fun x : ℝ => f (t + (x - t))) = f := by
+      funext x; congr 1; ring
+    rw [h3] at h2
+    exact h2
+  have hdiff : Differentiable ℝ f := fun t => (hderiv t).differentiableAt
+  have hconst := is_const_of_deriv_eq_zero hdiff (fun t => (hderiv t).deriv) t 0
+  have h0 : f 0 = φ g := by simp only [hf, archFlowAt_zero, mul_one]
+  rw [← h0, ← hconst]
+
+private theorem apply_mul_upper (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt hw φ)
+    (hE : archDerivAt hw .E φ = 0) (g : AdelicGL2 (𝓞 F) F) (t : ℝ) :
+    φ (g * archRealGLAt hw (unipotentGL2 t)) = φ g :=
+  apply_mul_archFlowAt_eq hw φ hφ .E hE g t
+
+private theorem apply_mul_lower (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt hw φ)
+    (hF : archDerivAt hw .Fm φ = 0) (g : AdelicGL2 (𝓞 F) F) (t : ℝ) :
+    φ (g * archRealGLAt hw (lowerUnipotentGL2 t)) = φ g :=
+  apply_mul_archFlowAt_eq hw φ hφ .Fm hF g t
+
+private theorem exists_eq_lower_upper_lower_upper (h : GL (Fin 2) ℝ)
+    (hh : Matrix.GeneralLinearGroup.det h = 1) :
+    ∃ s x c y : ℝ, h = lowerUnipotentGL2 s * unipotentGL2 x * lowerUnipotentGL2 c * unipotentGL2 y := by
+  have hdet : (h : Matrix (Fin 2) (Fin 2) ℝ) 0 0 * (h : Matrix (Fin 2) (Fin 2) ℝ) 1 1
+      - (h : Matrix (Fin 2) (Fin 2) ℝ) 0 1 * (h : Matrix (Fin 2) (Fin 2) ℝ) 1 0 = 1 := by
+    have := congrArg (fun u : ℝˣ => (u : ℝ)) hh
+    simp only [Matrix.GeneralLinearGroup.val_det_apply, Units.val_one, Matrix.det_fin_two] at this
+    exact this
+  set a := (h : Matrix (Fin 2) (Fin 2) ℝ) 0 0 with ha
+  set b := (h : Matrix (Fin 2) (Fin 2) ℝ) 0 1 with hb
+  set c := (h : Matrix (Fin 2) (Fin 2) ℝ) 1 0 with hc
+  set d := (h : Matrix (Fin 2) (Fin 2) ℝ) 1 1 with hd
+  have heta : (h : Matrix (Fin 2) (Fin 2) ℝ) = !![a, b; c, d] := by
+    rw [ha, hb, hc, hd]; exact Matrix.eta_fin_two _
+  by_cases hc0 : c = 0
+  · have ha0 : a ≠ 0 := by
+      intro h0; rw [h0, hc0] at hdet; simp at hdet
+    refine ⟨-1, (a - 1) / a, a, (b + d - 1) / a, ?_⟩
+    apply Units.ext
+    rw [Units.val_mul, Units.val_mul, Units.val_mul, heta, lowerUnipotentGL2_coe, lowerUnipotentGL2_coe,
+      unipotentGL2_coe, unipotentGL2_coe]
+    rw [hc0] at hdet ⊢
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp <;> linarith [hdet]
+  · refine ⟨0, (a - 1) / c, c, (d - 1) / c, ?_⟩
+    apply Units.ext
+    rw [Units.val_mul, Units.val_mul, Units.val_mul, heta, lowerUnipotentGL2_coe, lowerUnipotentGL2_coe,
+      unipotentGL2_coe, unipotentGL2_coe]
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp <;> linarith [hdet]
+
+private theorem main (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt hw φ)
+    (hE : archDerivAt hw .E φ = 0) (hF : archDerivAt hw .Fm φ = 0)
+    (g : AdelicGL2 (𝓞 F) F) (h : GL (Fin 2) ℝ) (hh : Matrix.GeneralLinearGroup.det h = 1) :
+    φ (g * archRealGLAt hw h) = φ g := by
+  obtain ⟨s, x, c, y, rfl⟩ := exists_eq_lower_upper_lower_upper h hh
+  rw [map_mul, map_mul, map_mul, ← mul_assoc, ← mul_assoc, ← mul_assoc,
+    apply_mul_upper hw φ hφ hE, apply_mul_lower hw φ hφ hF, apply_mul_upper hw φ hφ hE, apply_mul_lower hw φ hφ hF]
+
+end InvZero22
+
+/-- **Headline.** A smooth function whose `E` and `F⁻` derivatives both vanish is right-invariant
+under `GL₂(ℝ)` at the place, for determinant-one elements. -/
+theorem apply_mul_archRealGLAt_eq_of_archDerivAt_E_eq_zero_of_archDerivAt_Fm_eq_zero
+    (F : Type) [Field F] [NumberField F] (w : InfinitePlace F) (hw : w.IsReal)
+    (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchSmoothAt hw φ)
+    (hE : archDerivAt hw .E φ = 0) (hF : archDerivAt hw .Fm φ = 0)
+    (g : AdelicGL2 (𝓞 F) F) (h : GL (Fin 2) ℝ) (hh : Matrix.GeneralLinearGroup.det h = 1) :
+    φ (g * archRealGLAt hw h) = φ g :=
+  InvZero22.main hw φ hφ hE hF g h hh
 
