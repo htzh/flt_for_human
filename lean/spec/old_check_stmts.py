@@ -3485,11 +3485,10 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/Twist.lean",
     "FLTForHuman/ModularCurve/Defs/Jq.lean",
     # The pin-namespaced spelling of the Dedekind `ψ` function. The mathematics
-    # moved on 2026-10-09 to `NumberTheory/DedekindPsi.lean` (listed below); this
-    # shim keeps the pin's `ModularCurve.dedekindPsi…` names for the five qualified
-    # uses and the `spec/` probes. Both files are listed, so the pin names are
-    # diffed twice — harmless, and it keeps the moved statements verified even if
-    # the shim is ever dropped.
+    # moved on 2026-10-09 to `NumberTheory/DedekindPsi.lean`, which left this list
+    # on 2026-11-04 in favour of its own `spec-pin:` wire; this shim keeps the pin's
+    # `ModularCurve.dedekindPsi…` names for the five qualified uses and the `spec/`
+    # probes, and stays listed so those pin names keep a diff while it exists.
     "FLTForHuman/ModularCurve/Defs/DedekindPsi.lean",
     "FLTForHuman/ModularCurve/Defs/Polynomial.lean",
     "FLTForHuman/ModularCurve/Defs/Fields.lean",
@@ -3536,9 +3535,11 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/ModularPolynomialProperties.lean",
     "FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean",
     "FLTForHuman/ModularCurve/PhiGenSplits.lean",
-    # Topic 14, the shared slot prelude: the upstream vocabulary and the
-    # downstream at-slot roots API.
-    "FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
+    # Topic 14. Its upstream half, `Defs/PhiAtSlot.lean`, left this list on
+    # 2026-11-04: it carries its own `spec-pin:` wire now (18 ok, 4 own), and its
+    # four `ModularCurve.Nome` port-own declarations are `own:` rows in
+    # `spec/decl_markers.tsv`. What remains owned here is the downstream at-slot
+    # roots API:
     "FLTForHuman/ModularCurve/PhiSlotRoots.lean",
     # MIGRATED 2026-11-03 (the FFG capstone refactor): `Target`, `Collapse`,
     # `Capstone` (the renamed `Spine`), `Descent`, `DegreeStep`, `Nonmembership`
@@ -3787,7 +3788,9 @@ PORT_FILES = [
     # Post-SET-3 dedup: the counting core shared by SlotProduct and Gamma0Index,
     # and (2026-10-09) the whole Dedekind `ψ` subject moved out of `Defs/Jq.lean`
     # and merged with `DedekindPsiCount.lean` into this one `NumberTheory/` module.
-    "FLTForHuman/NumberTheory/DedekindPsi.lean",
+    # 2026-11-04: out of this list — the module now carries its own `spec-pin:`
+    # wire and is checked by `spec/check_port.py` (12 ok, 5 own), with its
+    # port-own declarations recorded in `spec/decl_markers.tsv`.
     # The general-weight Eichler–Shimura period map and its injectivity
     # (TOPIC-period-map-injectivity): the four generic facts in their subject
     # homes, the definitions, the leaves and the map.
@@ -5252,18 +5255,11 @@ OWN_PROOFS = {
     # helper of the Γ-rationality region.
     "qExpansion_coeff_width_fn",
     "map_eq",
-    # `NumberTheory/DedekindPsi.lean`: the generic block count is FLT-private in
-    # the pin and promoted here; `dedekindPsiFibre` is the port's rename of the pin's
-    # `h`/`slotH` (the name `slotH` is taken publicly by `ModularCurve.QExpN.slotH`),
-    # so `card_fibre`'s statement is the pin's modulo that rename.
-    "dedekindPsiFibre",
-    "card_fibre",
-    # The two prime-step case splits of `ψ`. The pin has them only inlined, and the
-    # port had written them privately in both `Spine.lean` and `SlotProduct.lean`
-    # (2026-10-09: one public copy, in `NumberTheory/DedekindPsi.lean`); the pin's
-    # `dedekindPsi_mul_prime` is the general form and is matched separately.
-    "dedekindPsi_mul_prime_dvd",
-    "dedekindPsi_mul_prime_not_dvd",
+    # `NumberTheory/DedekindPsi.lean` left this list on 2026-11-04, when the module
+    # was wired into `spec/check_port.py`: its port-own declarations
+    # (`dedekindPsiFibre`, `card_fibre`, the two prime-step case splits, and the
+    # module's two `Nat` bounds) are now `own:` rows in `spec/decl_markers.tsv`,
+    # where the reason for each is recorded next to it.
     "coeff_jq_zero",
     "coeff_jq_one",
     # The FFG strong-induction vocabulary. `Tight`/`Gen`/`Hall` are FLT's private

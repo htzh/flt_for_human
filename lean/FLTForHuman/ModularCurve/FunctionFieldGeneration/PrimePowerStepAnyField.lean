@@ -1487,9 +1487,7 @@ theorem pkg_of_socket (L : ℕ) [NeZero L] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ
       refine mffC_eq_fullC_of_steps d ?_ ?_
       · intro M _ q hq hMq
         haveI : Fact (Nat.Prime q) := ⟨hq⟩
-        have hMd : M < d := by
-          rw [← hMq]
-          exact lt_mul_of_one_lt_right (Nat.pos_of_ne_zero (NeZero.ne M)) hq.one_lt
+        have hMd : M < d := lt_of_mul_prime_eq (NeZero.ne M) hq hMq
         have hML : M ∣ L := (Dvd.intro q hMq).trans hdL
         have hξ : IsPrimitiveRoot ((ζ ^ (L / d) : Kˣ) : K) (M * q) := by
           rw [hMq]
@@ -1497,9 +1495,7 @@ theorem pkg_of_socket (L : ℕ) [NeZero L] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ
         have h := hKG1 M q _ hξ (pkg_lt M hMd hML)
         rwa [mffC_congr hMq] at h
       · intro M _ q hq hMq
-        have hMd : M < d := by
-          rw [← hMq]
-          exact lt_mul_of_one_lt_right (Nat.pos_of_ne_zero (NeZero.ne M)) hq.one_lt
+        have hMd : M < d := lt_of_mul_prime_eq (NeZero.ne M) hq hMq
         have hML : M ∣ L := (Dvd.intro q hMq).trans hdL
         exact (pkg_lt M hMd hML M dvd_rfl).2
 
@@ -1512,12 +1508,7 @@ theorem pkg_of_socket (L : ℕ) [NeZero L] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ
       obtain ⟨e, M, hpM, hdeM⟩ := Nat.exists_eq_pow_mul_and_not_dvd (NeZero.ne d) p hp.ne_one
       have hM0 : M ≠ 0 := fun h0 => NeZero.ne d (by rw [hdeM, h0, Nat.mul_zero])
       haveI : NeZero M := ⟨hM0⟩
-      obtain ⟨a, rfl⟩ : ∃ a, e = a + 1 := by
-        rcases e with _ | a
-        · exfalso
-          rw [pow_zero, one_mul] at hdeM
-          exact hpM (hdeM ▸ hpd)
-        · exact ⟨a, rfl⟩
+      obtain ⟨a, rfl⟩ := exists_eq_succ_of_eq_pow_mul hdeM hpd hpM
       have hd' : d = M * p ^ (a + 1) := by rw [hdeM, Nat.mul_comm]
       subst hd'
       have hMd : M < M * p ^ (a + 1) :=

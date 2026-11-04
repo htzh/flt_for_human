@@ -18,13 +18,32 @@
   These are two of the seven significant statements the capstone consumes
   directly; `hall_all` calls them without an intervening bundle.
 
-  ## Source
+  ## Source, and the two retired statements
 
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
   `P2M/Sol/S_ModularCurve_modularFunctionField_eq_full_of.lean` lines 553–727.
   `P2M/Sol/S_ModularCurve_jqN_div_mem_modularFunctionField.lean` is byte-identical
   (the two `S_` files are one development, shipped twice), and both nodes have
-  `Theorems/` wrappers, so the statements below are the wrappers' verbatim.
+  `Theorems/` wrappers:
+
+  * `Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean:8`
+  * `Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean:8`
+
+  **Both statements here are the port's, not the wrappers'.** They were respelled on
+  2026-11-04 and the pin's text was retired:
+
+  * the descent spelled the pushed minimal polynomial out in full, twice, and stated
+    `htw`/`hsp` as quantified root predicates over it; now it names the polynomial
+    (`Nome.pushedMinpoly`) and instantiates the two hypotheses at the slot values;
+  * the one-prime reduction passed its two induction facts as two hypotheses with a
+    five-binder prefix each, `Gen M` unfolded; now it is one conjoined hypothesis
+    (`Gen M ∧ jqN M ∈ F_N`) in the module's own vocabulary.
+
+  Because both are deliberate deviations, this module carries **no `spec-pin:` wire**:
+  a wire would diff nothing. The verbatim statements are preserved for reading and for
+  provenance, the pin's proof scripts are the proofs below (two hypothesis
+  applications retyped in the descent, nothing else), and the module is registered
+  with `spec/unwired_register.py` like `SlotValues.lean`.
 
   ## Dedup
 
@@ -40,9 +59,8 @@
   `phiAtSeed`/`phiAtSeed_map`/`phiAtSeed_monic`, `isRoot_prime_at_slot_iff`,
   `roots_prime_at_slot_roots_nodup`, `iota_jqN`, `TS_congr`; `Defs/Laurent`'s
   `coeffMap_injective`/`qExpand_injective`; `Defs/Fields`'s
-  `modularFunctionField*`/`adjoin_jq_le`/`jqd_mem_full`.
-  spec-pin: Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean
-  spec-pin: Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean
+  `modularFunctionField*`/`adjoin_jq_le`/`jqd_mem_full`, and `Defs/PhiAtSlot`'s
+  `Nome.pushedMinpoly` with `Defs/TS`'s `TS`.
 -/
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import FLTForHuman.FieldTheory.CommonRoot
@@ -63,30 +81,38 @@ set_option linter.style.haveILetI false
 noncomputable section
 
 open Polynomial HahnSeries IntermediateField
+open ModularCurve.Nome
 
 namespace ModularCurve
 
 /-- **Descent by one prime**: `j(q ^ M) ∈ ℚ(j(q), j(q ^ (M * p)))`.
 
-The unique-common-root principle applied to the level-`p` modular polynomial read
-at the level-`M * p` nome; the two slot hypotheses `htw`/`hsp` (later discharged
-by T19's slot product) rule out every other common root. Verbatim from
-`Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean`. -/
+The two hypotheses are the two facts about the roots of `pushedMinpoly K M (M * p)`
+— the minimal polynomial of `j(q ^ M)` read at the level-`M * p` nome — that make
+`j(q ^ M)` its unique common root with the level-`p` modular equation. `htw`: the
+only root at nome-level `(M * p) * M` is the untwisted one. `hsp`: the extra
+conjugate `j(q ^ ((M * p) * (M * p * p)))` of the level-`p` equation is not a root
+at all. Together: "the pushed minimal polynomial and `Φ_p` have the unique common
+root `x₀`".
+
+`K` is a certificate, not part of the mathematics: a field carrying a primitive
+`(M * p)`-th root of unity, so that the slot description
+(`Defs/PhiAtSlot`/`PhiSlotRoots`) can name all `ψ(M)` conjugates. The conclusion is
+over `ℚ`, and the last ten lines of the proof descend back along the injectivity of
+`coeffEmb` and `qExpand`.
+
+The engine is T4's `Polynomial.mem_range_of_unique_common_root`, applied to `A =
+phiAtSeed data ⟨jqN (M * p)⟩` (T14) and `B = pushedMinpoly K M (M * p)`.
+
+The statement is the port's, not the pin's: the pin spells the pushed minimal
+polynomial out in full, twice, and states `htw`/`hsp` as quantified root
+predicates. Conclusion and content are the same; the module header records the
+retirement. -/
 theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
     [hp : Fact (Nat.Prime p)] {K : Type*} [Field K] [Algebra ℚ K] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot (ζ : K) (M * p))
-    (htw : ∀ y : LaurentSeries K,
-      Polynomial.eval y ((minpoly (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-          (jqN M)).map (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
-            (algebraMap (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-              (LaurentSeries ℚ)))) = 0 →
-        ∀ w : Kˣ, y = qExpand K (M * p * M) (qTwist w (coeffEmb K jq)) → w = 1)
-    (hsp : ∀ y : LaurentSeries K,
-      Polynomial.eval y ((minpoly (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-          (jqN M)).map (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
-            (algebraMap (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-              (LaurentSeries ℚ)))) = 0 →
-        y ≠ coeffEmb K (qExpand ℚ (M * p) (jqN (M * p * p)))) :
+    (htw : ∀ w : Kˣ, (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * M) w) → w = 1)
+    (hsp : ¬ (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * (M * p * p)) 1)) :
     jqN M ∈ modularFunctionField (M * p) := by
   classical
   obtain ⟨data, -, -⟩ := exists_phiIrreducible_evalSymm p
@@ -152,13 +178,11 @@ theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
             (LaurentSeries ℚ)) := RingHom.ext fun x => rfl
 
   have hBev : ∀ y : LaurentSeries K, Polynomial.aeval y B = 0 →
-      Polynomial.eval y ((minpoly (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-        (jqN M)).map (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
-          (algebraMap (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-            (LaurentSeries ℚ)))) = 0 := by
+      (pushedMinpoly K M (M * p)).IsRoot y := by
     intro y hy
     rw [Polynomial.aeval_def, ← Polynomial.eval_map, hB, Polynomial.map_map] at hy
-    rwa [hcomp] at hy
+    rw [hcomp] at hy
+    exact hy
 
   have hA0 : A ≠ 0 := (phiAtSeed_monic data _).ne_zero
   have hAs : (A.map (algebraMap F (LaurentSeries K))).Splits := by
@@ -187,8 +211,15 @@ theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
       Polynomial.aeval y A = 0 → Polynomial.aeval y B = 0 → y = x₀ := by
     intro y hyA hyB
     rcases (hrootA y).mp hyA with hy1 | ⟨b, hb, hy1⟩
-    · exact absurd (hy1.trans hspread.symm) (hsp y (hBev y hyB))
-    · have hw := htw y (hBev y hyB) (1 * ζ ^ (b * (M * p / p))) hy1
+    · -- the extra conjugate of the level-`p` equation is a root of `B`: excluded outright
+      have hTS : y = TS K ((M * p) * (M * p * p)) 1 := by
+        rw [← iota_jqN]
+        exact hy1.trans hspread.symm
+      exact (hsp (hTS ▸ hBev y hyB)).elim
+    · -- a twisted root at nome-level `(M * p) * M`: `htw` forces the unit to be `1`
+      have hB := hBev y hyB
+      rw [hy1, coeffEmb_jq] at hB
+      have hw := htw (1 * ζ ^ (b * (M * p / p))) hB
       rw [one_mul] at hw
       have hb0 : b = 0 := by
         have hord : (M * p) ∣ b * M := by
@@ -214,15 +245,21 @@ theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
   rw [← hval]
   exact f.2
 
-/-- **The one-prime reduction of `Gen`**: if every factorization `N = M * p` has
-the one-prime step `jqN M ∈ F_N` and `Gen M`, then `modularFunctionField N` is
-the full divisor field. Verbatim from
-`Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean`. -/
+/-- **The one-prime reduction of `Gen`**: if every factorization `N = M * p` with `p`
+prime carries both `Gen M` and `jqN M ∈ F_N`, then `modularFunctionField N` is the
+full divisor field.
+
+The hypothesis is the induction step read as one statement, and its two halves are
+conjoined because a caller has one source for them: at the proper divisor `M = N / p`
+the strong-induction hypothesis is `Gen M`, and the descent supplies
+`jqN M ∈ F_N`. Splitting them into two hypotheses (the port's earlier shape, and the
+pin's) doubles a five-binder prefix at every call site and states `Gen M` unfolded.
+
+The statement is the port's: the pin passes the same two facts as two hypotheses.
+The module header records the retirement. -/
 theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]
     (hstep : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →
-      jqN M ∈ modularFunctionField N)
-    (hgen' : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →
-      modularFunctionField M = modularFunctionFieldFull M) :
+      Gen M ∧ jqN M ∈ modularFunctionField N) :
     modularFunctionField N = modularFunctionFieldFull N := by
   refine le_antisymm (modularFunctionField_le_full N) ?_
   rw [modularFunctionFieldFull, IntermediateField.adjoin_le_iff]
@@ -239,9 +276,9 @@ theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]
     haveI : NeZero (d * m') := ⟨Nat.mul_ne_zero hd0.out hm'0⟩
     have hdm' : (d * m') * m.minFac = N := by
       rw [Nat.mul_assoc, Nat.mul_comm m' m.minFac, ← hm', ← hm]
-    have hmem : jqN (d * m') ∈ modularFunctionField N := hstep (d * m') m.minFac hq hdm'
-    have hfull : modularFunctionField (d * m') = modularFunctionFieldFull (d * m') :=
-      hgen' (d * m') m.minFac hq hdm'
+    have hstep' := hstep (d * m') m.minFac hq hdm'
+    have hmem : jqN (d * m') ∈ modularFunctionField N := hstep'.2
+    have hfull : Gen (d * m') := hstep'.1
     have hsub : modularFunctionFieldFull (d * m') ≤ modularFunctionField N := by
       rw [← hfull, modularFunctionField, IntermediateField.adjoin_le_iff]
       rintro y (rfl | hy)

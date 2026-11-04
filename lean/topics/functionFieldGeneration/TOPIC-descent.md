@@ -121,6 +121,16 @@ theorem ModularCurve.modularFunctionField_eq_full_of (N : ℕ) [NeZero N]
     modularFunctionField N = modularFunctionFieldFull N
 ```
 
+**This block is now the retirement record, not the port's API** (2026-11-04). Both
+statements above were respelled in the port — the descent to name
+`Nome.pushedMinpoly` and instantiate `htw`/`hsp` at the slot values, the one-prime
+reduction to one conjoined hypothesis over `Gen` — so `Descent.lean` carries no
+`spec-pin:` wire and is tier 3. The port's statements, the reasoning, and the
+measurements are in [TOPIC-ffg-refactor.md](TOPIC-ffg-refactor.md) §13–§14. What
+still transcribes the pin is the **proof** of the descent: everything except
+`hBev`'s type and the two hypothesis applications is the pin's script, which is what
+§2.1 below describes.
+
 ### 2.1 The proof's shape (so the port is a transcription, not a redesign)
 
 `jqN_div_mem_modularFunctionField` (math/010 §4) sets

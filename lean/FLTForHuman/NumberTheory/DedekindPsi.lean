@@ -31,8 +31,18 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0.lean
 
   The pin writes the `ArithmeticFunction` view and the counting core `private` in
-  the two `S_` files; here they are promoted (or renamed, for the fibre value),
-  and the port-authored names go on the statement checker's `OWN_PROOFS`.
+  the two `S_` files; here they are promoted (or renamed, for the fibre value), so
+  they are recorded as port-own declarations in `spec/decl_markers.tsv` rather than
+  diffed. The two bounds of `### The proper-divisor bound` are port-authored too: the
+  pin writes them inline wherever a level is split as a prime multiple.
+
+  spec-pin: Definitions/Def_ModularCurve_X0.lean
+  spec-pin: P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean
+  spec-pin: Theorems/Thm_ModularCurve_dedekindPsi_prime.lean
+  spec-pin: Theorems/Thm_ModularCurve_dedekindPsi_prime_pow.lean
+  spec-pin: Theorems/Thm_ModularCurve_dedekindPsi_mul_of_coprime.lean
+  spec-pin: Theorems/Thm_ModularCurve_dedekindPsi_mul_prime.lean
+  spec-pin: Theorems/Thm_ModularCurve_dedekindPsi_pos.lean
 -/
 import Mathlib.NumberTheory.Divisors
 import Mathlib.NumberTheory.ArithmeticFunction.Misc
@@ -193,6 +203,28 @@ theorem dedekindPsi_pos (N : ℕ) (hN : N ≠ 0) : 0 < dedekindPsi N := by
   have hs : N ≤ ∑ d ∈ {d ∈ N.divisors | Squarefree d}, N / d := by
     simpa using Finset.single_le_sum (f := fun d => N / d) (fun d _ => Nat.zero_le _) h1
   exact lt_of_lt_of_le (Nat.pos_of_ne_zero hN) hs
+
+/-! ### The proper-divisor bound -/
+
+/-- **The proper-divisor bound.** A positive factor is below its prime multiple: from
+`N = m * p` with `p` prime, `m < N`. Every level of a divisor-lattice induction needs
+this step; it is stated with the equation so a caller can point at the level it has
+rather than re-deriving the inequality. -/
+theorem lt_of_mul_prime_eq {m p N : ℕ} (hm : m ≠ 0) (hp : p.Prime) (h : m * p = N) :
+    m < N := by
+  rw [← h]
+  exact lt_mul_of_one_lt_right (Nat.pos_of_ne_zero hm) hp.one_lt
+
+/-- **The prime-power exponent.** If `d = p ^ k * M` with `p ∣ d` and `p ∤ M`, then
+`k = a + 1` for some `a`: the exponent `0` would give `d = M`, contradicting `p ∤ M`.
+This is the case split that a `p ^ k * M` decomposition of a level always needs. -/
+theorem exists_eq_succ_of_eq_pow_mul {d M p k : ℕ} (h : d = p ^ k * M) (hpd : p ∣ d)
+    (hpM : ¬ p ∣ M) : ∃ a, k = a + 1 := by
+  have hk : k ≠ 0 := by
+    rintro rfl
+    rw [h, pow_zero, one_mul] at hpd
+    exact hpM hpd
+  exact Nat.exists_eq_succ_of_ne_zero hk
 
 /-! ### The counting core -/
 

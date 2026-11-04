@@ -6,6 +6,20 @@
 except `SlotValues` is `spec-pin:`-wired, the Lean/spec consumers are rewired, and
 the presentation is retargeted. Wave 6 (final verification and docs) remains.
 
+**Wave 7 (landed 2026-11-04): the assembler interfaces.** The
+structure the refactor produced is right, but the three FFG *assemblers* still
+carry the pin's proof script in their signatures —
+`jqN_div_mem_modularFunctionField` states 16 lines to say
+`jqN M ∈ modularFunctionField (M * p)`, and the caller writes 75 lines of glue
+(`Capstone.lean:141–215`) to speak it. Wave 7 named the vocabulary, gave the pinned
+names readable statements (both of them: §13 and §14), and moved the glue to a
+module whose subject it is. It **retired both of `Descent.lean`'s verbatim
+statements**, kept their names, and — because no declaration in the module then
+mirrored the pin — retired that module's `spec-pin:` wire with it (§14.4). The
+verbatim text stays in [TOPIC-descent.md](TOPIC-descent.md) §2 and in git history,
+which is where a fidelity record belongs. The port-wide generalisation is
+[../TOPIC-assembler-interfaces.md](../TOPIC-assembler-interfaces.md).
+
 **Naming, read this first.** The two module names swap roles, so the plan is
 explicit about "old" and "new":
 
@@ -57,6 +71,12 @@ The original development was fine; this restores it.
 5. Retarget the presentation to `Capstone` and delete its `Inputs`/assembly and
    tail sections. No second presentation is needed: the old capstone is gone, and
    the tail is not part of that narrative.
+6. **(wave 7, §13)** Give the assemblers back: name the pushed minimal polynomial
+   and the nome map, rewrite the descent's statement in place (the pin's name, a
+   readable signature, the pin's proof script with two hypothesis applications
+   retyped), record the retirement as an `own:` row, and move `Capstone.lean`'s
+   `Shapes` glue into `DescentFromSlots.lean` behind one `Hall M`-level statement.
+   One statement is retired, no wire is.
 
 ---
 
@@ -397,6 +417,16 @@ already on `spec-pin:` (`MffCMulPrime`, `PrimePowerStepAnyField`, `SlotProduct`,
 `SlotProductAnyField`) carry no legacy `-- pin:`/`-- own:` markers and report
 0 mismatch / 0 missing today, so they need only the re-check in §9, not a header
 edit.
+
+The counts above are the wave 1–6 values. **Wave 7 (§13–§14) took
+`Descent.lean` off the wire entirely**: both of its public statements are now
+deliberate deviations, so its two `spec-pin:` lines were removed and the module is
+tier 3 (built, statements not diffed, like `SlotValues`), re-registered by
+`spec/unwired_register.py --rebuild` — 106 unwired modules, 3100 public
+declarations. One module was added at tier 3 (`DescentFromSlots.lean`). The only
+`own:`-eligible declarations are the two `def`s in `Defs/PhiAtSlot.lean`, which are
+public and wired, so they carry `own:` rows (§13.7); that is now the wave's last
+checker step, deliberately deferred.
 
 `Capstone.lean`'s private `hall_all` is not diffed; the pin's is private too. The
 frontier name scan still sees the port's declaration, so no work is lost.
@@ -925,3 +955,706 @@ and updated the metadata. The sheet renders and compiles with 0 errors. Logs:
 this file's status to done with the measured numbers. Report the final
 `check_port` table, consumer error counts, axiom probe, and whether a tree build
 is still needed.
+
+**Wave 7 — the assembler interfaces (§13–§14). ✅ done 2026-11-04.** Five steps,
+each green before the next: 7a the vocabulary (`Defs/PhiAtSlot.lean`: `nomeMap`,
+`pushedMinpoly`, `nomeMap_qExpand`, in `ModularCurve.Nome`); 7b the descent's
+statement rewritten in place under the pin's name (16 → 6 lines; the pin's proof
+kept, with `hBev` retyped and the two hypothesis applications changed — §13.3);
+7c `FunctionFieldGeneration/DescentFromSlots.lean` (156 lines, 75 of them the glue
+moved out of `Capstone`, now behind `jqN_mem_modularFunctionField_of_hall`); 7d
+`Capstone.lean`'s `Shapes` section deleted and its call site reduced to
+`jqN_mem_modularFunctionField_of_hall M p hallM` (337 → 250 lines); 7e the second
+assembler (§14), which retired the module's wire. Builds and axioms in §14.5.
+Remaining: the two `own:` rows for `Defs/PhiAtSlot.lean` and the presentation
+JSON (§13.5a) — checker bookkeeping, deliberately last.
+
+---
+
+## 13. Wave 7 — the assembler interfaces
+
+**Status (2026-11-04): executed, green.** The vocabulary of 7a and the replacement
+statements of 7b were first elaborated against the pre-wave build
+(`lean/tmp/probe_descent_interface.lean`), then landed and rebuilt module by module.
+Everything below is the plan as written; §14 records what the execution changed
+(the wire move, which this section's §13.6(b) did not anticipate) and §14.5 the
+measured numbers.
+
+The general statement of the problem — what a transcribed signature records, how
+to audit one, and the mechanism table — is
+[../TOPIC-assembler-interfaces.md](../TOPIC-assembler-interfaces.md). This section
+is the FFG instance: the exact edits, the decisions behind them, and the gates.
+
+### 13.1 The diagnosis, in this directory
+
+The refactor above fixed the *structure* (no `Inputs`, private `hall_all`, one
+capstone). It left the three assemblers stating the pin's proof script. The
+sharpest instance:
+
+```lean
+theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
+    [hp : Fact (Nat.Prime p)] {K : Type*} [Field K] [Algebra ℚ K] (ζ : Kˣ)
+    (hζ : IsPrimitiveRoot (ζ : K) (M * p))
+    (htw : ∀ y : LaurentSeries K, Polynomial.eval y ((minpoly …).map …) = 0 →
+      ∀ w : Kˣ, y = qExpand K (M * p * M) (qTwist w (coeffEmb K jq)) → w = 1)
+    (hsp : ∀ y : LaurentSeries K, Polynomial.eval y ((minpoly …).map …) = 0 →
+      y ≠ coeffEmb K (qExpand ℚ (M * p) (jqN (M * p * p)))) :
+    jqN M ∈ modularFunctionField (M * p)
+```
+
+16 lines for `jqN M ∈ modularFunctionField (M * p)`, with five binders the
+conclusion never mentions. Decoded, it says:
+
+> Let `p` be prime, let `K` carry a primitive `(M * p)`-th root of unity, and let
+> `P` be the minimal polynomial of `j(q ^ M)` pushed to the level-`M * p` nome.
+> If every root of `P` of the shape `j(w q ^ (M * p * M))` has `w = 1`, and
+> `j(q ^ ((M * p) * (M * p * p)))` is not a root of `P`, then
+> `j(q ^ M) ∈ ℚ(j(q), j(q ^ (M * p)))`.
+
+Four defects, all instances of the general list:
+
+1. **The hypotheses are the proof's `rcases`.** `Descent.lean:189` splits the
+   Φ-side root description into two branches and dispatches them with `hsp` and
+   `htw`. The mathematics is one fact: `P` and the level-`p` equation have the
+   unique common root `x₀`.
+2. **The pushed minimal polynomial is anonymous**, and the term is written out in
+   full in the signature twice, in the proof once, and in `Capstone`'s three glue
+   lemmas. Six root-predicate hypotheses in two files.
+3. **A binder the conclusion never mentions** (`K`, `ζ`, `hζ`) is a base change:
+   the proof passes to `CyclotomicField (M * p) ℚ` and its last ten lines are the
+   descent back.
+4. **The theorem `obtain`s its own datum** (`Descent.lean:92`), so no hypothesis
+   can mention the Φ-side polynomial. That is why `htw`/`hsp` constrain only the
+   minimal-polynomial side, and why the caller must re-derive the Φ-side root
+   shape: `Capstone.lean:141–215`, 75 lines of glue (`root_shape`, `htw_of`,
+   `hsp_of`) plus a 7-line call site that builds the cyclotomic field, the root of
+   unity, and two lambdas.
+
+### 13.2 7a — the vocabulary
+
+Home: `Defs/PhiAtSlot.lean` (already imported by `Descent.lean` and
+`SlotProduct.lean`, and already the module for "polynomials at a slot" —
+`phiAtSeed` is its other half). Namespace: **`ModularCurve.Nome`**.
+
+```lean
+/-- The level-`N` nome map: read a function of `ℚ(j(q))` at `q ↦ q ^ N`,
+coefficients extended to `K`. -/
+def nomeMap (K : Type*) [Field K] [Algebra ℚ K] (N : ℕ) [NeZero N] :
+    ℚ⟮jq⟯ →+* LaurentSeries K :=
+  ((coeffEmb K).comp (qExpand ℚ N)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))
+
+/-- The pushed minimal polynomial of `j(q ^ M)` at the level-`N` nome. -/
+def pushedMinpoly (K : Type*) [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M]
+    (N : ℕ) [NeZero N] : Polynomial (LaurentSeries K) :=
+  (minpoly ℚ⟮jq⟯ (jqN M)).map (nomeMap K N)
+
+/-- The pin's inline spelling, definitionally. Nothing downstream rewrites. -/
+theorem pushedMinpoly_def (M N : ℕ) [NeZero M] [NeZero N] :
+    pushedMinpoly K M N
+      = (minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ N)).comp
+          (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) := rfl
+```
+
+Plus the one shared bridge. The same equation is proved twice today, in the two
+multiplication orders — `Capstone.lean:152–156` (`p` on the right, five lines
+with a `mul_comm`) and `SlotProduct.lean:356–362` (`k` on the left, three lines
+under `subst hN`). One statement covers both:
+
+```lean
+theorem nomeMap_qExpand (M e : ℕ) [NeZero M] [NeZero e] :
+    (qExpand K e).comp (nomeMap K M) = nomeMap K (M * e) := by
+  refine RingHom.ext fun z => ?_
+  simp only [RingHom.comp_apply]
+  rw [coeffEmb_qExpand, coeffEmb_qExpand, qExpand_qExpand]
+  exact qExpand_congr (mul_comm e M) _
+```
+
+`nomeMap_qExpand` is not decoration: it is the step that turns the level-`M`
+datum into the level-`M * e` datum, and writing it once removes the
+re-association blocks in the glue. The `SlotProduct` site uses the other order,
+so it becomes this lemma followed by `qExpand_congr (mul_comm k M')`; that is a
+one-line call site, not a second proof.
+
+### 13.3 7b — retire the text, keep the name
+
+**The decision (2026-11-04, the user's): the verbatim statement goes.** The
+question is what "go" means, and the answer is *the text, not the name*: the pin's
+declaration name stays and carries the readable statement. The name is the pin
+linkage — it is what a reader arriving from
+`Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean` types, what the
+`spec/` consumer `#check`s, and what the presentation labels — so the name is the
+one part that is not the problem. The 16-line text is.
+
+Keeping both was the previous recommendation and it is wrong, for a reason I
+missed: the readable declaration would be a 9-line adapter, so the **proof** — the
+60 lines a reader actually wants — would stay under the inscrutable statement. The
+reader following the pin name would land on the unreadable text and have to be
+told to look elsewhere. Two declarations of one theorem, with the mathematics
+under the wrong one, is a comprehension cost paid by every reader; the checker's
+convenience is not worth it.
+
+New signature under the same name:
+
+```lean
+/-- **Descent by one prime**: `j(q ^ M) ∈ ℚ(j(q), j(q ^ (M * p)))`.
+
+`K` is only a certificate: it is a field carrying a primitive `(M * p)`-th root of
+unity, chosen so that every `ψ(M)` conjugate of `j(q ^ M)` is visible after the
+pushed minimal polynomial is read at the level-`M * p` nome. `htw` says the only
+root at nome-level `(M * p) * M` is the untwisted one, `hsp` says the extra
+conjugate of the level-`p` equation at that slot is not a root; together they are
+"the pushed minimal polynomial and `Φ_p` have the unique common root `x₀`". -/
+theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
+    [hp : Fact (Nat.Prime p)] {K : Type*} [Field K] [Algebra ℚ K] (ζ : Kˣ)
+    (hζ : IsPrimitiveRoot (ζ : K) (M * p))
+    (htw : ∀ w : Kˣ, (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * M) w) → w = 1)
+    (hsp : ¬ (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * (M * p * p)) 1)) :
+    jqN M ∈ modularFunctionField (M * p)
+```
+
+**How much of the proof moves.** Not much, and the point matters because an
+earlier version of this plan called the rewrite a redesign and used that to
+justify keeping both. The pin's script is untouched except at the two places where
+the hypotheses are *applied*:
+
+* `hBev` (lines 154–161) is retyped: its conclusion becomes
+  `(pushedMinpoly K M (M * p)).IsRoot y` instead of the spelled-out
+  `Polynomial.eval y ((minpoly …).map …) = 0` (defeq via `IsRoot` and
+  `pushedMinpoly_def`, so the body is unchanged);
+* branch 1 of the `rcases` (line 190) currently applies `hsp` to `y` and an
+  equation; the new `hsp` takes the *slot value*, so the proof first transports
+  `hB := hBev y hyB` along `hy1.trans hspread.symm`, then along
+  `iota_jqN (M * p) (M * p * p)` — which reads
+  `y = TS K ((M * p) * (M * p * p)) 1` — and applies `hsp` there;
+* branch 2 (line 191) currently passes `y` and the equation to `htw`; the new
+  `htw` takes the unit, so it becomes `htw (1 * ζ ^ (b * (M * p / p))) (by rw [← hy1, coeffEmb_jq]; exact hB)`.
+
+Everything else stays: the `obtain`ed datum, `hseed`/`hdist`/`hspread`,
+`hrootA`/`hBev`/`hA0`/`hAs`/`hAnd`, the `mem_range_of_unique_common_root`
+application, and the injectivity strip. That is why the transcription policy
+([TOPIC-descent.md](TOPIC-descent.md) §2.1) is *satisfied*, not violated: the
+script is the pin's, and only the hypothesis types at two application sites are
+retyped. What the wave does **not** do is extract the `huniq`-shaped core — that
+would restructure the proof, and it is the deeper fix listed as open in
+[../TOPIC-assembler-interfaces.md](../TOPIC-assembler-interfaces.md) §9.
+
+**The record, in two places.** The module's `## Source` block gains a line
+naming the wrapper whose text was retired and the date; and
+`spec/decl_markers.tsv` gains
+
+```text
+FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean<TAB>ModularCurve.jqN_div_mem_modularFunctionField<TAB>own: readable respelling of Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean:8 -- verbatim text retired 2026-11-04 (TOPIC-ffg-refactor.md §13); htw/hsp one-lined, conclusion unchanged
+```
+
+**What is given up, stated plainly.** The wire stops diffing this statement. The
+port's own statement becomes the spec, so there is no transcription left to drift;
+what is lost is the mechanical check that the port still *states the pin's
+theorem*, and that becomes an editorial assertion carried by the `own:` reason and
+the pinned text quoted in [TOPIC-descent.md](TOPIC-descent.md) §2. Accepting that
+is the point of the wave: the port exists to be comprehended, and a statement kept
+only to satisfy a text diff is a statement kept for the tool.
+
+### 13.4 7c — the glue module
+
+New module `FLTForHuman/ModularCurve/FunctionFieldGeneration/DescentFromSlots.lean`,
+importing `Descent`, `SlotProduct`, `Defs/PhiAtSlot` (the vocabulary of 7a),
+`Defs/TS`, `Defs/Cyclotomic`, `Mathlib.NumberTheory.Cyclotomic.Basic`:
+
+* `private root_shape`, `private htw_of`, `private hsp_of` — moved verbatim from
+  `Capstone.lean:145–214`, with their `hy : Polynomial.eval y ((minpoly …).map …)
+  = 0` hypothesis replaced by `(pushedMinpoly K M (M * p)).IsRoot y`
+  (definitionally the same, one line instead of three);
+* `theorem jqN_mem_modularFunctionField_of_hall (M : ℕ) [NeZero M] (p : ℕ)
+  [Fact (Nat.Prime p)] (hall : Hall M) : jqN M ∈ modularFunctionField (M * p)` —
+  the interface the capstone actually wants: no `K`, no `ζ`, no hypothesis about
+  roots. It is `jqN_div_mem_modularFunctionField` (as rewritten in 7b) at
+  `K := CyclotomicField (M * p) ℚ`, `ζ := cycUnit (M * p) ^ (M * p / M)`, with
+  `htw_of`/`hsp_of` supplying the two slot facts.
+
+Why a separate module and not inside `Descent.lean`: `Descent` is T15, whose only
+input is the `Φ_p` cone; `DescentFromSlots` is T15 **plus** T19's slot product. The
+pin keeps this glue inside `S_ModularCurve_functionFieldGeneration.lean`'s proof
+(lines 541–613, private). Making `Descent` import `SlotProduct` would drag T19's
+development into every consumer of the descent to save one file, and the playbook
+(§5) makes a module a subject decision, not a scheduling one. Today no consumer
+cone grows either way: `Capstone` — the only consumer — already imports both.
+
+**Tier 3**, no `spec-pin:` header, on the `SlotValues` precedent (§5.3): every
+public declaration in the module is the port's own (`_of_hall` has no pin
+counterpart), so a wire would diff nothing and an `own:` row would record "ours"
+once. The header must say this, and `spec/unwired_register.py --rebuild` must be
+re-run so the module appears in the register.
+
+### 13.5 7d — the caller
+
+In `Capstone.lean`:
+
+* delete `section Shapes … end Shapes` (lines 141–215, **75 lines**);
+* replace the 7-line call site in `hall_all` with
+  ```lean
+  have hmem := jqN_mem_modularFunctionField_of_hall M p hallM
+  rw [mff_congr hMp] at hmem
+  exact hmem
+  ```
+  (the surrounding `have : Fact (Nat.Prime p) := ⟨hp⟩` and `hallM` stay as they
+  are);
+* add `import …FunctionFieldGeneration.DescentFromSlots`; **verify by build**
+  whether `Mathlib.NumberTheory.Cyclotomic.Basic` and `Defs/Cyclotomic` become
+  droppable — their only remaining uses in this module are the call site being
+  replaced (`cycUnit`, `CyclotomicField` appear nowhere else), and so is
+  `Defs/TS`.
+* update the header: the provenance ranges `199–240` (the cyclotomic root) and
+  `467–613` (`tight_one` through `hsp_of`) at `Capstone.lean:3–10` move to the new
+  module's provenance block, and the `## Cyclotomic roots` note
+  (`Capstone.lean:61–66`) moves with the imports it describes.
+
+### 13.5a The downstream record of a retired statement
+
+**The renderer does not read Lean.** `presentation/render.py` takes the JSON as the
+source of truth: it emits `#check <name>` (and `#print` for definitions), so the
+*checked* type is always Lean's, but every quoted statement (`premises[].lean`), the
+`math`/`note` prose, the `file:line` and the headings are the JSON's own text.
+`--check-only` validates the schema plus the cross-references (ids unique, every
+definition and declaration reachable from a section, every premise cited by a step,
+narrative backticks balanced) — never the `lean` field against the declaration. So a
+stale JSON regenerates into a sheet that **still compiles** while describing the old
+statement; the mismatch is invisible unless you read it. The `file:line` fields rot
+silently for the same reason (the descent went from `Descent.lean:74` to `:111`).
+
+Three places state what the theorem says. None of them is a Lean dependency, and
+all three must move in the same wave or the tree contradicts itself:
+
+1. **`spec/ModularCurveConsumer.lean`, zone M** (`:692–706`, live prose): it says
+   the `htw`/`hsp` "stay arguments, exactly as the pin's node has them and as T19
+   will later discharge them". Still true in substance, wrong in detail — one-lined
+   now, and T19 discharges them in `DescentFromSlots`. Its two `#check`s (`:707`,
+   `:708`) are signature-agnostic and keep working.
+2. **`presentation/function-field-generation/capstone.json`** — the tracked source
+   of the generated sheet. **Done 2026-11-04** (+34/−12): `premises[6]` and
+   `premises[7]` got their new `lean` text, `math`, `note` and line numbers
+   (`:220 → :260`, `:74 → :111`); `steps[5].math` and `steps[8].why` were reworded
+   for the discharged slot hypotheses and the `DescentFromSlots` home; section G's
+   "private helpers" paragraph moved `root_shape`/`htw_of`/`hsp_of` to
+   `DescentFromSlots`; and two definitions were **added** — `ModularCurve.Nome.nomeMap`
+   and `ModularCurve.Nome.pushedMinpoly` — because the statements now name them and
+   a sheet should `#print` the vocabulary it quotes. Regenerated with
+   `python3 presentation/render.py presentation/function-field-generation/capstone.json`
+   and elaborated: `lake env lean presentation/FunctionFieldGenerationCapstone.lean`,
+   exit 0, 0 errors (the generated sheet is git-ignored; the JSON is the edit).
+3. **[TOPIC-descent.md](TOPIC-descent.md) §1–§2** quotes the pin's statement
+   verbatim under the heading "the statements, from the `Theorems/` wrappers,
+   verbatim". That is now the *retirement record* — the place the pinned text
+   lives — so it stays, and **gained the note (done 2026-11-04)** saying that the
+   block is the record, not the API, and where the port's statements are.
+
+What is *not* touched: the dated log entries in `spec/ModularCurveConsumer.lean`
+(`:1410–1418`, "Descent result (2026-09-22)") and in `lean/logs/` are history and
+are not rewritten — the refactor's own rule.
+
+### 13.6 The two decisions, with their measured basis
+
+**(a) `private`, or a namespace?** Both, in their own layer — and the two
+questions are independent, which is the part that is easy to get wrong:
+
+* the checker is **blind to namespaces** (matching keys on the last name
+  component and the statement's content hash), so a sub-namespace neither creates
+  nor removes a `missing`/`mismatch`;
+* a **new public declaration** in a wired module is not invisible: measured on a
+  copy of `Descent.lean` (before 7b, when both of its statements were diffable),
+  adding one public `def` yields `2 ok, 0 mismatch, 1 missing` — a **FAIL**; the
+  same `def` as `private` yields `2 ok`; the same `def` with an `own:` row yields
+  `2 ok, 1 own` — a pass.
+
+So: the two `def`s are **public**. They cannot be `private`: `private` is not
+reachable across modules (playbook §6), and the glue module's `root_shape`,
+`htw_of`, `hsp_of` — `private` themselves — must still *state*
+`pushedMinpoly` in their hypotheses. They are public **in a sub-namespace**,
+because the port's `ModularCurve` is otherwise exactly the pin's namespace and a
+bare port-invented name there is a collision waiting for a re-pin. Cost of the
+namespace: one `open` per consumer. Cost of the `own:` rows: three lines in
+`spec/decl_markers.tsv` — two for the `def`s, one for the retired statement of
+7b. The three glue lemmas and everything else new stays `private`, which costs
+nothing.
+
+The `own:` row's declaration column must be the name **the checker parses**, not
+the name Lean prints: read it from `spec/check_port.py --json`. A name the parser
+did not produce is reported as `STALE MARKER` *and* leaves the declaration
+`missing`, so the module still fails and the marker did nothing (observed while
+probing this wave).
+
+**(b) `spec-pin`: keep the wire; retire the statement, not the wire.** The
+temptation, once 7b removes the text, is to remove the corresponding `spec-pin:`
+line as well. That is the wrong granularity, three times over:
+
+1. **The wire is per module and lists pin *files*.** `Descent.lean`'s wire is
+   `modularFunctionField_eq_full_of` **and** `jqN_div_mem_modularFunctionField`.
+   Retiring one declaration's text says nothing about the other, which still
+   mirrors its wrapper exactly and must keep being diffed. Removing the wire to
+   "clean up" after 7b would silently unverify it.
+2. **The retirement is recorded per declaration, by `own:`.** What is measured is
+   the verdict: on a wired copy of `Descent.lean`, a declaration with an `own:`
+   row reports `own` (pass) and the same declaration without one reports
+   `missing` (FAIL). The row is both the mechanism and the audit trail, because
+   its reason names the wrapper file and says what was retired. The count after
+   7b is `1 ok + 1 own` (§13.7) — arithmetic on how many statements the module
+   still mirrors, not a measurement.
+3. **A module with no wire is not diffed at all** (`check_module` returns `None`),
+   so dropping it would also stop verifying any statement transcribed into the
+   module later, and would hide the module from `check_port --all`.
+
+So the rule the wave establishes, and which the port-wide note states generally
+([../TOPIC-assembler-interfaces.md](../TOPIC-assembler-interfaces.md) §6):
+
+> **Retire the *text*, keep the *name* and the *wire*.** The name carries the pin
+> linkage, the `own:` reason carries the provenance, the notes carry the verbatim
+> text, and the wire keeps every *other* declaration in the module under the diff.
+> Drop a wire only when a whole module stops mirroring a pin file.
+
+This is not a policy the user wanted debated further — it is the mechanism that
+was already in the tooling (`own:` = tier 2, "not diffed", with a recorded
+reason), used at declaration granularity instead of module granularity.
+
+**Superseded during execution (2026-11-04).** The paragraph above assumes that one
+statement is retired and the other still mirrors its wrapper. §14 retired the
+second as well, at which point `Descent.lean`'s wire diffed nothing and was removed
+— the module is tier 3 now. The rule is refined there and in the port-wide note:
+*retire the text, keep the name; retire the wire when no declaration in the module
+mirrors the pin any more.*
+
+### 13.7 Post-wave-7 `check_port` table
+
+| module | wire | expected |
+|---|---|---|
+| `Defs/PhiAtSlot.lean` | unchanged | current count + **2 own** (`ModularCurve.Nome.nomeMap`, `.pushedMinpoly`) |
+| `Descent.lean` | **removed** (7e, §14.4) | not diffed (tier 3) — both statements are deliberate deviations |
+| `DescentFromSlots.lean` (new) | none (tier 3) | not diffed; in the `unwired_register` |
+| `Capstone.lean` | unchanged | **4 ok**, unchanged |
+| every other FFG module | unchanged | unchanged (§5.2) |
+
+### 13.8 Gates
+
+```bash
+cd lean
+# 7a, 7b, 7c: each module silent, then its own diff
+timeout 110 lake env lean FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean
+timeout 110 lake env lean FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean
+timeout 110 lake env lean FLTForHuman/ModularCurve/FunctionFieldGeneration/DescentFromSlots.lean
+python3 spec/check_port.py FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean --force --json | head -40
+python3 spec/check_port.py FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean --force
+# 7d: the caller, then the capstone cone (the only consumer)
+timeout 110 lake env lean FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean
+python3 spec/check_port.py FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean --force
+# the register and the duplicates
+python3 spec/unwired_register.py --rebuild && python3 spec/unwired_register.py --check
+cd ../tools/deps && python3 dedup.py --module FLTForHuman/ModularCurve/FunctionFieldGeneration --no-json
+```
+
+### 13.9 Definition of done
+
+- [x] `grep -c "minpoly ℚ⟮jq⟯"` is 0 in `Capstone.lean` and
+      `DescentFromSlots.lean`; in `Descent.lean` the surviving occurrences are only
+      the `minpoly` that defines the pushed polynomial `B` inside the proof.
+- [x] `Capstone.lean` has no `section Shapes`, no `CyclotomicField`, and no
+      two-lambda call site (`337 → 250` lines).
+- [x] `DescentFromSlots.lean` carries the moved glue, the `Hall M` interface, a
+      header that justifies tier 3, and no `sorry`.
+- [x] `#print axioms` on `jqN_div_mem_modularFunctionField`,
+      `modularFunctionField_eq_full_of`, `jqN_mem_modularFunctionField_of_hall` and
+      `functionFieldGeneration` is `[propext, Classical.choice, Quot.sound]`.
+- [x] The retired verbatim statements are quoted in
+      [TOPIC-descent.md](TOPIC-descent.md) §2 and the module header names both
+      wrappers and what deviates, so the drop is auditable without the wire.
+- [x] `Descent.lean` is tier 3 and in the rebuilt `unwired_register`
+      (106 modules, 3100 public declarations).
+- [ ] The two `own:` rows for `Defs/PhiAtSlot.lean` (`ModularCurve.Nome.nomeMap`,
+      `.pushedMinpoly`) are in `spec/decl_markers.tsv` with the parser's names and
+      `--strict-markers` is clean — the one piece of checker bookkeeping left,
+      deliberately deferred at the user's direction.
+- [x] The presentation `capstone.json` is updated and regenerates to a sheet that
+      elaborates with 0 errors (§13.5a), and `spec/ModularCurveConsumer.lean` zone M
+      carries the new prose plus four `#check`s (0 errors). [TOPIC-descent.md](TOPIC-descent.md)
+      §2 marks itself the retirement record.
+
+### 13.10 Risks
+
+* **The retired statement no longer drifts against anything.** After 7b the port's
+  statement *is* the spec: if it is later edited, no diff will notice that it no
+  longer says what the pin says. The two mitigations are the `own:` reason (which
+  names the wrapper) and the verbatim quote in
+  [TOPIC-descent.md](TOPIC-descent.md) §2; when either is edited, the other must be
+  visited in the same change. This is the deliberate price of the retirement, not
+  an oversight — do not "restore" the verbatim statement to get the diff back.
+* **The proof edit is small but not trivial.** 7b retypes two hypothesis
+  applications and `hBev`; if the `rw [← hy1, coeffEmb_jq]` step does not close
+  against `TS`, the fallback is to keep the old hypothesis *shape* and state the
+  readable one as an `iff`-lemma beside it — which reopens the two-declaration
+  question and should be reported before proceeding, not decided silently.
+* **Tier 3 is a discoverability cost.** The glue module's public theorem is
+  invisible to anyone grepping for a diff. The register is the mitigation; the
+  header must name the pin lines it transcribes.
+* **The namespace is a consumer-visible decision.** `ModularCurve.Nome` is
+  reachable only with an `open`; if a reviewer objects, moving the two `def`s to
+  bare `ModularCurve` is a rename plus two `own:` row edits, and the checker
+  counts do not move — but the collision exposure returns.
+* **Build budget.** 7a–7d rebuild `PhiAtSlot`, `Descent`, the glue, `Capstone`
+  and then the capstone cone. Per AGENTS, no tree `lake build`; take the targeted
+  checks in §13.8 and stop if a single `lake env lean` approaches two minutes.
+
+---
+
+## 14. Wave 7e — the second assembler, and the wire
+
+**Status: landed 2026-11-04**, after §13's four steps. `modularFunctionField_eq_full_of`
+did need a refactor, but a much smaller one, and for a different reason: it has
+**none** of the descent's pathologies — no splitting field, no root predicate, no
+auxiliary datum, no base change, no case split. It had two of the six symptoms in
+the port-wide note plus one defect the list does not name.
+
+### 14.1 Before and after
+
+Before (5 lines, two hypotheses with the same five-binder prefix):
+
+```lean
+theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]
+    (hstep : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →
+      jqN M ∈ modularFunctionField N)
+    (hgen' : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →
+      modularFunctionField M = modularFunctionFieldFull M) :
+    modularFunctionField N = modularFunctionFieldFull N
+```
+
+After (3 lines, one hypothesis):
+
+```lean
+theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]
+    (hstep : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →
+      Gen M ∧ jqN M ∈ modularFunctionField N) :
+    modularFunctionField N = modularFunctionFieldFull N
+```
+
+Three defects, in decreasing order of cost:
+
+1. **`Gen M` was stated unfolded** — and under the pin's `hgen'` name. `Gen` is the
+   module's own `abbrev` for exactly that field equality (`Defs/Fields.lean:229`),
+   so the hypothesis re-derived vocabulary the port had already built for it.
+2. **The five-binder prefix was written twice** (`∀ (M : ℕ) [NeZero M] (p : ℕ),
+   p.Prime → M * p = N →`). Symptom 3 of the port-wide note at binder granularity.
+3. **The two facts are consumed together and were passed apart.** Both come from one
+   source — `Hall M` — at the only call site, so no caller can supply one without the
+   other; conjoining them makes the hypothesis one sentence, "the induction step at
+   level `N`".
+
+The `[NeZero M]` binder inside the quantifier is **not** a defect and stays: `jqN M`
+is ill-typed without the instance, so it cannot be hoisted out of the `∀`. This is
+the one place where the "binder noise" heuristic must not be applied.
+
+### 14.2 What it bought at the call site
+
+`Capstone.lean`'s `hall_all` carried two lambdas with the same header — `intro M _
+p hp hMp` and the `hMlt` derivation written twice, 12 lines. It is now one lambda
+(8 lines), and the second fact is `hallM`'s own second component:
+
+```lean
+    refine modularFunctionField_eq_full_of d ?_
+    intro M _ p hp hMp
+    ...
+    have hallM : Hall M := hprop M ⟨p, hMp.symm⟩ hMlt
+    have hmem := jqN_mem_modularFunctionField_of_hall M p hallM
+    rw [mff_congr hMp] at hmem
+    exact ⟨(hallM M dvd_rfl).2, hmem⟩
+```
+
+The proof body changed in two lines: `hstep …` / `hgen' …` became
+`hstep' := hstep …` with `hstep'.2` / `hstep'.1`.
+
+### 14.3 Verdict
+
+Yes, it needed refactoring — but the question worth recording is *which* refactor.
+The §13 recipe would have been overkill: there is no case split to name and no seam
+to seal. What it needed was (a) the module's existing vocabulary (`Gen`) and (b) one
+hypothesis per mathematical fact. That is the cheap end of the same recipe, and it
+was worth doing because the duplication had migrated to the *call site*: a symptom
+the statement alone does not show, and the reason to read the caller before deciding
+an assembler is fine.
+
+### 14.4 The wire, as predicted
+
+With both of `Descent.lean`'s public statements now deliberate deviations, its
+`spec-pin:` wire diffed nothing. Left in place it would have reported two
+`MISMATCH`es — a red module that says "the port drifted" when the port chose. So:
+
+* the two `spec-pin:` lines are removed from the header and replaced by a
+  `## Source, and the two retired statements` paragraph that names both wrappers
+  (`Theorems/Thm_…_jqN_div_mem_modularFunctionField.lean:8` and
+  `Theorems/Thm_…_modularFunctionField_eq_full_of.lean:8`) and states what deviates;
+* the module is **tier 3**: built, elaborated, statements not diffed — the same tier
+  as `SlotValues.lean`, with the same documented reason;
+* `spec/check_port.py` on the module now says
+  `no spec-pin: directive — not wired (tier 3)`, and `spec/unwired_register.py
+  --rebuild` reports 106 unwired modules / 3100 public declarations / 2522 with a pin
+  original;
+* the verbatim statements stay readable in [TOPIC-descent.md](TOPIC-descent.md) §2,
+  and the pin's proof scripts are still the proofs below (`Descent.lean` lost no
+  mathematics: the retyped `hBev` and the two hypothesis applications are the whole
+  diff of the descent's body).
+
+**This refines §13.6(b), and the port-wide note with it:** *retire the text and keep
+the name; retire the wire when no declaration in the module mirrors the pin any
+more.* §13.6(b)'s "keep the wire" was correct only while
+`modularFunctionField_eq_full_of` still matched its wrapper — which is exactly the
+distinction now written into the note.
+
+### 14.5 Measurements
+
+| item | before | after |
+|---|---|---|
+| statement lines, descent | 16 | 6 |
+| statement lines, one-prime reduction | 5 | 3 |
+| `Capstone.lean` | 337 lines | 250 (−87) |
+| the `Shapes` glue | 75 lines in `Capstone` | moved to `DescentFromSlots` (156-line module) |
+| `Descent.lean` | 256 lines | 293 (both statements shorter; the growth is the docstrings that now explain `K`, `htw`, `hsp` and the retirements) |
+| `Defs/PhiAtSlot.lean` | 243 lines | 286 (+43: the vocabulary) |
+| `#print axioms` on the four headlines | clean | clean |
+
+Targeted `lake build` with warm deps, one module each: `PhiAtSlot` 20 s (the new
+declarations), `Descent` 8–10 s, `DescentFromSlots` 7.3 s, `Capstone` 4.0 s. The
+`PhiAtSlot` change forces one `SlotProduct` rebuild (39 s), because it imports the
+vocabulary; no other module's *source* changed. No tree build was run.
+
+### 14.6 What is left
+
+One item: the two `own:` rows for `ModularCurve.Nome.nomeMap` and
+`.pushedMinpoly` in `spec/decl_markers.tsv`, with the names read from
+`spec/check_port.py --json` (§13.6a's trap). Everything else is done:
+
+* **presentation** — `capstone.json` updated (+34/−12, two premises, two proof
+  steps, section G, and two new `definition` entries for the vocabulary), the sheet
+  regenerated and elaborated at exit 0 / 0 errors (§13.5a). Note for next time: the
+  renderer does **not** derive statement text from Lean, and `--check-only` does not
+  either, so a stale JSON still produces a compiling sheet;
+* **`spec/ModularCurveConsumer.lean` zone M** — prose rewritten (the `Inputs`-era
+  sentence and the "htw/hsp stay arguments" sentence were both false) and four
+  `#check`s added, including `jqN_mem_modularFunctionField_of_hall` and
+  `Nome.pushedMinpoly`; the file elaborates with 0 errors;
+* **`TOPIC-descent.md` §2** marks itself the retirement record for both statements.
+
+The library and both spec/presentation files are green without that last row; it is
+the only piece of checker bookkeeping the wave leaves open, by your instruction to
+leave the checker until last.
+
+---
+
+## 15. Wave 7f — the level bounds go to `NumberTheory/`, and a legacy module is regularised
+
+**Status: landed 2026-11-04.** `hall_all`'s most-repeated step — "a positive factor is
+below its prime multiple" — was factored out inside `Capstone.lean` as a `private`
+helper. It is the *same* step in the C-layer twin (`PrimePowerStepAnyField.lean:1490`,
+`:1500`) and the same `p ^ k * M` case split recurs there (`:1515`), and a private
+helper cannot be shared. So the two bounds moved to their subject home, and the home
+had a standard to meet.
+
+### 15.1 The two shared bounds
+
+`FLTForHuman/NumberTheory/DedekindPsi.lean`, new section `### The proper-divisor bound`
+(+23 lines):
+
+```lean
+theorem lt_of_mul_prime_eq {m p N : ℕ} (hm : m ≠ 0) (hp : p.Prime) (h : m * p = N) : m < N
+theorem exists_eq_succ_of_eq_pow_mul {d M p k : ℕ} (h : d = p ^ k * M) (hpd : p ∣ d)
+    (hpM : ¬ p ∣ M) : ∃ a, k = a + 1
+```
+
+The second is the *statement the callers want*: both sites write
+`obtain ⟨a, rfl⟩ := …` and then use `a`, so exporting `k ≠ 0` (the first draft) would
+have left the `Nat.exists_eq_succ_of_ne_zero` call at every site. The module's own
+`dedekindPsi_mul_prime` already uses `Nat.exists_eq_pow_mul_and_not_dvd` in this shape,
+so the bound is stated the way the module thinks.
+
+Mathlib: the ingredient is `lt_mul_of_one_lt_right` (`Algebra.Order.GroupWithZero.Basic`);
+the composite does not exist (`grep lt_of_dvd` over `Mathlib/Data/Nat` finds nothing),
+and the divisibility form `Nat.le_of_dvd` + `lt_of_le_of_ne` does not fit — call sites
+hold an equation `d = p ^ k * M`, not `M ∣ d`, so they would pay a `⟨p, …⟩` witness each
+time.
+
+### 15.2 The consumers
+
+* `Capstone.lean`: the two `private` copies deleted (−16 lines, 255 → 239); `hall_all`
+  uses the shared bounds at its two sites and stays 57 lines.
+* `PrimePowerStepAnyField.lean`: four blocks collapsed to one line each — the two
+  identical `have hMd : M < d` derivations and the `∃ a, e = a + 1` case split.
+  `check_port` still reports **50 ok**, unchanged (proofs only).
+
+### 15.3 Two legacy modules were regularised
+
+Both `NumberTheory/DedekindPsi.lean` and `Defs/PhiAtSlot.lean` had no `spec-pin:`
+header: they were owned by the frozen `spec/old_check_stmts.py`. Touching either
+triggers the standard in [../instructions.md](../instructions.md) §"Legacy Modules",
+so both were done in this pass.
+
+| requirement | what was done |
+|---|---|
+| `spec_pin` | **7 wires**: `Definitions/Def_ModularCurve_X0.lean` (the def and `_one`), `P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean` (`Psi`, `Psi_apply`, `isMultiplicative_Psi`, `card_filter_coprime_range_mul`, `dedekindPsiFibre`), five `Theorems/Thm_ModularCurve_dedekindPsi_*` wrappers |
+| deletion from old checker | `PORT_FILES` entry removed; its four `OWN_PROOFS` names removed, with the block rewritten to point at the marker table (the shim `ModularCurve/Defs/DedekindPsi.lean` stays listed, and its comment was corrected: it said "both files are listed") |
+| silent build | `lake build` 3.6 s, no warnings |
+| no build-time blow-up | unchanged: it is a leaf for the ψ arithmetic (its own deps only) |
+| no random tokens in names | the two new names are descriptive snake_case; the module predates the check |
+| `dedup.py` | 21 declarations, **0 duplicate clusters** |
+| `move_dead.py` | nothing to move: the two deleted helpers were `private` and their content now lives in a live module, so no public declaration became unreachable |
+
+Result: **12 ok, 0 mismatch, 0 missing, 5 own** (`dedekindPsi_mul_prime_dvd`,
+`dedekindPsi_mul_prime_not_dvd`, `card_fibre`, and the two new bounds — five `own:` rows
+in `spec/decl_markers.tsv`, each with its reason). The module left the unwired register.
+
+`Defs/PhiAtSlot.lean` got the same treatment, from its own provenance block:
+
+| requirement | what was done |
+|---|---|
+| `spec_pin` | **2 wires**, both `S_` files the header names: `S_ModularCurve_jqN_prime_not_mem_full.lean` (14 `ok`, lines 106–391 and 748–756) and `S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean` (2 `ok`, lines 414, 426) |
+| deletion from old checker | `PORT_FILES` entry removed, with the topic-14 comment rewritten to say what remains owned there (`PhiSlotRoots.lean`) |
+| silent build | `lake build` 4.0 s, no warnings |
+| `dedup.py` | 22 declarations, **0 duplicate clusters** |
+| `move_dead.py` | nothing to move |
+
+Result: **18 ok, 0 mismatch, 0 missing, 4 own** — the four `ModularCurve.Nome`
+declarations (`nomeMap`, `pushedMinpoly`, `pushedMinpoly_def`, `nomeMap_qExpand`), which
+is exactly the §14.6 item that had been parked. Both modules are out of the unwired
+register.
+
+A naming note: `check_port --json` reports these four as `ModularCurve.Nome.nomeMap`
+etc. — fully qualified — whereas the probe in §13.6a had produced an unqualified name
+for a declaration at a module's end. The rule that survives is the operational one: read
+the name out of `--json`, do not type it.
+
+Two things worth recording about the wiring, both found by trying:
+
+* the `missing` notes' "identical statement at … (not in this wire)" hints are
+  actionable: `Psi`/`Psi_apply`/`isMultiplicative_Psi` wanted the `S_` file, and one
+  attempt to wire `S_ModularCurve_exists_phiIrreducible.lean` for
+  `dedekindPsi_mul_prime_not_dvd` turned its sibling `_dvd` into a **mismatch** (that
+  file has a same-named declaration with a different statement). Net: 14 ok became 13
+  ok + 1 mismatch, so the extra wire was dropped and both case splits went to `own:`.
+* a port-own declaration in a *wired* module costs an `own:` row; there is no
+  "tier 2 by default".
+
+### 15.4 Doc cross-references removed
+
+`instructions.md` also says: no cross-references to docs or ported modules in headers
+and comments. The wave-7 edits had put four `TOPIC-…md §` references into
+`Descent.lean` (header and two theorem docstrings). They are gone; the header now
+records the retirement in its own words. `grep -c "TOPIC-"` on the module: 0.
+
+### 15.5 State of the wave
+
+Nothing is parked. Every module the wave edited is now green, silent and at standard:
+
+| module | tier | `check_port` |
+|---|---|---|
+| `NumberTheory/DedekindPsi.lean` | 1 (wired) | 12 ok + 5 own |
+| `Defs/PhiAtSlot.lean` | 1 (wired) | 18 ok + 4 own |
+| `FunctionFieldGeneration/PrimePowerStepAnyField.lean` | 1 (wired) | 50 ok, unchanged |
+| `FunctionFieldGeneration/Descent.lean` | 3 | not diffed (both statements port-own) |
+| `FunctionFieldGeneration/Capstone.lean` | 1 (wired) | 4 ok, unchanged |
+| `FunctionFieldGeneration/DescentFromSlots.lean` | 3 | not diffed (new module) |
+
+The tree build the user schedules at the end of the wave is the first thing that
+rebuilds the consumers of the two regularised modules; nothing here needs one.
