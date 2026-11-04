@@ -19,7 +19,13 @@ only wired modules).
 | `Reserve/AutomorphicForm/Adelic/BigCellExpansionDead.lean` | the 5,176-line big-cell expansion node's unreachable **12 declarations / 150 lines** plus the 118 private premises they need — the real-place Fourier/Poisson route the pin abandoned for the archimedean `K`-finiteness engine the headline uses instead, and the definitional API of four of the node's own objects (AF7) |
 | `Reserve/Analysis/Complex/ChartedCurveIntegral.lean` | the honest line integral of a 1-form on a complex charted space, the charted piece (`Path.map'`), and the exact-form value theorem — mathlib's `curveIntegral` adopted, not rebuilt. **Held, not superseded:** whether the port keeps it depends on the open question of whether an honest integral can replace the pin's choice-based `pathIntegral` ([`topics/aj/PLAN-W3-honest-integral.md`](../topics/aj/PLAN-W3-honest-integral.md) §4b–§4c) |
 | `Reserve/AlgebraicCurve/ChartIntegral.lean` | its curve-side seam: `placeCurveIntegral` and `pathIntegral_eq_sub_of_isPrimitiveAlong`, which makes the pin's `pathIntegral` computable — any primitive's endpoint difference, with no path regularity used. Worth keeping whichever way the decision goes |
+| `Reserve/Example/FactPrimeNeZero.lean` | **an illustration, not a shelf of dead code**: the `have : Fact (Nat.Prime p) := ⟨hp⟩` / `NeZero (M * p ^ a)` instance chain that `hall_all` depends on, in both directions, with three `fail_if_success` guards that fail if a future mathlib makes the port's `have` lines redundant. Why it exists and how to debug the shape: [`topics/functionFieldGeneration/TOPIC-refactor-friction.md`](../topics/functionFieldGeneration/TOPIC-refactor-friction.md) §1 |
 | `Reserve/AlgebraicCurve/Place/ApproximationDead.lean` | one unreachable helper of the weak-approximation node — the order at `w` of a unit of `v`'s valuation subring (`Place.ord_coe_unit_eq_zero_of_le`); its only pin consumer is the `S_` file's own separation lemma, which the port carries publicly in `Place/OrdCalculus.lean` with a different proof |
+
+`Reserve/Example/` is the one non-shelf directory: it holds re-runnable illustrations of
+Lean behaviour the port keeps tripping over, kept out of the library because nothing
+should import them. Each is written so that a wrong claim fails the build rather than
+sitting in a comment (`fail_if_success` guards).
 
 The `…Dead.lean` shelves are the first `--copy` outcome of
 `tools/deps/move_dead.py`: written in one run from the live modules, they import

@@ -33,8 +33,10 @@
   The pin writes the `ArithmeticFunction` view and the counting core `private` in
   the two `S_` files; here they are promoted (or renamed, for the fibre value), so
   they are recorded as port-own declarations in `spec/decl_markers.tsv` rather than
-  diffed. The two bounds of `### The proper-divisor bound` are port-authored too: the
-  pin writes them inline wherever a level is split as a prime multiple.
+  diffed. `### Level arithmetic` is port-authored throughout: the pin writes those shapes
+  inline wherever it splits a level as a prime multiple, and
+  `dedekindPsi_mul_prime_pow_succ` is the combined form of the two prime-step case splits
+  that the pin carries only as a split.
 
   spec-pin: Definitions/Def_ModularCurve_X0.lean
   spec-pin: P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean
@@ -193,6 +195,25 @@ theorem dedekindPsi_mul_prime_not_dvd {m p : ℕ} (hp : p.Prime) (hpm : ¬ p ∣
   have hco : Nat.Coprime m p := ((Nat.Prime.coprime_iff_not_dvd hp).mpr hpm).symm
   rw [dedekindPsi_mul_of_coprime m p hco, dedekindPsi_prime hp]
 
+/-- The top power written as the lower one times `p`: the shape the level decomposition, the
+prime-power step of `ψ`, and the tower step's divisibility all need. -/
+theorem mul_pow_succ_eq {M p a : ℕ} : M * p ^ (a + 1) = M * p ^ a * p := by
+  rw [pow_succ, mul_assoc]
+
+/-- **The prime-power step of `ψ`.** Appending `p ^ (a + 1)` to a level `M` coprime to the
+prime `p` multiplies `ψ` by `p + 1` at the first power and by `p` at every later one. This
+is the recurrence a strong induction over the divisor lattice compares its own degree
+against, and the reason the two cases `a = 0` / `a ≠ 0` exist as separate lemmas above. -/
+theorem dedekindPsi_mul_prime_pow_succ {M p a : ℕ} [NeZero M] (hp : p.Prime) (hpM : ¬ p ∣ M) :
+    dedekindPsi (M * p ^ (a + 1)) = dedekindPsi (M * p ^ a) * (if a = 0 then p + 1 else p) := by
+  split_ifs with ha
+  · subst ha
+    rw [pow_zero, mul_one, zero_add, pow_one]
+    exact dedekindPsi_mul_prime_not_dvd hp hpM
+  · have : NeZero (M * p ^ a) := ⟨mul_ne_zero (NeZero.ne M) (pow_ne_zero _ hp.ne_zero)⟩
+    rw [mul_pow_succ_eq]
+    exact dedekindPsi_mul_prime_dvd hp (dvd_mul_of_dvd_right (dvd_pow_self p ha) M)
+
 /-- `ψ` is positive at every nonzero level. Part of the cone's neighbourhood
 interface (indeg 76); the pin proves it from `le_dedekindPsi`, whose argument is
 inlined here. Verbatim statement from `Thm_ModularCurve_dedekindPsi_pos`. -/
@@ -204,7 +225,10 @@ theorem dedekindPsi_pos (N : ℕ) (hN : N ≠ 0) : 0 < dedekindPsi N := by
     simpa using Finset.single_le_sum (f := fun d => N / d) (fun d _ => Nat.zero_le _) h1
   exact lt_of_lt_of_le (Nat.pos_of_ne_zero hN) hs
 
-/-! ### The proper-divisor bound -/
+/-! ### Level arithmetic
+
+The shapes a divisor-lattice induction needs: that a positive factor is below its prime
+multiple, and that a `p ^ k * M` decomposition with `p ∤ M` has `k ≠ 0`. -/
 
 /-- **The proper-divisor bound.** A positive factor is below its prime multiple: from
 `N = m * p` with `p` prime, `m < N`. Every level of a divisor-lattice induction needs

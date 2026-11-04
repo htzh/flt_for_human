@@ -10,6 +10,11 @@ port already has) and [TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homi
 declaration belongs). Authority for statement fidelity is
 [porting-playbook.md](../porting-playbook.md) §4, for what to export §5.
 
+**The worked instance, end to end: [CASE-hall-all.md](CASE-hall-all.md).** That is the note to
+point at when you say "refactor this like `hall_all`": symptoms, the seven-step treatment, the
+before/after arc with numbers, the six things the first attempt got wrong, and the gates. This
+note is the method; the case note is what it looks like on a real node.
+
 **The claim, stated once.** An *assembler* — the theorem that closes a node by applying three or
 four ported theorems — is the declaration most likely to be unreadable, and the cause is
 structural, not stylistic. It is transcribed from the pin's `Theorems/` wrapper, and a wrapper is

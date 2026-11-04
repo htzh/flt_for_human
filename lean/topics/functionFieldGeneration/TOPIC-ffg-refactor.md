@@ -6,6 +6,11 @@
 except `SlotValues` is `spec-pin:`-wired, the Lean/spec consumers are rewired, and
 the presentation is retargeted. Wave 6 (final verification and docs) remains.
 
+**The arc, as a reusable case study: [../CASE-hall-all.md](../CASE-hall-all.md).** It
+condenses §13–§15 into the treatment ("refactor like `hall_all`"), the numbers, and the six
+reversals the first attempt needed. Read it before starting the next assembler, and read
+§13–§15 when you need the date-stamped reasoning.
+
 **Wave 7 (landed 2026-11-04): the assembler interfaces.** The
 structure the refactor produced is right, but the three FFG *assemblers* still
 carry the pin's proof script in their signatures —
@@ -1570,6 +1575,28 @@ have left the `Nat.exists_eq_succ_of_ne_zero` call at every site. The module's o
 `dedekindPsi_mul_prime` already uses `Nat.exists_eq_pow_mul_and_not_dvd` in this shape,
 so the bound is stated the way the module thinks.
 
+Three module-local helpers carry the induction's arithmetic, all `private` in
+`Capstone.lean` because each has one consumer and the C-layer twin's block is a different
+statement:
+
+| helper | home | what it replaces |
+|---|---|---|
+| `exists_eq_mul_pow_succ_of_ne_one` | `Capstone` (private) | the nine-line setup: `set p := d.minFac`, `Nat.minFac_prime`, `exists_eq_pow_mul_and_not_dvd`, the nonzero derivation, the `p ^ k * M → p ^ (a + 1) * M` successor step and the re-oriented equation |
+| `lt_of_eq_mul_pow_succ` | `Capstone` (private) | the step down `M * p ^ a < d`, previously three lines plus a divisibility witness `⟨p, …⟩` |
+| `mul_pow_succ_eq` | `NumberTheory/DedekindPsi` | `M * p ^ (a + 1) = M * p ^ a * p`, previously two `by rw [pow_succ, mul_assoc]` clauses |
+| `dedekindPsi_mul_prime_pow_succ` | `NumberTheory/DedekindPsi` | the five-line `hpsi` case split over `a = 0` / `a ≠ 0` |
+
+The dividing line between the two homes is the subject, not the consumer count: a statement
+about this proof's own data (`d`'s decomposition, the bound below it) stays `private` in the
+consumer; standard arithmetic on the objects an upstream module already owns (`ψ`'s
+recurrence, the prime-power shape) goes upstream. The module's own `dedup` reports 0
+clusters either way.
+
+The wrapper `hprop` went too: it packaged `ih` at a lower level behind a divisibility
+hypothesis, and both of its call sites can produce `m ≠ 0` themselves. `hall_all` is
+**71 → 40 lines** across the pass; no inline arithmetic proof is left in it, and the `ψ`
+step is one `rw` plus one `exact`.
+
 Mathlib: the ingredient is `lt_mul_of_one_lt_right` (`Algebra.Order.GroupWithZero.Basic`);
 the composite does not exist (`grep lt_of_dvd` over `Mathlib/Data/Nat` finds nothing),
 and the divisibility form `Nat.le_of_dvd` + `lt_of_le_of_ne` does not fit — call sites
@@ -1636,7 +1663,16 @@ Two things worth recording about the wiring, both found by trying:
 * a port-own declaration in a *wired* module costs an `own:` row; there is no
   "tier 2 by default".
 
-### 15.4 Doc cross-references removed
+### 15.4 The friction note, and doc cross-references removed
+
+The technical hazards the wave cost build rounds on — the `Fact`/`NeZero` instance chain,
+the `p ^ k * M` orientation, `one_mul` versus `mul_one`, `▸` rewriting too much, the
+cascade from a `Defs/` edit, the checker's parsed names — are catalogued in
+[TOPIC-refactor-friction.md](TOPIC-refactor-friction.md), and the instance one is pinned
+down by a re-runnable example in the shelf,
+[`Reserve/Example/FactPrimeNeZero.lean`](../../Reserve/Example/FactPrimeNeZero.lean). They
+live there rather than in the Lean sources: comments of that length in a proof hurt more
+than they help, and a `fail_if_success` guard is a claim the build checks.
 
 `instructions.md` also says: no cross-references to docs or ported modules in headers
 and comments. The wave-7 edits had put four `TOPIC-…md §` references into
@@ -1649,7 +1685,7 @@ Nothing is parked. Every module the wave edited is now green, silent and at stan
 
 | module | tier | `check_port` |
 |---|---|---|
-| `NumberTheory/DedekindPsi.lean` | 1 (wired) | 12 ok + 5 own |
+| `NumberTheory/DedekindPsi.lean` | 1 (wired) | 12 ok + 7 own |
 | `Defs/PhiAtSlot.lean` | 1 (wired) | 18 ok + 4 own |
 | `FunctionFieldGeneration/PrimePowerStepAnyField.lean` | 1 (wired) | 50 ok, unchanged |
 | `FunctionFieldGeneration/Descent.lean` | 3 | not diffed (both statements port-own) |
