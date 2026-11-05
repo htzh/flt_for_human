@@ -91,6 +91,7 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
 -- T17: the non-membership tower and the two-prime separation.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.TwoPrimeSeparation
 -- T18: one new generator per prime power.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
 -- T19: the slot product and the prime non-membership.
@@ -726,7 +727,11 @@ mathlib's cyclotomic-automorphism API (`IsCyclotomicExtension.autEquivPow`,
 `IsPrimitiveRoot.autToPow`). T16 also promoted the transport bridges
 `coeffMap_qTwist`/`coeffMap_coeffEmb_algHom`/`coeffMap_TS`/`coeffMapEquiv`/
 `iota_injective`/`w1_relfinrank_insert`, deleting the private twins in
-`PhiGenDescent.lean`/`PhiGenSplits.lean`/`PhiGenIntegrality.lean`.
+`PhiGenDescent.lean`/`PhiGenSplits.lean`/`PhiGenIntegrality.lean`. The dispatcher
+also derives its simple-extension half from T18's `full_eq_adjoin_full_div_prime`
+and its level non-membership from T17's `jqN_pow_not_mem_adjoin_full` (retired text:
+the pin hands those two in as the hypotheses `hup` and `hnm`), so this module imports
+`Generation.lean` and `Nonmembership.lean`.
 
 **The wire test is the statement's type.** `relfinrank_full_eq_mul` is the
 statement the capstone's `Tight` step calls; the three `#check`s pin its shape.
@@ -750,9 +755,12 @@ already exercises the engine for real over the abstract `F` with the non-identit
 
 /-! ## Zone O — [T17] the non-membership tower and the two-prime separation
 
-`FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean` proves
-`jqN_pow_not_mem_adjoin_full` (the prime-power tower, an `Inputs` field) and
-`jqN_prime_not_mem_adjoin` (the two-prime separation, public `Theorems/` API). The
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean` proves the two
+facts the induction uses — `jqN_prime_not_mem_full` (the prime non-membership, an
+`Inputs` field) and `jqN_pow_not_mem_adjoin_full` (the prime-power tower) — and
+`TwoPrimeSeparation.lean` proves `jqN_prime_not_mem_adjoin` (the two-prime separation,
+public `Theorems/` API). The node is split along its dependency: T16's degree step
+consumes the tower and the prime non-membership, and the separation consumes T16. The
 tower composes the T14 prelude (`phiAtSeed*`, `isRoot_prime_at_slot_iff`,
 `roots_prime_at_slot_roots_nodup`, `iota_jq`, `TS`), T13's `splits_prime_at_slot`,
 T12's `exists_phiIrreducible_evalSymm`, T16's degree step and mathlib's
@@ -763,7 +771,11 @@ and T13's `finrank_adjoin_jqN_eq_of_prime`.
 **The wire test is the statement's type.** `jqN_pow_not_mem_adjoin_full` is the
 statement the capstone's tower step calls. The base's statement is a second,
 non-capstone entry — it is public API consumed by `relfinrank_adjoin_primes`,
-`relfinrank_full_mul_prime` and `jqN_sq_not_mem_adjoin`. -/
+`relfinrank_full_mul_prime` and `jqN_sq_not_mem_adjoin`.
+
+The tower's transfer to the level-`a` full field is *not* a declaration: T16's
+`relfinrank_full_eq_mul` derives it inside, over the port's generic
+`IntermediateField.adjoin_eq_adjoin_Iio`. -/
 
 #check @ModularCurve.jqN_pow_not_mem_adjoin_full
 #check @ModularCurve.jqN_prime_not_mem_adjoin

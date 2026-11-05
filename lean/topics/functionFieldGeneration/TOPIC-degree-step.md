@@ -21,6 +21,21 @@ public theorem: T12's `exists_phiIrreducible_evalSymm`, T13's
 `roots_phiProd_conj*`, and T4's
 `Polynomial.irreducible_of_transitive_ringAut`.
 
+**Update (2026-11-04): the third statement's text is the port's, twice over.** First the
+pin's `hup` (the adjoin equation `F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))`)
+came in as a certificate — it is T18's `full_eq_adjoin_full_div_prime` handed in — so it was
+replaced by `p ∤ M` and derived inside. Then the same was done to the pin's `hnm`: it is now
+`hnotmem : jqN p ∉ F^full_M`, the prime-level fact the caller has, and the level's
+non-membership is derived inside from T17's tower over the chain adjoin
+(`IntermediateField.adjoin_eq_adjoin_Iio`, `FieldTheory/AdjoinTower.lean`). Both retired
+texts are recorded as an `own:` row in `spec/decl_markers.tsv`; the checker reads
+`2 ok, 1 own` here. The consequence for the tree: the tower half of T17 had to move
+upstream of this module (`Nonmembership.lean`), since the derivation consumes it while
+T17's two-prime separation consumes this module. The capstone's call site is now one line,
+`relfinrank_full_eq_mul M p a hpM hnotmem`. This is the
+[CASE-hall-all.md](../CASE-hall-all.md) §2 step 4 treatment, applied to the assembler
+rather than to the descent.
+
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. Measured with mathlib prebuilt: a green
 > `lake env lean <module>` of this size is **~4 s**, `lake build <module>` with

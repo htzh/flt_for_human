@@ -17,7 +17,7 @@
     `p` roots.
   * `relfinrank_full_eq_mul` — the tower dispatcher: the relative degree of one
     full prime-power step is `p + 1` when `a = 0` and `p` otherwise, by the two
-    statements above plus `w1_relfinrank_insert`.
+    statements above, the step's generation (T18) and `w1_relfinrank_insert`.
 
   All three are statements the capstone consumes directly;
   `relfinrank_full_eq_mul` is the one `hall_all` calls.
@@ -29,8 +29,18 @@
   293–344, helpers 268–284),
   `P2M/Sol/S_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean` (node
   563–749, helpers 422–546) and
-  `P2M/Sol/S_ModularCurve_relfinrank_full_eq_mul.lean` (node 49–72). All three
-  statements are the `Theorems/` wrappers' verbatim.
+  `P2M/Sol/S_ModularCurve_relfinrank_full_eq_mul.lean` (node 49–72). The first two
+  statements are their `Theorems/` wrappers' verbatim.
+
+  **`relfinrank_full_eq_mul`'s text is the port's.** The pin's wrapper takes the
+  adjoin equation
+  `F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))` as the
+  hypothesis `hup`, because the wrapper was written before the generation node
+  (`FunctionFieldGeneration/Generation.lean`): every caller had to hand it a proof
+  of another node's theorem. Here the hypothesis is `p ∤ M` — what the caller has —
+  and the equation is derived from `full_eq_adjoin_full_div_prime` inside. Conclusion
+  and proof script are unchanged; the retirement is an `own:` row in
+  `spec/decl_markers.tsv`.
 
   ## Dedup
 
@@ -50,7 +60,8 @@
   `exists_phiIrreducible_evalSymm`; T13's `splits_of_prime`; T14's `phiAtSeed*`,
   `qTwistEquiv`/`_apply`, `qTwist_iota_of_pow_eq_one`, `qTwist_TS_one_cycle`,
   `phiProd`, `roots_phiProd_conj(_nodup)`, `roots_prime_at_slot*`, `iota_jqN`,
-  `TS_congr`; the T16 promotions; mathlib's cyclotomic-automorphism API.
+  `TS_congr`; the T16 promotions; T18's `full_eq_adjoin_full_div_prime`; mathlib's
+  cyclotomic-automorphism API.
   spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqN_prime_of_not_mem.lean
   spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean
   spec-pin: Theorems/Thm_ModularCurve_relfinrank_full_eq_mul.lean
@@ -63,6 +74,9 @@ import FLTForHuman.ModularCurve.PhiSlotRoots
 import FLTForHuman.ModularCurve.PhiGenSplits
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.Defs.Fields
+import FLTForHuman.FieldTheory.AdjoinTower
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
 
 set_option autoImplicit false
 -- The pin installs the `Algebra F (LaurentSeries K)` instance (via `letI`) and
@@ -428,20 +442,47 @@ theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (Laure
 
 /-! ## The tower dispatcher -/
 
-/-- **The one-step relative degree**: for a full prime-power step
-`F_n = ℚ(j(q ^ d) : d ∣ n)`, the relative degree of
-`F_{M p ^ (a + 1)}` over `F_{M p ^ a}` is `p + 1` when `a = 0` and `p`
-otherwise. Verbatim from
-`Theorems/Thm_ModularCurve_relfinrank_full_eq_mul.lean`. -/
+/-- The chain the prime-power tower reads: the full field at `M * p ^ a` sits inside the
+field adjoined at `M` by `j(q ^ p), …, j(q ^ (p ^ a))`. -/
+private theorem full_le_adjoin_chain (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
+    (hpM : ¬ p ∣ M) : ∀ a : ℕ,
+    modularFunctionFieldFull (M * p ^ a) ≤ IntermediateField.adjoin ℚ
+      ((modularFunctionFieldFull M : Set (LaurentSeries ℚ))
+        ∪ {x : LaurentSeries ℚ | ∃ i : ℕ, i ≤ a ∧ x = jqN (p ^ i)}) := by
+  intro a
+  have h := IntermediateField.adjoin_eq_adjoin_Iio
+    (fun n => modularFunctionFieldFull (M * p ^ n)) (fun i => jqN (p ^ (i + 1)))
+    (fun k => full_eq_adjoin_full_div_prime M p k hpM) a
+  rw [show M * p ^ 0 = M by rw [pow_zero, mul_one]] at h
+  rw [h]
+  refine IntermediateField.adjoin.mono ℚ _ _ (Set.union_subset_union le_rfl ?_)
+  rintro x ⟨i, hi, rfl⟩
+  exact ⟨i + 1, Nat.succ_le_of_lt hi, rfl⟩
+
+/-- **The one-step relative degree**: at a level `M` where the strong induction's
+invariants hold (`Hall M`), and for `p ∤ M`, the relative degree of
+`F^full_{M p ^ (a + 1)}` over `F^full_{M p ^ a}` is `p + 1` when `a = 0` and `p`
+otherwise.
+
+All three of the pin's certificate arguments are derived here rather than passed: the
+step's generation (`full_eq_adjoin_full_div_prime`, T18 — the pin's `hup`), the prime-level
+non-membership (`jqN_prime_not_mem_full`, T17 — the pin's `hall` projection), and the
+level's non-membership (the pin's `hnm`, from the prime-power tower
+`jqN_pow_not_mem_adjoin_full` over the chain above). What the caller supplies is the
+induction hypothesis it has. -/
 theorem relfinrank_full_eq_mul (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (a : ℕ)
-    (hup : modularFunctionFieldFull (M * p ^ (a + 1)) =
-      IntermediateField.adjoin ℚ
-        (insert (jqN (p ^ (a + 1))) (modularFunctionFieldFull (M * p ^ a) :
-          Set (LaurentSeries ℚ))))
-    (hnm : jqN (p ^ (a + 1)) ∉ modularFunctionFieldFull (M * p ^ a)) :
+    (hpM : ¬ p ∣ M) (hallM : Hall M) :
     IntermediateField.relfinrank (modularFunctionFieldFull (M * p ^ a))
       (modularFunctionFieldFull (M * p ^ (a + 1))) = if a = 0 then p + 1 else p := by
-  rw [hup, w1_relfinrank_insert]
+  have hnotmem : jqN p ∉ modularFunctionFieldFull M := jqN_prime_not_mem_full M p hpM hallM
+  have hnm : jqN (p ^ (a + 1)) ∉ modularFunctionFieldFull (M * p ^ a) := by
+    rcases a with - | k
+    · rw [jqN_congr (show p ^ (0 + 1) = p by rw [zero_add, pow_one]), pow_zero, mul_one]
+      exact hnotmem
+    · intro hmem
+      have h1 := jqN_pow_not_mem_adjoin_full M p k hnotmem
+      exact h1 (full_le_adjoin_chain M p hpM (k + 1) hmem)
+  rw [full_eq_adjoin_full_div_prime M p a hpM, w1_relfinrank_insert]
   rcases Nat.eq_zero_or_pos a with rfl | ha
   · rw [ite_eq_left rfl]
     have e1 : p ^ (0 + 1) = p := by rw [zero_add, pow_one]

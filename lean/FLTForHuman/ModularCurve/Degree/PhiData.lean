@@ -32,6 +32,7 @@
 import FLTForHuman.ModularCurve.Defs.FibrePoly
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Defs.PhiGen
+import FLTForHuman.ModularCurve.Defs.Invariants
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse

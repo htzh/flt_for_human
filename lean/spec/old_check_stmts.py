@@ -3491,7 +3491,10 @@ PORT_FILES = [
     # probes, and stays listed so those pin names keep a diff while it exists.
     "FLTForHuman/ModularCurve/Defs/DedekindPsi.lean",
     "FLTForHuman/ModularCurve/Defs/Polynomial.lean",
-    "FLTForHuman/ModularCurve/Defs/Fields.lean",
+    # (removed 2026-11-04) `FLTForHuman/ModularCurve/Defs/Fields.lean` — now wired by its own
+    # `spec-pin:` lines (`Def_ModularCurve_X0`, the `relfinrank_modularFunctionField` wrapper
+    # and two comparable `S_` copies); 24 ok / 0 missing. Its port-own declarations moved to
+    # `Defs/Invariants.lean` (tier 3).
     "FLTForHuman/ModularCurve/Defs/PhiGen.lean",
     # MIGRATED 2026-10-27 (the leaves' row wave): `JqCoefficients.lean` now carries its own
     # `spec-pin:` block for the three leaves rows it gained (52 ok / 0 mismatch / 0 missing /

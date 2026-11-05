@@ -1,6 +1,7 @@
 # Case study: "refactor like `hall_all`"
 
-**Status: case note, written 2026-11-04 from the end of the FFG wave-7 arc.** This is the
+**Status: case note, written 2026-11-04 from the end of the FFG wave-7 arc; §7 is a second
+application, the same day, one node down.** This is the
 worked instance of the method in [TOPIC-assembler-interfaces.md](TOPIC-assembler-interfaces.md),
 kept as a template: when a node's assembler or its proof shows the symptoms in §1, apply the
 treatment in §2 and check the gates in §5. The Lean-level traps that cost build rounds are
@@ -186,7 +187,113 @@ Statement lines: the descent 16 → 6, the one-prime reduction 5 → 3. `hall_al
 `#print axioms` on the four headlines: `[propext, Classical.choice, Quot.sound]` before and
 after — this refactor changes no mathematics.
 
-## 7. Pointers
+## 7. Second application, same day, one node down: the prime-power degree dispatcher
+
+The theorem `hall_all` calls in its `Tight` half is `DegreeStep.relfinrank_full_eq_mul` —
+"the relative degree of one full prime-power step is `p + 1` when `a = 0` and `p` otherwise".
+It is worth recording separately because here **the treatment's last step was a module
+boundary, not a statement**, and because most of the seven steps were first done the obvious
+way and then undone.
+
+### 7.1 The statement, decoded
+
+The pin's `Theorems/` wrapper takes three things the conclusion never mentions:
+
+* `hup` — `F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))`, which is T18's
+  `full_eq_adjoin_full_div_prime` handed in as a certificate;
+* the `hall M` projection, i.e. `j(q ^ p) ∉ F_M^full`, which is T17's
+  `jqN_prime_not_mem_full`;
+* `hnm` — `j(q ^ (p ^ (a + 1))) ∉ F^full_{M p ^ a}`, which is T17's prime-power tower read at
+  the full field.
+
+Every one of them is *another node's theorem*, and each is what made the caller write a
+two-line adapter in front of the call. Decoded, the statement is one sentence: *at a level
+where the strong induction's invariants hold, and for `p ∤ M`, the step has that degree.*
+
+### 7.2 The arc, measured
+
+| step | what changed | numbers |
+|---|---|---|
+| 0 | decode; count the certificate binders | 3 certificates, 2 of them a two-line term |
+| 1 | `hup` → `p ∤ M`, derived inside from T18 | statement 6 → 5 lines; caller's two-line adapter → one line |
+| 2 | the chain bound extracted as a generic lemma (`IntermediateField.adjoin_eq_adjoin_Iio`, `FieldTheory/AdjoinTower.lean`, tier 3) | 22 lines of private induction → a 57-line generic module + a 10-line specialisation |
+| 3 | `jqN_pow_not_mem_full`'s `hall M` → the prime-level fact it actually consumes | the helper stopped mentioning `Hall` |
+| 4 | that helper made public next to the tower — **rejected**, see 7.3 | — |
+| 5 | instead: the degree step derives `hnm` itself, and finally takes `Hall M` | hypotheses `hup`, `hnm` → `hpM`, `hnm` → `hpM`, `hallM`; no certificate term at the call site |
+| 6 | the non-membership node split along its dependency: the tower and the prime non-membership upstream (`Nonmembership.lean`), the public two-prime separation downstream (`TwoPrimeSeparation.lean`) | one module (891) → 988 + 300 lines |
+| 7 | `SlotProduct` loses the non-membership (homed there by its *proof's* dependency) | 1606 → 1228 lines; subject narrowed to the slot product |
+| 8 | `Defs/Fields.lean` edited, so brought to standard: four `spec-pin:` wires and the port-own content extracted | 24 ok / 0 missing / 0 own; `Defs/Invariants.lean` created (tier 3) |
+
+The final shape is a chain rather than a fan:
+
+```
+Defs/Fields        (wired)  the pinned field API and the Tight/Gen/Hall vocabulary
+  ↓
+SlotProduct        (wired)  the slot product
+  ↓
+Nonmembership      (wired)  jqN_prime_not_mem_full, jqN_pow_not_mem_adjoin_full
+  ↓
+DegreeStep         (wired)  relfinrank_full_eq_mul  (hpM) (hallM)  — all three certificates derived
+  ↓
+TwoPrimeSeparation (wired)  the public Finset separation, downstream because it consumes T16
+Capstone           (wired)  hall_all and the four headlines
+tier 3: Defs/Invariants (gen_prime and the two Tight packagings), FieldTheory/AdjoinTower
+```
+
+and the caller is one line, `relfinrank_full_eq_mul M p a hpM hallM`, with `hpM` and `hallM`
+the only things it knows.
+
+### 7.3 What I got wrong, in the order I got it wrong — seven, all reusable
+
+1. **"Move the adapter to the neighbouring module."** Wrong: a certificate that only one
+   consumer needs is not API. The repair is to change the *consumer's* interface until no
+   adapter exists anywhere; the intermediate `hnotmem : jq ^ p ∉ F_M^full` survives only as a
+   line *inside* the degree step's proof.
+2. **"`Hall` is not a statement about fields, so the degree step must not take it."** Wrong in
+   the other direction: reasoning about what the *proof* needs (one node's certificate) is the
+   same mistake as reasoning about what the *caller* happens to have. `Hall M` is the
+   induction's hypothesis and the step is the induction's step; taking it is honest, and it is
+   what makes the three certificates disappear.
+3. **Homing by proof dependency.** `jqN_prime_not_mem_full` sat in `SlotProduct` because its
+   proof consumes `rval_aux`; by *subject* it is non-membership. That mis-homing is exactly what
+   produced the `T16 ⇒ T19` import edge — the "upstream issue" that reads as a symptom, and is
+   one. Home by subject; let the proof import upward.
+4. **"A port-own helper can simply be promoted where it is used."** Only if the pin has it: the
+   checker matches promoted pin-`private` declarations by name (nine of ten did), so a
+   promotion whose statement is unchanged needs nothing. A *port-own* public declaration in a
+   wired module is a structural error, not a bookkeeping one. Its two lawful homes are: private
+   in the consumer, or tier 3. `spec/decl_markers.tsv` is for the residue — a port-own statement
+   that must be public — one row, with the reason; the in-source `-- pin:` / `-- own:` comments
+   are the obsolete spelling and must not be reintroduced.
+5. **Silencing the linter.** `set_option linter.style.haveILetI false` on the two new
+   `Tight`-packagings was the wrong fix; `have hfd : FiniteDimensional ℚ⟮jq⟯ …` elaborates and is
+   used by instance search. Fix the source, do not mute the check.
+6. **Inlining a shared helper to dodge the wire.** Copying `sv_inj_slot`'s bound argument into
+   the second consumer duplicated *mathematics*, not an adaptation. The lawful answers were
+   the two in point 4; the promotion plus one `.tsv` row was chosen.
+7. **Re-serialising generated JSON by hand.** Regenerating the presentation source with the
+   wrong indent rewrote all 1050 lines and hid the 27 that mattered. Round-trip a generated
+   file with its own formatting.
+
+### 7.4 The rule this arc produced
+
+**A certificate belongs to the module whose subject it is, not to the node that happens to
+state it; and its statement belongs to the consumer, not to the API.** When a caller has to
+pass another theorem's proof as an argument, the interface is wrong — and the fix may be a
+module boundary (a split, a move, a tier-3 home), because the dependency order *is* the
+interface. The gates in
+§5 apply unchanged; the one this arc added to them is the checker on every touched module:
+
+| module | verdict |
+|---|---|
+| `Defs/Fields` | 24 ok, 0 missing, 0 own (wired here) |
+| `SlotProduct` | 9 ok, 0 missing, 2 own |
+| `Nonmembership` | 2 ok |
+| `DegreeStep` | 2 ok, 1 own (the retired text) |
+| `TwoPrimeSeparation` | 1 ok |
+| `Capstone` | 4 ok |
+
+## 8. Pointers
 
 - The method, port-wide: [TOPIC-assembler-interfaces.md](TOPIC-assembler-interfaces.md) —
   symptoms, decoding procedure, the mechanism table (`private` / `own:` / tier 3 / wire).

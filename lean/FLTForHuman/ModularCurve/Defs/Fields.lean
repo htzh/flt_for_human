@@ -21,6 +21,10 @@
   `FLTForHuman.ModularCurve.Defs.Laurent`, `jq`/`jqN`/`evalAtJ` from
   `FLTForHuman.ModularCurve.Defs.Jq`, and `ModularPolynomialData` from
   `FLTForHuman.ModularCurve.Defs.Polynomial`.
+  spec-pin: Definitions/Def_ModularCurve_X0.lean
+  spec-pin: Theorems/Thm_ModularCurve_relfinrank_modularFunctionField.lean
+  spec-pin: P2M/Sol/S_ModularCurve_relfinrank_full_eq_mul.lean   -- comparable copy (`w1_relfinrank_insert`)
+  spec-pin: P2M/Sol/S_ModularCurve_functionFieldGeneration.lean   -- comparable copy (the `Tight`/`Gen`/`Hall` vocabulary, `tight_one`, `gen_one`)
 -/
 import Mathlib.FieldTheory.Relrank
 import FLTForHuman.ModularCurve.Defs.Polynomial
@@ -254,24 +258,6 @@ theorem gen_one : Gen 1 := by
   subst hd1
   rw [qExpand_one_apply]
   exact jq_mem 1
-
-/-- **`Gen` at a prime is definitional**: `modularFunctionField p =
-modularFunctionFieldFull p = ℚ(j, j(q ^ p))`. This is T19's substitution: it
-replaces the pin's `functionFieldGeneration_of_squarefree p` call at
-`S_ModularCurve_jqN_prime_not_mem_full.lean:1638`
-(`TOPIC-t17-t19-route-audit.md` §1), so T19 does not depend on the squarefree
-generation/degree block. -/
-theorem gen_prime (p : ℕ) [NeZero p] [hp : Fact (Nat.Prime p)] : Gen p := by
-  unfold Gen
-  refine le_antisymm (modularFunctionField_le_full p) ?_
-  rw [modularFunctionField, modularFunctionFieldFull, divisorExpansions,
-    IntermediateField.adjoin_le_iff]
-  rintro x ⟨d, -, hdvd, rfl⟩
-  rcases hp.out.eq_one_or_self_of_dvd d hdvd with h1 | h2
-  · subst h1; rw [qExpand_one_apply]
-    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert _ _)
-  · subst h2
-    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert_of_mem _ rfl)
 
 end StrongInduction
 

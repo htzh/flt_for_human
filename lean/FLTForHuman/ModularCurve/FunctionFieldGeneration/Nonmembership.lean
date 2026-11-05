@@ -1,66 +1,65 @@
 /-
-  T17 — the non-membership tower and the two-prime separation.
+  T17-a — the two non-membership facts the strong induction consumes.
 
-  This is the non-membership half of the strong induction (math/010 §6a), two
-  statements in one module:
+  Both are side conditions on the induction's prime-power step — neither partakes in
+  the step's structure — which is why they are stated together, and upstream of it:
 
-  * `jqN_pow_not_mem_adjoin_full` — the **prime-power tower**, one of the seven
-    statements the capstone consumes:
-    `j(q ^ (p ^ (a + 2))) ∉ ℚ(F_M^full, j(q ^ p), …, j(q ^ (p ^ (a + 1))))`. The
-    proof builds the tower of intermediate fields
-    `C_i = ℚ(F_M^full, j(q ^ (p ^ j)) : j ≤ i)` and, by strong induction on `a`,
-    a compatible family of `ℚ`-algebra homs `σ_i : C_i → K((q))` whose images lie
-    in a shrinking `qExpand` range. The modular equation `Φ_p` has both
-    `j(q ^ (p ^ (a + 2)))` and `j(q ^ (p ^ a))` as roots of
-    `Φ_p(j(q ^ (p ^ (a + 1))), ·)`; pushing it through `σ` forces both to the
-    *same* root, and `σ` injective gives `j(q ^ (p ^ (a + 2))) = j(q ^ (p ^ a))`,
-    contradicted by the `q ^ (-(p ^ a))` coefficient (1 vs 0).
-  * `jqN_prime_not_mem_adjoin` — the **two-prime separation**, public `Theorems/`
-    API: `jqN r` is not in `ℚ(j, j(q ^ p) : p ∈ S)` for a finite set `S` of
-    primes with `r ∉ S`. The engine is `step_contradiction`: if
-    `j(q ^ r) = g(j(q ^ p))`, then `g` has degree `< p + 1` and is constant on
-    the `p + 1` roots of `Φ_p(j(q), ·)` (a T4 `CommonRoot` engine), so
-    `j(q ^ r) ∈ ℚ(j)`, contradicting
-    `[ℚ(j)(j(q ^ p)) : ℚ(j)] = p + 1` — T16's first statement. The Finset
-    induction over `S` is `jqN_prime_not_mem_adjoin_key`.
-
-  The tower is one of the seven statements the capstone consumes directly. The base
-  is **not** on the capstone's path (T19's private M-arbitrary lemma is what
-  discharges the prime non-membership); it is public `Theorems/` API, consumed by
-  `relfinrank_adjoin_primes`,
-  `relfinrank_full_mul_prime` and `jqN_sq_not_mem_adjoin`.
+  * `jqN_prime_not_mem_full` — `j(q ^ p) ∉ F_M^full` for `p ∤ M`, from `Hall M`.
+    The proof reads the `ψ(M)` slot roots off the slot product, writes
+    `j(q ^ p) = g(j(q ^ M))` with `deg g < ψ(M)`, shows `g` constant on the slots
+    (T4's `mem_range_of_eval_eq_const`), so `j(q ^ p) ∈ ℚ(j)`, contradicting
+    T16's `[ℚ(j)(j(q ^ p)) : ℚ(j)] = p + 1`.
+  * `jqN_pow_not_mem_adjoin_full` — the **prime-power tower**:
+    `j(q ^ (p ^ (a + 2))) ∉ ℚ(F_M^full, j(q ^ p), …, j(q ^ (p ^ (a + 1))))`. The proof
+    builds the tower of intermediate fields
+    `C_i = ℚ(F_M^full, j(q ^ (p ^ j)) : j ≤ i)` and, by strong induction on `a`, a
+    compatible family of `ℚ`-algebra homs `σ_i : C_i → K((q))` whose images lie in a
+    shrinking `qExpand` range. The modular equation `Φ_p` has both
+    `j(q ^ (p ^ (a + 2)))` and `j(q ^ (p ^ a))` as roots of `Φ_p(j(q ^ (p ^ (a + 1))), ·)`;
+    pushing it through `σ` forces both to the *same* root, and `σ` injective gives
+    `j(q ^ (p ^ (a + 2))) = j(q ^ (p ^ a))`, contradicted by the `q ^ (-(p ^ a))`
+    coefficient (1 vs 0).
 
   ## Source
 
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
-  `P2M/Sol/S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean` (node 443–985; lines
-  400–442 are T14's helpers) and
-  `P2M/Sol/S_ModularCurve_jqN_prime_not_mem_adjoin.lean` (node 426–651; lines
-  406–425 are T14's helpers). Both public statements are the `Theorems/` wrappers'
-  verbatim.
+  `P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean` and
+  `P2M/Sol/S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean` (node 443–985; lines 400–442
+  are T14's helpers). Both public statements are the `Theorems/` wrappers' verbatim.
+
+  ## Homing
+
+  The pin splits the non-membership over three files, and two of them carry a verbatim
+  copy of the slot machinery (`rval_aux` at
+  `S_ModularCurve_jqN_prime_not_mem_full.lean:832`, and again in the tower file). The port
+  writes that machinery once, in `SlotProduct.lean`, and keeps here the two facts the
+  induction consumes; the third pin statement, the public two-prime separation, consumes
+  T16 and so is downstream, in `TwoPrimeSeparation.lean`. This ordering is what lets
+  `DegreeStep.relfinrank_full_eq_mul` derive its non-membership hypothesis instead of
+  demanding it from the caller.
 
   ## Dedup
 
-  Both files open with T14's ~370-line prelude, already written once in
-  `Defs/PhiAtSlot.lean`, `Defs/TS.lean`, `Defs/Cyclotomic.lean` and
-  `Defs/Jq.lean`; none of it is re-copied here. The six tower helpers and the two
-  base helpers that the pin repeats are those T14 declarations, imported. The
-  pin's two `set_option maxHeartbeats 3200000 in` (at 715 and 961) are omitted —
-  they are below the port's global `4000000`.
+  The non-membership section uses nine helpers of the slot machinery, exported by
+  `SlotProduct.lean` for it (`slots`, `sv`, `sv_eq_TS`, `mem_adjoin_jqN_of_mem_mff`,
+  `map_qExpand_minpoly_eq`, `nodup_slotValues_qExpand`, `isIntegral_adjoin_jqN`,
+  `natDegree_minpoly_jqN`, `rval_aux`); the pin has them `private` only because it re-proves
+  them per file. Nothing of T14's prelude is re-copied here. The pin's
+  `set_option maxHeartbeats 3200000 in` are omitted — below the port's global 4000000.
 
   ## Assumptions
 
-  T4's `mem_range_of_eval_eq_const` (`FieldTheory/CommonRoot`); T12's
-  `exists_phiIrreducible_evalSymm`; T13's `PhiGen.splits_prime_at_slot`; T14's
-  `phiAtSeed*`, `isRoot_prime_at_slot_iff`, `roots_prime_at_slot*`, `iota_jq`,
-  `iota_jqN`, `TS_congr`/`TS_injective`,
-  `qExpand_qTwist_notMem_range_qExpand`; T16's
-  `finrank_adjoin_jqN_prime_of_not_mem`; `Defs/Laurent`'s `coeffMap_injective`/
-  `qExpand_injective`; `Defs/Cyclotomic`'s `cycUnit`/`cycUnit_spec`;
+  `SlotProduct`'s slot machinery; T4's `mem_range_of_eval_eq_const`
+  (`FieldTheory/CommonRoot`); T12's `exists_phiIrreducible_evalSymm`; T13's
+  `splits_prime_at_slot`; T14's `phiAtSeed*`, `isRoot_prime_at_slot_iff`,
+  `roots_prime_at_slot*`, `iota_jq`, `iota_jqN`, `TS_congr`/`TS_injective`,
+  `qExpand_qTwist_notMem_range_qExpand`; T16's `finrank_adjoin_jqN_prime_of_not_mem` and
+  `finrank_adjoin_jqN_eq_of_prime`; T18's `gen_prime`; `Defs/Laurent`'s
+  `coeffMap_injective`/`qExpand_injective`; `Defs/Cyclotomic`'s `cycUnit`/`cycUnit_spec`;
   `Defs/Fields`'s `modularFunctionFieldFull`/`jqd_mem_full`; `Defs/Jq`'s
   `coeff_jq_neg_one`/`jqN_one`/`jqN_congr`.
+  spec-pin: Theorems/Thm_ModularCurve_jqN_prime_not_mem_full.lean
   spec-pin: Theorems/Thm_ModularCurve_jqN_pow_not_mem_adjoin_full.lean
-  spec-pin: Theorems/Thm_ModularCurve_jqN_prime_not_mem_adjoin.lean
 -/
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import FLTForHuman.FieldTheory.CommonRoot
@@ -69,29 +68,389 @@ import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.Defs.Fields
+import FLTForHuman.ModularCurve.Defs.Invariants
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.PhiSlotRoots
 import FLTForHuman.ModularCurve.PhiGenSplits
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
 
 set_option autoImplicit false
--- The pin installs the `Algebra F (LaurentSeries K) := σ.toAlgebra` instance (via
--- `letI`) and the `IsCyclotomicExtension` instance; both are consumed by
--- typeclass search, so the style linter's `have` preference does not apply. Same
--- local disable as `Descent.lean`/`DegreeStep.lean`.
+-- The pin installs the `Algebra ℚ⟮jq⟯ (LaurentSeries K)` instance (via `letI`) and uses
+-- `haveI` for various `NeZero`/`Fact` instances; they are consumed by typeclass search, so
+-- the style linter's `have` preference does not apply. Same local disable as
+-- `SlotProduct.lean`/`DegreeStep.lean`.
 set_option linter.style.haveILetI false
 
 noncomputable section
 
 open Polynomial HahnSeries IntermediateField
 
+-- The `algebraAdjoinAdjoin` scoped instances are what make the `Module.Free`/
+-- `IsFractionRing` search on the adjoin towers cheap; the pin's `p2m_open` activated them.
+open scoped IntermediateField.algebraAdjoinAdjoin
+
 namespace ModularCurve
 
 open PhiGen
 
 variable {K : Type*} [Field K] [Algebra ℚ K]
+
+/-- **The expanded slots are distinct**: applying `qExpand K p` to the `ζ ^ p`-slots keeps
+them distinct, `qExpand K p` being injective. -/
+private theorem nodup_slotValues_qExpand {M p : ℕ} [NeZero p] {ζ : Kˣ} (hM0 : M ≠ 0)
+    (hζ : IsPrimitiveRoot ((ζ ^ p : Kˣ) : K) M) :
+    (slotValues M (fun a b => qExpand K p (sv K (ζ ^ p) a b))).Nodup := by
+  refine nodup_slotValues fun a b a' b' ha ha' hb hb' h => ?_
+  exact sv_inj_slot hζ hM0 (Nat.mem_divisors.mp ha).1 (Nat.mem_divisors.mp ha').1
+    (Finset.mem_range.mp (Finset.mem_filter.mp hb).1)
+    (Finset.mem_range.mp (Finset.mem_filter.mp hb').1)
+    (RingHom.injective (qExpand K p) h)
+
+/-! ## The `M`-arbitrary non-membership
+
+`j(q ^ p) ∉ F_M^full` for `p ∤ M`, from `Hall M`. The `hall` at `d = p` uses
+T18's `gen_prime` (and `tight_one`/`gen_one` at `d = 1`) instead of the pin's
+`functionFieldGeneration_of_squarefree p`, so no squarefree-block declaration is
+pulled in; `mem_range_of_eval_eq_const` is T4's engine from
+`FieldTheory/CommonRoot.lean`, not restated.
+
+The slot product at `M` for the primitive root `ζ ^ p` gives the `ψ(M)` roots of the
+pushed minimal polynomial, and they are exactly the `ψ(M)` distinct slot values
+(`hroots`). Reading `j(q ^ p) = g (j(q ^ M))` with `deg g < ψ(M)`, the polynomial `g`
+is constant on those slots (`eval_map_eq_of_mem_slotValues`), so its value lies in the
+image of `(coeffEmb K).comp (qExpand ℚ (M * p))` (`mem_range_of_eval_eq_const`), which
+forces `j(q ^ p)` into the base field. -/
+
+section NonMem0
+
+open IntermediateField
+
+/-- **A conjugate maps the adjoin into the `qExpand K p`-image**: if `y` lies in the image of
+`qExpand K p`, the push of scalars along `ψy` is the `coeffEmb` map, and
+`qExpand K p` of a `coeffEmb`-image is a `coeffEmb`-image (`hιS`), then `ψy` sends *every*
+element of `ℚ⟮jq⟯⟮jqN M⟯` into that image. The induction is over the simple extension. -/
+private theorem map_mem_fieldRange {M p : ℕ} [NeZero M] [NeZero p] {y : LaurentSeries K}
+    [Algebra ℚ⟮jq⟯ (LaurentSeries K)]
+    {ψy : ℚ⟮jq⟯⟮jqN M⟯ →ₐ[ℚ⟮jq⟯] LaurentSeries K}
+    (hψgen : ∀ h : jqN M ∈ IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ)),
+      ψy ⟨jqN M, h⟩ = y)
+    (hyS : y ∈ (qExpand K p).fieldRange)
+    (hιS : ∀ w : LaurentSeries ℚ, coeffEmb K (qExpand ℚ (M * p) w)
+      = qExpand K p (coeffEmb K (qExpand ℚ M w)))
+    (halg : algebraMap ℚ⟮jq⟯ (LaurentSeries K)
+      = ((coeffEmb K).comp (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) :
+    ∀ (x : LaurentSeries ℚ)
+      (hx : x ∈ IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ))),
+      ψy ⟨x, hx⟩ ∈ (qExpand K p).fieldRange := by
+  intro x hx
+  induction hx using IntermediateField.adjoin_induction with
+  | mem z hz =>
+      rw [Set.mem_singleton_iff] at hz
+      subst hz
+      rw [hψgen]
+      exact hyS
+  | algebraMap z =>
+      show ψy (algebraMap ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN M⟯ z) ∈ (qExpand K p).fieldRange
+      rw [AlgHom.commutes, halg]
+      show coeffEmb K (qExpand ℚ (M * p)
+        ((algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) z)) ∈ (qExpand K p).fieldRange
+      rw [hιS]
+      exact RingHom.mem_fieldRange.mpr ⟨_, rfl⟩
+  | add x₁ x₂ hx₁ hx₂ ih₁ ih₂ =>
+      show ψy ⟨x₁ + x₂, add_mem hx₁ hx₂⟩ ∈ (qExpand K p).fieldRange
+      rw [show (⟨x₁ + x₂, add_mem hx₁ hx₂⟩ : ℚ⟮jq⟯⟮jqN M⟯)
+        = ⟨x₁, hx₁⟩ + ⟨x₂, hx₂⟩ from rfl, map_add]
+      exact Subfield.add_mem _ ih₁ ih₂
+  | mul x₁ x₂ hx₁ hx₂ ih₁ ih₂ =>
+      show ψy ⟨x₁ * x₂, mul_mem hx₁ hx₂⟩ ∈ (qExpand K p).fieldRange
+      rw [show (⟨x₁ * x₂, mul_mem hx₁ hx₂⟩ : ℚ⟮jq⟯⟮jqN M⟯)
+        = ⟨x₁, hx₁⟩ * ⟨x₂, hx₂⟩ from rfl, map_mul]
+      exact Subfield.mul_mem _ ih₁ ih₂
+  | inv x₁ hx₁ ih₁ =>
+      show ψy ⟨x₁⁻¹, inv_mem hx₁⟩ ∈ (qExpand K p).fieldRange
+      rw [show (⟨x₁⁻¹, inv_mem hx₁⟩ : ℚ⟮jq⟯⟮jqN M⟯)
+        = (⟨x₁, hx₁⟩ : ℚ⟮jq⟯⟮jqN M⟯)⁻¹ from rfl, map_inv₀]
+      exact Subfield.inv_mem _ ih₁
+/-- **The `hall` hypothesis at the prime `p`**: for each divisor `d` of `p` the degree and
+function-field conditions hold — `tight_one`/`gen_one` at `d = 1`, and
+`finrank_adjoin_jqN_eq_of_prime`/`gen_prime` at `d = p`. -/
+private theorem hall_prime (p : ℕ) [hp : Fact (Nat.Prime p)] :
+    ∀ d : ℕ, d ∣ p → ∀ [NeZero d],
+      Module.finrank ℚ⟮jq⟯
+          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
+        ∧ modularFunctionField d = modularFunctionFieldFull d := by
+  intro d hd _
+  rcases (Nat.Prime.eq_one_or_self_of_dvd hp.out d hd) with h1 | h2
+  · subst h1
+    exact ⟨tight_one, gen_one⟩
+  · have h2' := h2.symm
+    subst h2'
+    constructor
+    · rw [dedekindPsi_prime hp.out]
+      exact finrank_adjoin_jqN_eq_of_prime p
+    · exact gen_prime p
+
+/-- **`g` is constant on the slots**: if `j(q ^ p)` lies in `ℚ⟮jq⟯⟮jqN M⟯` and is
+represented there by a polynomial `g'` (`hg'`), then `g'` takes the same value
+`coeffEmb K (qExpand ℚ (M * p) (jqN p))` at every slot of the `ζ ^ p`-slot product. The
+proof evaluates `g'` through a conjugate `ψy` at each slot `y`; `ψy` maps the whole field
+into the image of `qExpand K p`, where the `Φ_p`-factorisation pins the value down. The
+`Algebra` instance and `halg` are the pin's `letI`: the `(coeffEmb K ∘ qExpand ℚ (M * p))`
+push of scalars. -/
+private theorem eval_map_eq_of_mem_slotValues {M p : ℕ} [NeZero M] [NeZero p]
+    [hp : Fact (Nat.Prime p)] {ζ : Kˣ} (hpM : ¬ p ∣ M)
+    (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) (M * p))
+    (hα : IsIntegral ℚ⟮jq⟯ (jqN M))
+    (hroots : ((minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
+        (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots
+      = slotValues M (fun a b => qExpand K p (sv K (ζ ^ p) a b)))
+    (hmem : jqN p ∈ IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ)))
+    [Algebra ℚ⟮jq⟯ (LaurentSeries K)]
+    (halg : algebraMap ℚ⟮jq⟯ (LaurentSeries K)
+      = ((coeffEmb K).comp (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
+    {g' : Polynomial ℚ⟮jq⟯}
+    (hg' : Polynomial.aeval (jqN M) g' = jqN p)
+    {y : LaurentSeries K}
+    (hy : y ∈ slotValues M (fun a b => qExpand K p (sv K (ζ ^ p) a b))) :
+    Polynomial.aeval y g' = coeffEmb K (qExpand ℚ (M * p) (jqN p)) := by
+  have hM0 : M ≠ 0 := NeZero.ne M
+  have hp0 : p ≠ 0 := hp.out.ne_zero
+  haveI : NeZero (M * p) := ⟨Nat.mul_ne_zero hM0 hp0⟩
+  have hζM : IsPrimitiveRoot ((ζ ^ p : Kˣ) : K) M := by
+    have h1 := isPrimitiveRoot_pow_div hζ (⟨p, rfl⟩ : M ∣ M * p)
+    have h2 : M * p / M = p := Nat.mul_div_cancel_left p (Nat.pos_of_ne_zero hM0)
+    rwa [h2] at h1
+  have hζp : IsPrimitiveRoot ((ζ ^ M : Kˣ) : K) p := by
+    have h1 := isPrimitiveRoot_pow_div hζ (⟨M, Nat.mul_comm M p⟩ : p ∣ M * p)
+    have h2 : M * p / p = M := Nat.mul_div_cancel M (Nat.pos_of_ne_zero hp0)
+    rwa [h2] at h1
+  have hιS : ∀ w : LaurentSeries ℚ, coeffEmb K (qExpand ℚ (M * p) w)
+      = qExpand K p (coeffEmb K (qExpand ℚ M w)) := by
+    intro w
+    rw [← coeffEmb_qExpand, qExpand_qExpand]
+    exact congrArg (coeffEmb K) (qExpand_congr (Nat.mul_comm M p) w)
+  have hidpB := map_qExpand_minpoly_eq M rfl (ζ ^ M) (rval_aux p (ζ ^ M) hζp (hall_prime p))
+  obtain ⟨a₀, b₀, ha₀, hb₀, hyval⟩ := mem_slotValues.mp hy
+  have hyS : y ∈ (qExpand K p).fieldRange := by
+    rw [hyval]
+    exact RingHom.mem_fieldRange.mpr ⟨sv K (ζ ^ p) a₀ b₀, rfl⟩
+  have hy_ar : y ∈ (minpoly ℚ⟮jq⟯ (jqN M)).aroots (LaurentSeries K) := by
+    rw [Polynomial.aroots_def, halg, hroots]
+    exact hy
+  obtain ⟨ψy, hψy⟩ : ∃ ψy : ℚ⟮jq⟯⟮jqN M⟯ →ₐ[ℚ⟮jq⟯] LaurentSeries K,
+      ψy (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN M)) = y :=
+    ⟨(IntermediateField.algHomAdjoinIntegralEquiv ℚ⟮jq⟯ hα).symm ⟨y, hy_ar⟩,
+      IntermediateField.algHomAdjoinIntegralEquiv_symm_apply_gen ℚ⟮jq⟯ hα ⟨y, hy_ar⟩⟩
+  have hψgen : ∀ h : jqN M ∈ IntermediateField.adjoin ℚ⟮jq⟯
+      ({jqN M} : Set (LaurentSeries ℚ)), ψy ⟨jqN M, h⟩ = y := by
+    intro h
+    exact hψy
+  have himg := map_mem_fieldRange (K := K) hψgen hyS hιS halg
+  have hx_pS : ψy ⟨jqN p, hmem⟩ ∈ (qExpand K p).fieldRange := himg _ hmem
+  have hx_proot : ((minpoly ℚ⟮jq⟯ (jqN p)).map (((coeffEmb K).comp
+      (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
+      (ψy ⟨jqN p, hmem⟩) := by
+    have h1 : Polynomial.aeval (⟨jqN p, hmem⟩ : ℚ⟮jq⟯⟮jqN M⟯)
+        (minpoly ℚ⟮jq⟯ (jqN p)) = 0 := by
+      refine aeval_intermediateField_eq_zero ?_
+      show Polynomial.aeval (jqN p) (minpoly ℚ⟮jq⟯ (jqN p)) = 0
+      exact minpoly.aeval _ _
+    have h2 := Polynomial.aeval_algHom_apply ψy (⟨jqN p, hmem⟩ : ℚ⟮jq⟯⟮jqN M⟯)
+      (minpoly ℚ⟮jq⟯ (jqN p))
+    rw [h1, map_zero] at h2
+    rw [Polynomial.aeval_def, halg, Polynomial.eval₂_eq_eval_map] at h2
+    exact h2
+  rw [hidpB, Polynomial.IsRoot, Polynomial.eval_prod] at hx_proot
+  obtain ⟨α, hαmem, hα0⟩ := Finset.prod_eq_zero_iff.mp hx_proot
+  rw [Polynomial.eval_prod] at hα0
+  obtain ⟨β, hβmem, hβ0⟩ := Finset.prod_eq_zero_iff.mp hα0
+  rw [Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_eq_zero] at hβ0
+  obtain ⟨hαdvd, -⟩ := Nat.mem_divisors.mp hαmem
+  obtain ⟨hβr, -⟩ := Finset.mem_filter.mp hβmem
+  rw [Finset.mem_range] at hβr
+  rcases (Nat.Prime.eq_one_or_self_of_dvd hp.out α hαdvd) with hα1 | hα2
+  ·
+    -- `α = 1`: the conjugate is `TS K M (ζ ^ (M * β))`, whose `-(M)`-coefficient is a unit,
+    -- but any value in the image of `qExpand K p` vanishes there (`p ∤ M`).
+    subst hα1
+    exfalso
+    haveI : NeZero (1 : ℕ) := ⟨one_ne_zero⟩
+    have hv1 : qExpand K M (sv K (ζ ^ M) 1 β) = TS K M ((ζ ^ M) ^ (β * 1)) := by
+      rw [sv_eq_TS, qExpand_TS]
+      exact TS_congr' (by ring) rfl
+    obtain ⟨w, hw⟩ := RingHom.mem_fieldRange.mp hx_pS
+    have hw2 : qExpand K p w = TS K M ((ζ ^ M) ^ (β * 1)) := by
+      rw [hw, hβ0, hv1]
+    have hnd : ¬ ((p : ℤ) ∣ (-(M : ℤ))) := by
+      rw [dvd_neg, Int.natCast_dvd_natCast]
+      exact hpM
+    have hz1 : (qExpand K p w).coeff (-(M : ℤ)) = 0 :=
+      qExpand_coeff_of_not_dvd (R := K) (N := p) w hnd
+    have hz2 : (TS K M ((ζ ^ M) ^ (β * 1))).coeff (-(M : ℤ))
+        = ((((ζ ^ M) ^ (β * 1))⁻¹ : Kˣ) : K) :=
+      TS_coeff_neg M _
+    rw [hw2, hz2] at hz1
+    exact Units.ne_zero _ hz1
+  ·
+    -- `α = p`, `β = 0`: the conjugate is the distinguished slot, and `g'` evaluates to it.
+    have hα2' := hα2.symm
+    subst hα2'
+    have hβ0' : β = 0 := by
+      have h3 : p / p = 1 := Nat.div_self hp.out.pos
+      omega
+    subst hβ0'
+    have hsp : qExpand K M (sv K (ζ ^ M) p 0) = coeffEmb K (qExpand ℚ (M * p) (jqN p)) := by
+      rw [sv_eq_TS, qExpand_TS, iota_jqN (M * p) p]
+      exact TS_congr' (by ring) (by rw [zero_mul, pow_zero])
+    have hx_pval : ψy ⟨jqN p, hmem⟩ = coeffEmb K (qExpand ℚ (M * p) (jqN p)) := by
+      rw [hβ0, hsp]
+    have hgE : Polynomial.aeval (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN M)) g'
+        = (⟨jqN p, hmem⟩ : ℚ⟮jq⟯⟮jqN M⟯) := by
+      have h3 := Polynomial.aeval_algHom_apply (IntermediateField.val ℚ⟮jq⟯⟮jqN M⟯)
+        (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN M)) g'
+      refine Subtype.ext ?_
+      show ((Polynomial.aeval (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN M)) g' :
+        ℚ⟮jq⟯⟮jqN M⟯) : LaurentSeries ℚ) = jqN p
+      rw [show ((Polynomial.aeval (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN M)) g' :
+        ℚ⟮jq⟯⟮jqN M⟯) : LaurentSeries ℚ)
+        = (IntermediateField.val ℚ⟮jq⟯⟮jqN M⟯)
+          (Polynomial.aeval (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN M)) g')
+        from rfl, ← h3]
+      exact hg'
+    rw [← hψy, Polynomial.aeval_algHom_apply, hgE, hx_pval]
+
+/-- **Prime non-membership in the adjoin**: for `p ∤ M` and `hall M`, `jqN p` is not in
+`ℚ⟮jq⟯⟮jqN M⟯`. The `ψ(M)` distinct slots of `rval_aux M (ζ ^ p)` are the roots of the
+pushed minimal polynomial; `g'` of degree `< ψ(M)` is constant on them
+(`eval_map_eq_of_mem_slotValues`), so `jqN p` is the image of a scalar. -/
+private theorem jqN_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
+    (hpM : ¬ p ∣ M)
+    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
+      Module.finrank ℚ⟮jq⟯
+          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
+        ∧ modularFunctionField d = modularFunctionFieldFull d) :
+    jqN p ∉ IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ)) := by
+  classical
+  intro hmem
+  have hM0 : M ≠ 0 := NeZero.ne M
+  have hp0 : p ≠ 0 := hp.out.ne_zero
+  haveI : NeZero p := ⟨hp0⟩
+  haveI : NeZero (M * p) := ⟨Nat.mul_ne_zero hM0 hp0⟩
+  set K := CyclotomicField (M * p) ℚ with hK
+  have hζ : IsPrimitiveRoot ((cycUnit (M * p) : Kˣ) : K) (M * p) := cycUnit_spec (M * p)
+  have hζM : IsPrimitiveRoot (((cycUnit (M * p) : Kˣ) ^ p : Kˣ) : K) M := by
+    have h1 := isPrimitiveRoot_pow_div hζ (⟨p, rfl⟩ : M ∣ M * p)
+    have h2 : M * p / M = p := Nat.mul_div_cancel_left p (Nat.pos_of_ne_zero hM0)
+    rwa [h2] at h1
+  obtain ⟨htM, -⟩ := hall M dvd_rfl
+  have hα : IsIntegral ℚ⟮jq⟯ (jqN M) := isIntegral_adjoin_jqN htM
+  have hdeg : (minpoly ℚ⟮jq⟯ (jqN M)).natDegree = dedekindPsi M := natDegree_minpoly_jqN htM
+  have hidMB := map_qExpand_minpoly_eq p (show M * p = p * M from Nat.mul_comm M p)
+    ((cycUnit (M * p) : Kˣ) ^ p)
+    (rval_aux M ((cycUnit (M * p) : Kˣ) ^ p) hζM hall)
+  letI : Algebra ℚ⟮jq⟯ (LaurentSeries K) :=
+    (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
+      (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))).toAlgebra
+  have halg : algebraMap ℚ⟮jq⟯ (LaurentSeries K)
+      = ((coeffEmb K).comp (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) :=
+    RingHom.algebraMap_toAlgebra _
+  have hroots : ((minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp
+      (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots
+      = slotValues M (fun a b => qExpand K p (sv K ((cycUnit (M * p) : Kˣ) ^ p) a b)) := by
+    rw [hidMB, ← prod_slotValues (K := K)]
+    exact Polynomial.roots_multiset_prod_X_sub_C _
+  have hTcard : (slotValues M (fun a b =>
+      qExpand K p (sv K ((cycUnit (M * p) : Kˣ) ^ p) a b))).card = dedekindPsi M :=
+    card_slotValues hM0 _ (card_slotFilter_eq_dedekindPsi M hM0)
+  have hTnodup : (slotValues M (fun a b =>
+      qExpand K p (sv K ((cycUnit (M * p) : Kˣ) ^ p) a b))).Nodup :=
+    nodup_slotValues_qExpand hM0 hζM
+  have hscard : (slotValues M (fun a b =>
+      qExpand K p (sv K ((cycUnit (M * p) : Kˣ) ^ p) a b))).toFinset.card = dedekindPsi M := by
+    rw [Multiset.toFinset_card_of_nodup hTnodup]
+    exact hTcard
+  obtain ⟨g, hg⟩ : ∃ g : Polynomial ℚ⟮jq⟯, Polynomial.aeval (jqN M) g = jqN p := by
+    have h1 := IntermediateField.adjoin_simple_toSubalgebra_of_isAlgebraic hα.isAlgebraic
+    have h2 : jqN p ∈ Algebra.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ)) := by
+      rw [← h1]
+      exact hmem
+    rw [Algebra.adjoin_singleton_eq_range_aeval] at h2
+    obtain ⟨g, hg⟩ := h2
+    exact ⟨g, hg⟩
+  set g' := g %ₘ (minpoly ℚ⟮jq⟯ (jqN M)) with hg'def
+  have hg' : Polynomial.aeval (jqN M) g' = jqN p := by
+    have hsplit := Polynomial.modByMonic_add_div g (minpoly ℚ⟮jq⟯ (jqN M))
+    have h4 := congrArg (Polynomial.aeval (jqN M)) hsplit
+    rw [map_add, map_mul, minpoly.aeval, zero_mul, add_zero] at h4
+    rw [hg'def, h4]
+    exact hg
+  have hdegpos : 0 < (minpoly ℚ⟮jq⟯ (jqN M)).natDegree := by
+    rw [hdeg]
+    exact dedekindPsi_pos _ hM0
+  have hg'deg : g'.natDegree < (slotValues M (fun a b =>
+      qExpand K p (sv K ((cycUnit (M * p) : Kˣ) ^ p) a b))).toFinset.card := by
+    rw [hscard, ← hdeg]
+    rcases eq_or_ne g' 0 with h0 | h0
+    · rw [h0, Polynomial.natDegree_zero]
+      exact hdegpos
+    · exact Polynomial.natDegree_lt_natDegree h0
+        (Polynomial.degree_modByMonic_lt g (minpoly.monic hα))
+  have hval : ∀ y ∈ (slotValues M (fun a b =>
+      qExpand K p (sv K ((cycUnit (M * p) : Kˣ) ^ p) a b))).toFinset,
+      Polynomial.aeval y g' = coeffEmb K (qExpand ℚ (M * p) (jqN p)) := by
+    intro y hy
+    exact eval_map_eq_of_mem_slotValues (K := K) hpM hζ hα hroots hmem halg hg'
+      (Multiset.mem_toFinset.mp hy)
+  obtain ⟨z, hz⟩ := mem_range_of_eval_eq_const g'
+    (coeffEmb K (qExpand ℚ (M * p) (jqN p)))
+    (slotValues M (fun a b => qExpand K p (sv K ((cycUnit (M * p) : Kˣ) ^ p) a b))).toFinset
+    hg'deg hval
+  rw [halg] at hz
+  have hzval : (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) z = jqN p := by
+    apply RingHom.injective ((coeffEmb K).comp (qExpand ℚ (M * p)))
+    exact hz
+  have hjpF : jqN p ∈ ℚ⟮jq⟯ := by
+    rw [← hzval]
+    exact z.2
+  have hbot : IntermediateField.adjoin ℚ⟮jq⟯ ({jqN p} : Set (LaurentSeries ℚ))
+      = (⊥ : IntermediateField ℚ⟮jq⟯ (LaurentSeries ℚ)) := by
+    rw [IntermediateField.adjoin_simple_eq_bot_iff, IntermediateField.mem_bot]
+    exact ⟨⟨jqN p, hjpF⟩, rfl⟩
+  have h1 : Module.finrank ℚ⟮jq⟯
+      (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN p} : Set (LaurentSeries ℚ))) = 1 := by
+    rw [hbot]
+    exact IntermediateField.finrank_bot
+  have h2 := finrank_adjoin_jqN_eq_of_prime p
+  rw [h1] at h2
+  have h3 := hp.out.two_le
+  omega
+
+end NonMem0
+
+/-! ## The public node -/
+
+/-- **Prime non-membership**: `j(q ^ p) ∉ F_M^full` for `p ∤ M`. Verbatim from
+`Theorems/Thm_ModularCurve_jqN_prime_not_mem_full.lean` (explicit `hall`
+conjunction). -/
+theorem jqN_prime_not_mem_full (M : ℕ) [NeZero M] (p : ℕ)
+    [hp : Fact (Nat.Prime p)] (hpM : ¬ p ∣ M)
+    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
+      Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+          (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+            ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
+        ∧ modularFunctionField d = modularFunctionFieldFull d) :
+    jqN p ∉ modularFunctionFieldFull M := by
+  intro hmem0
+  obtain ⟨-, hgM⟩ := hall M dvd_rfl
+  have hmem : jqN p ∈ IntermediateField.adjoin
+      (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+      ({jqN M} : Set (LaurentSeries ℚ)) := by
+    rw [← hgM] at hmem0
+    exact mem_adjoin_jqN_of_mem_mff hmem0
+  exact jqN_prime_not_mem_adjoin M p hpM hall hmem
+
 
 /-! ## The prime-power tower -/
 
@@ -623,225 +982,6 @@ theorem jqN_pow_not_mem_adjoin_full (M : ℕ) [NeZero M] (p : ℕ)
         ∪ {x : LaurentSeries ℚ | ∃ i : ℕ, i ≤ a + 1 ∧ x = jqN (p ^ i)}) :=
   jqN_pow_not_mem_adjoin_full_key M p a hF
 
-/-! ## The two-prime separation -/
-
-private theorem step_contradiction (p r : ℕ) [hpp : Fact (Nat.Prime p)] [hrr : Fact (Nat.Prime r)]
-    (hrp : r ≠ p) (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) (p * r))
-    (data_p : ModularPolynomialData p) (data_r : ModularPolynomialData r)
-    (F : IntermediateField ℚ (LaurentSeries ℚ)) (hj : jq ∈ F)
-    (hpF : jqN p ∉ F) (hrF : jqN r ∉ F)
-    (hmem : jqN r ∈ IntermediateField.adjoin F ({jqN p} : Set (LaurentSeries ℚ))) : False := by
-  haveI : NeZero (p * r) := ⟨Nat.mul_ne_zero hpp.out.ne_zero hrr.out.ne_zero⟩
-  classical
-
-  have hdeg := finrank_adjoin_jqN_prime_of_not_mem F hj p hpF
-  have hjq_coe : algebraMap F (LaurentSeries ℚ) ⟨jq, hj⟩ = jq := rfl
-
-  have haeval_p : Polynomial.aeval (jqN p) (phiAtSeed data_p (⟨jq, hj⟩ : F)) = 0 := by
-    rw [Polynomial.aeval_def, ← Polynomial.eval_map, phiAtSeed_map, hjq_coe]
-    exact phiAtSeed_jq_eval p data_p
-  have hα : IsIntegral F (jqN p) :=
-    ⟨phiAtSeed data_p (⟨jq, hj⟩ : F), phiAtSeed_monic data_p _, by
-      rw [← Polynomial.aeval_def]; exact haeval_p⟩
-
-  have hmin_natdeg : (minpoly F (jqN p)).natDegree = p + 1 := by
-    rw [← IntermediateField.adjoin.finrank hα]
-    exact hdeg
-  have hPdeg : (phiAtSeed data_p (⟨jq, hj⟩ : F)).natDegree = p + 1 := by
-    rw [phiAtSeed_natDegree, dedekindPsi_prime hpp.out]
-  have hmin_eq : phiAtSeed data_p (⟨jq, hj⟩ : F) = minpoly F (jqN p) := by
-    apply minpoly.unique_of_degree_le_degree_minpoly _ _ (phiAtSeed_monic data_p _) haeval_p
-    rw [Polynomial.degree_eq_natDegree (phiAtSeed_monic data_p (⟨jq, hj⟩ : F)).ne_zero,
-      Polynomial.degree_eq_natDegree (minpoly.ne_zero hα), hPdeg, hmin_natdeg]
-
-  letI : Algebra F (LaurentSeries K) :=
-    (((coeffEmb K).comp (qExpand ℚ (p * r))).comp (algebraMap F (LaurentSeries ℚ))).toAlgebra
-  have halg : algebraMap F (LaurentSeries K)
-      = ((coeffEmb K).comp (qExpand ℚ (p * r))).comp (algebraMap F (LaurentSeries ℚ)) :=
-    RingHom.algebraMap_toAlgebra _
-
-  have hmap_min : (minpoly F (jqN p)).map (algebraMap F (LaurentSeries K))
-      = data_p.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
-          (qExpand K (p * r) (qTwist ((1 : Kˣ) ^ p) (coeffEmb K jq)))) := by
-    rw [← hmin_eq, halg, ← Polynomial.map_map, phiAtSeed_map, hjq_coe, phiAtSeed_map,
-      RingHom.comp_apply, iota_jq, one_pow, phiAtSeed, TS, coeffEmb_jq]
-  have hpdvd : p ∣ p * r := dvd_mul_right p r
-  have hroots : (minpoly F (jqN p)).aroots (LaurentSeries K)
-      = qExpand K (p * (p * r)) (qTwist ((1 : Kˣ) ^ (p * p)) (coeffEmb K jq)) ::ₘ
-        (Multiset.range p).map
-          (fun b => qExpand K r (qTwist ((1 : Kˣ) * ζ ^ (b * (p * r / p))) (coeffEmb K jq))) := by
-    rw [Polynomial.aroots_def, hmap_min, roots_prime_at_slot (p * r) ζ hζ p hpdvd data_p r 1]
-  have hM_nodup : ((minpoly F (jqN p)).aroots (LaurentSeries K)).Nodup := by
-    rw [hroots]
-    exact roots_prime_at_slot_nodup (p * r) ζ hζ p hpdvd r 1
-  have hM_card : Multiset.card ((minpoly F (jqN p)).aroots (LaurentSeries K)) = p + 1 := by
-    rw [hroots, Multiset.card_cons, Multiset.card_map, Multiset.card_range]
-
-  obtain ⟨g, hg_deg, hg⟩ := (IntermediateField.adjoin.powerBasis hα).exists_eq_aeval
-    (⟨jqN r, hmem⟩ : IntermediateField.adjoin F ({jqN p} : Set (LaurentSeries ℚ)))
-  rw [IntermediateField.adjoin.powerBasis_gen] at hg
-  rw [IntermediateField.adjoin.powerBasis_dim, hmin_natdeg] at hg_deg
-
-  have hconst_range : ∀ cf : F, algebraMap F (LaurentSeries K) cf ∈ (qExpand K r).range := by
-    intro cf
-    rw [halg, RingHom.comp_apply, RingHom.comp_apply]
-    refine RingHom.mem_range.mpr ⟨qExpand K p (coeffEmb K (algebraMap F (LaurentSeries ℚ) cf)), ?_⟩
-    rw [qExpand_qExpand, ← coeffEmb_qExpand]
-    exact congrArg (coeffEmb K) (qExpand_congr (Nat.mul_comm r p) _)
-  have hroot_range : ∀ y₀ ∈ (minpoly F (jqN p)).aroots (LaurentSeries K),
-      y₀ ∈ (qExpand K r).range := by
-    intro y₀ hy₀
-    rw [hroots] at hy₀
-    rcases Multiset.mem_cons.mp hy₀ with h | h
-    · subst h
-      refine RingHom.mem_range.mpr
-        ⟨qExpand K (p * p) (qTwist ((1 : Kˣ) ^ (p * p)) (coeffEmb K jq)), ?_⟩
-      rw [qExpand_qExpand]
-      exact qExpand_congr (by ring) _
-    · obtain ⟨b, hb, rfl⟩ := Multiset.mem_map.mp h
-      exact RingHom.mem_range.mpr ⟨qTwist ((1 : Kˣ) * ζ ^ (b * (p * r / p))) (coeffEmb K jq), rfl⟩
-
-  have hrpZ : ¬ ((r : ℤ) ∣ (p : ℤ)) := by
-    rw [Int.natCast_dvd_natCast]
-    intro hdvd
-    exact hrp ((Nat.prime_dvd_prime_iff_eq hrr.out hpp.out).mp hdvd)
-  have hrdvd : r ∣ p * r := dvd_mul_left r p
-
-  have hkill : ∀ y : LaurentSeries K,
-      (phiAtSeed data_r (coeffEmb K (qExpand ℚ (p * r) jq))).eval y = 0 →
-      y ∈ (qExpand K r).range → y = coeffEmb K (qExpand ℚ (p * r) (jqN r)) := by
-    intro y hy hyr
-    have hseed : coeffEmb K (qExpand ℚ (p * r) jq)
-        = qExpand K (r * p) (qTwist ((1 : Kˣ) ^ r) (coeffEmb K jq)) := by
-      rw [one_pow, iota_jq, show TS K (p * r) (1 : Kˣ) = TS K (r * p) 1 from
-        TS_congr (Nat.mul_comm p r) 1, TS, coeffEmb_jq]
-    rw [phiAtSeed, hseed] at hy
-    rcases (isRoot_prime_at_slot_iff (p * r) ζ hζ r hrdvd data_r p 1 y).mp hy with h | ⟨c, hc, h⟩
-    · rw [h, one_pow, iota_jqN, coeffEmb_jq]
-      show TS K (r * (r * p)) 1 = TS K (p * r * r) 1
-      exact TS_congr (by ring) 1
-    · exfalso
-      rw [h] at hyr
-      exact qExpand_qTwist_notMem_range_qExpand hrpZ _ hyr
-
-  have hx_root : Polynomial.aeval
-      (⟨jqN r, hmem⟩ : IntermediateField.adjoin F ({jqN p} : Set (LaurentSeries ℚ)))
-      (phiAtSeed data_r (⟨jq, hj⟩ : F)) = 0 := by
-    apply aeval_intermediateField_eq_zero
-    show Polynomial.aeval (jqN r) (phiAtSeed data_r (⟨jq, hj⟩ : F)) = 0
-    rw [Polynomial.aeval_def, ← Polynomial.eval_map, phiAtSeed_map, hjq_coe]
-    exact phiAtSeed_jq_eval r data_r
-
-  have hval_key : ∀ y₀ ∈ (minpoly F (jqN p)).aroots (LaurentSeries K),
-      Polynomial.aeval y₀ g = coeffEmb K (qExpand ℚ (p * r) (jqN r)) := by
-    intro y₀ hy₀
-    obtain ⟨σ, hσ_gen⟩ :
-        ∃ σ : (IntermediateField.adjoin F ({jqN p} : Set (LaurentSeries ℚ))) →ₐ[F] LaurentSeries K,
-          σ (IntermediateField.AdjoinSimple.gen F (jqN p)) = y₀ :=
-      ⟨(IntermediateField.algHomAdjoinIntegralEquiv F hα).symm ⟨y₀, hy₀⟩,
-        IntermediateField.algHomAdjoinIntegralEquiv_symm_apply_gen F hα ⟨y₀, hy₀⟩⟩
-    have hσx_eq : σ ⟨jqN r, hmem⟩ = Polynomial.aeval y₀ g := by
-      rw [hg, ← Polynomial.aeval_algHom_apply, hσ_gen]
-    have hy_root : (phiAtSeed data_r (coeffEmb K (qExpand ℚ (p * r) jq))).eval
-        (σ ⟨jqN r, hmem⟩) = 0 := by
-      have h1 := Polynomial.aeval_algHom_apply σ
-        (⟨jqN r, hmem⟩ : IntermediateField.adjoin F ({jqN p} : Set (LaurentSeries ℚ)))
-        (phiAtSeed data_r (⟨jq, hj⟩ : F))
-      rw [hx_root, map_zero] at h1
-      rw [Polynomial.aeval_def, ← Polynomial.eval_map, halg, ← Polynomial.map_map,
-        phiAtSeed_map, hjq_coe, phiAtSeed_map, RingHom.comp_apply] at h1
-      exact h1
-    have hrange : σ ⟨jqN r, hmem⟩ ∈ (qExpand K r).range := by
-      rw [hσx_eq, Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range]
-      exact sum_mem fun i _ => mul_mem (hconst_range _) (pow_mem (hroot_range y₀ hy₀) i)
-    rw [← hσx_eq]
-    exact hkill _ hy_root hrange
-
-  have hs_card : ((minpoly F (jqN p)).aroots (LaurentSeries K)).toFinset.card = p + 1 := by
-    rw [Multiset.toFinset_card_of_nodup hM_nodup, hM_card]
-  have hfin : coeffEmb K (qExpand ℚ (p * r) (jqN r)) ∈ (algebraMap F (LaurentSeries K)).range := by
-    refine Polynomial.mem_range_of_eval_eq_const g _
-      ((minpoly F (jqN p)).aroots (LaurentSeries K)).toFinset ?_ ?_
-    · rw [hs_card]
-      exact hg_deg
-    · intro y₀ hy₀
-      exact hval_key y₀ (Multiset.mem_toFinset.mp hy₀)
-  obtain ⟨cf, hcf⟩ := RingHom.mem_range.mp hfin
-  rw [halg, RingHom.comp_apply, RingHom.comp_apply] at hcf
-  have h3 : algebraMap F (LaurentSeries ℚ) cf = jqN r := by
-    have hinj : Function.Injective (coeffEmb K) := by
-      rw [coeffEmb]
-      exact coeffMap_injective (algebraMap ℚ K).injective
-    exact qExpand_injective (p * r) (hinj hcf)
-  rw [IntermediateField.algebraMap_apply] at h3
-  exact hrF (h3 ▸ cf.2)
-
-private theorem jqN_prime_not_mem_adjoin_key (S : Finset ℕ) : (∀ p ∈ S, p.Prime) →
-    ∀ (r : ℕ) [NeZero r], Nat.Prime r → r ∉ S →
-    jqN r ∉ IntermediateField.adjoin ℚ
-      (insert jq {x : LaurentSeries ℚ | ∃ p ∈ S, ∃ _ : NeZero p, x = jqN p}) := by
-  induction S using Finset.induction_on with
-  | empty =>
-      intro _ r _ hr hrS hmem
-      haveI : Fact (Nat.Prime r) := ⟨hr⟩
-      have hset : (insert jq {x : LaurentSeries ℚ | ∃ p ∈ (∅ : Finset ℕ), ∃ _ : NeZero p, x = jqN p})
-          = ({jq} : Set (LaurentSeries ℚ)) := by
-        ext x
-        simp
-      rw [hset] at hmem
-
-      have hM3 := finrank_adjoin_jqN_eq_of_prime r
-      have hbot : IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-          ({jqN r} : Set (LaurentSeries ℚ)) = ⊥ := by
-        rw [IntermediateField.adjoin_simple_eq_bot_iff]
-        exact IntermediateField.mem_bot.mpr ⟨⟨jqN r, hmem⟩, rfl⟩
-      rw [hbot, IntermediateField.finrank_bot] at hM3
-      have h2 := hr.two_le
-      omega
-  | insert q T hqT IH =>
-      intro hS' r _ hr hrS' hmem
-      have hq : Nat.Prime q := hS' q (Finset.mem_insert_self q T)
-      have hT : ∀ p ∈ T, p.Prime := fun p hp => hS' p (Finset.mem_insert_of_mem hp)
-      have hrq : r ≠ q := fun h => hrS' (h ▸ Finset.mem_insert_self q T)
-      have hrT : r ∉ T := fun h => hrS' (Finset.mem_insert_of_mem h)
-      haveI : Fact (Nat.Prime q) := ⟨hq⟩
-      haveI : Fact (Nat.Prime r) := ⟨hr⟩
-      have hqF : jqN q ∉ IntermediateField.adjoin ℚ
-          (insert jq {x : LaurentSeries ℚ | ∃ p ∈ T, ∃ _ : NeZero p, x = jqN p}) := IH hT q hq hqT
-      have hrF : jqN r ∉ IntermediateField.adjoin ℚ
-          (insert jq {x : LaurentSeries ℚ | ∃ p ∈ T, ∃ _ : NeZero p, x = jqN p}) := IH hT r hr hrT
-      have hj : jq ∈ IntermediateField.adjoin ℚ
-          (insert jq {x : LaurentSeries ℚ | ∃ p ∈ T, ∃ _ : NeZero p, x = jqN p}) :=
-        IntermediateField.subset_adjoin ℚ _ (Set.mem_insert _ _)
-      have hsets : (insert jq {x : LaurentSeries ℚ | ∃ p ∈ insert q T, ∃ _ : NeZero p, x = jqN p})
-          = (insert jq {x : LaurentSeries ℚ | ∃ p ∈ T, ∃ _ : NeZero p, x = jqN p}) ∪ {jqN q} := by
-        ext x
-        simp only [Set.mem_insert_iff, Set.mem_ofPred_eq, Finset.mem_insert, Set.mem_union,
-          Set.mem_singleton_iff]
-        constructor
-        · rintro (rfl | ⟨p', rfl | hp'T, hne, rfl⟩)
-          · exact Or.inl (Or.inl rfl)
-          · exact Or.inr rfl
-          · exact Or.inl (Or.inr ⟨p', hp'T, hne, rfl⟩)
-        · rintro ((rfl | ⟨p', hp'T, hne, rfl⟩) | rfl)
-          · exact Or.inl rfl
-          · exact Or.inr ⟨p', Or.inr hp'T, hne, rfl⟩
-          · exact Or.inr ⟨q, Or.inl rfl, ⟨hq.ne_zero⟩, rfl⟩
-      rw [hsets, ← IntermediateField.adjoin_adjoin_left,
-        IntermediateField.mem_restrictScalars] at hmem
-      obtain ⟨data_q, -, -⟩ := exists_phiIrreducible_evalSymm q
-      obtain ⟨data_r, -, -⟩ := exists_phiIrreducible_evalSymm r
-      haveI : NeZero (q * r) := ⟨Nat.mul_ne_zero hq.ne_zero hr.ne_zero⟩
-      exact step_contradiction q r hrq (cycUnit (q * r)) (cycUnit_spec (q * r)) data_q data_r
-        _ hj hqF hrF hmem
-
-/-- **The two-prime separation**: `jqN r` is not in `ℚ(j, j(q ^ p) : p ∈ S)` for a
-finite set `S` of primes not containing `r`. Verbatim from
-`Theorems/Thm_ModularCurve_jqN_prime_not_mem_adjoin.lean`. -/
-theorem jqN_prime_not_mem_adjoin (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) (r : ℕ)
-    [hr : Fact (Nat.Prime r)] (hrS : r ∉ S) : jqN r ∉ IntermediateField.adjoin ℚ
-      (insert jq {x : LaurentSeries ℚ | ∃ p ∈ S, ∃ _ : NeZero p, x = jqN p}) :=
-  jqN_prime_not_mem_adjoin_key S hS r hr.out hrS
 
 end ModularCurve
 

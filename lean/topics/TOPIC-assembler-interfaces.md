@@ -1,19 +1,22 @@
-# Assembler interfaces: what a transcribed signature records, and how to give it back
+# Assembler interfaces, proof scripts, and module boundaries: how a ported proof becomes readable
 
-**Status: methods note, written from the FFG T15 case (2026-11-04).** §1–§4 are the diagnosis,
-§5 the remedy menu, §6 the measured cost of each mechanism, §7 the naming/namespace policy, §8 the
-audit recipe, §9 where else in the tree to look. The FFG instance — the exact edits, the module
-split, the gates — is
+**Status: methods note, written from the FFG T15 case (2026-11-04); §7–§8 added the same day from
+the T16 dispatcher case.** §1–§4 are the diagnosis, §5 the remedy menu, §6 the measured cost of
+each mechanism, §7 the proof-script tests, §8 the certificate and module-graph tests, §9 the
+naming/namespace policy, §10 the audit recipe, §11 where else in the tree to look. The two worked
+instances — the exact edits, the module splits, the gates — are
 [functionFieldGeneration/TOPIC-ffg-refactor.md](functionFieldGeneration/TOPIC-ffg-refactor.md) §13.
 Companions: [TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md) (what to do with content the
 port already has) and [TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md) (where a
 declaration belongs). Authority for statement fidelity is
 [porting-playbook.md](../porting-playbook.md) §4, for what to export §5.
 
-**The worked instance, end to end: [CASE-hall-all.md](CASE-hall-all.md).** That is the note to
+**The worked instances, end to end: [CASE-hall-all.md](CASE-hall-all.md).** That is the note to
 point at when you say "refactor this like `hall_all`": symptoms, the seven-step treatment, the
-before/after arc with numbers, the six things the first attempt got wrong, and the gates. This
-note is the method; the case note is what it looks like on a real node.
+before/after arc with numbers, the things the first attempts got wrong, and the gates — twice, the
+second time one node down on the prime-power degree dispatcher, where the last step turned out to
+be a module boundary rather than a statement. This note is the method; the case note is what it
+looks like on real nodes.
 
 **The claim, stated once.** An *assembler* — the theorem that closes a node by applying three or
 four ported theorems — is the declaration most likely to be unreadable, and the cause is
@@ -24,13 +27,25 @@ context**: the binders the script happened to have in scope, the auxiliary datum
 port cannot see the mathematics through it, and a caller cannot use the theorem without
 reconstructing the script.
 
-This note is the generalisation of one worked case; the case is worth reading first because every
+This note is the generalisation of two worked cases; each is worth reading first because every
 claim below is a number measured there.
+
+**Readability has three surfaces, and a fix on one does not reach the others.**
+
+| surface | the defect | the tests | the gates |
+|---|---|---|---|
+| the **statement** | it records the pin's proof script (§2) | decode into one sentence, count copies, find the `rcases` (§4) | the checker's diff against the wrapper |
+| the **proof script** | it performs arithmetic and setup instead of mathematics (§7) | the five-lines test, the closure test, the orientation test (§7) | none — only a reader |
+| the **module graph** | a certificate is homed by the file its proof came from, so the caller pays for it (§8) | producer-versus-consumer order, subject-versus-dependency (§8) | the wire, the register, the import cone |
+
+The last two have no mechanical gate: a body can be fully checkable and unreadable, and a tree can
+be fully green while every module is homed by an accident of its proof's import list. That is why
+they are in a methods note and not in a script.
 
 ## 1. The worked case, measured
 
 `ModularCurve.jqN_div_mem_modularFunctionField`
-([`FunctionFieldGeneration/Descent.lean`](../../FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean))
+([`FunctionFieldGeneration/Descent.lean`](../FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean))
 states:
 
 > For a prime `p` and a level `M`, `j(q ^ M) ∈ ℚ(j(q), j(q ^ (M * p)))`.
@@ -182,6 +197,11 @@ with the counts measured on a copy of `Descent.lean` when it still had two diffa
 
 Three facts that are easy to get wrong, all verified:
 
+* **Where a marker goes (policy, 2026-11-04).** Only `spec/decl_markers.tsv`. The in-source
+  `-- pin:` / `-- own:` comments the checker still reads are the obsolete spelling and are not to
+  be reintroduced. A **promotion** whose statement is unchanged (a pin-`private` declaration made
+  public) needs no row at all: the checker matches it by name — nine of the ten promotions in the
+  dispatcher case did. A port-own *new* statement that must be public is the case a row exists for.
 * **`own:` is tier 2, not an exemption from review.** `spec/decl_markers.tsv` takes
   `<module path>`, `<full declaration name as the checker parses it>`, and `own: <reason>`. The name
   must be the one the parser produced: read it out of `spec/check_port.py --json` rather than
@@ -234,7 +254,119 @@ header (`no spec-pin: directive — not wired (tier 3)`, one measured line of ou
 is per declaration for the retirement and per module for the wire, and keeping them apart is what
 stops a module-level edit from unverifying a statement that still matches.
 
-## 7. Naming and namespace for port-invented vocabulary
+## 7. The proof script: does it read as mathematics?
+
+Fixing the statement is necessary and not sufficient: the same case that produced §1 also produced a
+body of eighty lines in which the mathematics was three of them. Six tests, in the order a reader
+hits them. Each is a question you ask of a line, and each has a mechanical or near-mechanical
+answer.
+
+**The five-lines test.** Open the proof and read every line. Each must be one of: *the case
+split*, *the induction hypothesis*, *a named lemma's application*, *the comparison*, *the
+conclusion*. Anything else — a `set`, an `obtain` that manufactures the theorem's own datum, a
+three-line bound, a rewrite that exists only to orient an equation — is a missing name. In the T15
+descent nine lines of setup became one `obtain`; in the dispatcher a two-line certificate argument
+disappeared altogether, derived inside from the condition the caller holds.
+
+**The closure test.** A group of local facts consumed only by each other and by one or two
+downstream lemmas is one helper. Ask of every `have`: does anything outside this block use it? If
+no, and the block is longer than three lines, it is a `private` theorem — in the consumer if the
+statement is about this proof's own data (the decomposition `d = M * p ^ (a + 1)`, the bound below
+it), upstream if it is standard mathematics (a `ψ` recurrence, a power shape, a tower lemma).
+
+**The arithmetic test.** Does a line look like it belongs in a number-theory module? Then it
+does, and it needs a name. The tell is `omega`, `ring`, `Nat.minFac`, a `calc` chain over `ℕ`, or an
+`⟨p, by rw [pow_succ, mul_assoc]⟩` witness. This is the test that produced the upstream level
+bounds and, in the dispatcher case, the generic tower lemma `IntermediateField.adjoin_eq_adjoin_Iio`
+— a statement that names no `jq`, no `ℚ` and no prime, and therefore belonged in
+`FieldTheory/`.
+
+**The orientation test.** Keep the constants; eliminate the variables. In Lean `subst h` for
+`h : x = y` substitutes the *right-hand* side away when both are variables, so `h : d = N`
+eliminates the level `N` and leaves the divisor `d` — the opposite of what a reader wants in an
+induction over `N`. State the equation in the direction of the variable you want to disappear
+(`have hNd : N = d`, then `subst hNd`). If no orientation gives the right elimination, the proof
+has introduced a variable it does not need. (Measured: one line, and the whole `Tight` half went
+from `d` to `N`.)
+
+**The commentary test.** A comment inside a term is a claim no gate checks: it answers one
+reader's question at every reader's cost, and it is not compiled. If a line needs a comment it needs
+a *name* — a `def`, a lemma, a helper, or a different statement — and the explanation belongs in
+the module header, the topic note, or a test the build runs (`fail_if_success`). Corollary: do not
+add a comment to record why a step is there; add the step's name.
+
+**The call-site test.** A continued line that exists only to hold a certificate, a
+`(by rw [...])` inside an argument, or a nested application of a theorem that produces another
+theorem's hypothesis: these are §8's symptom, not a style matter. The caller should be able to
+write one line whose arguments are conditions it holds.
+
+Two habits that make these tests cheap to run. **Read the caller**: a body that looks fine on its
+own can be paying for itself at every use, and the use site is where the duplication shows
+(two lambdas with the same header, the same two-line term twice). **Measure the ratio**: statement
+lines to lines of mathematics, and proof lines to named applications. The numbers in §1 and §6 were
+taken that way, and the ratio is the only quantity that can be tracked across a wave.
+
+## 8. Certificates, seams, and the module graph
+
+The statement-level symptom (2) of §2 — *a binder the conclusion never mentions* — is usually a
+**certificate**: a hypothesis whose content is another node's conclusion, written out so that this
+node can consume it. The test and the repair:
+
+**The certificate test.** For every hypothesis, ask *which theorem produces it, and can I derive
+it from what the caller has?*
+
+* If the producing theorem lives **upstream**, put the derivation inside this theorem and take
+  the condition the caller actually holds. Measured on the T16 dispatcher, three times over:
+  `hup` (T18's generation) became `p ∤ M`; the `hall` projection (T17's prime non-membership)
+  became a line inside; `hnm` (T17's tower read at the full field) became two lines inside. The
+  caller's line went from three arguments to `relfinrank_full_eq_mul M p a hpM hallM`.
+* If the producing theorem lives **downstream**, the derivation cannot go inside, and the
+  interface is not the thing to change: the **tree** is. Split along the dependency (see below) or
+  accept the edge, but say which and why in the header.
+
+**Is it a condition or a certificate?** A condition is a statement about the objects in the
+conclusion ("the new generator is not in the lower field"); a certificate is a proof-shaped object
+(a field equality, a `Hall` bundle) that only matters because some proof needs it. The stopping
+point is the most general condition the *caller can produce in one line*, not the most general
+statement: the two ends of that trade are `hnm` (any proof of it) and `Hall M` (the induction's own
+state), and the dispatcher chose `Hall M` because the theorem *is* the induction's step.
+
+**The import-order test.** The module that states a theorem must sit downstream of everything its
+*proof* uses, and upstream of nothing its *caller* pays for. When a fact both (a) is consumed by a
+node and (b) consumes that node's statement, no ordering is free: **split the node along the
+dependency**, one module holding the facts the induction consumes and another the statement that
+consumes the degree step. Measured: one 891-line non-membership module became `Nonmembership`
+(988 lines, the two facts the induction uses) and `TwoPrimeSeparation` (300, the public `Theorems/`
+statement that needs T16).
+
+**The homing test.** Home by *subject*, not by the file the proof came from. The T19 helper
+`jqN_prime_not_mem_full` sat in `SlotProduct` because its proof uses the slot machinery; by subject
+it is non-membership, and that mis-homing is exactly what produced the `T16 ⇒ T19` import edge that
+reads (correctly) as a symptom. When a node's statement is the thing a module is *named for*, the
+module imports the machinery it needs; it does not host the machinery's other clients.
+
+**The tier test.** A port-own declaration — one the pin has only as a `private`, or not at all —
+has exactly two lawful homes: `private` in its consumer, or a **tier-3** module (no `spec-pin:`,
+registered with `spec/unwired_register.py`). A *promotion* whose statement is unchanged needs
+neither: the checker matches a promoted pin-`private` declaration by name (nine of ten promotions in
+the dispatcher case matched and cost nothing). `spec/decl_markers.tsv` is the residue mechanism, for
+a port-own statement that must be public: one row, with the reason. The in-source `-- pin:` /
+`-- own:` comments are the obsolete spelling and should not be reintroduced.
+
+**The seam test.** When the conclusion is over `ℚ` and the signature mentions a field `K`, the
+proof is base-changing, and the seam wants its own module with the caller's statement in its own
+terms (`DescentFromSlots`: no `K`, no `ζ`, no root predicate). The `K`-level theorem stays public —
+it is the mathematical statement with its certificate — but it is no longer what the next node
+calls. A seam module is the right answer when the certificate's module and the caller's module
+would otherwise have to be the same one.
+
+A last, unglamorous note. **No gate checks any of this.** The build, the checker, the register and
+`dedup` verify that the statement matches the pin, that nothing is unreachable, that the imports
+resolve and that the axioms are the three expected ones. They cannot tell whether the statement
+reads as a sentence, whether the body reads as mathematics, or whether a module is homed by subject.
+Those three are why the case notes exist.
+
+## 9. Naming and namespace for port-invented vocabulary
 
 The question that comes up immediately: should a new `def` be `private`, or live in a sub-namespace
 to avoid colliding with a future pin declaration?
@@ -267,7 +399,7 @@ Policy, in the port's terms:
 5. **Group, do not scatter.** One sub-namespace per family of port-invented vocabulary (here: the
    two nome/slot readers), not one namespace per `def` and not one per module.
 
-## 8. Audit recipe
+## 10. Audit recipe
 
 ```bash
 cd lean
@@ -294,7 +426,7 @@ cd ../tools/deps && python3 dedup.py --module <...> --no-json
 The `--json` run in (4) is not optional: it is the only way to learn the declaration name the marker
 table must use (§6), and the only way to see the `own:` rows that have gone stale.
 
-## 9. Where else to look, and what is not settled
+## 11. Where else to look, and what is not settled
 
 Candidates of the same shape, in the FFG directory first because that is where the case was measured:
 
@@ -328,6 +460,8 @@ wave 7 did, and the module is now tier 3 with its provenance in the header.
 **Not settled here.** (a) Whether to thread the auxiliary datum (symptom 5) through the signature
 as an explicit argument: it is the deeper fix, it *does* change the shape of the statement beyond
 respelling, and it has no consumer yet. (b) Whether the same retirement should be applied to the
-other assemblers in §9's list — each is a separate judgement, and the FFG case was chosen because it
+other assemblers in §11's list — each is a separate judgement, and the FFG case was chosen because it
 had a measured caller. (c) The threshold in §4 (4 : 1) is a review heuristic measured on one case,
-not a rule.
+not a rule. (d) A port-own helper that two modules need has no single lawful home yet: the
+dispatcher case promoted it and paid one `.tsv` row, the alternative is to move the vocabulary it
+depends on into a tier-3 module — both were argued on the day and neither is settled.

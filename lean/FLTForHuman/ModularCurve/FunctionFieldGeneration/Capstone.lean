@@ -31,6 +31,12 @@
   `Hall M`-level form (`jqN_mem_modularFunctionField_of_hall`), so this module no
   longer names the splitting field, the root of unity, `TS`, or a root predicate:
   that argument is `DescentFromSlots`'s, downstream of T19.
+
+  The private helpers this module keeps are the induction's own data: the
+  prime-power decomposition of the level (`exists_eq_mul_pow_succ_of_ne_one`) and its
+  bound. Both certificates the degree step needs are derived inside that theorem from
+  the prime-level non-membership, so the step is one application here:
+  `relfinrank_full_eq_mul M p a hpM hnotmem`, with `hnotmem` the prime-level fact.
 -/
 import Mathlib.FieldTheory.Relrank
 import Mathlib.Data.Nat.Factorization.Basic
@@ -39,8 +45,6 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DescentFromSlots
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
 
 set_option autoImplicit false
 
@@ -103,42 +107,6 @@ private theorem F0_le_full (N : ℕ) [NeZero N] : ℚ⟮jq⟯ ≤ modularFunctio
   rw [qExpand_one_apply] at h
   exact h
 
-private theorem full_le_adjoin_chain (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
-    (hpM : ¬ p ∣ M) : ∀ a : ℕ,
-    modularFunctionFieldFull (M * p ^ a) ≤ IntermediateField.adjoin ℚ
-      ((modularFunctionFieldFull M : Set (LaurentSeries ℚ))
-        ∪ {x : LaurentSeries ℚ | ∃ i : ℕ, i ≤ a ∧ x = jqN (p ^ i)}) := by
-  intro a
-  induction a with
-  | zero =>
-      rw [full_congr (show M * p ^ 0 = M by rw [pow_zero, mul_one])]
-      exact fun x hx => IntermediateField.subset_adjoin ℚ _ (Set.mem_union_left _ hx)
-  | succ k ih =>
-      rw [full_eq_adjoin_full_div_prime M p k hpM, IntermediateField.adjoin_le_iff,
-        Set.insert_subset_iff]
-      refine ⟨IntermediateField.subset_adjoin ℚ _ (Set.mem_union_right _
-        (show jqN (p ^ (k + 1)) ∈ {x : LaurentSeries ℚ | ∃ i : ℕ, i ≤ k + 1 ∧ x = jqN (p ^ i)}
-          from ⟨k + 1, le_rfl, rfl⟩)), ?_⟩
-      intro x hx
-      have hx' := ih hx
-      refine IntermediateField.adjoin.mono ℚ _ _ (Set.union_subset_union le_rfl ?_) hx'
-      intro y hy
-      obtain ⟨i, hi, hy⟩ := hy
-      exact ⟨i, Nat.le_succ_of_le hi, hy⟩
-
-private theorem jqN_pow_not_mem_full (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
-    (hpM : ¬ p ∣ M) (hallM : Hall M) (a : ℕ) :
-    jqN (p ^ (a + 1)) ∉ modularFunctionFieldFull (M * p ^ a) := by
-  have h0 : jqN p ∉ modularFunctionFieldFull M := jqN_prime_not_mem_full M p hpM hallM
-  rcases a with - | k
-  · rw [jqN_congr (show p ^ (0 + 1) = p by rw [zero_add, pow_one]),
-      full_congr (show M * p ^ 0 = M by rw [pow_zero, mul_one])]
-    exact h0
-  · intro hmem
-    have h1 := jqN_pow_not_mem_adjoin_full M p k h0
-    exact h1 (full_le_adjoin_chain M p hpM (k + 1) hmem)
-
-
 /-! ## The strong induction and the capstone -/
 
 /-- **The level's top prime-power step.** For `d ≠ 1`, write `d = M * p ^ (a + 1)` with
@@ -171,16 +139,16 @@ private theorem hall_all : ∀ N : ℕ, N ≠ 0 → Hall N := by
   intro hN d hdN hd
   by_cases hdlt : d < N
   · exact ih d hdlt (NeZero.ne d) d dvd_rfl
-  have hdN' : d = N := le_antisymm (Nat.le_of_dvd (Nat.pos_of_ne_zero hN) hdN) (not_lt.mp hdlt)
-  subst hdN'
-  by_cases h1 : d = 1
+  have hNd : N = d := le_antisymm (not_lt.mp hdlt) (Nat.le_of_dvd (Nat.pos_of_ne_zero hN) hdN)
+  subst hNd
+  by_cases h1 : N = 1
   · subst h1; exact ⟨tight_one, gen_one⟩
-  have hgen : Gen d := by
+  have hgen : Gen N := by
     unfold Gen
-    refine modularFunctionField_eq_full_of d ?_
+    refine modularFunctionField_eq_full_of N ?_
     intro M _ p hp hMp
     have : Fact (Nat.Prime p) := ⟨hp⟩
-    have hMlt : M < d := lt_of_mul_prime_eq (NeZero.ne M) hp hMp
+    have hMlt : M < N := lt_of_mul_prime_eq (NeZero.ne M) hp hMp
     have hallM : Hall M := ih M hMlt (NeZero.ne M)
     have hmem := jqN_mem_modularFunctionField_of_hall M p hallM
     rw [mff_congr hMp] at hmem
@@ -190,16 +158,15 @@ private theorem hall_all : ∀ N : ℕ, N ≠ 0 → Hall N := by
   obtain ⟨M, p, a, hp, hpM, hM0, hdM'⟩ := exists_eq_mul_pow_succ_of_ne_one h1
   have : NeZero M := ⟨hM0⟩
   have : Fact (Nat.Prime p) := ⟨hp⟩
-  have hlow_lt : M * p ^ a < d := lt_of_eq_mul_pow_succ hM0 hp hdM'
+  have hlow_lt : M * p ^ a < N := lt_of_eq_mul_pow_succ hM0 hp hdM'
   have hall_low : Hall (M * p ^ a) := ih _ hlow_lt (mul_ne_zero hM0 (pow_ne_zero _ hp.ne_zero))
   have hallM : Hall M := fun e he _ => hall_low e (he.trans ⟨p ^ a, rfl⟩)
   have hlowdeg : IntermediateField.relfinrank ℚ⟮jq⟯ (modularFunctionFieldFull (M * p ^ a)) =
       dedekindPsi (M * p ^ a) := relfinrank_full_of _ hall_low
-  have hstep := relfinrank_full_eq_mul M p a
-    (full_eq_adjoin_full_div_prime M p a hpM) (jqN_pow_not_mem_full M p hpM hallM a)
+  have hstep := relfinrank_full_eq_mul M p a hpM hallM
   have htower := IntermediateField.relfinrank_mul_relfinrank (F0_le_full (M * p ^ a))
     (full_degeneracy_le (N := M * p ^ a) (M := M * p ^ (a + 1)) ⟨p, mul_pow_succ_eq⟩)
-  rw [← relfinrank_modularFunctionField d]
+  rw [← relfinrank_modularFunctionField N]
   unfold Gen at hgen
   rw [hgen, full_congr hdM', ← htower, hlowdeg, hstep]
   rw [hdM']
