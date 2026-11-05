@@ -144,6 +144,45 @@ The same trap bites `rw` when the variable appears under a projection or an appl
 The error names no hypothesis, only a mangled goal, so it reads like a statement bug. Build
 the equation instead of rewriting into it: `hdM.trans (mul_comm _ M)`.
 
+**The same trap again, one node down.** `exists_mul_prime_lt_of_dvd_of_ne` — the level step
+of `modularFunctionField_eq_full_of` — writes `N = d * m′` and then wants the level
+`m′ = m′.minFac * m` inside it. `rw [hm]` also hits the `m′` in the `m′.minFac` on the other
+side of the goal and leaves `d * m′.minFac * m = d * m * (m′.minFac * m).minFac`. The idiom
+that works is to confine the substitution to the side that still has the raw `m′`:
+
+```lean
+have hNm : N = (d * m) * m′.minFac := by
+  conv_lhs => rw [hm', hm]
+  ring
+```
+
+(`trans`/`congrArg` — build the equation, never rewrite into the term you are using — does the
+same without `conv`; `conv_lhs` is the shorter spelling and is used elsewhere in the port.)
+
+**`subst` eliminates the right-hand side of the equation, not the left.** `rcases eq_or_ne d N
+with rfl | …` *is* a `subst`, so at `d = N` it eliminates `N` and keeps `d` — the opposite of
+what a node wants when `N` is the theorem's subject: its `NeZero` instance, the level every
+`modularFunctionField` in the goal is applied to. (Both sides are variables here; with
+`N = d` the same tactic eliminates `d`.) The branch stays provable and silently reads
+backwards; the goal at `d = N` in `modularFunctionField_eq_full_of` was
+
+```text
+hdN : d ∣ d
+⊢ (qExpand ℚ d) jq ∈ ↑(modularFunctionField d)
+```
+
+while the second branch kept `N`. Naming the equation and substituting the side you mean keeps
+the goal at `N`:
+
+```lean
+rcases eq_or_ne d N with hd | hd
+· subst d -- keeps `N`, the theorem's subject
+  exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert_of_mem _ rfl)
+```
+
+Both orientations exist — `d = N` eliminates `N`, `N = d` eliminates `d` — but which side a
+`rcases … with rfl` keeps is not something a reader looks for in a case split. Say it.
+
 **`IsRoot` is `eval = 0` by definition.** `have hy' : P.IsRoot y := hy` typechecks in
 either direction without a rewrite, which is what let the descent's statement be respelled
 while keeping the pin's 60-line proof: only `hBev`'s declared type and the two hypothesis

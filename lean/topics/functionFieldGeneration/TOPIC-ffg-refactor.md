@@ -1694,3 +1694,62 @@ Nothing is parked. Every module the wave edited is now green, silent and at stan
 
 The tree build the user schedules at the end of the wave is the first thing that
 rebuilds the consumers of the two regularised modules; nothing here needs one.
+
+---
+
+## 16. Wave 7g — the reduction's proof body, and `subst`'s direction
+
+**Status: landed 2026-11-04.** §14 fixed the *statement* of
+`modularFunctionField_eq_full_of`; the body was still the pin's, carrying its
+arithmetic inline and one substitution pointing the wrong way. The two repairs
+are the case note's §2 steps one level below the statement, and both were
+user-named at the node: `N` should substitute `d` at `d = N`, and the setup for
+`hall`/`hmem` should not be the proof.
+
+1. **`subst` eliminated the theorem's subject.** `rcases eq_or_ne d N with rfl` is
+   a `subst`, and `subst` eliminates the *right-hand* side, so at `d = N` it
+   eliminated `N`: the `d = N` branch's goal became
+   `(qExpand ℚ d) jq ∈ modularFunctionField d`, with `hdN : d ∣ d`. Provable, and
+   read backwards. The branch now names the equation and writes `subst d`.
+2. **The arithmetic is one `obtain`, in two `private` helpers.** Fifteen lines of
+   `minFac` bookkeeping (the decomposition `N = (d * m') * p`, `m' ≠ 0`, its
+   `NeZero`, the bound `d * m' < N`) became `exists_mul_prime_lt_of_dvd_of_ne`;
+   the other non-arithmetic step (`Gen m` and `jqN m ∈ F_N` give
+   `F_m^full ≤ F_N`) became `full_le_of_gen_of_mem`. Both stay `private` in the
+   consumer: the level `m` the induction hypothesis is taken at and the prime `p`
+   its step is taken by are this reduction's own data — §2 step 5's dividing line,
+   the same one `hall_all`'s two helpers were placed by.
+
+### 16.1 Measurements
+
+| item | before | after |
+|---|---|---|
+| the reduction's proof body | 34 lines | 14 |
+| the node's private helpers | 0 | 2 (22 lines of statement and proof) |
+| statement | `∀ m < N, m ≠ 0 → Hall m` | unchanged |
+| `Capstone.lean`, `spec/ModularCurveConsumer.lean` | green | unchanged (`0` errors) |
+
+The body now reads: the case split, the level (`obtain`), `Hall m` (the
+induction hypothesis), the descent transported along `N = m * p`, the inclusion,
+the conclusion.
+
+### 16.2 Gates
+
+```bash
+cd lean
+timeout 110 lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.DescentFromSlots  # silent, 5 s
+timeout 110 lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone           # silent, 4 s
+python3 spec/check_port.py FLTForHuman/ModularCurve/FunctionFieldGeneration/DescentFromSlots.lean --force  # tier 3
+python3 spec/unwired_register.py --rebuild   # `UNWIRED-PUBLIC.md` unchanged: 2 public declarations
+cd ../tools/deps && python3 dedup.py --module DescentFromSlots --no-json   # 0 duplicate clusters
+```
+
+`#print axioms ModularCurve.modularFunctionField_eq_full_of` and on
+`ModularCurve.functionFieldGeneration`: `[propext, Classical.choice, Quot.sound]`,
+before and after.
+
+### 16.3 The trap, recorded
+
+Both repairs are in the friction note (§3): the `subst` orientation, with the
+goal state it produced, and the second instance of `rw` rewriting inside
+`m'.minFac` (the idiom is `conv_lhs => rw [hm', hm]` then `ring`).

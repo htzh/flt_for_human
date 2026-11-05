@@ -40,6 +40,7 @@
 -/
 import Mathlib.FieldTheory.Relrank
 import Mathlib.Data.Nat.Factorization.Basic
+import FLTForHuman.ModularCurve.Defs.Invariants
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DescentFromSlots
@@ -70,14 +71,6 @@ beside `coeffMap`/`coeffEmb` in `Defs/Laurent.lean`, reachable through the
 
 `jqN_congr` was promoted by T14 to `Defs/Jq.lean` beside `jqN`; `Defs/TS`
 imports `Defs/Jq`, so it is in scope here and the private twin is gone. -/
-
-private theorem full_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
-    modularFunctionFieldFull n = modularFunctionFieldFull m := by
-  subst h; rfl
-
-private theorem mff_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
-    modularFunctionField n = modularFunctionField m := by
-  subst h; rfl
 
 /-! ## The invariants
 
@@ -145,14 +138,7 @@ private theorem hall_all : ∀ N : ℕ, N ≠ 0 → Hall N := by
   · subst h1; exact ⟨tight_one, gen_one⟩
   have hgen : Gen N := by
     unfold Gen
-    refine modularFunctionField_eq_full_of N ?_
-    intro M _ p hp hMp
-    have : Fact (Nat.Prime p) := ⟨hp⟩
-    have hMlt : M < N := lt_of_mul_prime_eq (NeZero.ne M) hp hMp
-    have hallM : Hall M := ih M hMlt (NeZero.ne M)
-    have hmem := jqN_mem_modularFunctionField_of_hall M p hallM
-    rw [mff_congr hMp] at hmem
-    exact ⟨(hallM M dvd_rfl).2, hmem⟩
+    exact modularFunctionField_eq_full_of N ih
   refine ⟨?_, hgen⟩
   unfold Tight
   obtain ⟨M, p, a, hp, hpM, hM0, hdM'⟩ := exists_eq_mul_pow_succ_of_ne_one h1

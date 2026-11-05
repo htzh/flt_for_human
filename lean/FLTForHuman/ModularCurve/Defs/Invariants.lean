@@ -9,6 +9,11 @@
     used to write these out; the pin has them inline in its slot files and under
     `ModularPolynomialData` hypotheses, never from `Tight`, so there is no pin
     declaration to diff against.
+  * `mff_congr`, `full_congr` \u2014 transport of `modularFunctionField`/`modularFunctionFieldFull`
+    along an equality of levels, `subst`-based so that the `NeZero` instances travel with the
+    level. Both were `private` copies in two modules (the degree data and the capstone); the
+    non-membership argument needed a third. They are one line each, but three copies of `subst h;
+    rfl` in three modules is the same defect as three copies of any other lemma.
   * `gen_prime` \u2014 `Gen p` is definitional at a prime. This is T19's substitution for
     the pin's `functionFieldGeneration_of_squarefree p` call, so the prime
     non-membership does not depend on the squarefree generation/degree block.
@@ -31,6 +36,16 @@ noncomputable section
 open PowerSeries HahnSeries IntermediateField
 
 namespace ModularCurve
+
+/-- Transport of the two-generator field along an equality of levels. -/
+theorem mff_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
+    modularFunctionField n = modularFunctionField m := by
+  subst h; rfl
+
+/-- Transport of the full divisor field along an equality of levels. -/
+theorem full_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
+    modularFunctionFieldFull n = modularFunctionFieldFull m := by
+  subst h; rfl
 
 /-- **Integrality of `jqN M` over the base field**: `hall` gives the adjoin of `jqN M` the
 positive finite dimension `ψ(M)`, so `jqN M` is integral over `ℚ⟮jq⟯`. -/

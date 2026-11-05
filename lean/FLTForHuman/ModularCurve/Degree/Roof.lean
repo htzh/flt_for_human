@@ -19,6 +19,7 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_heckeRoof_adjoin_range_union_eq_top.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_finrankAlong_towerSubstBar_comp_heckeAlphaBar.lean
 -/
+import FLTForHuman.ModularCurve.Defs.Invariants
 import FLTForHuman.ModularCurve.Degree.Relfinrank
 import FLTForHuman.ModularCurve.Degree.LaurentGlue
 import FLTForHuman.ModularCurve.Degree.PhiData
@@ -36,10 +37,6 @@ open IntermediateField Polynomial
 namespace ModularCurve
 
 section DiagonalDegree
-
-private theorem full_congr {a b : ℕ} [NeZero a] [NeZero b] (h : a = b) :
-    modularFunctionFieldFull a = modularFunctionFieldFull b := by
-  subst h; rfl
 
 private theorem fieldRange_heckeBetaBar (L : Type*) [Field L] [Algebra ℚ L] (A : ℕ) [NeZero A]
     (ℓ : ℕ) [NeZero ℓ] :

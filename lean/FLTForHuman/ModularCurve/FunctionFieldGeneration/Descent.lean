@@ -1,7 +1,7 @@
 /-
-  T15 — descent by one prime, and the one-prime reduction of `Gen`.
+  T15 — descent by one prime.
 
-  This is math/010 §4–§5. Two theorems:
+  This is math/010 §4–§5, the descent half:
 
   * `jqN_div_mem_modularFunctionField` — descent by one prime:
     `j(q ^ M) ∈ ℚ(j(q), j(q ^ (M * p)))`. It is the unique-common-root principle
@@ -11,12 +11,14 @@
     `F = ℚ(j(q), j(q ^ (M * p)))`, and the caller's slot hypotheses `htw`/`hsp`
     rule out every common root other than `x₀ = j(q ^ (M * p))`. The tail strips
     the coefficient extension with `coeffEmb`-injectivity and `qExpand`-injectivity.
-  * `modularFunctionField_eq_full_of` — the one-prime reduction of `Gen N`:
-    the one-prime step `jqN M ∈ F_N` and `Gen M` for every factorization
-    `N = M * p` give `modularFunctionField N = modularFunctionFieldFull N`.
+  * the one-prime reduction of `Gen N` (`modularFunctionField_eq_full_of`) was here
+    until it moved to the seam module: its hypothesis was a conjunction the caller
+    had to assemble from this descent plus the induction, and the assembly needs
+    the `Hall`-level form of the descent, which lives downstream. Its `Hall`-level
+    text sits beside that interface, where the capstone's one-line step is.
 
-  These are two of the seven significant statements the capstone consumes
-  directly; `hall_all` calls them without an intervening bundle.
+  The descent is one of the seven significant statements the capstone consumes;
+  `hall_all` reaches it through the `Hall`-level interface, not directly.
 
   ## Source, and the two retired statements
 
@@ -29,17 +31,14 @@
   * `Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean:8`
   * `Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean:8`
 
-  **Both statements here are the port's, not the wrappers'.** They were respelled on
-  2026-11-04 and the pin's text was retired:
+  **The statement here is the port's, not the wrapper's.** It was respelled on
+  2026-11-04 and the pin's text was retired: the descent spelled the pushed minimal
+  polynomial out in full, twice, and stated `htw`/`hsp` as quantified root predicates
+  over it; now it names the polynomial (`Nome.pushedMinpoly`) and instantiates the two
+  hypotheses at the slot values. The one-prime reduction, the other statement of the
+  pin node, has since left this module (see its bullet above).
 
-  * the descent spelled the pushed minimal polynomial out in full, twice, and stated
-    `htw`/`hsp` as quantified root predicates over it; now it names the polynomial
-    (`Nome.pushedMinpoly`) and instantiates the two hypotheses at the slot values;
-  * the one-prime reduction passed its two induction facts as two hypotheses with a
-    five-binder prefix each, `Gen M` unfolded; now it is one conjoined hypothesis
-    (`Gen M ∧ jqN M ∈ F_N`) in the module's own vocabulary.
-
-  Because both are deliberate deviations, this module carries **no `spec-pin:` wire**:
+  Because the statement is a deliberate deviation, this module carries **no `spec-pin:` wire**:
   a wire would diff nothing. The verbatim statements are preserved for reading and for
   provenance, the pin's proof scripts are the proofs below (two hypothesis
   applications retyped in the descent, nothing else), and the module is registered
@@ -244,49 +243,6 @@ theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
   have hval : (f : LaurentSeries ℚ) = jqN M := qExpand_injective (M * p) (hemb hf')
   rw [← hval]
   exact f.2
-
-/-- **The one-prime reduction of `Gen`**: if every factorization `N = M * p` with `p`
-prime carries both `Gen M` and `jqN M ∈ F_N`, then `modularFunctionField N` is the
-full divisor field.
-
-The hypothesis is the induction step read as one statement, and its two halves are
-conjoined because a caller has one source for them: at the proper divisor `M = N / p`
-the strong-induction hypothesis is `Gen M`, and the descent supplies
-`jqN M ∈ F_N`. Splitting them into two hypotheses (the port's earlier shape, and the
-pin's) doubles a five-binder prefix at every call site and states `Gen M` unfolded.
-
-The statement is the port's: the pin passes the same two facts as two hypotheses.
-The module header records the retirement. -/
-theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]
-    (hstep : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →
-      Gen M ∧ jqN M ∈ modularFunctionField N) :
-    modularFunctionField N = modularFunctionFieldFull N := by
-  refine le_antisymm (modularFunctionField_le_full N) ?_
-  rw [modularFunctionFieldFull, IntermediateField.adjoin_le_iff]
-  rintro x ⟨d, hd0, hdN, rfl⟩
-  rcases eq_or_ne d N with rfl | hdlt
-  · exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert_of_mem _ rfl)
-  ·
-    obtain ⟨m, hm⟩ := hdN
-    have hm1 : m ≠ 1 := fun h1 => hdlt (by rw [hm, h1, Nat.mul_one])
-    have hm0 : m ≠ 0 := fun h0 => NeZero.ne N (by rw [hm, h0, Nat.mul_zero])
-    have hq : m.minFac.Prime := Nat.minFac_prime hm1
-    obtain ⟨m', hm'⟩ := Nat.minFac_dvd m
-    have hm'0 : m' ≠ 0 := fun h0 => hm0 (by rw [hm', h0, Nat.mul_zero])
-    haveI : NeZero (d * m') := ⟨Nat.mul_ne_zero hd0.out hm'0⟩
-    have hdm' : (d * m') * m.minFac = N := by
-      rw [Nat.mul_assoc, Nat.mul_comm m' m.minFac, ← hm', ← hm]
-    have hstep' := hstep (d * m') m.minFac hq hdm'
-    have hmem : jqN (d * m') ∈ modularFunctionField N := hstep'.2
-    have hfull : Gen (d * m') := hstep'.1
-    have hsub : modularFunctionFieldFull (d * m') ≤ modularFunctionField N := by
-      rw [← hfull, modularFunctionField, IntermediateField.adjoin_le_iff]
-      rintro y (rfl | hy)
-      · exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert _ _)
-      · rw [Set.mem_singleton_iff] at hy
-        rw [hy]
-        exact hmem
-    exact hsub (jqd_mem_full (d * m') ⟨m', rfl⟩)
 
 end ModularCurve
 

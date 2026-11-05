@@ -336,11 +336,11 @@
       "label": "modularFunctionField_eq_full_of",
       "name": "ModularCurve.modularFunctionField_eq_full_of",
       "kind": "theorem",
-      "lean": "theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]\n    (hstep : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →\n      Gen M ∧ jqN M ∈ modularFunctionField N) :\n    modularFunctionField N = modularFunctionFieldFull N",
-      "math": "The one-prime reduction of Gen N: if every factorization N = M·p with p prime carries both Gen M and j(q^M) ∈ F_N, then F_N = F_N^full.",
-      "note": "Proof: the reverse inclusion is modularFunctionField_le_full. For the forward one, take j(q^d) with d ∣ N, d ≠ N, write N = d·m, pick a prime p ∣ m and m = p·m′. Then N = (d m′)·p, so the hypothesis gives Gen(d m′) and j(q^{d m′}) ∈ F_N; hence j(q^d) ∈ F_{d m′} ⊆ F_N. The two facts are conjoined because they come from one source, the induction hypothesis Hall(d m′).",
-      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
-      "line": 260,
+      "lean": "theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]\n    (h : ∀ m : ℕ, m < N → m ≠ 0 → Hall m) :\n    modularFunctionField N = modularFunctionFieldFull N",
+      "math": "If the invariants hold at every level below N, then F_N is the full divisor field. The hypothesis is the strong induction hypothesis in the shape the induction gives it, so the caller passes it unchanged.",
+      "note": "Proof: the inclusion F_N ⊆ F_N^full is modularFunctionField_le_full. For the reverse one, take j(q^d) with d ∣ N, d ≠ N, write N = d·m, pick a prime p ∣ m and m = p·m′; then d m′ < N, so the hypothesis gives Hall(d m′), from which Gen(d m′) and j(q^{d m′}) ∈ F_N follow inside the statement; hence j(q^d) ∈ F_{d m′} ⊆ F_N.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/DescentFromSlots.lean",
+      "line": 177,
       "pin": "Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean"
     },
     {
@@ -353,7 +353,7 @@
       "math": "Descent by one prime: under the two slot hypotheses htw and hsp, j(q^M) lies in ℚ(j(q), j(q^{Mp})). Both are facts about the roots of P = pushedMinpoly K M (Mp), the minimal polynomial of j(q^M) read at the level-Mp nome: htw says the only root at nome-level (Mp)·M is the untwisted one, and hsp says the extra conjugate j(q^{(Mp)·(Mp²)}) of the level-p equation is not a root at all. Together they say that P and the level-p equation have the unique common root x₀ = j(q^{Mp}).",
       "note": "Proof (T15): the unique-common-root principle. Take A = Φ_p(j(q^{Mp}), Y) and B = pushedMinpoly K M (Mp), read in F = ℚ(j(q), j(q^{Mp})); x₀ = j(q^M) is a common root of A and B, by the modular equation written at the slot and by minpoly.aeval. The slot description lists the roots of A, and the two hypotheses exclude all of them but x₀: hsp kills the extra conjugate, htw kills every twisted root at nome-level (Mp)·M. Hence x₀ ∈ F. The tail strips the coefficient extension by injectivity of coeffEmb and qExpand. K is a certificate only: a field carrying a primitive (Mp)-th root of unity, in which all ψ(M) conjugates are visible; the conclusion is over ℚ.",
       "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
-      "line": 111,
+      "line": 110,
       "pin": "Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean"
     },
     {
@@ -391,11 +391,11 @@
       "lean": "private theorem hall_all : ∀ N : ℕ, N ≠ 0 → Hall N",
       "lean_goal": "(∀ N : ℕ, N ≠ 0 → Hall N) : Prop",
       "math_statement": "For every N ≠ 0, Tight and Gen hold at every divisor of N. Tight d says the relative degree of ℚ⟮jq⟯(jqN d) over ℚ⟮jq⟯ is ψ(d); Gen d says the two-generator field is the full divisor field.",
-      "role": "The engine of the capstone: the strong induction over the divisor lattice that consumes the seven significant statements directly. It is private because it is an internal induction; the public surface is the theorem and the three corollaries below.",
+      "role": "The engine of the capstone: the strong induction over the divisor lattice. Its two halves each call one significant statement with the induction hypothesis — `modularFunctionField_eq_full_of` for Gen, `relfinrank_full_eq_mul` for Tight — and those statements derive their own certificates. It is private because it is an internal induction; the public surface is the theorem and the three corollaries below.",
       "hypotheses": [],
       "proof": {
         "goal": "For every N ≠ 0, Hall N: Tight and Gen at every divisor of N.",
-        "strategy": "Strong induction on N. At a level d, either d < N (induction hypothesis), d = 1 (tight_one, gen_one), or d > 1: Gen d follows from the one-prime reduction, and Tight d from the prime-power decomposition of d, the tower law and the ψ arithmetic. The seven significant statements are available as proven theorems, not as a bundle.",
+        "strategy": "Strong induction on N. At a level d, either d < N (induction hypothesis), d = 1 (tight_one, gen_one), or d > 1: Gen d is the one-prime reduction applied to the induction hypothesis unchanged, and Tight d is the prime-power decomposition of d, the dispatch theorem s7 (applied to `p ∤ M` and `Hall M`), the tower law and the ψ arithmetic.",
         "steps": [
           {
             "id": "s1",
@@ -452,9 +452,9 @@
           {
             "id": "s5",
             "kind": "claim",
-            "claim": "The statement `modularFunctionField_eq_full_of` holds.",
-            "math": "If for every factorization N = M·p with p prime one has j(q^M) ∈ F_N and Gen M, then F_N = F_N^full.",
-            "why": "This is T15. Take d ∣ N, d ≠ N, write N = d·m, pick a prime p ∣ m and m = p·m′. Then j(q^{d m′}) ∈ F_N and Gen(d m′) give j(q^d) ∈ F_N.",
+            "claim": "The statement `modularFunctionField_eq_full_of` holds, and the induction's `Gen` half is one application of it.",
+            "math": "If the invariants hold at every level below N (∀ m < N, m ≠ 0 → Hall m), then F_N = F_N^full. The hypothesis is the strong induction hypothesis in the shape the induction gives it, so it is passed unchanged; the factorization, the bound, Gen at the proper divisor and the descent's conclusion are all derived inside the statement.",
+            "why": "This is T15. Take d ∣ N, d ≠ N, write N = d·m, pick a prime p ∣ m and m = p·m′. Then d·m′ < N, so the hypothesis gives Hall(d·m′); Gen(d·m′) and j(q^{d m′}) ∈ F_N follow from it inside the statement, hence j(q^d) ∈ F_{d m′} ⊆ F_N.",
             "cites": [
               {
                 "kind": "premise",
@@ -500,19 +500,13 @@
             "id": "s8",
             "kind": "claim",
             "claim": "Strong induction on N: Hall m holds for every proper divisor m of N.",
-            "why": "The outer induction hypothesis. At a level d, the proper-divisor case is exactly the induction hypothesis; d = 1 is the base, tight_one and gen_one.",
-            "cites": [
-              {
-                "kind": "step",
-                "ref": "s1"
-              }
-            ]
+            "why": "The outer strong induction's hypothesis: `∀ m, m < N → m ≠ 0 → Hall m`, which is exactly the shape the two interfaces of the step take. At a level d, the proper-divisor case is this hypothesis in both halves; d = 1 is the base, `tight_one` and `gen_one`."
           },
           {
             "id": "s9",
             "kind": "claim",
             "claim": "Gen d: the two-generator field is already the full divisor field.",
-            "why": "The one-prime reduction modularFunctionField_eq_full_of, with the one-prime step jqN_div_mem_modularFunctionField. Its slot hypotheses are discharged in DescentFromSlots by jqN_mem_modularFunctionField_of_hall, which reads the root shape off the slot product s4 and the cyclotomic root; hall_all therefore consumes the Hall-level form and never names the splitting field.",
+            "why": "The one-prime reduction s5 with the strong induction hypothesis s8. The former six-line lambda (project Gen, apply the Hall-level descent, transport along N = M·p) is gone; that assembly is the statement's own proof.",
             "cites": [
               {
                 "kind": "step",
@@ -520,23 +514,16 @@
               },
               {
                 "kind": "step",
-                "ref": "s6"
-              },
-              {
-                "kind": "step",
-                "ref": "s4"
-              },
-              {
-                "kind": "step",
                 "ref": "s8"
               }
-            ]
+            ],
+            "math": "Gen d is `modularFunctionField_eq_full_of d ih`: the induction hypothesis s8 is the statement's hypothesis, unchanged. Nothing is assembled at the call site — the descent s6 and the slot product s4 are consumed inside s5."
           },
           {
             "id": "s10",
             "kind": "claim",
             "claim": "Tight d: the relative degree of the level-d field over ℚ(j) is ψ(d).",
-            "why": "Write d = M · p^(a+1). The tower law and the prime-power degree step s7 multiply the relative degree; s7 derives both of its own hypotheses (the generation s1 and the non-membership from the tower s3) from the prime-level fact j(q^p) ∉ F_M^full, and the ψ arithmetic is dedekindPsi_mul_prime_{dvd,not_dvd}.",
+            "why": "s7 takes only `p ∤ M` and `Hall M`: the step's generation (s1), the prime non-membership (s2) and the level non-membership (s3) are derived inside it, so this half is one application plus the tower law. The ψ arithmetic is `dedekindPsi_mul_prime_pow_succ`.",
             "cites": [
               {
                 "kind": "step",
@@ -544,17 +531,10 @@
               },
               {
                 "kind": "step",
-                "ref": "s1"
-              },
-              {
-                "kind": "step",
-                "ref": "s3"
-              },
-              {
-                "kind": "step",
                 "ref": "s8"
               }
-            ]
+            ],
+            "math": "Tight d: write d = M · p^(a+1) with p = d.minFac, p ∤ M, M ≠ 0. Then [F_d^full : ℚ(j)] = [F_d^full : F_{M p^a}^full] · [F_{M p^a}^full : ℚ(j)] by the tower law. The first factor is the prime-power step s7; the second is the induction hypothesis at M p^a, read as a relative degree through the private helper `relfinrank_full_of` (which is what `Gen` at M p^a says); the product is ψ(d) by the ψ recurrence `dedekindPsi_mul_prime_pow_succ`."
           },
           {
             "id": "s11",
@@ -575,13 +555,15 @@
         ],
         "conclusion": "Hall N for every N ≠ 0.",
         "regeneration": [
-          "This is the pin's `hall_all` (S_ModularCurve_functionFieldGeneration.lean:614–700) with the seven statements called directly; the old `Inputs` projections are gone.",
-          "The Lean body is the same strong induction: Nat.strong_induction_on, the d.minFac decomposition d = M · p^(a+1), relfinrank_full_eq_mul, the tower law, and dedekindPsi_mul_prime_{dvd,not_dvd}.",
+          "This is the pin's `hall_all` (S_ModularCurve_functionFieldGeneration.lean:614–700), with the seven statements called directly — no `Inputs` projections.",
+          "Both halves of the induction step were re-homed on 2026-11-04 so that the caller's step is the induction hypothesis alone: `modularFunctionField_eq_full_of` takes `∀ m < N, m ≠ 0 → Hall m` and derives the descent's conclusion and `Gen` at the proper divisor; `relfinrank_full_eq_mul` takes `p ∤ M` and `Hall M` and derives the generation, the prime non-membership and the level non-membership.",
+          "The Lean body is otherwise the pin's: Nat.strong_induction_on, the d.minFac decomposition d = M · p^(a+1), the tower law, and dedekindPsi_mul_prime_pow_succ.",
           "The name is private; the sheet exhibits its statement through `#check` and its proof semi-formally here."
         ],
         "formal_notes": [
           "`hall_all` is `private`, so it cannot be `#check`ed from another module; `lean_goal` gives the closed proposition.",
-          "The seven significant statements are the port's theorem names, not structure fields: `hall_all` calls `modularFunctionField_eq_full_of`, `jqN_div_mem_modularFunctionField`, `minpoly_jqN_map_eq_prod_slots`, `jqN_prime_not_mem_full`, `jqN_pow_not_mem_adjoin_full`, `full_eq_adjoin_full_div_prime`, `relfinrank_full_eq_mul`."
+          "The seven significant statements are the port's theorem names, not structure fields. `hall_all` calls two of them directly — `modularFunctionField_eq_full_of` (with `ih`) and `relfinrank_full_eq_mul` (with `hpM` and `Hall M`) — and those two derive their own certificates from the other five, so no call site assembles a certificate.",
+          "`full_congr` and `mff_congr` are shared (tier 3) transport lemmas; the private copies in the capstone and in the degree data are gone."
         ]
       },
       "provenance": {
@@ -992,7 +974,7 @@
       "id": "B",
       "title": "the strong induction and its seven statements",
       "tagline": "Tight, Gen, Hall, and the bundle of significant statements",
-      "prose": "The induction carries two invariants at every divisor: Tight (the degree of the modular equation at that level is full) and Gen (the two-generator field is already the whole divisor field). Together they form Hall. The engine is `hall_all`, private, and it calls the seven significant statements directly — there is no `Inputs` bundle any more.\n\nThe seven statements are the theorems of the FFG topic modules; their statements are verbatim in each module, so `hall_all` uses them without adaptation. The presentation below records the induction and the corollary layer; the proofs of the seven are elsewhere.",
+      "prose": "The induction carries two invariants at every divisor: Tight (the relative degree at that level is ψ) and Gen (the two-generator field is already the whole divisor field). Together they form Hall. The engine is `hall_all`, private, and it calls the seven significant statements directly — there is no `Inputs` bundle any more.\n\nFive of the seven are the pin's statements verbatim. The two the induction's step calls — the one-prime reduction (`Gen`) and the prime-power degree step (`Tight`) — were respelled on 2026-11-04 so that the caller hands over the induction hypothesis and nothing else: each derives the certificates it used to receive as arguments (the descent's conclusion and `Gen` at the proper divisor; the step's generation, its prime non-membership and its level non-membership). The presentation below records the induction and the corollary layer; the proofs of the seven are elsewhere.",
       "definitions": [
         "tight",
         "gen",

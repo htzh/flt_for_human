@@ -692,10 +692,13 @@ example : (ModularCurve.phiAtSeed ModularCurve.modularPolynomialDataOne (0 : ℚ
 
 /-! ## Zone M — [T15] descent by one prime and the one-prime reduction
 
-`FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` states the two T15
-results: `jqN_div_mem_modularFunctionField` (math/010 §4, the unique-common-root
-descent) and `modularFunctionField_eq_full_of` (math/010 §5, the one-prime
-reduction of `Gen`). The descent composes T14's slot prelude (`phiAtSeed*`,
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` states the descent
+`jqN_div_mem_modularFunctionField` (math/010 §4, the unique-common-root argument), and
+the one-prime reduction of `Gen` (math/010 §5, `modularFunctionField_eq_full_of`) lives
+beside its `Hall`-level interface in `DescentFromSlots.lean`: its hypothesis is the strong
+induction hypothesis itself (`∀ m < N, m ≠ 0 → Hall m`), so the capstone passes `ih` unchanged,
+and it derives the factorization, the descent's conclusion and `Gen` at the proper divisor
+itself. The descent composes T14's slot prelude (`phiAtSeed*`,
 `isRoot_prime_at_slot_iff`, `roots_prime_at_slot_roots_nodup`, `iota_jqN`) with
 T13's `splits_prime_at_slot` and T4's
 `Polynomial.mem_range_of_unique_common_root`; its `htw`/`hsp` are the two facts
@@ -703,11 +706,11 @@ about the root set of `ModularCurve.Nome.pushedMinpoly K M (M * p)`, which
 `FunctionFieldGeneration/DescentFromSlots.lean` derives from T19's slot product and
 `Hall M` (`jqN_mem_modularFunctionField_of_hall`, the form the capstone calls).
 
-**Both statements here are the port's spelling, not the pin's** (`TOPIC-ffg-refactor.md`
-§13–§14), and `Descent.lean` carries no `spec-pin:` wire as a consequence: it is
-tier 3, so the two `#check`s below are this zone's whole guarantee about it. They
-exhibit the statements the capstone consumes, so a signature change breaks this
-file and the capstone build together. -/
+**Both statements are the port's spelling, not the pin's** (`TOPIC-ffg-refactor.md`
+§13–§14), and neither module carries a `spec-pin:` wire as a consequence: both are
+tier 3, so the `#check`s below (and the capstone build) are this zone's whole
+guarantee about them. They exhibit the statements the capstone consumes, so a
+signature change breaks this file and the capstone build together. -/
 
 #check @ModularCurve.jqN_div_mem_modularFunctionField
 #check @ModularCurve.modularFunctionField_eq_full_of

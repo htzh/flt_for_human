@@ -275,7 +275,76 @@ the only things it knows.
    wrong indent rewrote all 1050 lines and hid the 27 that mattered. Round-trip a generated
    file with its own formatting.
 
-### 7.4 The rule this arc produced
+### 7.4 One module up: the same inversion again, in `modularFunctionField_eq_full_of`
+
+The `Gen` half of `hall_all` calls `Descent.modularFunctionField_eq_full_of`, and it was the
+same defect one level up. Its hypothesis conjoined two facts per factorization `N = M * p` —
+`Gen M` and `jqN M ∈ F_N` — and the caller had to build both: `Gen M` by projecting `Hall M`,
+and `jqN M ∈ F_N` by applying the `Hall`-level descent and transporting it along `N = M * p`
+with a private `mff_congr`. Six of the eight lines of the caller's lambda were that assembly.
+
+The repair is the same shape as the dispatcher's, and it moved the statement: the module that
+declares `modularFunctionField_eq_full_of` must sit downstream of the `Hall`-level descent, so
+the reduction moved into the seam module beside it. Its first new text still indexed the
+hypothesis by a factorization (`∀ M p, p prime → M * p = N → Hall M`) — better, but still the
+wrong *shape*: the caller had to introduce `M`, `p`, the factorization and the bound before it
+could hand over the induction hypothesis. The form that removes the whole lambda is the shape
+the induction actually gives the hypothesis:
+
+```lean
+theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]
+    (h : ∀ m : ℕ, m < N → m ≠ 0 → Hall m) :
+    modularFunctionField N = modularFunctionFieldFull N
+```
+
+so the capstone's `Gen` half is
+
+```lean
+  have hgen : Gen N := by
+    unfold Gen
+    exact modularFunctionField_eq_full_of N ih
+```
+
+— `ih` unchanged. Everything the reduction consumes (the factorization `N = (d m′) · p`, its
+bound, `Gen (d m′)` and `jqN (d m′) ∈ F_N`) is derived inside. The theorem does need *some*
+hypothesis: `F_N = F_N^full` is not provable at `N` alone — its proof reduces `j(q ^ d)`,
+`d ∣ N`, `d ≠ N`, to the level `N / p` — but the only thing it consumes from below is
+`Hall m`, which is exactly what the descent interface `jqN_mem_modularFunctionField_of_hall`
+takes. Two by-products: the transport lemma `mff_congr`
+(and its twin `full_congr`, which had a second private copy in `Degree/Roof.lean`) had to become
+a shared declaration in a tier-3 module rather than a third private copy; and the `Gen`
+reduction's pin node is now fully in the port's hands, its text retired to the `Hall` form.
+
+The proof then took its own pass — the case's §2 steps, applied one level below the statement:
+
+1. **The case split substituted the wrong side.** `rcases eq_or_ne d N with rfl | …` *is* a
+   `subst`, and `subst` eliminates the right-hand side, so at `d = N` it eliminated `N` — the
+   theorem's subject, its `NeZero`, the level every `modularFunctionField` in the goal is
+   applied to. The branch's goal silently became `(qExpand ℚ d) jq ∈ modularFunctionField d`:
+   provable, and read backwards. Naming the equation and writing `subst d` keeps the goal at
+   `N`.
+2. **The arithmetic became one `obtain`.** Fifteen lines of `minFac` bookkeeping — the
+   decomposition `N = (d · m′) · p`, `m′ ≠ 0`, its `NeZero`, the bound `d · m′ < N` — are now
+   the private `exists_mul_prime_lt_of_dvd_of_ne`, in the consumer: they are about the level
+   `m` the induction hypothesis is taken at and the prime `p` its step is taken by, which is
+   the `hall_all` precedent of §2 step 5 (`private` for this proof's own data, upstream only
+   for standard number theory). The second private helper,
+   `full_le_of_gen_of_mem`, carries the other non-arithmetic step — `Gen m` and
+   `jqN m ∈ F_N`, hence `F_m^full ≤ F_N` — so the body is the case split, the level, the
+   induction hypothesis, the descent transported along `N = m · p`, the inclusion, the
+   conclusion.
+
+The body went from 34 lines to 14; the two private helpers are 22 lines of statement and proof
+between them, and all the arithmetic in the node is inside the first. The measurement that
+matters is the same one as `hall_all`'s: what remains in the body is only the mathematics of the
+induction step.
+
+The moral is the one §8 of the method note states and this case re-states: **the inversion is
+recognisable from the call site, not from the statement.** A lambda that projects, applies and
+transports before it can call is the signature of an interface that should have taken the
+invariant and derived the projection itself.
+
+### 7.5 The rule this arc produced
 
 **A certificate belongs to the module whose subject it is, not to the node that happens to
 state it; and its statement belongs to the consumer, not to the API.** When a caller has to
