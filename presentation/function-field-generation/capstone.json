@@ -35,7 +35,7 @@
     "title": "the function-field generation capstone",
     "tagline": "the unconditional theorem, and the four statements the rest of FLT consumes",
     "subject": "the function field of X₀(N): F_N^full = ℚ(j(q), j(q^N)), and the degree ψ(N) of the modular equation",
-    "reads": "the port module FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean and its dependencies (Descent, DescentFromSlots, DegreeStep, TwoPrimeSeparation, Generation, SlotProduct); math/010-function-field-generation.md is the mathematical account",
+    "reads": "the port module FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean and its dependencies (Descent, DegreeStep, TwoPrimeSeparation, Generation, SlotProduct); math/010-function-field-generation.md is the mathematical account",
     "pin": "FLT anthropics/fermats-last-theorem@aa2d8b3 — Theorems/Thm_ModularCurve_functionFieldGeneration.lean line 8, and the S_ModularCurve_functionFieldGeneration.lean induction (lines 614–700)",
     "check": "cd lean && lake env lean presentation/FunctionFieldGenerationCapstone.lean",
     "status": "generated",
@@ -230,26 +230,6 @@
       "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
       "line": 237,
       "heading": "`Hall` — the strong-induction bundle"
-    },
-    {
-      "id": "nomeMap",
-      "name": "ModularCurve.Nome.nomeMap",
-      "kind": "def",
-      "lean": "def nomeMap (K : Type*) [Field K] [Algebra ℚ K] (N : ℕ) [NeZero N] :\n    ℚ⟮jq⟯ →+* LaurentSeries K",
-      "math": "Read a function of ℚ(j(q)) at the level-N nome q ↦ q^N, with coefficients extended to K: the composite of coeffEmb K and qExpand ℚ N with the inclusion of the subfield ℚ(j(q)).",
-      "file": "lean/FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
-      "line": 256,
-      "heading": "`nomeMap` — reading ℚ(j(q)) at a level"
-    },
-    {
-      "id": "pushedMinpoly",
-      "name": "ModularCurve.Nome.pushedMinpoly",
-      "kind": "def",
-      "lean": "def pushedMinpoly (K : Type*) [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M] (N : ℕ) [NeZero N] :\n    Polynomial (LaurentSeries K)",
-      "math": "The minimal polynomial of j(q^M) over ℚ(j(q)), read at the level-N nome: the polynomial whose roots the descent compares with those of the level-p modular equation. The descent's two hypotheses are statements about this polynomial's root set at N = Mp.",
-      "file": "lean/FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
-      "line": 263,
-      "heading": "`pushedMinpoly` — the polynomial whose roots the descent reads"
     }
   ],
   "premises": [
@@ -339,8 +319,8 @@
       "lean": "theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]\n    (h : ∀ m : ℕ, m < N → m ≠ 0 → Hall m) :\n    modularFunctionField N = modularFunctionFieldFull N",
       "math": "If the invariants hold at every level below N, then F_N is the full divisor field. The hypothesis is the strong induction hypothesis in the shape the induction gives it, so the caller passes it unchanged.",
       "note": "Proof: the inclusion F_N ⊆ F_N^full is modularFunctionField_le_full. For the reverse one, take j(q^d) with d ∣ N, d ≠ N, write N = d·m, pick a prime p ∣ m and m = p·m′; then d m′ < N, so the hypothesis gives Hall(d m′), from which Gen(d m′) and j(q^{d m′}) ∈ F_N follow inside the statement; hence j(q^d) ∈ F_{d m′} ⊆ F_N.",
-      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/DescentFromSlots.lean",
-      "line": 177,
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
+      "line": 400,
       "pin": "Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean"
     },
     {
@@ -349,11 +329,11 @@
       "label": "jqN_div_mem_modularFunctionField",
       "name": "ModularCurve.jqN_div_mem_modularFunctionField",
       "kind": "theorem",
-      "lean": "theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)\n    [hp : Fact (Nat.Prime p)] {K : Type*} [Field K] [Algebra ℚ K] (ζ : Kˣ)\n    (hζ : IsPrimitiveRoot (ζ : K) (M * p))\n    (htw : ∀ w : Kˣ, (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * M) w) → w = 1)\n    (hsp : ¬ (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * (M * p * p)) 1)) :\n    jqN M ∈ modularFunctionField (M * p)",
-      "math": "Descent by one prime: under the two slot hypotheses htw and hsp, j(q^M) lies in ℚ(j(q), j(q^{Mp})). Both are facts about the roots of P = pushedMinpoly K M (Mp), the minimal polynomial of j(q^M) read at the level-Mp nome: htw says the only root at nome-level (Mp)·M is the untwisted one, and hsp says the extra conjugate j(q^{(Mp)·(Mp²)}) of the level-p equation is not a root at all. Together they say that P and the level-p equation have the unique common root x₀ = j(q^{Mp}).",
-      "note": "Proof (T15): the unique-common-root principle. Take A = Φ_p(j(q^{Mp}), Y) and B = pushedMinpoly K M (Mp), read in F = ℚ(j(q), j(q^{Mp})); x₀ = j(q^M) is a common root of A and B, by the modular equation written at the slot and by minpoly.aeval. The slot description lists the roots of A, and the two hypotheses exclude all of them but x₀: hsp kills the extra conjugate, htw kills every twisted root at nome-level (Mp)·M. Hence x₀ ∈ F. The tail strips the coefficient extension by injectivity of coeffEmb and qExpand. K is a certificate only: a field carrying a primitive (Mp)-th root of unity, in which all ψ(M) conjugates are visible; the conclusion is over ℚ.",
+      "lean": "theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)\n    [hp : Fact (Nat.Prime p)] (hallM : Hall M) :\n    jqN M ∈ modularFunctionField (M * p)",
+      "math": "Descent by one prime: under Hall M and p prime, j(q^M) lies in ℚ(j(q), j(q^{Mp})). The engine needs two facts about the roots of P = the minimal polynomial of j(q^M) over ℚ(j(q)) read at the level-Mp nome (private `pushedMinpoly`) — htw says the only root at nome-level (Mp)·M is the untwisted one, hsp says the extra conjugate j(q^{(Mp)·(Mp²)}) of the level-p equation is not a root at all — and neither is a hypothesis of the statement: both are derived from T19's slot product at the root of unity cycUnit(Mp). Together they say that P and the level-p equation have the unique common root x₀ = j(q^{Mp}).",
+      "note": "Proof (T15): the unique-common-root principle, with its two root conditions derived rather than assumed. Take A = Φ_p(j(q^{Mp}), Y) and B = that same pushed minimal polynomial, read in F = ℚ(j(q), j(q^{Mp})); x₀ = j(q^M) is a common root of A and B, by the modular equation written at the slot and by minpoly.aeval. The slot description lists the roots of A, and the two conditions exclude all of them but x₀: hsp kills the extra conjugate, htw kills every twisted root at nome-level (Mp)·M. Hence x₀ ∈ F. The tail strips the coefficient extension by injectivity of coeffEmb and qExpand. K is a certificate only: a field carrying a primitive (Mp)-th root of unity, in which all ψ(M) conjugates are visible, and the statement names none of it — the engine that does is the statement's own proof, so the caller supplies Hall M and gets a statement over ℚ.",
       "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
-      "line": 110,
+      "line": 349,
       "pin": "Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean"
     },
     {
@@ -466,7 +446,7 @@
             "id": "s6",
             "kind": "claim",
             "claim": "The statement `jqN_div_mem_modularFunctionField` holds.",
-            "math": "For p prime, a primitive (Mp)-th root of unity ζ, and the two slot facts about the roots of pushedMinpoly K M (Mp): j(q^M) ∈ ℚ(j(q), j(q^{Mp})).",
+            "math": "For p prime, a primitive (Mp)-th root of unity ζ, and the two slot facts about the roots of the pushed minimal polynomial of j(q^M) read at the level Mp: j(q^M) ∈ ℚ(j(q), j(q^{Mp})).",
             "why": "This is T15. The unique-common-root principle applied to A = Φ_p(j(q^{Mp}), Y) and the pushed minimal polynomial of j(q^M); htw and hsp leave j(q^M) as the only common root.",
             "cites": [
               {
@@ -964,9 +944,7 @@
         "mff",
         "mfffull",
         "dedekindpsi",
-        "ffg",
-        "nomeMap",
-        "pushedMinpoly"
+        "ffg"
       ],
       "declarations": []
     },
@@ -1012,7 +990,7 @@
       "id": "G",
       "title": "formalization notes — the Lean detours",
       "tagline": "what is plumbing and what is mathematics",
-      "prose": "Three formal devices recur; none carries mathematical content.\n\n**Instances and positivity.** Every level is a natural number with a `NeZero` instance. The substitution q ↦ q^0 is the zero map, and j(q^0) is not a q-expansion, so the level must be positive. The `NeZero` arguments are discharged by `NeZero.ne` or built from `NeZero (p·a)`; they are not hypotheses of the mathematics.\n\n**Private helpers.** `full_congr`, `mff_congr`, `relfinrank_full_of` and `F0_le_full` are private to Capstone.lean and cannot be `#check`ed from another module; the degree step derives all of its certificates (generation, prime non-membership, level non-membership) inside, so Capstone's call site passes only `hpM` and `hallM`; the sheet exhibits only the public declarations and `hall_all` through `lean_goal`. The three slot helpers `root_shape`, `htw_of` and `hsp_of` are private to `DescentFromSlots.lean`, which is where the descent's slot hypotheses are discharged and the only place they are named.\n\n**Orientation.** `Gen d` is F_d = F_d^full; the collapse equivalence is stated with F_N^full on the left. Rewriting the wrong way is the most common failure mode in this file, so each equality above records which orientation the proof uses.",
+      "prose": "Three formal devices recur; none carries mathematical content.\n\n**Instances and positivity.** Every level is a natural number with a `NeZero` instance. The substitution q ↦ q^0 is the zero map, and j(q^0) is not a q-expansion, so the level must be positive. The `NeZero` arguments are discharged by `NeZero.ne` or built from `NeZero (p·a)`; they are not hypotheses of the mathematics.\n\n**Private helpers.** `full_congr`, `mff_congr`, `relfinrank_full_of` and `F0_le_full` are private to Capstone.lean and cannot be `#check`ed from another module; the degree step derives all of its certificates (generation, prime non-membership, level non-membership) inside, so Capstone's call site passes only `hpM` and `hallM`; the sheet exhibits only the public declarations and `hall_all` through `lean_goal`. The three slot helpers `root_shape`, `htw_of` and `hsp_of` are private to `Descent.lean`, which is where the descent's slot hypotheses are discharged and the only place they are named.\n\n**Orientation.** `Gen d` is F_d = F_d^full; the collapse equivalence is stated with F_N^full on the left. Rewriting the wrong way is the most common failure mode in this file, so each equality above records which orientation the proof uses.",
       "definitions": [],
       "declarations": []
     }

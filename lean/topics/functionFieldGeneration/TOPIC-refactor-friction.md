@@ -203,9 +203,20 @@ rewrite "cannot find" a term you can see, stop rewriting and `exact` the oriente
 and sees the equation. The same `Gen` as a `def` would need `unfold Gen at hfull` first.
 
 **`simp only [someDef]` is the way to unfold a `def` on both sides of a goal.** The
-composition bridge in `DescentFromSlots` is one line — `simpa only [nomeMap] using
+composition bridge in `Descent` is one line — `simpa only [nomeMap] using
 nomeMap_qExpand K M p` — because the general lemma is stated with the `def` and the local
 obligation is stated with its body.
+
+**An implicit argument binds to the context's variable of the same name.** The descent's
+proof (`jqN_div_mem_modularFunctionField`) used to call
+`isPrimitiveRoot_pow_div (cycUnit_spec (M * p)) ⟨p, rfl⟩` inside a context whose `p` is
+the level's prime. The lemma's implicit `{p}` is its *target order*, and it binds to
+`M`; the outer `p` is the `Dvd` witness `M * p = M * p`. The call reads as "the `p`-th
+power" and denotes the `((M * p) / M)`-th one, and nothing in a type error would say
+so. Pass the divisor as the visible argument — `isPrimitiveRoot_pow_div hζ
+(dvd_mul_right M p)` — and the target order is what the reader sees. Same family as the
+`Nat.minFac_dvd` orientation note (§2): a call that reads correctly and denotes
+something else.
 
 **`open` does not resolve relative to the enclosing namespace.** `open Nome` inside
 `namespace ModularCurve` is an error (`unknown namespace 'Nome'`); write

@@ -33,8 +33,8 @@ texts are recorded as an `own:` row in `spec/decl_markers.tsv`; the checker read
 upstream of this module (`Nonmembership.lean`), since the derivation consumes it while
 T17's two-prime separation consumes this module. The capstone's call site is now one line,
 `relfinrank_full_eq_mul M p a hpM hnotmem`. This is the
-[CASE-hall-all.md](../CASE-hall-all.md) §2 step 4 treatment, applied to the assembler
-rather than to the descent.
+[CASE-hall-all.md](../CASE-hall-all.md) §4.5 rule — move the certificate into the proof —
+applied to an assembler rather than to the descent.
 
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. Measured with mathlib prebuilt: a green

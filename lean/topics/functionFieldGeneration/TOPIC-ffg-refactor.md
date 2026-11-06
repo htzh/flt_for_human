@@ -6,10 +6,11 @@
 except `SlotValues` is `spec-pin:`-wired, the Lean/spec consumers are rewired, and
 the presentation is retargeted. Wave 6 (final verification and docs) remains.
 
-**The arc, as a reusable case study: [../CASE-hall-all.md](../CASE-hall-all.md).** It
-condenses §13–§15 into the treatment ("refactor like `hall_all`"), the numbers, and the six
-reversals the first attempt needed. Read it before starting the next assembler, and read
-§13–§15 when you need the date-stamped reasoning.
+**The arc, as a reusable case study: [../CASE-hall-all.md](../CASE-hall-all.md).** It is
+written as the node's state against its state before the refactor, with the 2026-11-04 detour
+recorded as a lesson (§4: what was done, what it cost, the three rules and the tell). Read it
+before starting the next assembler, and read §13–§17 below when you need the date-stamped
+reasoning.
 
 **Wave 7 (landed 2026-11-04): the assembler interfaces.** The
 structure the refactor produced is right, but the three FFG *assemblers* still
@@ -1702,7 +1703,7 @@ rebuilds the consumers of the two regularised modules; nothing here needs one.
 **Status: landed 2026-11-04.** §14 fixed the *statement* of
 `modularFunctionField_eq_full_of`; the body was still the pin's, carrying its
 arithmetic inline and one substitution pointing the wrong way. The two repairs
-are the case note's §2 steps one level below the statement, and both were
+are the treatment in the case note §4.5, one level below the statement, and both were
 user-named at the node: `N` should substitute `d` at `d = N`, and the setup for
 `hall`/`hmem` should not be the proof.
 
@@ -1711,21 +1712,24 @@ user-named at the node: `N` should substitute `d` at `d = N`, and the setup for
    eliminated `N`: the `d = N` branch's goal became
    `(qExpand ℚ d) jq ∈ modularFunctionField d`, with `hdN : d ∣ d`. Provable, and
    read backwards. The branch now names the equation and writes `subst d`.
-2. **The arithmetic is one `obtain`, in two `private` helpers.** Fifteen lines of
+2. **The arithmetic is one `obtain`, in one `private` helper.** Fifteen lines of
    `minFac` bookkeeping (the decomposition `N = (d * m') * p`, `m' ≠ 0`, its
-   `NeZero`, the bound `d * m' < N`) became `exists_mul_prime_lt_of_dvd_of_ne`;
-   the other non-arithmetic step (`Gen m` and `jqN m ∈ F_N` give
-   `F_m^full ≤ F_N`) became `full_le_of_gen_of_mem`. Both stay `private` in the
-   consumer: the level `m` the induction hypothesis is taken at and the prime `p`
-   its step is taken by are this reduction's own data — §2 step 5's dividing line,
-   the same one `hall_all`'s two helpers were placed by.
+   `NeZero`, the bound `d * m' < N`) became `exists_mul_prime_lt_of_dvd_of_ne`,
+   `private` in the consumer: the level `m` the induction hypothesis is taken at
+   and the prime `p` its step is taken by are this reduction's own data — §2
+   step 5's dividing line, the same one `hall_all`'s helpers were placed by.
+   The branch's other step (`Gen m` and `jqN m ∈ F_N` give `F_m^full ≤ F_N`) was
+   factored too in the first cut and then put back: its whole content is
+   `adjoin_le_iff` applied to the two generators of `F_m`, so it is four lines
+   inline, where a reader sees the generators named. A helper with no content of
+   its own is a name to look up, not a lemma.
 
 ### 16.1 Measurements
 
 | item | before | after |
 |---|---|---|
-| the reduction's proof body | 34 lines | 14 |
-| the node's private helpers | 0 | 2 (22 lines of statement and proof) |
+| the reduction's proof body | 34 lines | 17 |
+| the node's private helpers | 0 | 1 (15 lines of statement and proof) |
 | statement | `∀ m < N, m ≠ 0 → Hall m` | unchanged |
 | `Capstone.lean`, `spec/ModularCurveConsumer.lean` | green | unchanged (`0` errors) |
 
@@ -1733,11 +1737,17 @@ The body now reads: the case split, the level (`obtain`), `Hall m` (the
 induction hypothesis), the descent transported along `N = m * p`, the inclusion,
 the conclusion.
 
+**The inlining costs no build time** — the helper was factored for readability,
+not to keep the module fast. Measured on the module, `lake env lean` (warm
+oleans, nothing else running): 6.3 s wall / 3.4 s user inlined, 5.1 s / 3.3 s
+with the helper restored; a clean `lake build` of the module 5.9 s. Elaboration
+cost tracks the tactics, not whether four lines sit in a `private` block.
+
 ### 16.2 Gates
 
 ```bash
 cd lean
-timeout 110 lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.DescentFromSlots  # silent, 5 s
+timeout 110 lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.DescentFromSlots  # silent, 5.9 s
 timeout 110 lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone           # silent, 4 s
 python3 spec/check_port.py FLTForHuman/ModularCurve/FunctionFieldGeneration/DescentFromSlots.lean --force  # tier 3
 python3 spec/unwired_register.py --rebuild   # `UNWIRED-PUBLIC.md` unchanged: 2 public declarations
@@ -1753,3 +1763,146 @@ before and after.
 Both repairs are in the friction note (§3): the `subst` orientation, with the
 goal state it produced, and the second instance of `rw` rewriting inside
 `m'.minFac` (the idiom is `conv_lhs => rw [hm', hm]` then `ring`).
+
+### 16.4 `jqN_mem_modularFunctionField_of_hall` after §14: an inner seam, not the capstone's interface
+
+§14's statement refactor moved the capstone's `Gen` half up one level, to
+`modularFunctionField_eq_full_of N ih`. The consequence was not followed through:
+`jqN_mem_modularFunctionField_of_hall`'s docstring still said "the form the
+capstone's strong induction consumes", and the layer-0 consumer spec's prose said
+"the form the capstone calls". Both became false in that move, and a reader who
+checks the claim finds a theorem whose only code consumer is the reduction in its
+own module — hence "it doesn't seem to do anything".
+
+What it does, stated precisely:
+
+* **mathematically**, it is T15's descent, not the generator membership: the two
+  generators of `modularFunctionField (M * p)` are `j(q)` and `j(q ^ (M * p))`, and
+  `j(q ^ M)` is neither, so `Hall M → jqN M ∈ F_{M * p}` is the content, not a
+  definitional fact;
+* **mechanically**, it adds no proof — it is `jqN_div_mem_modularFunctionField` at
+  `K = CyclotomicField (M * p) ℚ`, `ζ = cycUnit (M * p)`, with `htw`/`hsp`
+  discharged by `htw_of`/`hsp_of`. It is the only declaration in the port where this
+  step names `K`, `ζ` or an `IsRoot` predicate.
+
+So the honest sentence is "the seam one level below the reduction": a caller of
+`modularFunctionField_eq_full_of` never names a certificate, and this theorem is
+where the certificate is named once. Both docstrings now say that.
+
+**Measured, should it be deleted instead.** Removing it and inlining its single
+call site compiles: the module goes 235 → 222 lines, and the call site grows by
+five (`cycUnit (m * p)`, `cycUnit_spec (m * p)` and two
+`isPrimitiveRoot_pow_div … ⟨p, rfl⟩` witnesses). It stays because it is the
+module's public statement of the descent and the layer-0 consumer spec checks it
+(`#check` at `spec/ModularCurveConsumer.lean`); if that surface is ever narrowed,
+this is the line to cut, and the spec's `#check` goes with it.
+
+**Its proof, rewritten so the specialization is visible.** The old body was a single
+function-style term:
+
+```lean
+  jqN_div_mem_modularFunctionField M p (cycUnit (M * p)) (cycUnit_spec (M * p))
+    (fun w hw => htw_of M p (cycUnit (M * p) ^ (M * p / M))
+      (isPrimitiveRoot_pow_div (cycUnit_spec (M * p)) ⟨p, rfl⟩) hallM w hw)
+    (hsp_of M p (cycUnit (M * p) ^ (M * p / M))
+      (isPrimitiveRoot_pow_div (cycUnit_spec (M * p)) ⟨p, rfl⟩) hallM)
+```
+
+Three things a reader had to decode, each now named on its own line:
+
+* **`K`** — inferred as `CyclotomicField (M * p) ℚ` and therefore invisible. It is now
+  in `hζ`'s type and again in `htw`/`hsp`'s, so the two `IsRoot` predicates the
+  descent consumes can be read at all;
+* **`isPrimitiveRoot_pow_div hζ ⟨p, rfl⟩`** — the `⟨p, rfl⟩` is a `Dvd` *witness*, not
+  the order: the lemma's implicit `{p}` (its target order) binds to `M`, and the outer
+  `p` is the cofactor. `isPrimitiveRoot_pow_div hζ (dvd_mul_right M p)` says it;
+* **`fun w hw => htw_of … w hw`** — an eta-expansion of `htw_of`'s last two binders;
+  `htw_of M p ζ hζM hallM` already *is* the `∀ w, … → w = 1` the descent asks for.
+
+The body is now four `have`s (`hζ`, `hζM`, `htw`, `hsp`) and one application with the
+descent's six explicit arguments: 15 lines instead of 6, and no inline comment — each
+`have`'s type *is* one of the descent's hypotheses, so a comment would only repeat it. It is
+longer than the old term and it reads, which for the one
+declaration that names the certificate is the right trade.
+
+---
+
+## 17. Wave 7h — one descent, one statement: the certificate goes inside
+
+**Status: landed 2026-11-05.** §16 left the node with two public statements of one theorem:
+`Descent.lean`'s `jqN_div_mem_modularFunctionField` (taking `K`, `ζ`, `hζ`, `htw`, `hsp`) and
+`DescentFromSlots.lean`'s `jqN_mem_modularFunctionField_of_hall` (`Hall M` only), the second
+discharging the first. The record's verdict is now the case note's §4: the wave-7 trigger was a
+*bad signature*, and the fix for a bad signature is to push the invariant in, not to invent
+names for the certificate or to state the theorem a second time one module down.
+
+### 17.1 What changed
+
+1. **One theorem.** `jqN_div_mem_modularFunctionField` now takes
+   `(M) [NeZero M] (p) [Fact p.Prime] (hallM : Hall M)` and concludes
+   `jqN M ∈ modularFunctionField (M * p)`. Its proof is the certificate, in four lines
+   (`cycUnit (M * p)`, its `((M * p) / M)`-th power, and the two slot facts from `htw_of`/
+   `hsp_of`), and one application of the engine. `jqN_mem_modularFunctionField_of_hall` is
+   gone.
+2. **The engine has no statement.** The pin's T15 text — the unique-common-root argument given
+   `ζ`, `hζ`, `htw`, `hsp` — is the body of the one public theorem, after four lines that fix
+   `K := CyclotomicField (M * p) ℚ`, `ζ := cycUnit (M * p)` and the two root conditions at
+   `ζ ^ ((M * p) / M)`. An intermediate cut had it as a `private theorem
+   jqN_mem_of_root_conditions` taking those four arguments; that is the same interface one
+   visibility level down, and it was withdrawn — the point of the merge is that the bad
+   signature has no home left.
+3. **The two modules merge back into `Descent.lean`.** The refactor had created
+   `DescentFromSlots.lean` in the same commit that introduced the second statement
+   (`2d3fa8c`, 2026-11-04), so the duplicate and the extra module were one mistake. With one
+   statement the seam module holds nothing of its own; the descent, its slot facts, the engine
+   and the one-prime reduction all live in `Descent.lean`, which is the pin's node name and was
+   the module that carried both statements before the refactor. The pin's own file has them
+   together too (`S_ModularCurve_modularFunctionField_eq_full_of.lean`: descent 553–690,
+   reduction 694–727).
+4. **The invented vocabulary went private with its consumer.** `nomeMap`, `pushedMinpoly` and
+   `nomeMap_qExpand` moved from `Defs/PhiAtSlot.lean` into `Descent.lean` as `private`;
+   `pushedMinpoly_def` had no consumers left and was deleted. The four `own:` rows in
+   `spec/decl_markers.tsv` went with them.
+
+The `Hall` statement's proof needs T19's slot product, so `Descent.lean` now imports
+`SlotProduct` — it did not before the wave. That is the honest dependency of the theorem the
+port states; the certificate-taking engine, which needs no T19, is private and could move
+upstream again if a second consumer ever appeared. The dependency order is the interface (case
+note §7.5), so the module that *states* the friendly theorem is the module that can prove it.
+
+### 17.2 Measurements
+
+| item | before | after |
+|---|---|---|
+| modules for the node | 2 (`Descent` 249 + `DescentFromSlots` 236) | 1 (`Descent`, 412) |
+| public statements of the descent | 2 | 1 |
+| `ModularCurve/Defs/PhiAtSlot.lean` | 289 | 247 |
+| `check_port` on `Defs/PhiAtSlot.lean` | 18 ok + 4 own | **18 ok + 0 own** |
+| `spec/decl_markers.tsv` rows for the vocabulary | 4 | 0 |
+| the descent's statement | 6 lines, `K`/`ζ`/`htw`/`hsp` | 3 lines, `Hall M` |
+| unwired register | 108 modules | 107 |
+
+Consumers touched: `Capstone.lean` (its import and two sentences), the layer-0 consumer spec
+(import, one `#check` removed, zone M and the descent note rewritten), the presentation JSON
+(statement, `math`/`note`, file/line, the two vocabulary `definition` entries and the section-A
+list), and the sheet, regenerated.
+
+### 17.3 Gates
+
+```bash
+cd lean
+timeout 110 lake build FLTForHuman.ModularCurve.Defs.PhiAtSlot                            # silent
+timeout 110 lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent             # silent
+timeout 110 lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone          # silent
+python3 spec/check_port.py FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean --force   # 18 ok, 0 own
+python3 spec/check_port.py <Descent> --force                                      # tier 3, not wired
+lake env lean spec/ModularCurveConsumer.lean    # 0 errors
+python3 presentation/render.py presentation/function-field-generation/capstone.json
+lake env lean presentation/FunctionFieldGenerationCapstone.lean   # 0 errors
+python3 spec/unwired_register.py --rebuild
+```
+
+`#print axioms` on `ModularCurve.jqN_div_mem_modularFunctionField`,
+`ModularCurve.modularFunctionField_eq_full_of` and `ModularCurve.functionFieldGeneration`:
+`[propext, Classical.choice, Quot.sound]` — unchanged, as it must be: this wave changes no
+mathematics, only where the certificate lives.

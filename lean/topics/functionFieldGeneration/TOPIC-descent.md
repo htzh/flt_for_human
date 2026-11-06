@@ -1,8 +1,9 @@
 # Topic 15: descent by one prime, and the one-prime reduction
 
-**Status: done (2026-09-22) — one goal round.** `FunctionFieldGeneration/Descent.lean`
-is **252 lines** against the 173-line pin tail (ratio ≈1.46), inside the scouted
-~200–280 band. Both declarations are public, statements the `Theorems/` wrappers'
+**Status: done (2026-09-22) — one goal round; interface revised 2026-11-05.**
+`FunctionFieldGeneration/Descent.lean` is **424 lines** against the 173-line pin tail; the
+descent's statement now takes `Hall M` and its certificate engine is private (see the note
+after the table below). Both declarations are public, statements the `Theorems/` wrappers'
 verbatim, `#print axioms` clean, `lake build` green with 0 warnings and no `sorry`.
 The checker moved **276 → 278** (0 mismatched, 0 missing). The two `Inputs` fields
 are discharged, so the capstone's debt is **7 → 5**, and the consumer's Zone M wire
@@ -183,6 +184,14 @@ One new module, because the pin ships one development:
 | module | public surface | pin |
 |---|---|---|
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` | `ModularCurve.jqN_div_mem_modularFunctionField`, `ModularCurve.modularFunctionField_eq_full_of` | `S_…_modularFunctionField_eq_full_of.lean` 553–727 |
+
+**Since 2026-11-05 the module is as named above**, with a revised interface: the descent takes
+`Hall M` (`hall` pushed into it — no splitting field, no root predicate) and the
+unique-common-root engine that names the certificate is the body of that theorem's proof, with
+no certificate-taking statement anywhere in the module. The file also absorbed `DescentFromSlots.lean`, the seam module the
+refactor had split off; with one statement it has nothing left to hold. Because the `Hall`
+statement's proof needs T19's slot product, this module now imports `SlotProduct`. The record is
+`TOPIC-ffg-refactor.md` §17 and case note §4.
 
 It sits in the theory directory beside `Target.lean`, `Collapse.lean` and
 `Spine.lean` (path `...ModularCurve.FunctionFieldGeneration.Descent`, namespace

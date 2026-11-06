@@ -7,7 +7,7 @@
   413–435 (`Tight`/`Gen`/`Hall` and the congruence plumbing);
   436–466 (the `ψ` arithmetic); 467–613 (`tight_one` through `hsp_of` — the
   `hsp_of` end, with the cyclotomic root and the slot glue it consumes, is now
-  `FunctionFieldGeneration/DescentFromSlots.lean`);
+  `FunctionFieldGeneration/Descent.lean`);
   614–700 (`hall_all`).
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_functionFieldGeneration.lean
 
@@ -28,9 +28,9 @@
   the non-membership tower, one new generator per prime power, the slot product
   and the prime non-membership), the `Tight`/`Gen`/`Hall` vocabulary with
   `tight_one`/`gen_one`, and the §2 collapse. The descent is consumed in its
-  `Hall M`-level form (`jqN_mem_modularFunctionField_of_hall`), so this module no
-  longer names the splitting field, the root of unity, `TS`, or a root predicate:
-  that argument is `DescentFromSlots`'s, downstream of T19.
+  `Hall M` form (`jqN_div_mem_modularFunctionField`), so this module no longer
+  names the splitting field, the root of unity, `TS`, or a root predicate: that
+  argument is `Descent`'s, downstream of T19.
 
   The private helpers this module keeps are the induction's own data: the
   prime-power decomposition of the level (`exists_eq_mul_pow_succ_of_ne_one`) and its
@@ -43,7 +43,6 @@ import Mathlib.Data.Nat.Factorization.Basic
 import FLTForHuman.ModularCurve.Defs.Invariants
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.DescentFromSlots
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
 
@@ -60,8 +59,8 @@ namespace ModularCurve
 
 The slot analysis the pin carries inside `hall_all` — the cyclotomic root, `TS`,
 `root_shape`, `htw_of`, `hsp_of` (pin lines 199–240 and 541–613) — is
-`FunctionFieldGeneration/DescentFromSlots.lean`, behind the single interface
-`jqN_mem_modularFunctionField_of_hall`. That is why `Defs/Cyclotomic` and
+`FunctionFieldGeneration/Descent.lean`, behind the single statement
+`jqN_div_mem_modularFunctionField`. That is why `Defs/Cyclotomic` and
 `Defs/TS` are not imported here: this module consumes a ℚ-level statement and no
 longer builds a splitting field. `coeffMap_qExpand`/`coeffEmb_qExpand` still live
 beside `coeffMap`/`coeffEmb` in `Defs/Laurent.lean`, reachable through the

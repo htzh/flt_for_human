@@ -692,30 +692,29 @@ example : (ModularCurve.phiAtSeed ModularCurve.modularPolynomialDataOne (0 : ℚ
 
 /-! ## Zone M — [T15] descent by one prime and the one-prime reduction
 
-`FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` states the descent
-`jqN_div_mem_modularFunctionField` (math/010 §4, the unique-common-root argument), and
-the one-prime reduction of `Gen` (math/010 §5, `modularFunctionField_eq_full_of`) lives
-beside its `Hall`-level interface in `DescentFromSlots.lean`: its hypothesis is the strong
-induction hypothesis itself (`∀ m < N, m ≠ 0 → Hall m`), so the capstone passes `ih` unchanged,
-and it derives the factorization, the descent's conclusion and `Gen` at the proper divisor
-itself. The descent composes T14's slot prelude (`phiAtSeed*`,
-`isRoot_prime_at_slot_iff`, `roots_prime_at_slot_roots_nodup`, `iota_jqN`) with
-T13's `splits_prime_at_slot` and T4's
-`Polynomial.mem_range_of_unique_common_root`; its `htw`/`hsp` are the two facts
-about the root set of `ModularCurve.Nome.pushedMinpoly K M (M * p)`, which
-`FunctionFieldGeneration/DescentFromSlots.lean` derives from T19's slot product and
-`Hall M` (`jqN_mem_modularFunctionField_of_hall`, the form the capstone calls).
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` states the
+descent `jqN_div_mem_modularFunctionField` (math/010 §4) and the one-prime reduction of
+`Gen` (math/010 §5, `modularFunctionField_eq_full_of`). The descent takes `Hall M` and
+nothing else: its engine is the unique-common-root argument, which needs two facts about
+the root set of the pushed minimal polynomial of `j(q ^ M)` read at the level `M * p` — the
+splitting field `K`, the root of unity and those two predicates stay inside the theorem's proof,
+which spells the polynomial privately — and they are derived
+there from T19's slot product plus `Hall M`. The argument composes T14's slot prelude
+(`phiAtSeed*`, `isRoot_prime_at_slot_iff`, `roots_prime_at_slot_roots_nodup`, `iota_jqN`)
+with T13's `splits_prime_at_slot` and T4's
+`Polynomial.mem_range_of_unique_common_root`. The reduction's hypothesis is the strong
+induction hypothesis itself (`∀ m < N, m ≠ 0 → Hall m`), so the capstone passes `ih`
+unchanged, and it derives the factorization, the descent's conclusion and `Gen` at the
+proper divisor itself.
 
 **Both statements are the port's spelling, not the pin's** (`TOPIC-ffg-refactor.md`
-§13–§14), and neither module carries a `spec-pin:` wire as a consequence: both are
-tier 3, so the `#check`s below (and the capstone build) are this zone's whole
-guarantee about them. They exhibit the statements the capstone consumes, so a
-signature change breaks this file and the capstone build together. -/
+§13–§14), and the module carries no `spec-pin:` wire as a consequence: it is tier 3, so
+the `#check`s below (and the capstone build) are this zone's whole guarantee about them.
+They exhibit the statements the capstone consumes, so a signature change breaks this
+file and the capstone build together. -/
 
 #check @ModularCurve.jqN_div_mem_modularFunctionField
 #check @ModularCurve.modularFunctionField_eq_full_of
-#check @ModularCurve.jqN_mem_modularFunctionField_of_hall
-#check @ModularCurve.Nome.pushedMinpoly
 
 /-! ## Zone N — [T16] the degree of one prime-power step
 
@@ -1428,11 +1427,11 @@ every entry.
     (removing the FFG spine's private twins), so the checker moved 233 → 242. The
     one remaining `sorry` below is the FFG `Inputs` gap, not this cone's.
 
-**Descent result (2026-09-22).** Zone M is added and bound:
-`FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` proves the two
-`Inputs` fields `jqN_div_mem_modularFunctionField` (math/010 §4's
-unique-common-root descent, with `htw`/`hsp` left as arguments for T19) and
-`modularFunctionField_eq_full_of` (math/010 §5's one-prime `Gen` reduction). The
+**Descent result (2026-09-22).** Zone M is added and bound: the two `Inputs` fields
+`jqN_div_mem_modularFunctionField` (math/010 §4's unique-common-root descent) and
+`modularFunctionField_eq_full_of` (math/010 §5's one-prime `Gen` reduction) are proved
+in `FunctionFieldGeneration/Descent.lean` (then `Descent.lean`; the descent's
+statement now takes `Hall M`, its engine's `htw`/`hsp` staying private). The
 zone's wire test is a *partially discharged* `Inputs` value — the two fields
 filled by the new theorems, the other five `sorry` — which is exactly T20's
 construction minus T16–T19, and it fails if either theorem's type stops matching

@@ -46,7 +46,8 @@ they are in a methods note and not in a script.
 
 `ModularCurve.jqN_div_mem_modularFunctionField`
 ([`FunctionFieldGeneration/Descent.lean`](../FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean))
-states:
+— this note was written when the statement was the one below; it has since been replaced by
+the `Hall` form, and case note §4 corrects this section's conclusion — stated:
 
 > For a prime `p` and a level `M`, `j(q ^ M) ∈ ℚ(j(q), j(q ^ (M * p)))`.
 
@@ -68,8 +69,11 @@ The pattern is not local to T15. In `ModularCurve/` the composite
 minimal polynomial 29 times out of 81 `minpoly` mentions — always inline. `Descent.lean` writes its
 function field as
 `(IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))` four times; the same type is written
-`ℚ⟮jq⟯` 81 times elsewhere in the directory. So there are two independent problems, and they have
-different fixes: **unnamed vocabulary** (§3) and **a statement that records a proof script** (§2).
+`ℚ⟮jq⟯` 81 times elsewhere in the directory. So there are two problems here, and — the correction case note §4 records —
+**they are not independent**: the unnamed vocabulary is a symptom of the certificate the
+signature carries, and naming it (§3) makes the certificate readable without removing it. The
+statement that "records a proof script" (§2) is the disease; the vocabulary was the wrong
+remedy, and the four names it produced are `private` now.
 
 ## 2. What a transcribed signature records
 
@@ -354,11 +358,12 @@ a port-own statement that must be public: one row, with the reason. The in-sourc
 `-- own:` comments are the obsolete spelling and should not be reintroduced.
 
 **The seam test.** When the conclusion is over `ℚ` and the signature mentions a field `K`, the
-proof is base-changing, and the seam wants its own module with the caller's statement in its own
-terms (`DescentFromSlots`: no `K`, no `ζ`, no root predicate). The `K`-level theorem stays public —
-it is the mathematical statement with its certificate — but it is no longer what the next node
-calls. A seam module is the right answer when the certificate's module and the caller's module
-would otherwise have to be the same one.
+proof is base-changing and the certificate is the proof's, not the caller's. The statement then
+loses `K`, `ζ` and the root predicates, and the certificate-taking form becomes `private` in the
+same module (the port's first answer — a second public statement in a seam module, with the
+`K`-level theorem kept public beside it — is the detour the case note's §4 records; it was
+withdrawn on 2026-11-05). A seam module is the right answer only when the certificate's
+dependencies and the caller's would otherwise force one module to serve two import directions.
 
 A last, unglamorous note. **No gate checks any of this.** The build, the checker, the register and
 `dedup` verify that the statement matches the pin, that nothing is unreachable, that the imports
@@ -404,10 +409,12 @@ Policy, in the port's terms:
 ```bash
 cd lean
 
-# 1. the statement's size and its duplicated terms (the ratio from §4.6)
+# 1. the statement's size and its duplicated terms (the ratio from §4.6).
+#    measured on the pre-2026-11-05 statement, since replaced by the `Hall` form
 awk 'NR>=75 && NR<=90' FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean
 
-# 2. is the vocabulary already named somewhere? (zero is the answer that means "add a def")
+# 2. is the vocabulary already named somewhere? (zero is the answer that means "add a def" —
+#    and §4 of the case note and §17 of the log are the record of what naming it cost)
 python3 spec/statement_db.py grep pushedMinpoly --limit 3      # the pin
 grep -rn "minpoly ℚ⟮jq⟯" --include=*.lean FLTForHuman | wc -l  # the port
 

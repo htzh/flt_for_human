@@ -241,48 +241,6 @@ theorem phiAtSeed_jqN_eval_down (q : ℕ) [NeZero q] (data : ModularPolynomialDa
     (phiAtSeed data (jqN (M * q))).eval (jqN M) = 0 := by
   rw [← phiAtSeed_eval_symm data hs]; exact phiAtSeed_jqN_eval q data M
 
-/-! ## The level-`N` nome map and the pushed minimal polynomial
-
-The two objects the descent argument is stated in. Both are names for
-expressions the pin writes inline at every use: `nomeMap K N` is the composite
-`coeffEmb K ∘ qExpand ℚ N ∘ (ℚ⟮jq⟯ ↪ ℚ((q)))`, so it *reads a function of
-`ℚ(j(q))` at the level-`N` nome*; `pushedMinpoly K M N` is the minimal
-polynomial of `j(q ^ M)` over `ℚ(j(q))`, read through it. -/
-
-namespace Nome
-
-/-- Read a function of `ℚ(j(q))` at the level-`N` nome `q ↦ q ^ N`, with
-coefficients extended to `K`. -/
-def nomeMap (K : Type*) [Field K] [Algebra ℚ K] (N : ℕ) [NeZero N] :
-    ℚ⟮jq⟯ →+* LaurentSeries K :=
-  ((coeffEmb K).comp (qExpand ℚ N)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))
-
-/-- The minimal polynomial of `j(q ^ M)` over `ℚ(j(q))`, pushed to the level-`N`
-nome: the polynomial whose roots the descent argument compares with those of the
-level-`p` modular equation. -/
-def pushedMinpoly (K : Type*) [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M] (N : ℕ) [NeZero N] :
-    Polynomial (LaurentSeries K) :=
-  (minpoly ℚ⟮jq⟯ (jqN M)).map (nomeMap K N)
-
-/-- The pin's inline spelling of `pushedMinpoly`, definitionally: nothing in the
-tree has to be rewritten to adopt the name. -/
-theorem pushedMinpoly_def (K : Type*) [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M] (N : ℕ)
-    [NeZero N] :
-    pushedMinpoly K M N
-      = (minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ N)).comp
-          (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) := rfl
-
-/-- Reading at the level `M` and then at the level `e` is reading at the level
-`M * e`: the step that turns the level-`M` datum into the level-`M * e` one,
-which the descent needs to compare its two slot valuations. -/
-theorem nomeMap_qExpand (K : Type*) [Field K] [Algebra ℚ K] (M e : ℕ) [NeZero M] [NeZero e] :
-    (qExpand K e).comp (nomeMap K M) = nomeMap K (M * e) := by
-  refine RingHom.ext fun z => ?_
-  simp only [RingHom.comp_apply, nomeMap]
-  rw [coeffEmb_qExpand, coeffEmb_qExpand, qExpand_qExpand]
-  exact qExpand_congr (mul_comm e M) _
-
-end Nome
 
 end ModularCurve
 
