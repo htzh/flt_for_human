@@ -1038,7 +1038,7 @@ private theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K]
         ((qExpand K M).comp (algebraMap K⟮jqModC K⟯ (LaurentSeries K)))).roots
         = slotValues M (fun a b => sv K ζ a b) := by
       refine (Multiset.eq_of_le_of_card_le hTle ?_).symm
-      rw [card_slotValues hM0 _ (card_slotFilter_eq_dedekindPsi M hM0)]
+      rw [card_slotValues hM0 _]
       calc Multiset.card ((minpoly K⟮jqModC K⟯ (jqNModC K M)).map
             ((qExpand K M).comp (algebraMap K⟮jqModC K⟯ (LaurentSeries K)))).roots
           ≤ ((minpoly K⟮jqModC K⟯ (jqNModC K M)).map
@@ -1047,7 +1047,7 @@ private theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K]
         _ = dedekindPsi M := hPdeg
     have hsp : Polynomial.Splits ((minpoly K⟮jqModC K⟯ (jqNModC K M)).map
         ((qExpand K M).comp (algebraMap K⟮jqModC K⟯ (LaurentSeries K)))) := by
-      rw [Polynomial.splits_iff_card_roots, hroots_eq, card_slotValues hM0 _ (card_slotFilter_eq_dedekindPsi M hM0), hPdeg]
+      rw [Polynomial.splits_iff_card_roots, hroots_eq, card_slotValues hM0 _, hPdeg]
     have hfact := hsp.eq_prod_roots_of_monic ((minpoly.monic hα).map _)
     rw [hfact, hroots_eq]
     exact prod_slotValues M (fun a b => sv K ζ a b)
@@ -1245,7 +1245,7 @@ private theorem jqNModC_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ)
     rw [hidMB, ← prod_slotValues (K := K)]
     exact Polynomial.roots_multiset_prod_X_sub_C _
   have hTcard : (slotValues M (fun a b => qExpand K p (sv K (ζ ^ p) a b))).card
-      = dedekindPsi M := card_slotValues hM0 _ (card_slotFilter_eq_dedekindPsi M hM0)
+      = dedekindPsi M := card_slotValues hM0 _
   have hTnodup : (slotValues M (fun a b => qExpand K p (sv K (ζ ^ p) a b))).Nodup :=
     nodup_slotValues_qExpand (K := K) hM0 hζM
   have hscard : (slotValues M (fun a b => qExpand K p (sv K (ζ ^ p) a b))).toFinset.card

@@ -164,6 +164,38 @@ theorem finrank_adjoin_jqN_prime_of_not_mem (F : IntermediateField ℚ (LaurentS
 
 /-! ## The later prime-power step -/
 
+/-- `jqN (m * c) ≠ jqN m` for `c ≥ 2`: the two differ at the coefficient `-(m * c)`. -/
+private theorem jqN_mul_ne (m c : ℕ) [NeZero m] [NeZero (m * c)] (hc : 2 ≤ c) :
+    jqN (m * c) ≠ jqN m := by
+  intro h
+  have hA : (jqN (m * c)).coeff (((m * c : ℕ) : ℤ) * (-1)) = 1 := by
+    rw [jqN, qExpand_coeff_mul]
+    exact coeff_jq_neg_one
+  have hidx : ((m * c : ℕ) : ℤ) * (-1) = ((m : ℕ) : ℤ) * (((c : ℕ) : ℤ) * (-1)) := by
+    push_cast
+    ring
+  have hB : (jqN m).coeff (((m * c : ℕ) : ℤ) * (-1)) = 0 := by
+    rw [jqN, hidx, qExpand_coeff_mul]
+    apply coeff_jq_of_lt
+    have hc' : (2 : ℤ) ≤ (c : ℤ) := by exact_mod_cast hc
+    linarith
+  rw [h] at hA
+  rw [hA] at hB
+  exact one_ne_zero hB
+
+/-- A generator of `(ℤ/p)ˣ` has order `p - 1`, its powers are periodic with that
+period, and the period is positive. -/
+private theorem generator_pow_mod {p : ℕ} [hp : Fact (Nat.Prime p)] (g : (ZMod p)ˣ)
+    (hg : ∀ x : (ZMod p)ˣ, x ∈ Subgroup.zpowers g) :
+    0 < p - 1 ∧ orderOf g = p - 1 ∧ ∀ a : ℕ, g ^ a = g ^ (a % (p - 1)) := by
+  have hp1 : 0 < p - 1 := by have := hp.out.two_le; omega
+  have horder : orderOf g = p - 1 := by
+    rw [orderOf_eq_card_of_forall_mem_zpowers hg, Nat.card_eq_fintype_card, ZMod.card_units p]
+  have hgd1 : g ^ (p - 1) = 1 := by rw [← horder]; exact pow_orderOf_eq_one g
+  refine ⟨hp1, horder, fun a => ?_⟩
+  conv_lhs => rw [← Nat.div_add_mod a (p - 1)]
+  rw [pow_add, pow_mul, hgd1, one_pow, one_mul]
+
 private def rUnit (e : ℕ) [NeZero e] {p : ℕ} (ζ : Kˣ) (g : (ZMod p)ˣ) (i : ℕ) :
     LaurentSeries K :=
   TS K e (ζ ^ ((g ^ i : (ZMod p)ˣ) : ZMod p).val)
@@ -178,14 +210,7 @@ private theorem range_map_eq_rUnit (p : ℕ) [hp : Fact (Nat.Prime p)] (e : ℕ)
     (hg : ∀ x : (ZMod p)ˣ, x ∈ Subgroup.zpowers g) :
     (Multiset.range p).map (fun b => TS K e (ζ ^ b))
       = TS K e 1 ::ₘ (Multiset.range (p - 1)).map (rUnit e ζ g) := by
-  have hp1 : 0 < p - 1 := by have := hp.out.two_le; omega
-  have horder : orderOf g = p - 1 := by
-    rw [orderOf_eq_card_of_forall_mem_zpowers hg, Nat.card_eq_fintype_card, ZMod.card_units p]
-  have hg1 : g ^ (p - 1) = 1 := by rw [← horder]; exact pow_orderOf_eq_one g
-  have hgmod : ∀ a : ℕ, g ^ a = g ^ (a % (p - 1)) := by
-    intro a
-    conv_lhs => rw [← Nat.div_add_mod a (p - 1)]
-    rw [pow_add, pow_mul, hg1, one_pow, one_mul]
+  obtain ⟨hp1, horder, hgmod⟩ := generator_pow_mod g hg
   have hexp : ∀ {a b : ℕ}, a < p → b < p → ζ ^ a = ζ ^ b → a = b := by
     intro a b ha hb h
     refine hζ.pow_inj ha hb ?_
@@ -243,18 +268,20 @@ private theorem range_map_eq_rUnit (p : ℕ) [hp : Fact (Nat.Prime p)] (e : ℕ)
     · rw [rUnit]
       exact ⟨((g ^ i : (ZMod p)ˣ) : ZMod p).val, ZMod.val_lt _, rfl⟩
 
-/-- **The later prime-power degree step**: if `jqN (p ^ k)` and
-`jqN (p ^ (k + 1))` lie in `F` but `jqN (p ^ (k + 2))` does not, then
-`[F(j(q ^ (p ^ (k + 2)))) : F] = p`. The cyclotomic coefficient automorphism
-`coeffMapEquiv τ` cycles the `p` roots of the peeled factor. Verbatim from
-`Theorems/Thm_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean`. -/
-theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (LaurentSeries ℚ))
-    (p : ℕ) [hp : Fact (Nat.Prime p)] (k : ℕ) (h0 : jqN (p ^ k) ∈ F)
-    (h1 : jqN (p ^ (k + 1)) ∈ F) (hF : jqN (p ^ (k + 2)) ∉ F) :
-    Module.finrank F (IntermediateField.adjoin F ({jqN (p ^ (k + 2))} : Set (LaurentSeries ℚ))) = p := by
-  classical
+/-! ### The tools of the later prime-power step -/
 
-  obtain ⟨data, -, hs⟩ := exists_phiIrreducible_evalSymm p
+/-- **The peel.** `Φ_p` seeded at `j(q ^ (p ^ (k + 1)))` has the known root `j(q ^ (p ^ k))`
+(`j(q ^ (p ^ k))` lies in `F`, and `Φ_p` is symmetric), which comes off leaving a monic `P`
+of degree `p`; and `j(q ^ (p ^ (k + 2)))`, a root of `Φ_p` at the next level and distinct from
+the peeled root, is a root of `P`. -/
+private theorem exists_peeled (p : ℕ) [hp : Fact (Nat.Prime p)]
+    {F : IntermediateField ℚ (LaurentSeries ℚ)} (data : ModularPolynomialData p)
+    (hs : EvalSymm data.Φ) (k : ℕ) (h0 : jqN (p ^ k) ∈ F) (h1 : jqN (p ^ (k + 1)) ∈ F) :
+    ∃ P : Polynomial F, P.Monic ∧ P.natDegree = p ∧
+      (Polynomial.X - Polynomial.C (⟨jqN (p ^ k), h0⟩ : F))
+        * P = phiAtSeed data (⟨jqN (p ^ (k + 1)), h1⟩ : F) ∧
+      Polynomial.aeval (jqN (p ^ (k + 2))) P = 0 := by
+  classical
   set jkF : F := ⟨jqN (p ^ k), h0⟩ with hjkF
   set jp1F : F := ⟨jqN (p ^ (k + 1)), h1⟩ with hjp1F
   set Q : Polynomial F := phiAtSeed data jp1F with hQdef
@@ -263,7 +290,6 @@ theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (Laure
     rw [hQdef, phiAtSeed_natDegree, dedekindPsi_prime hp.out]
   have hQmap : Q.map (algebraMap F (LaurentSeries ℚ)) = phiAtSeed data (jqN (p ^ (k + 1))) := by
     rw [hQdef, phiAtSeed_map]; rfl
-
   have hdown : (phiAtSeed data (jqN (p ^ k))).eval (jqN (p ^ (k + 1))) = 0 := by
     have h := phiAtSeed_jqN_eval p data (p ^ k)
     rwa [jqN_congr ((pow_succ p k).symm)] at h
@@ -284,29 +310,14 @@ theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (Laure
     rw [Polynomial.Monic.natDegree_mul (Polynomial.monic_X_sub_C jkF) hPmonic,
       Polynomial.natDegree_X_sub_C, hQdeg] at h
     omega
-
   have hQroot : Polynomial.aeval (jqN (p ^ (k + 2))) Q = 0 := by
     rw [← Polynomial.eval_map_algebraMap, hQmap]
     have h := phiAtSeed_jqN_eval p data (p ^ (k + 1))
     rwa [jqN_congr ((pow_succ p (k + 1)).symm)] at h
   have hne2 : jqN (p ^ (k + 2)) ≠ jqN (p ^ k) := by
-    intro h
-    have hA : (jqN (p ^ (k + 2))).coeff (((p ^ (k + 2) : ℕ) : ℤ) * (-1)) = 1 := by
-      rw [jqN, qExpand_coeff_mul]
-      exact coeff_jq_neg_one
-    have hidx : ((p ^ (k + 2) : ℕ) : ℤ) * (-1)
-        = ((p ^ k : ℕ) : ℤ) * (((p * p : ℕ) : ℤ) * (-1)) := by
-      push_cast
-      ring
-    have hB : (jqN (p ^ k)).coeff (((p ^ (k + 2) : ℕ) : ℤ) * (-1)) = 0 := by
-      rw [jqN, hidx, qExpand_coeff_mul]
-      apply coeff_jq_of_lt
-      have h4 : (4 : ℕ) ≤ p * p := Nat.mul_le_mul hp.out.two_le hp.out.two_le
-      have h4' : (4 : ℤ) ≤ ((p * p : ℕ) : ℤ) := by exact_mod_cast h4
-      linarith
-    rw [h] at hA
-    rw [hA] at hB
-    exact one_ne_zero hB
+    have hidx : p ^ (k + 2) = p ^ k * (p * p) := by rw [← pow_two, ← pow_add]
+    rw [jqN_congr hidx]
+    exact jqN_mul_ne (p ^ k) (p * p) (by have h2 := hp.out.two_le; nlinarith)
   have hProot : Polynomial.aeval (jqN (p ^ (k + 2))) P = 0 := by
     have h : Polynomial.aeval (jqN (p ^ (k + 2))) ((Polynomial.X - Polynomial.C jkF) * P) = 0 := by
       rw [hfact]; exact hQroot
@@ -314,6 +325,72 @@ theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (Laure
     rcases mul_eq_zero.mp h with h1' | h2'
     · exact absurd (sub_eq_zero.mp h1') hne2
     · exact h2'
+  exact ⟨P, hPmonic, hPdeg, hfact, hProot⟩
+
+/-- **The automorphism of a generator.** A generator `g` of `(ℤ/p)ˣ` is the exponent of some
+`τ ∈ Gal(K/ℚ)`: `τ ζ = ζ ^ g`. Since `ℚ(ζ_p)` has degree `φ(p) = p - 1` over `ℚ`, the
+`p - 1` powers of `ζ` are a basis, so surjectivity of `autToPow` (from cyclotomic
+irreducibility and the cardinality count) hits every unit — generation is only needed later,
+to enumerate the powers. The `Units` form is the one the coefficient action consumes; both
+are returned so the caller needs no restatement. -/
+private theorem exists_aut_pow {p : ℕ} [hp : Fact (Nat.Prime p)]
+    [IsCyclotomicExtension {p} ℚ K] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (g : (ZMod p)ˣ) :
+    ∃ τ : K ≃ₐ[ℚ] K, τ (ζ : K) = (ζ : K) ^ ((g : ZMod p)).val ∧
+      Units.map ((τ : K →ₐ[ℚ] K) : K →+* K).toMonoidHom ζ = ζ ^ ((g : ZMod p)).val := by
+  have hirrcyc : Irreducible (Polynomial.cyclotomic p ℚ) :=
+    Polynomial.cyclotomic.irreducible_rat hp.out.pos
+  have hsurj : Function.Surjective (hζ.autToPow ℚ) :=
+    ((Nat.bijective_iff_injective_and_card _).mpr
+      ⟨hζ.autToPow_injective (K := ℚ),
+        Nat.card_congr (IsCyclotomicExtension.autEquivPow K hirrcyc).toEquiv⟩).2
+  obtain ⟨τ, hτ⟩ := hsurj g
+  have hτζ : τ (ζ : K) = (ζ : K) ^ ((g : ZMod p)).val := by
+    have h := hζ.autToPow_spec ℚ τ
+    rw [hτ] at h
+    exact h.symm
+  have hτζu : Units.map ((τ : K →ₐ[ℚ] K) : K →+* K).toMonoidHom ζ = ζ ^ ((g : ZMod p)).val :=
+    Units.ext (by rw [Units.coe_map, Units.val_pow_eq_pow_val]; exact hτζ)
+  exact ⟨τ, hτζ, hτζu⟩
+
+/-- **The automorphism cycles the roots.** An automorphism `τ` with `τ ζ = ζ ^ g` sends the
+`i`-th `rUnit` root to the `(i + 1)`-th: the exponent `g ^ i · g` of the `(i + 1)`-th root is
+`g ^ (i + 1)` modulo `p`. This is the "the roots are one orbit" claim that
+`irreducible_of_transitive_ringAut` consumes. -/
+private theorem rUnit_succ {p : ℕ} (ζ : Kˣ) (g : (ZMod p)ˣ) (τ : K ≃ₐ[ℚ] K)
+    (hτζu : Units.map ((τ : K →ₐ[ℚ] K) : K →+* K).toMonoidHom ζ = ζ ^ ((g : ZMod p)).val)
+    (hζp1 : ζ ^ p = 1) (e : ℕ) [NeZero e] (i : ℕ) :
+    coeffMapEquiv τ (rUnit e ζ g i) = rUnit e ζ g (i + 1) := by
+  have hζmod : ∀ a : ℕ, ζ ^ a = ζ ^ (a % p) := by
+    intro a
+    conv_lhs => rw [← Nat.div_add_mod a p]
+    rw [pow_add, pow_mul, hζp1, one_pow, one_mul]
+  rw [rUnit, rUnit, coeffMapEquiv_apply, coeffMap_TS (τ : K →ₐ[ℚ] K)]
+  congr 1
+  rw [map_pow, hτζu, ← pow_mul,
+    hζmod (((g : ZMod p)).val * ((g ^ i : (ZMod p)ˣ) : ZMod p).val)]
+  congr 1
+  rw [pow_succ', Units.val_mul, ZMod.val_mul]
+
+/-- **The later prime-power degree step**: if `jqN (p ^ k)` and
+`jqN (p ^ (k + 1))` lie in `F` but `jqN (p ^ (k + 2))` does not, then
+`[F(j(q ^ (p ^ (k + 2)))) : F] = p`. The cyclotomic coefficient automorphism
+`coeffMapEquiv τ` cycles the `p` roots of the peeled factor. Verbatim from
+`Theorems/Thm_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean`. -/
+theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (LaurentSeries ℚ))
+    (p : ℕ) [hp : Fact (Nat.Prime p)] (k : ℕ) (h0 : jqN (p ^ k) ∈ F)
+    (h1 : jqN (p ^ (k + 1)) ∈ F) (hF : jqN (p ^ (k + 2)) ∉ F) :
+    Module.finrank F (IntermediateField.adjoin F ({jqN (p ^ (k + 2))} : Set (LaurentSeries ℚ))) = p := by
+  classical
+
+  obtain ⟨data, -, hs⟩ := exists_phiIrreducible_evalSymm p
+  set jkF : F := ⟨jqN (p ^ k), h0⟩ with hjkF
+  set jp1F : F := ⟨jqN (p ^ (k + 1)), h1⟩ with hjp1F
+  set Q : Polynomial F := phiAtSeed data jp1F with hQdef
+  have hQmonic : Q.Monic := phiAtSeed_monic data jp1F
+  have hQmap : Q.map (algebraMap F (LaurentSeries ℚ)) = phiAtSeed data (jqN (p ^ (k + 1))) := by
+    rw [hQdef, phiAtSeed_map]; rfl
+  obtain ⟨P, hPmonic, hPdeg, hpeel, hProot⟩ := exists_peeled p data hs k h0 h1
+  have hfact : (Polynomial.X - Polynomial.C jkF) * P = Q := hpeel
   have hint : IsIntegral F (jqN (p ^ (k + 2))) :=
     ⟨P, hPmonic, by rwa [Polynomial.aeval_def] at hProot⟩
 
@@ -364,42 +441,13 @@ theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (Laure
       Multiset.singleton_add]
 
   haveI : IsCyclotomicExtension {p} ℚ K := CyclotomicField.isCyclotomicExtension p ℚ
-  have hirrcyc : Irreducible (Polynomial.cyclotomic p ℚ) :=
-    Polynomial.cyclotomic.irreducible_rat hp.out.pos
   obtain ⟨g, hg⟩ := IsCyclic.exists_generator (α := (ZMod p)ˣ)
-  have hp1 : 0 < p - 1 := by have := hp.out.two_le; omega
-  have horder : orderOf g = p - 1 := by
-    rw [orderOf_eq_card_of_forall_mem_zpowers hg, Nat.card_eq_fintype_card, ZMod.card_units p]
-  have hg1 : g ^ (p - 1) = 1 := by rw [← horder]; exact pow_orderOf_eq_one g
-  have hgmod : ∀ a : ℕ, g ^ a = g ^ (a % (p - 1)) := by
-    intro a
-    conv_lhs => rw [← Nat.div_add_mod a (p - 1)]
-    rw [pow_add, pow_mul, hg1, one_pow, one_mul]
-  have hsurj : Function.Surjective (hζK.autToPow ℚ) :=
-    ((Nat.bijective_iff_injective_and_card _).mpr
-      ⟨hζK.autToPow_injective (K := ℚ),
-        Nat.card_congr (IsCyclotomicExtension.autEquivPow K hirrcyc).toEquiv⟩).2
-  obtain ⟨τ, hτ⟩ := hsurj g
-  have hτζ : τ (ζ : K) = (ζ : K) ^ ((g : ZMod p)).val := by
-    have h := hζK.autToPow_spec ℚ τ
-    rw [hτ] at h
-    exact h.symm
-  have hτζu : Units.map ((τ : K →ₐ[ℚ] K) : K →+* K).toMonoidHom ζ = ζ ^ ((g : ZMod p)).val :=
-    Units.ext (by rw [Units.coe_map, Units.val_pow_eq_pow_val]; exact hτζ)
+  obtain ⟨-, -, hgmod⟩ := generator_pow_mod g hg
+  obtain ⟨τ, hτζ, hτζu⟩ := exists_aut_pow ζ hζK g
   have hζp1 : ζ ^ p = 1 := cycUnit_pow p
-  have hζmod : ∀ a : ℕ, ζ ^ a = ζ ^ (a % p) := by
-    intro a
-    conv_lhs => rw [← Nat.div_add_mod a p]
-    rw [pow_add, pow_mul, hζp1, one_pow, one_mul]
   have hstep : ∀ i : ℕ,
-      coeffMapEquiv τ (rUnit (p ^ (k + 1)) ζ g i) = rUnit (p ^ (k + 1)) ζ g (i + 1) := by
-    intro i
-    rw [rUnit, rUnit, coeffMapEquiv_apply, coeffMap_TS (τ : K →ₐ[ℚ] K)]
-    congr 1
-    rw [map_pow, hτζu, ← pow_mul,
-      hζmod (((g : ZMod p)).val * ((g ^ i : (ZMod p)ˣ) : ZMod p).val)]
-    congr 1
-    rw [pow_succ', Units.val_mul, ZMod.val_mul]
+      coeffMapEquiv τ (rUnit (p ^ (k + 1)) ζ g i) = rUnit (p ^ (k + 1)) ζ g (i + 1) :=
+    fun i => rUnit_succ ζ g τ hτζu hζp1 (p ^ (k + 1)) i
 
   have hreidx := range_map_eq_rUnit p (p ^ (k + 1)) ζ hζK g hg
   have hProots : (P.map (algebraMap F (LaurentSeries K))).roots

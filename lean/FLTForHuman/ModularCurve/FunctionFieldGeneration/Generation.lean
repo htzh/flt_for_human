@@ -75,6 +75,35 @@ namespace ModularCurve
 
 open PhiGen
 
+/-! ## The slot spelling of the level-`N` nome -/
+
+/-- The level-`N` nome of `j(q ^ x)`, in the `qExpand`/`qTwist` spelling the slot
+description uses: `L` is `N * x` re-associated to the shape the slot description
+needs. -/
+private theorem coeffEmb_qExpand_jqN {K : Type*} [Field K] [Algebra ℚ K]
+    (N x L : ℕ) [NeZero N] [NeZero x] [NeZero L] (hL : N * x = L) :
+    coeffEmb K (qExpand ℚ N (jqN x))
+      = qExpand K L (qTwist ((1 : Kˣ) ^ N) (coeffEmb K jq)) := by
+  subst hL
+  rw [iota_jqN, coeffEmb_jq, TS, one_pow]
+
+/-- Two distinct prime levels present no common slot: the level-`e₁` value with unit
+`u₁` and the level-`e₂` value with unit `u₂` cannot agree when `p ≠ q` are primes and
+`p * p * e₁ = q * q * e₂`. (Equal slots would force `p * p = q * q`, hence `p = q`.) -/
+private theorem TS_prime_slot_ne {K : Type*} [Field K] {p q e₁ e₂ : ℕ}
+    [NeZero e₁] [NeZero e₂] (pp : Nat.Prime p) (qq : Nat.Prime q) (hpq : p ≠ q)
+    (hlev : p * (p * e₁) = q * (q * e₂)) {u₁ u₂ : Kˣ} :
+    TS K e₁ u₁ ≠ TS K e₂ u₂ := by
+  intro h
+  have he : e₁ = e₂ := (TS_injective h).1
+  rw [← he] at hlev
+  have h2 : p * p = q * q :=
+    Nat.eq_of_mul_eq_mul_right (Nat.pos_of_ne_zero (NeZero.ne e₁))
+      (by rw [mul_assoc, mul_assoc]; exact hlev)
+  have h3 : q ∣ p * p := by rw [h2]; exact dvd_mul_right q q
+  have h4 : q ∣ p := ((Nat.Prime.dvd_mul qq).mp h3).elim id id
+  exact hpq (((Nat.prime_dvd_prime_iff_eq qq pp).mp h4).symm)
+
 /-! ## The two-prime descent -/
 
 /-- **The two-prime descent**: if `j(q ^ (d / p))` and `j(q ^ (d / q))` lie in `F`
@@ -125,33 +154,21 @@ private theorem jqN_mem_of_div_primes {K : Type*} [Field K] [Algebra ℚ K]
 
   have hseed_p : coeffEmb K (qExpand ℚ N (jqN (d / p)))
       = qExpand K (p * (N / p * (d / p))) (qTwist ((1 : Kˣ) ^ p) (coeffEmb K jq)) := by
-    rw [coeffEmb_jq]
-    have h2 : TS K (N * (d / p)) 1 = TS K (p * (N / p * (d / p))) ((1 : Kˣ) ^ p) := by
-      rw [one_pow]
-      exact TS_congr hpe.symm 1
-    exact (iota_jqN N (d / p)).trans h2
+    rw [coeffEmb_qExpand_jqN N (d / p) (p * (N / p * (d / p))) hpe.symm]
+    simp only [one_pow]
   have hseed_q : coeffEmb K (qExpand ℚ N (jqN (d / q)))
       = qExpand K (q * (N / q * (d / q))) (qTwist ((1 : Kˣ) ^ q) (coeffEmb K jq)) := by
-    rw [coeffEmb_jq]
-    have h2 : TS K (N * (d / q)) 1 = TS K (q * (N / q * (d / q))) ((1 : Kˣ) ^ q) := by
-      rw [one_pow]
-      exact TS_congr hqe.symm 1
-    exact (iota_jqN N (d / q)).trans h2
+    rw [coeffEmb_qExpand_jqN N (d / q) (q * (N / q * (d / q))) hqe.symm]
+    simp only [one_pow]
 
   have hdist_p : coeffEmb K (qExpand ℚ N (jqN d))
       = qExpand K (p * (p * (N / p * (d / p)))) (qTwist ((1 : Kˣ) ^ (p * p)) (coeffEmb K jq)) := by
-    rw [coeffEmb_jq]
-    have h2 : TS K (N * d) 1 = TS K (p * (p * (N / p * (d / p)))) ((1 : Kˣ) ^ (p * p)) := by
-      rw [one_pow]
-      exact TS_congr hpe2.symm 1
-    exact (iota_jqN N d).trans h2
+    rw [coeffEmb_qExpand_jqN N d (p * (p * (N / p * (d / p)))) hpe2.symm]
+    simp only [one_pow]
   have hdist_q : coeffEmb K (qExpand ℚ N (jqN d))
       = qExpand K (q * (q * (N / q * (d / q)))) (qTwist ((1 : Kˣ) ^ (q * q)) (coeffEmb K jq)) := by
-    rw [coeffEmb_jq]
-    have h2 : TS K (N * d) 1 = TS K (q * (q * (N / q * (d / q)))) ((1 : Kˣ) ^ (q * q)) := by
-      rw [one_pow]
-      exact TS_congr hqe2.symm 1
-    exact (iota_jqN N d).trans h2
+    rw [coeffEmb_qExpand_jqN N d (q * (q * (N / q * (d / q)))) hqe2.symm]
+    simp only [one_pow]
 
   have hrootA : ∀ y : LaurentSeries K,
       Polynomial.aeval y (phiAtSeed data_p (⟨jqN (d / p), hmp⟩ : F)) = 0 ↔
@@ -197,16 +214,7 @@ private theorem jqN_mem_of_div_primes {K : Type*} [Field K] [Algebra ℚ K]
       · exact hy2.trans hdist_q.symm
       · exfalso
         rw [coeffEmb_jq] at hy1 hy2
-        have hTS : TS K (N / p * (d / p)) (1 * ζ ^ (b * (N / p)))
-            = TS K (N / q * (d / q)) (1 * ζ ^ (c * (N / q))) := hy1.symm.trans hy2
-        have he : N / p * (d / p) = N / q * (d / q) := (TS_injective hTS).1
-        have h1 : p * p * (N / p * (d / p)) = q * q * (N / p * (d / p)) := by
-          rw [mul_assoc, hpe2, mul_assoc, he, hqe2]
-        have h2 : p * p = q * q :=
-          Nat.eq_of_mul_eq_mul_right (Nat.pos_of_ne_zero (NeZero.ne (N / p * (d / p)))) h1
-        have h3 : q ∣ p * p := by rw [h2]; exact dvd_mul_right q q
-        have h4 : q ∣ p := ((Nat.Prime.dvd_mul qq).mp h3).elim id id
-        exact hpq (((Nat.prime_dvd_prime_iff_eq qq pp).mp h4).symm)
+        exact TS_prime_slot_ne pp qq hpq (hpe2.trans hqe2.symm) (hy1.symm.trans hy2)
 
   have hrange := Polynomial.mem_range_of_unique_common_root
     (phiAtSeed data_p (⟨jqN (d / p), hmp⟩ : F)) (phiAtSeed data_q (⟨jqN (d / q), hmq⟩ : F))

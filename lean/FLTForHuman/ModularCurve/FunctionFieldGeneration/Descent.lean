@@ -43,11 +43,12 @@
   * `slotUnit`, `isPrimitiveRoot_slotUnit`: the `M`-th root the certificate is read at;
   * `qExpand_qTwist_coeffEmb`: the translation between the `qExpand`/`qTwist` spelling of a
     slot and the `TS` spelling;
-  * `slotTS`, `slot_inj`, `exists_slotValue_of_mem_slotValues`: the certificate's
-    slot values, their injectivity, and the index shape of a slot;
+  * `slotTS`, `slotTS_eq`, `exists_slotValue_of_mem_slotValues`: the certificate's
+    slot values, their spelling as `SlotProduct`'s `sv` read at `p`, and the index shape
+    of a slot;
   * `exists_phiAtSeed_roots`, `exists_transported_minpoly`: the two producers, each stating
     facts about one polynomial. The certificate's proof carries its own root theory — the
-    slot product, its splitting, and the distinctness `slot_inj` gives;
+    slot product, its splitting, and the distinctness `sv_inj_slot` gives;
   * `mem_of_mem_range_nome`: the transport that undoes the nome reading;
   * `jqN_div_mem_modularFunctionField`: the descent.
 
@@ -73,8 +74,8 @@
   `iota_jqN`, `minpoly_jqN_map_eq_prod_slots`, `isIntegral_adjoin_jqN`,
   `modularFunctionField`, `adjoin_jq_le`, `jqN_mem`, `jqd_mem_full`, `cycUnit`,
   `coeffMap_injective`, `coeffEmb_qExpand`, `qExpand_injective`, `TS`, `TS_injective`,
-  `TS_congr`, `qExpand_TS`, `slotValues`, `prod_slotValues`, `nodup_slotValues` and
-  `lt_of_mul_prime_eq`.
+  `TS_congr`, `qExpand_TS`, `sv`, `sv_eq_TS`, `sv_inj_slot`, `slotValues`, `prod_slotValues`,
+  `nodup_slotValues` and `lt_of_mul_prime_eq`.
 -/
 import Mathlib.NumberTheory.Cyclotomic.Basic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
@@ -265,34 +266,16 @@ private abbrev slotTS (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] (a b : �
   if h : a = 0 then 0 else letI : NeZero a := ⟨h⟩;
     TS _ (slotLevel p a) (slotUnit M p ^ (b * a))
 
-/-- The slot parameter is recoverable from the `p`-scaled slot value. -/
-private theorem slot_inj {M p : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)] {a a' b b' : ℕ}
-    (haM : a ∣ M) (haM' : a' ∣ M) (hb : b < M / a) (hb' : b' < M / a')
-    (h : slotTS M p a b = slotTS M p a' b') : a = a' ∧ b = b' := by
-  have hM0 : 0 < M := NeZero.pos M
-  have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_dvd_of_pos haM hM0)
-  have ha0' : a' ≠ 0 := Nat.ne_of_gt (Nat.pos_of_dvd_of_pos haM' hM0)
-  simp only [slotTS] at h
-  rw [dite_eq_right ha0, dite_eq_right ha0'] at h
-  obtain ⟨he, hu⟩ :=
-    letI : NeZero a := ⟨ha0⟩
-    letI : NeZero a' := ⟨ha0'⟩
-    TS_injective h
-  have haa : a * a = a' * a' := Nat.eq_of_mul_eq_mul_left (NeZero.pos p) he
-  have haa' : a = a' := Nat.mul_self_inj.mp haa
-  subst a
-  have hbM : b * a' < M := by
-    rw [← Nat.div_mul_cancel haM]
-    exact Nat.mul_lt_mul_of_pos_right hb (Nat.pos_of_ne_zero ha0)
-  have hbM' : b' * a' < M := by
-    rw [← Nat.div_mul_cancel haM']
-    exact Nat.mul_lt_mul_of_pos_right hb' (Nat.pos_of_ne_zero ha0')
-  have hu' : ((slotUnit M p : (CyclotomicField (M * p) ℚ)ˣ) : CyclotomicField (M * p) ℚ)
-        ^ (b * a') = ((slotUnit M p : (CyclotomicField (M * p) ℚ)ˣ)
-          : CyclotomicField (M * p) ℚ) ^ (b' * a') := by
-    simpa using congrArg Units.val hu
-  exact ⟨rfl, Nat.eq_of_mul_eq_mul_right (Nat.pos_of_ne_zero ha0')
-    ((isPrimitiveRoot_slotUnit M p).pow_inj hbM hbM' hu')⟩
+/-- The certificate's slot is `sv`, read at the level `p`: `qExpand K p` raises the slot
+level `a * a` to `p * (a * a)`, and the `a = 0` guard is the one `sv` carries. -/
+private theorem slotTS_eq {M p : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)] (a b : ℕ) :
+    slotTS M p a b = qExpand (CyclotomicField (M * p) ℚ) p
+      (sv (CyclotomicField (M * p) ℚ) (slotUnit M p) a b) := by
+  by_cases ha : a = 0
+  · subst ha
+    rw [slotTS, dite_eq_left rfl, sv, dite_eq_left rfl, map_zero]
+  · have : NeZero a := ⟨ha⟩
+    rw [slotTS, dite_eq_right ha, sv_eq_TS, qExpand_TS]
 
 /-- **A slot value is an index.** A value in the slot multiset is
 `j(ζ ^ (p * b * a) q ^ (slotLevel p a))` for some `a ∣ M` and `b < M / a`: the index
@@ -358,10 +341,12 @@ private theorem exists_transported_minpoly {M p : ℕ} [NeZero M] [hp : Fact (Na
     exact Polynomial.Splits.prod fun _ _ =>
       Polynomial.Splits.prod fun _ _ => Polynomial.Splits.X_sub_C _
   · rw [hprod, ← prod_slotValues M (slotTS (M := M) (p := p)), roots_multiset_prod_X_sub_C]
-    exact nodup_slotValues fun a b a' b' ha ha' hb hb' h => slot_inj
-      (Nat.dvd_of_mem_divisors ha) (Nat.dvd_of_mem_divisors ha')
-      (Finset.mem_range.mp (Finset.mem_filter.mp hb).1)
-      (Finset.mem_range.mp (Finset.mem_filter.mp hb').1) h
+    exact nodup_slotValues fun a b a' b' ha ha' hb hb' h =>
+      sv_inj_slot (isPrimitiveRoot_slotUnit M p) (NeZero.ne M)
+        (Nat.dvd_of_mem_divisors ha) (Nat.dvd_of_mem_divisors ha')
+        (Finset.mem_range.mp (Finset.mem_filter.mp hb).1)
+        (Finset.mem_range.mp (Finset.mem_filter.mp hb').1)
+        (qExpand_injective p (by rw [← slotTS_eq a b, ← slotTS_eq a' b']; exact h))
   · have hx : x₀ M p
         = ((coeffEmb (CyclotomicField (M * p) ℚ)).comp (qExpand ℚ (M * p))) (jqN M) := rfl
     rw [Polynomial.eval₂_map, hcomp, nomeMap, ← Polynomial.eval₂_map, hx, Polynomial.eval₂_hom,

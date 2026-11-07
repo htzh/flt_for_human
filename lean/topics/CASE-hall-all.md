@@ -60,7 +60,8 @@ changed is what those statements *carry*.
    `Polynomial.mem_range_of_unique_common_root` is then applied literally to what the producers
    deliver, so nothing sits between them and the comparison, which happens in one place and is
    visible there. The certificate's root theory — the slot product, its splitting and the
-   distinctness `slot_inj` gives — is inside that producer's proof, which is its only reader;
+   distinctness `SlotProduct.sv_inj_slot` gives, through the bridge `slotTS_eq` — is inside
+   that producer's proof, which is its only reader;
    reading a member of the slot multiset back as an index is
    `exists_slotValue_of_mem_slotValues`, a fact about slots that names no polynomial.
 

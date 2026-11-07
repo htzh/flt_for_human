@@ -35,6 +35,8 @@
     re-proofs are dropped for the public `Defs/Jq.lean` lemmas (the `ψ` promotion
     was completed by the independent bridge effort). See
     [audit-slot-counting-mathlib.md](../../logs/audit-slot-counting-mathlib.md).
+    The chain (`slotAt`, `slots`, `card_slotFilter_eq_dedekindPsi`) lives in
+    `FunctionFieldGeneration/SlotValues.lean`, next to the `card_slotValues` that cites it.
   * **`rval_aux`** transcribes the pin's 680 lines (the 493-line `hslot_root` is
     ~64% irreducible mathematics; the audit found no shorter route).
   * **M-arbitrary non-membership** uses T18's `gen_prime`/`tight_one`/`gen_one` in
@@ -48,11 +50,12 @@
   `SlotProductAnyField.lean`, whose split has the same seams.
 
   * **The slot multiset** (`slotValues`) makes the product's index set explicit. Its generic
-    half — `slotValues`, `mem_slotValues`, `card_slotValues`, `prod_slotValues`,
-    `nodup_slotValues` — is **homed once**, in `FunctionFieldGeneration/SlotValues.lean`, which
-    the `C` twin imports as well; this module supplies the count at the call site
-    (`card_slotFilter_eq_dedekindPsi`, its own public export) and the `sv`-specific
-    instantiation (`sv_inj_slot`, `nodup_slotValues_sv`, `nodup_slotValues_qExpand`).
+    half — the slot count (`slotAt`/`slots`/`card_slotFilter_eq_dedekindPsi`, whose chain closes
+    at `ψ(M)` from `NumberTheory/DedekindPsi.card_fibre`), `slotValues`, `mem_slotValues`,
+    `card_slotValues`, `slotValues_le_roots`, `prod_slotValues`, `nodup_slotValues` — is **homed
+    once**, in `FunctionFieldGeneration/SlotValues.lean`, which the `C` twin imports as well, so
+    that `card_slotValues` states the count rather than taking it; this module supplies the
+    `sv`-specific instantiation (`sv_inj_slot`, `nodup_slotValues_sv`, `nodup_slotValues_qExpand`).
   * **`rval_aux`** (strong induction on `M`) keeps only the induction. Its statement is
     the `def` `SlotProductAt`; `minpoly_map_eq_prod_slots_one` is the base case;
     `isRoot_map_minpoly_sv` collects the slot roots — `isRoot_map_minpoly_sv_top` at
@@ -117,152 +120,6 @@ open Polynomial HahnSeries IntermediateField
 open scoped IntermediateField.algebraAdjoinAdjoin
 
 namespace ModularCurve
-
-/-! ## The slot count
-
-`slotAt n d` counts the `b < d` with `gcd (gcd (n/d) b) d = 1`; `slots n` sums it
-over the divisors of `n`. The endpoint is `slots n = ψ(n)`, by
-`Nat.recOnPosPrimePosCoprime`. -/
-
-private def slotAt (n d : ℕ) : ℕ :=
-  ((Finset.range d).filter fun b => Nat.gcd (Nat.gcd (n / d) b) d = 1).card
-
-def slots (n : ℕ) : ℕ := ∑ d ∈ n.divisors, slotAt n d
-
-/-- The slot predicate is symmetric in `b` and `d`. -/
-private theorem slotCond_eq (x d b : ℕ) :
-    Nat.gcd (Nat.gcd x b) d = Nat.gcd (Nat.gcd x d) b := by
-  rw [Nat.gcd_assoc, Nat.gcd_comm b d, ← Nat.gcd_assoc]
-
-private theorem slotCond_iff (x d b : ℕ) :
-    Nat.gcd (Nat.gcd x b) d = 1 ↔ Nat.Coprime (Nat.gcd x d) b := by
-  rw [slotCond_eq]
-
-/-- **The closed form**: `slotAt n d = (d / gcd (n/d) d) * φ (gcd (n/d) d)`. -/
-private theorem slotAt_eq (n d : ℕ) : slotAt n d = dedekindPsiFibre (n / d, d) := by
-  unfold slotAt
-  rw [Finset.filter_congr (fun b _ => slotCond_iff (n / d) d b)]
-  exact card_fibre (n / d) d
-
-/-- Multiplicativity of `dedekindPsiFibre` under coprime `(a d)`-products. -/
-private theorem dedekindPsiFibre_mul (a₁ d₁ a₂ d₂ : ℕ) (hcop : Nat.Coprime (a₁ * d₁) (a₂ * d₂)) :
-    dedekindPsiFibre (a₁ * a₂, d₁ * d₂) = dedekindPsiFibre (a₁, d₁) * dedekindPsiFibre (a₂, d₂) := by
-  have ha₁a₂ : Nat.Coprime a₁ a₂ :=
-    (Nat.Coprime.coprime_dvd_left (Dvd.intro _ rfl) hcop).coprime_dvd_right (Dvd.intro _ rfl)
-  have ha₁d₂ : Nat.Coprime a₁ d₂ :=
-    (Nat.Coprime.coprime_dvd_left (Dvd.intro _ rfl) hcop).coprime_dvd_right (Dvd.intro_left _ rfl)
-  have hd₁a₂ : Nat.Coprime d₁ a₂ :=
-    (Nat.Coprime.coprime_dvd_left (Dvd.intro_left _ rfl) hcop).coprime_dvd_right (Dvd.intro _ rfl)
-  have hd₁d₂ : Nat.Coprime d₁ d₂ :=
-    (Nat.Coprime.coprime_dvd_left (Dvd.intro_left _ rfl) hcop).coprime_dvd_right
-      (Dvd.intro_left _ rfl)
-
-  have hg : Nat.gcd (a₁ * a₂) (d₁ * d₂) = Nat.gcd a₁ d₁ * Nat.gcd a₂ d₂ := by
-    rw [Nat.Coprime.gcd_mul _ hd₁d₂]
-    rw [Nat.gcd_comm (a₁ * a₂) d₁, Nat.gcd_comm (a₁ * a₂) d₂,
-      Nat.Coprime.gcd_mul _ ha₁a₂, Nat.Coprime.gcd_mul _ ha₁a₂,
-      Nat.Coprime.gcd_eq_one hd₁a₂, (Nat.Coprime.gcd_eq_one ha₁d₂.symm), mul_one, one_mul,
-      Nat.gcd_comm d₁ a₁, Nat.gcd_comm d₂ a₂]
-  have hg₁ : Nat.gcd a₁ d₁ ∣ d₁ := Nat.gcd_dvd_right _ _
-  have hg₂ : Nat.gcd a₂ d₂ ∣ d₂ := Nat.gcd_dvd_right _ _
-  have hcopg : Nat.Coprime (Nat.gcd a₁ d₁) (Nat.gcd a₂ d₂) :=
-    (hd₁d₂.coprime_dvd_left hg₁).coprime_dvd_right hg₂
-  simp only [dedekindPsiFibre]
-  rw [hg, Nat.totient_mul hcopg, ← Nat.div_mul_div_comm hg₁ hg₂]
-  ring
-
-private theorem slotAt_one (n : ℕ) : slotAt n 1 = 1 := by
-  unfold slotAt
-  simp [Nat.gcd_one_right]
-
-private theorem slotAt_self (n : ℕ) (hn : 0 < n) : slotAt n n = n := by
-  unfold slotAt
-  simp [Nat.div_self hn, Nat.gcd_one_left]
-
-private theorem slotAt_prime_pow_mid {p : ℕ} (hp : p.Prime) {i k : ℕ} (hi0 : 0 < i)
-    (hik : i < k) : slotAt (p ^ k) (p ^ i) = Nat.totient (p ^ i) := by
-  unfold slotAt
-  rw [Nat.totient_eq_card_coprime]
-  congr 1
-  refine Finset.filter_congr fun b _ => ?_
-  rw [slotCond_iff]
-  constructor
-  · intro h
-    have hpg : p ∣ Nat.gcd (p ^ k / p ^ i) (p ^ i) := by
-      refine Nat.dvd_gcd ?_ (dvd_pow_self p hi0.ne')
-      rw [Nat.pow_div hik.le hp.pos]
-      exact dvd_pow_self p (by omega)
-    exact Nat.Coprime.pow_left i (Nat.Coprime.coprime_dvd_left hpg h)
-  · intro h
-    exact Nat.Coprime.coprime_dvd_left (Nat.gcd_dvd_right _ _) h
-
-private theorem slots_prime_pow {p : ℕ} (hp : p.Prime) (k : ℕ) :
-    slots (p ^ (k + 1)) = p ^ (k + 1) + p ^ k := by
-  unfold slots
-  rw [Nat.sum_divisors_prime_pow hp, Finset.sum_range_succ]
-  have hrest : ∀ x ∈ Finset.range (k + 1),
-      slotAt (p ^ (k + 1)) (p ^ x) = Nat.totient (p ^ x) := by
-    intro x hx
-    rcases Nat.eq_zero_or_pos x with rfl | hx0
-    · rw [pow_zero, slotAt_one, Nat.totient_one]
-    · exact slotAt_prime_pow_mid hp hx0 (Finset.mem_range.mp hx)
-  rw [Finset.sum_congr rfl hrest, slotAt_self _ (pow_pos hp.pos _),
-    ← Nat.sum_divisors_prime_pow (f := Nat.totient) hp, Nat.sum_totient, Nat.add_comm]
-
-private theorem slots_mul (M M' : ℕ) (hco : Nat.Coprime M M') :
-    slots (M * M') = slots M * slots M' := by
-  unfold slots
-  rw [Finset.sum_mul_sum]
-  rw [Nat.Coprime.divisors_mul hco, Finset.sum_map]
-  change (∑ x ∈ (M.divisors ×ˢ M'.divisors).attach,
-      slotAt (M * M') ((x : ℕ × ℕ).1 * (x : ℕ × ℕ).2))
-    = ∑ i ∈ M.divisors, ∑ j ∈ M'.divisors, slotAt M i * slotAt M' j
-  rw [Finset.sum_attach (f := fun y : ℕ × ℕ => slotAt (M * M') (y.1 * y.2))]
-  rw [Finset.sum_product]
-  refine Finset.sum_congr rfl fun d₁ hd₁ => Finset.sum_congr rfl fun d₂ hd₂ => ?_
-  rw [slotAt_eq, slotAt_eq, slotAt_eq, ← Nat.div_mul_div_comm (Nat.mem_divisors.mp hd₁).1
-    (Nat.mem_divisors.mp hd₂).1]
-  exact dedekindPsiFibre_mul (M / d₁) d₁ (M' / d₂) d₂
-    (by rw [Nat.div_mul_cancel (Nat.mem_divisors.mp hd₁).1,
-            Nat.div_mul_cancel (Nat.mem_divisors.mp hd₂).1]; exact hco)
-
-private theorem slots_eq_dedekindPsi : ∀ n : ℕ, n ≠ 0 → slots n = dedekindPsi n := by
-  intro n
-  induction n using Nat.recOnPosPrimePosCoprime with
-  | prime_pow p k hp hk =>
-    intro _
-    obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
-    rw [slots_prime_pow hp j, dedekindPsi_prime_pow p (j + 1) hp (Nat.succ_ne_zero j)]
-    simp
-  | zero => exact fun h0 => absurd rfl h0
-  | one =>
-    intro _
-    rw [dedekindPsi_one]
-    unfold slots
-    rw [Nat.divisors_one, Finset.sum_singleton]
-    exact slotAt_one 1
-  | coprime a b ha hb hab iha ihb =>
-    intro _
-    rw [slots_mul a b hab, iha (by omega), ihb (by omega),
-      dedekindPsi_mul_of_coprime a b hab]
-
-/-- The one public counting export (the audit's `card_slotFilter_eq_dedekindPsi`,
-`audit-slot-counting-mathlib.md` §5): the divisor sum of the slot-filter counts is
-`ψ(M)`. `slotAt`/`slots` stay `private`; this is the statement a consumer of the
-slot list can cite directly. -/
-theorem card_slotFilter_eq_dedekindPsi (M : ℕ) (hM : M ≠ 0) :
-    (∑ a ∈ M.divisors,
-      ((Finset.range (M / a)).filter
-        (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1)).card) = dedekindPsi M := by
-  have h1 : ∀ a ∈ M.divisors,
-      ((Finset.range (M / a)).filter
-        (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1)).card = slotAt M (M / a) := by
-    intro a ha
-    rw [slotAt_eq, Nat.div_div_self (Nat.mem_divisors.mp ha).1 hM,
-      Finset.filter_congr (fun b _ => slotCond_iff a (M / a) b)]
-    exact card_fibre a (M / a)
-  rw [Finset.sum_congr rfl h1, Nat.sum_div_divisors]
-  exact slots_eq_dedekindPsi M hM
 
 /-! ## The slot values `sv` -/
 
@@ -444,8 +301,11 @@ section RValCore
 
 /-- **The slot-product statement at `M`**: the conclusion of `rval_aux`, as a named
 predicate, so the strong-induction hypothesis can be passed to the lemmas below. It is a
-`def`, not an `abbrev`: as an `abbrev` it would re-unfold at every use. -/
-private def SlotProductAt (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℚ K] (ζ : Kˣ) : Prop :=
+`def`, not an `abbrev`: as an `abbrev` it would re-unfold at every use.
+
+Public: this is the port's name for the induction statement (the pin writes the same
+product inline in `rval_aux` and in each of its step lemmas). -/
+def SlotProductAt (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℚ K] (ζ : Kˣ) : Prop :=
   IsPrimitiveRoot ((ζ : Kˣ) : K) M →
     (∀ d : ℕ, d ∣ M → ∀ [NeZero d],
       Module.finrank ℚ⟮jq⟯
@@ -1113,20 +973,11 @@ private theorem isRoot_map_minpoly_sv {M : ℕ} [NeZero M] (ζ : Kˣ)
   · exact isRoot_map_minpoly_sv_of_descent (K := K) ζ hζ hall IH haM ha0 hd1 hbr hbc
 
 /-- **The slot product** (strong induction on `M`): the mapped minimal polynomial of `jqN M`
-over `ℚ⟮jq⟯` is the product of `X - C (sv K ζ a b)` over the slots. The `ψ(M)` slot values
-are distinct roots (`isRoot_map_minpoly_sv`, `nodup_slotValues_sv`), and `ψ(M) = deg` of that
-polynomial, so they are exactly its roots. -/
-theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K] [Algebra ℚ K]
-    (ζ : Kˣ), IsPrimitiveRoot ((ζ : Kˣ) : K) M →
-    (∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank ℚ⟮jq⟯
-          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d) →
-    (minpoly ℚ⟮jq⟯ (jqN M)).map
-        (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = ∏ a ∈ M.divisors, ∏ b ∈ (Finset.range (M / a)).filter
-          (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
-          (Polynomial.X - Polynomial.C (sv K ζ a b)) := by
+over `ℚ⟮jq⟯` is the product of `X - C (sv K ζ a b)` over the slots — i.e. `SlotProductAt M K ζ`.
+The `ψ(M)` slot values are distinct roots (`isRoot_map_minpoly_sv`, `nodup_slotValues_sv`), and
+`ψ(M) = deg` of that polynomial, so they are exactly its roots. -/
+theorem rval_aux : ∀ (M : ℕ) [NeZero M], ∀ {K : Type*} [Field K] [Algebra ℚ K] (ζ : Kˣ),
+    SlotProductAt M K ζ := by
   intro M
   induction M using Nat.strong_induction_on with
   | _ M IH =>
@@ -1147,42 +998,28 @@ theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K] [Algebra ℚ K
         (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).natDegree = dedekindPsi M := by
       rw [Polynomial.Monic.natDegree_map (minpoly.monic hα)]
       exact hdeg
-    have IH' : ∀ (n : ℕ), n < M → ∀ [NeZero n] (ζ : Kˣ), SlotProductAt n K ζ := by
-      intro n hn _ ζ'
-      exact IH n hn ζ'
     have hroot : ∀ a b : ℕ, a ∈ M.divisors →
         b ∈ (Finset.range (M / a)).filter
           (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1) →
         ((minpoly ℚ⟮jq⟯ (jqN M)).map
           (((coeffEmb K).comp (qExpand ℚ M)).comp
             (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot (sv K ζ a b) :=
-      fun a b ha hb => isRoot_map_minpoly_sv ζ hζ hall IH' ha hb
+      fun a b ha hb =>
+        isRoot_map_minpoly_sv ζ hζ hall (fun n hn _ ζ' => IH n hn ζ') ha hb
     have hTnodup : (slotValues M (fun a b => sv K ζ a b)).Nodup :=
       nodup_slotValues_sv hM0 hζ
     have hTle : slotValues M (fun a b => sv K ζ a b) ≤
         ((minpoly ℚ⟮jq⟯ (jqN M)).map
           (((coeffEmb K).comp (qExpand ℚ M)).comp
-            (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots := by
-      rw [Multiset.le_iff_count]
-      intro x
-      by_cases hx : x ∈ slotValues M (fun a b => sv K ζ a b)
-      · have h1 : Multiset.count x (slotValues M (fun a b => sv K ζ a b)) ≤ 1 :=
-          Multiset.nodup_iff_count_le_one.mp hTnodup x
-        have h2 : 1 ≤ Multiset.count x ((minpoly ℚ⟮jq⟯ (jqN M)).map
-            (((coeffEmb K).comp (qExpand ℚ M)).comp
-              (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots := by
-          rw [Multiset.one_le_count_iff_mem, Polynomial.mem_roots']
-          obtain ⟨a, b, ha, hb, rfl⟩ := mem_slotValues.mp hx
-          exact ⟨hPne, hroot a b ha hb⟩
-        omega
-      · rw [Multiset.count_eq_zero.mpr hx]
-        exact Nat.zero_le _
+            (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots :=
+      slotValues_le_roots hPne hTnodup fun a b ha hb =>
+        Polynomial.mem_roots'.mpr ⟨hPne, hroot a b ha hb⟩
     have hroots_eq : ((minpoly ℚ⟮jq⟯ (jqN M)).map
         (((coeffEmb K).comp (qExpand ℚ M)).comp
           (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots
         = slotValues M (fun a b => sv K ζ a b) := by
       refine (Multiset.eq_of_le_of_card_le hTle ?_).symm
-      rw [card_slotValues hM0 _ (card_slotFilter_eq_dedekindPsi M hM0)]
+      rw [card_slotValues hM0 _]
       calc Multiset.card ((minpoly ℚ⟮jq⟯ (jqN M)).map
             (((coeffEmb K).comp (qExpand ℚ M)).comp
               (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots
@@ -1193,7 +1030,7 @@ theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K] [Algebra ℚ K
     have hsp : Polynomial.Splits ((minpoly ℚ⟮jq⟯ (jqN M)).map
         (((coeffEmb K).comp (qExpand ℚ M)).comp
           (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) := by
-      rw [Polynomial.splits_iff_card_roots, hroots_eq, card_slotValues hM0 _ (card_slotFilter_eq_dedekindPsi M hM0), hPdeg]
+      rw [Polynomial.splits_iff_card_roots, hroots_eq, card_slotValues hM0 _, hPdeg]
     have hfact := hsp.eq_prod_roots_of_monic ((minpoly.monic hα).map _)
     rw [hfact, hroots_eq]
     exact prod_slotValues M (fun a b => sv K ζ a b)
