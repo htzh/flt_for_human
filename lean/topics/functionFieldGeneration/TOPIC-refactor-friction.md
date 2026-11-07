@@ -202,6 +202,15 @@ rewrite "cannot find" a term you can see, stop rewriting and `exact` the oriente
 `hfull : Gen (d * m')` works only because `Gen` is an `abbrev`; `rw` whnfs the hypothesis
 and sees the equation. The same `Gen` as a `def` would need `unfold Gen at hfull` first.
 
+**…on the hypothesis, not necessarily on the goal.** The unfolding above is a hypothesis
+whose *type* is the `abbrev`; when the *goal* is one, `rw`'s pattern search does not see
+through it. Measured when `hall_prime`'s statement became `Hall p` (2026-11-06): inside the
+`d = p` branch the goal displays as `Tight p` and `rw [dedekindPsi_prime hp.out]` fails with
+"Did not find an occurrence of the pattern `dedekindPsi p` in the target expression
+`Tight p`", even though `Hall`/`Tight` are `abbrev`s. The fix is the one `tight_one` already
+uses — a leading `unfold Tight` — and it is one line per goal, so prefer `unfold` freely when
+an `abbrev` is the goal and `rw` starts complaining about a pattern that is visibly there.
+
 **`simp only [someDef]` is the way to unfold a `def` on both sides of a goal.** The
 composition bridge in `Descent` is one line — `simpa only [nomeMap] using
 nomeMap_qExpand K M p` — because the general lemma is stated with the `def` and the local

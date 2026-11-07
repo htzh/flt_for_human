@@ -25,7 +25,10 @@
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
   `P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean` and
   `P2M/Sol/S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean` (node 443–985; lines 400–442
-  are T14's helpers). Both public statements are the `Theorems/` wrappers' verbatim.
+  are T14's helpers). `jqN_pow_not_mem_adjoin_full` states its wrapper's text verbatim;
+  `jqN_prime_not_mem_full` takes `Hall M` where the wrapper spells the induction's
+  hypothesis out — the same hypothesis, and the retirement is recorded in
+  `spec/decl_markers.tsv`.
 
   ## Homing
 
@@ -110,7 +113,7 @@ private theorem nodup_slotValues_qExpand {M p : ℕ} [NeZero p] {ζ : Kˣ} (hM0 
 
 /-! ## The `M`-arbitrary non-membership
 
-`j(q ^ p) ∉ F_M^full` for `p ∤ M`, from `Hall M`. The `hall` at `d = p` uses
+`j(q ^ p) ∉ F_M^full` for `p ∤ M`, from `Hall M`. The `Hall` at `d = p` uses
 T18's `gen_prime` (and `tight_one`/`gen_one` at `d = 1`) instead of the pin's
 `functionFieldGeneration_of_squarefree p`, so no squarefree-block declaration is
 pulled in; `mem_range_of_eval_eq_const` is T4's engine from
@@ -173,14 +176,10 @@ private theorem map_mem_fieldRange {M p : ℕ} [NeZero M] [NeZero p] {y : Lauren
       rw [show (⟨x₁⁻¹, inv_mem hx₁⟩ : ℚ⟮jq⟯⟮jqN M⟯)
         = (⟨x₁, hx₁⟩ : ℚ⟮jq⟯⟮jqN M⟯)⁻¹ from rfl, map_inv₀]
       exact Subfield.inv_mem _ ih₁
-/-- **The `hall` hypothesis at the prime `p`**: for each divisor `d` of `p` the degree and
-function-field conditions hold — `tight_one`/`gen_one` at `d = 1`, and
+/-- **The `Hall` hypothesis at the prime `p`**: `Hall p`, i.e. for each divisor `d` of `p` the
+degree and function-field conditions hold — `tight_one`/`gen_one` at `d = 1`, and
 `finrank_adjoin_jqN_eq_of_prime`/`gen_prime` at `d = p`. -/
-private theorem hall_prime (p : ℕ) [hp : Fact (Nat.Prime p)] :
-    ∀ d : ℕ, d ∣ p → ∀ [NeZero d],
-      Module.finrank ℚ⟮jq⟯
-          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d := by
+private theorem hall_prime (p : ℕ) [hp : Fact (Nat.Prime p)] : Hall p := by
   intro d hd _
   rcases (Nat.Prime.eq_one_or_self_of_dvd hp.out d hd) with h1 | h2
   · subst h1
@@ -188,7 +187,8 @@ private theorem hall_prime (p : ℕ) [hp : Fact (Nat.Prime p)] :
   · have h2' := h2.symm
     subst h2'
     constructor
-    · rw [dedekindPsi_prime hp.out]
+    · unfold Tight
+      rw [dedekindPsi_prime hp.out]
       exact finrank_adjoin_jqN_eq_of_prime p
     · exact gen_prime p
 
@@ -321,16 +321,12 @@ private theorem eval_map_eq_of_mem_slotValues {M p : ℕ} [NeZero M] [NeZero p]
       exact hg'
     rw [← hψy, Polynomial.aeval_algHom_apply, hgE, hx_pval]
 
-/-- **Prime non-membership in the adjoin**: for `p ∤ M` and `hall M`, `jqN p` is not in
+/-- **Prime non-membership in the adjoin**: for `p ∤ M` and `Hall M`, `jqN p` is not in
 `ℚ⟮jq⟯⟮jqN M⟯`. The `ψ(M)` distinct slots of `rval_aux M (ζ ^ p)` are the roots of the
 pushed minimal polynomial; `g'` of degree `< ψ(M)` is constant on them
 (`eval_map_eq_of_mem_slotValues`), so `jqN p` is the image of a scalar. -/
 private theorem jqN_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
-    (hpM : ¬ p ∣ M)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank ℚ⟮jq⟯
-          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d) :
+    (hpM : ¬ p ∣ M) (hallM : Hall M) :
     jqN p ∉ IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ)) := by
   classical
   intro hmem
@@ -344,12 +340,12 @@ private theorem jqN_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ) [hp : Fa
     have h1 := isPrimitiveRoot_pow_div hζ (⟨p, rfl⟩ : M ∣ M * p)
     have h2 : M * p / M = p := Nat.mul_div_cancel_left p (Nat.pos_of_ne_zero hM0)
     rwa [h2] at h1
-  obtain ⟨htM, -⟩ := hall M dvd_rfl
+  obtain ⟨htM, -⟩ := hallM M dvd_rfl
   have hα : IsIntegral ℚ⟮jq⟯ (jqN M) := isIntegral_adjoin_jqN htM
   have hdeg : (minpoly ℚ⟮jq⟯ (jqN M)).natDegree = dedekindPsi M := natDegree_minpoly_jqN htM
   have hidMB := map_qExpand_minpoly_eq p (show M * p = p * M from Nat.mul_comm M p)
     ((cycUnit (M * p) : Kˣ) ^ p)
-    (rval_aux M ((cycUnit (M * p) : Kˣ) ^ p) hζM hall)
+    (rval_aux M ((cycUnit (M * p) : Kˣ) ^ p) hζM hallM)
   letI : Algebra ℚ⟮jq⟯ (LaurentSeries K) :=
     (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
       (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))).toAlgebra
@@ -431,25 +427,18 @@ end NonMem0
 
 /-! ## The public node -/
 
-/-- **Prime non-membership**: `j(q ^ p) ∉ F_M^full` for `p ∤ M`. Verbatim from
-`Theorems/Thm_ModularCurve_jqN_prime_not_mem_full.lean` (explicit `hall`
-conjunction). -/
+/-- **Prime non-membership**: `j(q ^ p) ∉ F_M^full` for `p ∤ M`, from `Hall M`. -/
 theorem jqN_prime_not_mem_full (M : ℕ) [NeZero M] (p : ℕ)
-    [hp : Fact (Nat.Prime p)] (hpM : ¬ p ∣ M)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-          (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
-            ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d) :
+    [hp : Fact (Nat.Prime p)] (hpM : ¬ p ∣ M) (hallM : Hall M) :
     jqN p ∉ modularFunctionFieldFull M := by
   intro hmem0
-  obtain ⟨-, hgM⟩ := hall M dvd_rfl
+  obtain ⟨-, hgM⟩ := hallM M dvd_rfl
   have hmem : jqN p ∈ IntermediateField.adjoin
       (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
       ({jqN M} : Set (LaurentSeries ℚ)) := by
     rw [← hgM] at hmem0
     exact mem_adjoin_jqN_of_mem_mff hmem0
-  exact jqN_prime_not_mem_adjoin M p hpM hall hmem
+  exact jqN_prime_not_mem_adjoin M p hpM hallM hmem
 
 
 /-! ## The prime-power tower -/
@@ -971,9 +960,7 @@ private theorem jqN_pow_not_mem_adjoin_full_key (M : ℕ) [NeZero M] (p : ℕ)
     dp hsp hF IH hmem
 
 /-- **The prime-power tower**: for `jqN p ∉ F_M^full`,
-`j(q ^ (p ^ (a + 2))) ∉ ℚ(F_M^full, j(q ^ p), …, j(q ^ (p ^ (a + 1))))`. Verbatim
-from
-`Theorems/Thm_ModularCurve_jqN_pow_not_mem_adjoin_full.lean`. -/
+`j(q ^ (p ^ (a + 2))) ∉ ℚ(F_M^full, j(q ^ p), …, j(q ^ (p ^ (a + 1))))`. -/
 theorem jqN_pow_not_mem_adjoin_full (M : ℕ) [NeZero M] (p : ℕ)
     [hp : Fact (Nat.Prime p)] (a : ℕ)
     (hF : jqN p ∉ modularFunctionFieldFull M) :
