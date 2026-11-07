@@ -34,6 +34,11 @@
   `jSimplePole_jqK` and the coefficient/order lemmas are the port's
   `Defs/PhiGen`; `qExpand`, `coeffEmb`, `qTwist` are the port's
   `Defs/Laurent`/`Defs/Twist`; `jq`, `coeff_jq_neg_one` the port's `Defs/Jq`.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_zero_lead.lean
 -/
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import Mathlib.Algebra.BigOperators.Intervals
@@ -306,5 +311,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.PhiGen.phiProd_conj_coeff_zero_lead
-#print axioms ModularCurve.PhiGen.phiProd_conj_coeff_eq_zero_of_le

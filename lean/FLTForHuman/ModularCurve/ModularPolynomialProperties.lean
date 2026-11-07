@@ -28,6 +28,11 @@
   `splits_of_coeff_evalAtJ_eq`) and `PhiGenDescent` (`exists_phiGenDescends`);
   T9's `PhiGenIntegrality`; T8's `ModularForms/PhiGenDescends`; this topic's
   `ModularPolynomialIrreducible`.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_evalSymm_of_coeff_evalAtJ_eq.lean
+  spec-pin: Theorems/Thm_ModularCurve_exists_phiIrreducible_evalSymm.lean
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
 import FLTForHuman.ModularCurve.ModularPolynomialAssembly
@@ -171,5 +176,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.PhiGen.evalSymm_of_coeff_evalAtJ_eq
-#print axioms ModularCurve.exists_phiIrreducible_evalSymm

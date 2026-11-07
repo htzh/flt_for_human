@@ -55,6 +55,14 @@ import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.PointEndSubring
 import FLTForHuman.Elliptic.PeriodPair.Basic
 
 set_option autoImplicit false
+-- Linter options below are the pin-transcription reasons, not a blanket silence:
+-- the `S_` file's proofs bind section variables and local hypotheses they do not
+-- use, keep the pin's `letI`/`haveI` instance spellings (consumed by instance
+-- search, so the style linter's `have` preference does not apply), call the
+-- mathlib names of the pin's snapshot (`deprecated` here), and carry the pin's
+-- `simp` argument lists (`unusedSimpArgs`, `unnecessarySimpa`). Each of these is a
+-- property of the transcribed proof text, so fixing it would rewrite the port of
+-- the pin's proof rather than its mathematics.
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.style.haveILetI false
@@ -422,8 +430,8 @@ theorem pmopConjKerEquiv_proved : BetweenCurvesPMOPConjKerEquiv :=
 
 end ModularCurve
 
-/-- The pin's `pck_s17`, the seam at the pin's bare name. -/
-theorem pck_s17 : ModularCurve.BetweenCurvesPMOPConjKerEquiv :=
+/-- The PMOP conjugation seam (`ModularCurve.BetweenCurvesPMOPConjKerEquiv`). -/
+theorem pmopConjKerEquiv : ModularCurve.BetweenCurvesPMOPConjKerEquiv :=
   ModularCurve.pmopConjKerEquiv_proved
 
 /-! ## The conjugation headline
@@ -472,4 +480,3 @@ end WeierstrassCurve
 
 end
 
-#print axioms WeierstrassCurve.Affine.isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj

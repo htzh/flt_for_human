@@ -16,8 +16,9 @@ dictionary the Weil-pairing construction rests on; `ncard_fibSet` and
 of **three** pin `S_` files (`fibSet_finite`, `ncard_fibSet`,
 `valuation_weilNum`): they are promoted here, once, public at the pin's names, so
 the later consumers import rather than re-prove them (playbook §2.4). The
-module-local `fibSet_finite'` is the pin's public helper; the headline is
-re-exported at the wrapper's name (`solution` → `fibSet_finite`).
+module-local `fibSet_finite_of_ne_zero` is the pin's public helper (the pin's
+`fibSet_finite'`; the name is token-free here); the headline is re-exported at the
+wrapper's name (`solution` → `fibSet_finite`).
 
 Statements are transcribed verbatim from the pin (only proof bodies adapted to
 mathlib `v4.34.0`; the pin's `WeierstrassCurve.card_torsion_of_isAlgClosed` is the
@@ -25,6 +26,12 @@ port's `FLTForHuman.Elliptic.card_torsion_of_isAlgClosed`).
 
 References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_fibSet_finite.lean>
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_fibSet_finite.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_ncard_fibSet.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_fibSet_finite.lean
 -/
 import FLTForHuman.WeierstrassCurve.WeilPairingFun
 import FLTForHuman.Elliptic.TorsionCard
@@ -67,7 +74,7 @@ theorem card_torsion_toFinset {n : ℕ} (hn : (n : K) ≠ 0) :
   rw [hset]
   rfl
 
-theorem fibSet_finite' {n : ℕ} (hn : (n : K) ≠ 0) (Q : (W⁄K).Point) :
+theorem fibSet_finite_of_ne_zero {n : ℕ} (hn : (n : K) ≠ 0) (Q : (W⁄K).Point) :
     (fibSet W K n Q).Finite := by
   by_cases hne : ∃ P₀ : (W⁄K).Point, (n : ℤ) • P₀ = Q
   · obtain ⟨P₀, hP₀⟩ := hne
@@ -84,8 +91,7 @@ end WeilDiv
 theorem fibSet_finite {F K : Type*} [Field F] [Field K] [Algebra F K] [DecidableEq K]
     [IsAlgClosed K] (W : WeierstrassCurve F) [W.IsElliptic] {n : ℕ} (hn : (n : K) ≠ 0)
     (Q : (W⁄K).Point) : (fibSet W K n Q).Finite := by
-  exact WeilDiv.fibSet_finite' W hn Q
+  exact WeilDiv.fibSet_finite_of_ne_zero W hn Q
 
 end WeierstrassCurve.Affine
 
-#print axioms WeierstrassCurve.Affine.fibSet_finite

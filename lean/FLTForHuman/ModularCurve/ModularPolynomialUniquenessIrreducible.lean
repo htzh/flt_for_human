@@ -18,7 +18,7 @@ Six facts about the datum `data : ModularPolynomialData N`, which is a monic `Φ
 * `ModularPolynomialData.dvd_resultant_of_mul` — the datum at `ℓ * M` divides the
   resultant of the data at `ℓ` and at `M`;
 * `ModularPolynomialData.natDegree_coeff_le`, and the pin's stronger
-  `natDegree_coeff_le'` beside it — every `Y`-coefficient of `Φ_p` is of `Y`-degree at
+  `natDegree_coeff_le_of_swapBivar` beside it — every `Y`-coefficient of `Φ_p` is of `Y`-degree at
   most `p + 1`.
 
 `toAdjoin_eq_minpoly_all` is the engine and is public: it is what the uniqueness, the
@@ -297,7 +297,7 @@ namespace ModularPolynomialData
 `Y`-index, every `X`-coefficient of `Φ_p` has `Y`-degree at most `p + 1`. The
 bound comes from `swapBivar Φ_p = Φ_p` (`swapBivar_eq_of_evalSymm` at
 `evalSymm_of_prime`) and `natDegree Φ_p = p + 1`. -/
-theorem natDegree_coeff_le' (p : ℕ) [Fact p.Prime]
+theorem natDegree_coeff_le_of_swapBivar (p : ℕ) [Fact p.Prime]
     (data : ModularPolynomialData p) (k : ℕ) : (data.Φ.coeff k).natDegree ≤ p + 1 := by
   have hsymm := swapBivar_eq_of_evalSymm (ModularPolynomialData.evalSymm_of_prime p data)
   have hdeg : data.Φ.natDegree = p + 1 := by
@@ -314,7 +314,7 @@ most `p + 1`. Verbatim from the pin wrapper
 `Theorems/Thm_ModularCurve_ModularPolynomialData_natDegree_coeff_le.lean`. -/
 theorem natDegree_coeff_le (p : ℕ) [Fact p.Prime]
     (data : ModularPolynomialData p) (k : ℕ) : (data.Φ.coeff k).natDegree ≤ p + 1 :=
-  natDegree_coeff_le' p data k
+  natDegree_coeff_le_of_swapBivar p data k
 
 end ModularPolynomialData
 
@@ -322,10 +322,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.ModularPolynomialData.eq_all
-#print axioms ModularCurve.phiIrreducible_of_prime
-#print axioms ModularCurve.phiIrreducible_all
-#print axioms ModularCurve.ModularPolynomialData.evalSymm_of_prime
-#print axioms ModularCurve.ModularPolynomialData.dvd_resultant_of_mul
-#print axioms ModularCurve.ModularPolynomialData.natDegree_coeff_le'
-#print axioms ModularCurve.ModularPolynomialData.natDegree_coeff_le

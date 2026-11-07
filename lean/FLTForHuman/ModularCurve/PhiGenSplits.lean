@@ -50,6 +50,11 @@
   `mem_adjoin_jq_of_phiGenDescends`; T9's `PhiGenDescends.intCoeffs`; T11's
   `exists_phiGenDescends`, `exists_modularPolynomialData_coeff_eq`,
   `splits_of_coeff_evalAtJ_eq`; this topic's `ModularPolynomialData.eq_of_prime`.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_splits_of_prime.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_splits_prime_at_slot.lean
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
 import FLTForHuman.ModularCurve.Defs.TS
@@ -229,5 +234,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.PhiGen.splits_of_prime
-#print axioms ModularCurve.PhiGen.splits_prime_at_slot

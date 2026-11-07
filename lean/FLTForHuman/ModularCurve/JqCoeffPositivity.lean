@@ -41,6 +41,11 @@
   `eisenstein4`, `etaProd`, `dedekindEtaUnit{,_inv}`, `jNum`, `jNumQ`, `jq` are the
   port's `Defs/Jq`; `PowerSeries`/`Finset` and the order/expand lemmas are
   mathlib's.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: P2M/Sol/S_ModularCurve_one_le_coeff_jq.lean
+  spec-pin: Theorems/Thm_ModularCurve_one_le_coeff_jq.lean
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
@@ -421,5 +426,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.one_le_coeff_jq
-#print axioms ModularCurve.coeff_jq_ne_zero

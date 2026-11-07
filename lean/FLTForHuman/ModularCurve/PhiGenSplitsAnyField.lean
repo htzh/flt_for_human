@@ -485,5 +485,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.PhiGen.splits_prime_of_isPrimitiveRoot
-#print axioms ModularCurve.PhiGen.splits_prime_at_slot_of_isPrimitiveRoot

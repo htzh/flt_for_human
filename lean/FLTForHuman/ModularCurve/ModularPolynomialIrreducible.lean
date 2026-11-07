@@ -55,6 +55,20 @@
   `algebraMap_comp_evalAtJGen`/`toAdjoin`/`toAdjoin_monic`; `Defs/Jq`'s `jq`/
   `jqN`/`evalAtJ`/`evalAtJ_eq_aeval_map`/`coeff_aeval_jq_neg`/`transcendental_jq`/
   `dedekindPsi_prime`; T11's `PhiGen.evalAtJ_injective`; T12's `one_le_coeff_jq`.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_irreducible.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_minpoly_jqN_eq.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_transposeToAdjoin_monic_of_qExpansion.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_conj_injective.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_evalSymm_of_splits.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean
+  spec-pin: Theorems/Thm_ModularCurve_aeval_jqN_toAdjoin.lean
+  spec-pin: Theorems/Thm_ModularCurve_evalAtJGen_injective.lean
+  spec-pin: Theorems/Thm_ModularCurve_swapBivar_eq_of_evalSymm.lean
+  spec-pin: Theorems/Thm_ModularCurve_swapBivar_monic_of_coeff_bounds.lean
 -/
 import FLTForHuman.ModularCurve.JqCoeffPositivity
 import FLTForHuman.ModularCurve.PhiGenDescendsStructure
@@ -1007,17 +1021,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.evalAtJGen_injective
-#print axioms ModularCurve.PhiGen.conj_injective
-#print axioms ModularCurve.PhiGen.aeval_jq_ne_jqN
-#print axioms ModularCurve.PhiGen.jqN_not_mem_adjoin_jq
-#print axioms ModularCurve.aeval_jqN_toAdjoin
-#print axioms ModularCurve.ModularPolynomialData.minpoly_jqN_eq
-#print axioms ModularCurve.PhiGen.phiIrreducible_of_splits
-#print axioms ModularCurve.evalSymm_of_swapBivar_eq
-#print axioms ModularCurve.swapBivar_monic_of_coeff_bounds
-#print axioms ModularCurve.ModularPolynomialData.evalSymm_of_irreducible
-#print axioms ModularCurve.ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion
-#print axioms ModularCurve.PhiGen.eval_swap_eq_zero_of_splits
-#print axioms ModularCurve.PhiGen.evalSymm_of_splits
-#print axioms ModularCurve.swapBivar_eq_of_evalSymm

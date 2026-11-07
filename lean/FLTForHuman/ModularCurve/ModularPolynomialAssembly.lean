@@ -38,6 +38,11 @@
   `aeval_jq_intCoeffs_descent` and `PhiGenDescends.intCoeffs` T9's
   `PhiGenIntegrality`; the five `PhiGenDescends.*`/`evalAtJ_injective` exports
   this topic's `PhiGenDescendsStructure`.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_splits_of_coeff_evalAtJ_eq.lean
 -/
 import FLTForHuman.ModularCurve.PhiGenDescendsStructure
 import FLTForHuman.ModularCurve.PhiGenIntegrality
@@ -190,5 +195,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq
-#print axioms ModularCurve.PhiGen.splits_of_coeff_evalAtJ_eq

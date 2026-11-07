@@ -26,6 +26,10 @@ the pin's names, namespaces and kinds are kept.
 
 References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_EllipticCurve_WeilPairingFun.lean>
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Definitions/Def_EllipticCurve_WeilPairingFun.lean
 -/
 import FLTForHuman.WeierstrassCurve.Place.PointPlace
 import Mathlib.LinearAlgebra.Span.Defs
@@ -105,5 +109,3 @@ end WeilPairingDefs
 
 end WeierstrassCurve.Affine
 
-#print axioms WeierstrassCurve.Affine.transEquiv_weilFun
-#print axioms WeierstrassCurve.Affine.weilPairing0_of_not

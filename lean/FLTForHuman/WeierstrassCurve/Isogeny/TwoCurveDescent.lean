@@ -1306,7 +1306,7 @@ private theorem gateDescent_of_descent
   have hcard' : Nat.card (pointMapOfPushforward ι hι hfin
       (normFormulaAlong_of_elliptic ι hfin)).ker = N :=
     (Subsingleton.elim hN (normFormulaAlong_of_elliptic ι hfin)) ▸ hcard
-  have hKT := kerTransport_s17 (↥K₀) E₀ E₀' (AlgebraicClosure (↥K₀)) K ι₀ hι₀ hfin₀
+  have hKT := kerTransportAlongEmbed (↥K₀) E₀ E₀' (AlgebraicClosure (↥K₀)) K ι₀ hι₀ hfin₀
     ι hι hfin hχ N hcyc' hcard'
   rw [show hN₀ = normFormulaAlong_of_elliptic ι₀ hfin₀ from Subsingleton.elim _ _]
   exact hKT

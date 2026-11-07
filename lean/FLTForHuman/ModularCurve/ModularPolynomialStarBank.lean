@@ -394,6 +394,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.StarBank.press
-#print axioms ModularCurve.StarBank.etaProd_pow_ne
-#print axioms ModularCurve.StarBank.delta_pow_ne

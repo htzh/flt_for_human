@@ -162,5 +162,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.jqNModC_prime_not_mem_adjoin_of_forall_aeval_ne
-#print axioms ModularCurve.jqNModC_prime_not_mem_adjoin_of_charZero

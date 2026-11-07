@@ -175,4 +175,3 @@ theorem analyticOrderAt_le_of_isIntegral_adjoin_jqModC_pow
 
 end ModularCurve
 
-#print axioms ModularCurve.analyticOrderAt_le_of_isIntegral_adjoin_jqModC_pow

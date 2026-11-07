@@ -49,6 +49,14 @@
   the port's `Defs/PhiGen`; `coeffEmb`, `qExpand`, `coeffMap_qExpand`,
   `qExpand_qExpand` the port's `Defs/Laurent`; `jq`, `jqN`, `evalAtJ`,
   `transcendental_jq` the port's `Defs/Jq`.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_c_eq_zero.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_c_top.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_poleOrderLE.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_sum_mul_jqN_pow_eq_zero.lean
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_evalAtJ_injective.lean
 -/
 import FLTForHuman.ModularCurve.Defs.PhiGen
 
@@ -143,8 +151,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.PhiGen.PhiGenDescends.c_top
-#print axioms ModularCurve.PhiGen.PhiGenDescends.c_eq_zero
-#print axioms ModularCurve.PhiGen.PhiGenDescends.poleOrderLE
-#print axioms ModularCurve.PhiGen.PhiGenDescends.sum_mul_jqN_pow_eq_zero
-#print axioms ModularCurve.PhiGen.evalAtJ_injective

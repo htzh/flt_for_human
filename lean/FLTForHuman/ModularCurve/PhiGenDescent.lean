@@ -34,6 +34,10 @@
   `jq`, `jqN` the port's `Defs/Jq`; `conj`, `conj_zero`, `conj_succ`, `phiProd`,
   `PhiGenDescends` the port's `Defs/PhiGen`. `IsGalois`/`FiniteDimensional` and
   `IsPrimitiveRoot` are mathlib's.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Theorems/Thm_ModularCurve_PhiGen_exists_phiGenDescends.lean
 -/
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
@@ -325,4 +329,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.PhiGen.exists_phiGenDescends

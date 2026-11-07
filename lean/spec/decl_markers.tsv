@@ -92,3 +92,7 @@ FLTForHuman/NumberTheory/DedekindPsi.lean	lt_of_mul_prime_eq	own: port-authored 
 FLTForHuman/NumberTheory/DedekindPsi.lean	exists_eq_succ_of_eq_pow_mul	own: port-authored case split on the exponent of a p ^ k * M decomposition; the pin writes it inline
 FLTForHuman/NumberTheory/DedekindPsi.lean	mul_pow_succ_eq	own: port-authored shape -- the pin writes M * p ^ (a + 1) = M * p ^ a * p inline wherever it needs the lower level's prime factor; here it is the tower step's divisibility witness and the prime-power recurrence's rewrite in one place
 FLTForHuman/NumberTheory/DedekindPsi.lean	dedekindPsi_mul_prime_pow_succ	own: the combined form of the two prime-step case splits (dedekindPsi_mul_prime_dvd / _not_dvd, both already own:); the pin carries only the split, inline, at each prime-power step
+FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.tensorUnit	own: port-own tensor-unit factorization for the base-change seam (no pin declaration)
+FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.tensorUnit_apply	own: port-own tensor-unit factorization for the base-change seam (no pin declaration)
+FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.bcTensorFracIotaFinrank	own: port-own finrank helper for the base-change seam (no pin declaration)
+FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.bcTensorFracIotaSeam	own: port-own seam packaging for the base-change finrank (no pin declaration)

@@ -31,7 +31,7 @@ What is written here is what the pin calls the *seam* and the *silo tail*:
   tensor transport that proves it,
 * `ModularCurve.BetweenCurvesKerTransportAlongEmbed` and the
   `kw_surgehgf4_hfgkd_ktd_*` block that proves it,
-* the two headlines, assembled by `hBC_s17` / `kerTransport_s17`.
+* the two headlines, assembled by `ffSeamBaseChange` / `kerTransportAlongEmbed`.
 
 Only proof bodies are adapted to mathlib `v4.34.0`; the pin's `maxHeartbeats` bumps are
 not transcribed (the port's frozen cap is 4,000,000).
@@ -54,6 +54,14 @@ import FLTForHuman.Elliptic.PeriodPair.Uniformization
 import FLTForHuman.Elliptic.TorsionCardLight
 
 set_option autoImplicit false
+-- Linter options below are the pin-transcription reasons, not a blanket silence:
+-- the `S_` file's proofs bind section variables and local hypotheses they do not
+-- use, keep the pin's `letI`/`haveI` instance spellings (consumed by instance
+-- search, so the style linter's `have` preference does not apply), call the
+-- mathlib names of the pin's snapshot (`deprecated` here), and carry the pin's
+-- `simp` argument lists (`unusedSimpArgs`, `unnecessarySimpa`). Each of these is a
+-- property of the transcribed proof text, so fixing it would rewrite the port of
+-- the pin's proof rather than its mathematics.
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
@@ -151,7 +159,6 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra
 `(W⁄F).FunctionField ⊗[F] F'`.  Naming it keeps the naturality square with
 `functionFieldMapAlongGeneral` — "base change of the structural map is the structural map
 of the base change" — stated without unfolding the carrier inside the goal. -/
--- own: port-own tensor-unit factorization for the base-change seam (no pin declaration)
 def tensorUnit (W : WeierstrassCurve R₀) [W.IsElliptic]
     [IsDomain ((W⁄F).toAffine.FunctionField ⊗[F] F')] :
     (W⁄F).toAffine.FunctionField →ₐ[F]
@@ -160,7 +167,6 @@ def tensorUnit (W : WeierstrassCurve R₀) [W.IsElliptic]
       (FractionRing ((W⁄F).toAffine.FunctionField ⊗[F] F'))).comp
     (Algebra.TensorProduct.includeLeft (R := F))
 
--- own: port-own tensor-unit factorization for the base-change seam (no pin declaration)
 theorem tensorUnit_apply (W : WeierstrassCurve R₀) [W.IsElliptic]
     [IsDomain ((W⁄F).toAffine.FunctionField ⊗[F] F')]
     (b : (W⁄F).toAffine.FunctionField) :
@@ -234,13 +240,11 @@ def bcIota₁ :
 the left-hand side of `bcTensorFracIotaSeam`.  Named so that the seam's
 statement does not have to elaborate the `letI`/`@Module.finrank … Algebra.toModule`
 spelling, which is what made its statement `whnf` past the default heartbeat budget. -/
--- own: port-own finrank helper for the base-change seam (no pin declaration)
 def bcTensorFracIotaFinrank : ℕ :=
   letI := (bcTensorFracIota E₀ E₀' F F' ι₀).toAlgebra
   @Module.finrank (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))
     (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')) _ _ Algebra.toModule
 
--- own: port-own seam packaging for the base-change finrank (no pin declaration)
 theorem bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
     (bcTensorFracIota E₀ E₀' F F' ι₀).Finite ∧
     bcTensorFracIotaFinrank E₀ E₀' F F' ι₀ = finrankAlong F ι₀ := by
@@ -1317,13 +1321,13 @@ theorem kerTransport_proved :
 
 end ModularCurve
 
-/-- The pin's `hBC_s17`: the base-change existence seam at the pin's bare name. -/
-theorem hBC_s17 : ModularCurve.BetweenCurvesFFSeamBaseChange :=
+/-- The base-change existence seam (`ModularCurve.BetweenCurvesFFSeamBaseChange`). -/
+theorem ffSeamBaseChange : ModularCurve.BetweenCurvesFFSeamBaseChange :=
   ModularCurve.ffSeamBaseChange_proved
 
 universe u_kt in
-/-- The pin's `kerTransport_s17`: the kernel-transport seam at the pin's bare name. -/
-theorem kerTransport_s17 : ModularCurve.BetweenCurvesKerTransportAlongEmbed.{u_kt} :=
+/-- The kernel-transport seam (`ModularCurve.BetweenCurvesKerTransportAlongEmbed`). -/
+theorem kerTransportAlongEmbed : ModularCurve.BetweenCurvesKerTransportAlongEmbed.{u_kt} :=
   ModularCurve.kerTransport_proved.{u_kt}
 
 
@@ -1383,7 +1387,7 @@ theorem isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom
     · rw [hχ'X, ModularCurve.functionFieldMapAlongGeneralNoAC_polyToFunctionField_X]
     · rw [ModularCurve.functionFieldMapAlongGeneralNoAC_yGen]; exact hχ'Y
   subst hχE; subst hχE'
-  exact kerTransport_s17.{u} R₀ E₀ E₀' F₁ F₂ ι₁ hι₁ hfin₁ ι₂ hι₂ hfin₂ hcompat N hcyc hcard
+  exact kerTransportAlongEmbed.{u} R₀ E₀ E₀' F₁ F₂ ι₁ hι₁ hfin₁ ι₂ hι₂ hfin₂ hcompat N hcyc hcard
 
 /-- **Existence of the base-changed isogeny.** If `ι₀` over `F` has cyclic point-map
 kernel of cardinality `N`, then over any field extension `F'` of `F` there is a
@@ -1415,14 +1419,12 @@ theorem exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward
         IsAddCyclic (pointMapOfPushforward ι₁ hι₁ hfin₁ hN₁).ker ∧
           Nat.card (pointMapOfPushforward ι₁ hι₁ hfin₁ hN₁).ker = N := by
   obtain ⟨ι₁, hι₁, hfin₁, hcyc₁, hcard₁⟩ :=
-    hBC_s17 R₀ E₀ E₀' F F' σ ι₀ hι₀ hfin₀ N hcyc hcard
+    ffSeamBaseChange R₀ E₀ E₀' F F' σ ι₀ hι₀ hfin₀ N hcyc hcard
   exact ⟨ι₁, hι₁, hfin₁, fun _ => ⟨hcyc₁, hcard₁⟩⟩
 
 end Affine
 end WeierstrassCurve
 
 
-#print axioms WeierstrassCurve.Affine.isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom
-#print axioms WeierstrassCurve.Affine.exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward
 
 end

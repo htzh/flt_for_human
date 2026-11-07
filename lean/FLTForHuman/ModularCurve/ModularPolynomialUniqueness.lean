@@ -28,6 +28,11 @@
   T12's `ModularPolynomialProperties.exists_phiIrreducible_evalSymm` and
   `ModularPolynomialIrreducible`'s `evalAtJGen_injective`, `aeval_jqN_toAdjoin`,
   `minpoly_jqN_eq`.
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eq_of_prime.lean
+  spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_of_prime.lean
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import Mathlib.FieldTheory.Minpoly.Field
@@ -46,12 +51,6 @@ section Finrank
 
 variable {N : ℕ} [NeZero N]
 
-/-- `data.toAdjoin` annihilates `j(q ^ N)`; T12's public declaration, restated
-here for the local proof. -/
-private theorem aeval_jqN_toAdjoin' (data : ModularPolynomialData N) :
-    Polynomial.aeval (jqN N) data.toAdjoin = 0 :=
-  aeval_jqN_toAdjoin data
-
 /-- For an irreducible datum the relative degree is `ψ(N)`: `data.toAdjoin` is the
 minimal polynomial of `j(q ^ N)`, and `IntermediateField.adjoin.finrank` turns the
 degree of that minimal polynomial into the degree of the simple extension. -/
@@ -61,7 +60,7 @@ private theorem finrank_adjoin_jqN_eq (data : ModularPolynomialData N)
   have hint : IsIntegral ℚ⟮jq⟯ (jqN N) :=
     ⟨data.toAdjoin, data.toAdjoin_monic, by
       rw [← Polynomial.aeval_def]
-      exact aeval_jqN_toAdjoin' data⟩
+      exact aeval_jqN_toAdjoin data⟩
   rw [IntermediateField.adjoin.finrank hint, ModularPolynomialData.minpoly_jqN_eq data hirr,
     ModularPolynomialData.toAdjoin, data.monic.natDegree_map, data.natDegree_eq]
 
@@ -98,12 +97,12 @@ private theorem toAdjoin_eq_minpoly (p : ℕ) [hp : Fact p.Prime] (data : Modula
     data.toAdjoin = minpoly ℚ⟮jq⟯ (jqN p) := by
   have hint : IsIntegral ℚ⟮jq⟯ (jqN p) :=
     ⟨data.toAdjoin, data.toAdjoin_monic, by
-      simpa [Polynomial.aeval_def] using aeval_jqN_toAdjoin' data⟩
+      simpa [Polynomial.aeval_def] using aeval_jqN_toAdjoin data⟩
   have hdeg : (minpoly ℚ⟮jq⟯ (jqN p)).natDegree = p + 1 := by
     rw [← IntermediateField.adjoin.finrank hint]
     exact finrank_adjoin_jqN_eq_of_prime p
   refine Polynomial.eq_of_monic_of_dvd_of_natDegree_le (minpoly.monic hint) data.toAdjoin_monic
-    (minpoly.dvd _ _ (aeval_jqN_toAdjoin' data)) ?_
+    (minpoly.dvd _ _ (aeval_jqN_toAdjoin data)) ?_
   rw [hdeg, natDegree_toAdjoin, dedekindPsi_prime hp.out]
 
 end Uniqueness
@@ -129,5 +128,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.finrank_adjoin_jqN_eq_of_prime
-#print axioms ModularCurve.ModularPolynomialData.eq_of_prime

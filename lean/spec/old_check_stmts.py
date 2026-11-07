@@ -3529,15 +3529,6 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
     "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",
-    "FLTForHuman/ModularCurve/PhiGenPoleBounds.lean",
-    "FLTForHuman/ModularCurve/PhiGenDescent.lean",
-    "FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean",
-    "FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean",
-    "FLTForHuman/ModularCurve/JqCoeffPositivity.lean",
-    "FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean",
-    "FLTForHuman/ModularCurve/ModularPolynomialProperties.lean",
-    "FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean",
-    "FLTForHuman/ModularCurve/PhiGenSplits.lean",
     # Topic 14. Its upstream half, `Defs/PhiAtSlot.lean`, left this list on
     # 2026-11-04: it carries its own `spec-pin:` wire now (18 ok, 4 own), and its
     # four `ModularCurve.Nome` port-own declarations are `own:` rows in
@@ -4812,11 +4803,9 @@ PORT_FILES = [
     # slice (`PointPlace`), the `weilPairing0` construction, and the six-law
     # `IsWeilPairing` interface.
     "FLTForHuman/WeierstrassCurve/Place/PointPlace.lean",
-    "FLTForHuman/WeierstrassCurve/WeilPairingFun.lean",
     "FLTForHuman/WeierstrassCurve/WeilPairing.lean",
     # The next node on the shelf: the `[n]`-fibre finiteness (and the shared
     # `torsion_finite`/`card_torsion_toFinset` promotion).
-    "FLTForHuman/WeierstrassCurve/FibSetFinite.lean",
     # WORKORDER-E: the level-`N` `q`-expansion bridge, the deduped twin development.
     "FLTForHuman/ModularCurve/LevelN/QExpBridge.lean",
     # WORKORDER-S8: the Γ₁/Nebentypus pair. The promoted `dd`/Γ₁ API lives in
