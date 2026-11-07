@@ -46,3 +46,19 @@ belongs in the bin instead — is [porting-playbook.md](../porting-playbook.md)
   [`math/015-weight-two-hecke-periods.md`](../../math/015-weight-two-hecke-periods.md);
   decision:
   [`studies/eichler-shimura-scout.md`](../../studies/eichler-shimura-scout.md) §1.3.
+
+## The CL4 island (shelved 2026-11-06)
+
+The `C`-layer twin of the `ℚ` slot product, and the socket-route degree formula it feeds.
+Nothing in the tree reaches the route: its only exit,
+`finrank_adjoin_jqNModC_eq_dedekindPsi_of_charZero`, had no consumer, which is why the
+`ℚ`/`C` duplication it carried was paid for with nothing. The live half of
+`Degree/FinrankAdjoinJqNModC.lean` (the Tate `c₄`/`c₆`/`j` in terms of `jqModC`, cited by
+`TateSlots/ToricPointDictionary.lean`) stayed in `FLTForHuman`.
+
+| module | what it is |
+|---|---|
+| `ModularCurve/FunctionFieldGeneration/SlotProductAnyField.lean` | the `C`-layer slot product and non-membership (the pin's two `S_` files, ported once); keeps its `spec-pin:` wire |
+| `ModularCurve/FunctionFieldGeneration/MffCMulPrime.lean` | `j(q^M)` lies in the level-`M * p` modular function field, over an arbitrary field |
+| `ModularCurve/FunctionFieldGeneration/PrimePowerStepAnyField.lean` | the socket's `Pkg` package and the relative-degree steps (`package_of_socket`) |
+| `ModularCurve/Degree/FinrankAdjoinJqNModCDead.lean` | the dead half of `Degree/FinrankAdjoinJqNModC`: the `Transport`/coefficient-map block and the two degree headlines; unwired, so built but not statement-checked |

@@ -58,7 +58,7 @@
   spec-pin: P2M/Sol/S_ModularCurve_jqNModC_mem_modularFunctionFieldC_mul_prime.lean
   spec-pin: Theorems/Thm_ModularCurve_jqNModC_mem_modularFunctionFieldC_mul_prime.lean
 -/
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProductAnyField
+import Reserve.ModularCurve.FunctionFieldGeneration.SlotProductAnyField
 
 -- The engine installs the `Algebra (modularFunctionFieldC K (M * p)) (LaurentSeries K)`
 -- instance and a `NeZero a` instance inside the proof; both are consumed by
