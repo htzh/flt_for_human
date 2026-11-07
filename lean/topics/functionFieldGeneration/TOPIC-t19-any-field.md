@@ -300,11 +300,12 @@ one hypothesis object, not two statements.
 first still works, the second becomes `hall_pkgAt (fun d hd _ => that pair)`. One line each, to be
 made when this lands — not a reason to keep a second statement alive now.
 
-There is no second instance in the tree (§6.1): the two `C` headlines come back as `CharP/`'s
-delegations to this theory, plus the two per-layer hypotheses of §8. That is the whole worth of the
-island's slot-product half once `CharP/` exists — while its *degree* half (`PrimePowerStepAnyField`,
-`MffCMulPrime`, the socket) has no replacement on either side and is transcribed rather than
-re-derived (§6.1).
+The second instance is `CharP/` (§6.1b): its slot-product half and its prime non-membership are both
+in the tree as delegations to this theory — the pinned any-field headlines, statement-checked
+against their wrappers — and its prime step, `MffCMulPrime`'s `jqNModC_mem_modularFunctionFieldC_mul_prime`,
+is now the `ℚ` descent's own theorem generalized (`Generic/PrimeStep.lean`, wave 6). What has no
+replacement on either side is the *socket*: `PrimePowerStepAnyField`'s `eFull` device, the
+prime-power tower and `package_of_socket` are transcribed rather than re-derived (§6.1, §8.1).
 
 ## 6. Order of work
 
@@ -374,7 +375,8 @@ three ways:
 | part | fate |
 |---|---|
 | the slot product and prime non-membership (`SlotProductAnyField`'s core) | **superseded** by the master plus an instance; deletable the day `CharP/` exists |
-| the degree half — `PrimePowerStepAnyField` (the `eFull` device, the prime-power step, the socket `package_of_socket`) and `MffCMulPrime` (the `C` `Gen` step) | **future-needed, no replacement**: §8 keeps the degree layer per-layer, so neither the master nor the live `ℚ` layer produces it (the `ℚ` proof is a different proof of a different statement) |
+| `MffCMulPrime` (the `C` prime step) | **superseded** (wave 6): the theorem is the `ℚ` descent's, generalized in `Generic/PrimeStep.lean`; the module is a 68-line delegation and its `S_` engine is retired |
+| the socket degree half — `PrimePowerStepAnyField` (the `eFull` device, the prime-power tower, `package_of_socket`) | **future-needed, no replacement**: the `eFull` device runs the step with an arbitrary bound and the package is *conditional* there, so it is a different theorem proved by a different argument (§8.1) |
 | about eight field-generic declarations (`relfinrank_adjoin_insert*`, `jqNModC_injective`, `qTwist_jqModC_eq_TS`, `mem_adjoin_of_mem`, `phiAtSeed_map_algebraMap`, `natDegree_minpoly_le_of_phiAtSeed_root`) | **misplaced, not dead**: they belong in `Generic/` or `Defs/`, and the `ℚ` side has no twin of the first three |
 
 The consumer test also shows how much of the D-S route exists *only* on the shelf:
@@ -418,6 +420,12 @@ elaborates at `ZMod 5`, so no `ℚ` fact leaked into a statement or an instance 
 | `Generic/SlotProduct.lean` | `nomeMap`, `pushedMinpoly`, `slotPolynomial`, `SlotProductAt`; `slotProductInduction`, `pushedMinpoly_eq_slotPolynomial` |
 | `Rat/LevelPackage.lean` | `gen_iff_levelField`, `hall_pkgAt` |
 | `Rat/SlotProduct.lean` | `pushedMinpoly_rat` (`rfl`), `minpoly_eq_prod_slotValues` (the `ℚ` headline at `Hall M`) |
+| `CharP/LevelPackage.lean` | `modularFunctionFieldC_iff_generatedAt`, `pkg_pkgAt` (the `C` layer's package spelling is `Pkg K M`) |
+| `CharP/SlotProduct.lean` | `pushedMinpoly_anyField` (`rfl`), `minpoly_jqNModC_map_eq_prod_slots` (the pinned any-field headline) |
+| `Generic/PrimeNonmembership.lean` | `prime_notMem_levelField`; three `private` helpers (`nodup_slotValues_expanded`, `map_mem_fieldRange`, `eval_map_eq_of_mem_slotValues`) |
+| `CharP/Nonmembership.lean` | `jqNModC_prime_not_mem_fullC` (the pinned any-field prime non-membership) |
+| `Generic/PrimeStep.lean` | `levelSeries_mem_levelField_mul_prime` (the prime step); `levelNomeMap`, two producers, the index facts and the transport as `private` |
+| `Rat/Descent` / `CharP` | the two instances of the prime step, each a delegation (`Descent.lean` 473 → 179 lines, `Reserve/.../MffCMulPrime.lean` 249 → 68) |
 
 Two checks, both done:
 
@@ -435,8 +443,8 @@ Notes on the skeleton's shape:
   port confirmed that this is the *right* statement rather than a weakened one: the `ℚ` `sv_top` is a
   level-form spelling proved through `iota_jqN` and `TS_congr'`, and it is the `ℚ` layer that will
   re-derive that form, not the theory that should inherit it (§5).
-* The prime non-membership is not in the tree: it was written as a one-theorem module and deleted
-  (§6.1d), and it returns in wave 4 with the four helpers its proof needs.
+* The prime non-membership was once written as a one-theorem module and deleted (§6.1d); it is back
+  with the three helpers its proof needs (§6.2 wave 4).
 * `SlotValues.lean` is not moved: it is already generic (`slotValues`, its cardinality, the product,
   the nodup criterion are functions of the multiset, not of the target field), so moving it would
   only churn imports. It can move into `Generic/` when a wave touches its consumers anyway.
@@ -486,6 +494,30 @@ and `ModularPolynomialProperties` only for three declarations that belong in `De
 duplicate (§7) should be resolved at the same time — `SlotValues.card_slotValues` is the one spelling
 on the alias. (c) `slotValue_eq` stays `private`; the base case unfolds `slotValue` by hand, one line,
 cheaper than a public spelling of the definition.
+
+**The `C` slot product — landed, and it is a delegation.** The pinned any-field headline
+`minpoly_jqNModC_map_eq_prod_slots` is `CharP/SlotProduct.lean`'s one public theorem, and its proof is
+`pushedMinpoly_eq_slotPolynomial` at `(ε := RingHom.id, jg := jqModC K)` composed with
+`prod_slotValues`; the two carrier premises are `rfl`, and the package hypothesis is the pin's inline
+conjunction, converted by `pkg_pkgAt`. The naming is a transcription, not a restatement:
+`pushedMinpoly_anyField` is `rfl`. So the instance is *checked*, not asserted — the pin's `if`-form
+slot value is `slotValue`'s body, `slotPolynomial_eq_prod` gives the iterated product, and
+`spec/check_port.py` diffs the whole statement against the `Theorems/` wrapper and matches it.
+
+Two things the port learned from it:
+
+* `pkg_pkgAt` spends a bridge on the **generation** clause only — the set identity
+  `{jqModC K, jqNModC K d} = {jqModC K} ∪ {jqNModC K d}` plus the absorption of `jqModC K` by the
+  divisor set (`jqNModC K 1 = jqModC K`, `1 ∣ d`) — which is `gen_iff_levelField`'s proof with `jq`
+  replaced by `jqModC K`. The degree clause is `rfl`-equal, so the alias `ModularCurve.dedekindPsi`
+  in `Pkg` causes no trouble in a term-level `exact` (only `rw` would trip, §7). No base change is
+  involved, because `generatedAt` is stated absolutely — the §6.1f fix is what makes the second
+  instance cheap.
+* The two pinned statements are **not symmetric in cost**. The slot product had a generic theorem to
+  delegate to; the prime non-membership has none — wave 4 is still open (§6.2), the one-theorem
+  module was deleted (§6.1d), and `jqNModC_prime_not_mem_fullC` needs the generic
+  `prime_notMem_levelField` and its four helpers before it can be stated at `K` at all. It is not a
+  delegation waiting to be written; it is a wave.
 
 ### 6.1b′ The induction, dispatched in two workordered stages
 
@@ -605,19 +637,21 @@ What survived, and why:
 * `pushedMinpoly_rat` — a `rfl` with no consumer yet; kept because its consumer is the pinned
   statement's delegation, and because §3 of the interface note requires a naming to be *proved*
   definitional in the tree rather than asserted.
-* `prime_notMem_levelField` — four real hypotheses and one conclusion, the same 7-in/1-out shape as
-  the engine the interface note holds up as *fine*: the fan-in is the content. Its target binders
-  (`κ'`, `ε`, `ζ`) are a seam, not an accident — the conclusion is over `κ` while the slots are
-  computed in a carrier — so the docstring says so, and the layer that can manufacture a carrier
-  states the target-free theorem and derives it from this one.
+* `prime_notMem_levelField` — five real hypotheses and one conclusion: the two carrier premises
+  (`hε`, `hεq`), `hpM`, the package at `M` and the base non-membership, plus `hζ`. The fan-in is the
+  content. Its target binders (`κ'`, `ε`, `ζ`) are a seam, not an accident — the conclusion is over
+  `κ` while the slots are computed in a carrier — so the docstring says so, and each instance
+  manufactures the carrier it needs (`ℚ` a cyclotomic field, `C` the root its own statement
+  carries) instead of asking the theory for one.
 
 **At module granularity the same test applies, and it deleted one file.**
 `Generic/PrimeNonmembership.lean` held exactly one declaration — eleven binders, one conclusion, no
 vocabulary, no companion, no consumer until wave 4 — and it was written only because the skeleton was
 written all at once. The theorem is lawful (a seam funnel: its content lives nowhere else, §8's "one
 lawful funnel per seam"), but a module is a unit of reading, and one `sorry`-shaped theorem is a note,
-not a layer. It comes back in wave 4 with the four generic helpers its proof needs — which is what
-makes it a module — and with the seam question settled (below).
+not a layer. **It is back (2026-11-07)** with three helpers — the seed equality and the slot constancy live
+inside `eval_map_eq_of_mem_slotValues` — and the seam settled as a binder (§6.2), which is what makes
+it a module.
 
 Two declarations were *added* by the audit: `degreeAt` and `generatedAt` name the package's two
 clauses. They appeared inline in `PkgAt`, in both consequences and in the `ℚ` bridge, they are the
@@ -793,8 +827,9 @@ exists three times in the tree — public in `Degree/JqCyclotomicConjugates`, `p
 
 ### 6.2 The waves
 
-Waves 1–3 are the slot product; wave 4 is the non-membership; wave 5 is the integration and the cleanup.
-Each step is green on its own; none needs a tree build.
+Waves 1–3 are the slot product; wave 4 is the non-membership; wave 5 is the integration and the
+cleanup; wave 6 is the prime step (the `Gen` half, §6.2's item 6). Each step is green on its own;
+none needs a tree build.
 
 1. **The theory skeleton.** `Generic/LevelPackage.lean` (`baseField`, `levelSeries`, `PkgAt`) and
    `Generic/SlotValue.lean` (`slotValue`, the `rfl` lemmas of §5), then `Generic/SlotProduct.lean`
@@ -815,33 +850,59 @@ Each step is green on its own; none needs a tree build.
    source is the current `SlotProduct.lean`'s `rval_aux` family (the shelved twin is a cross-check
    only — §2 shows it is the same proof twice), with the three substitutions of §0 and the upstream
    swap of §0.7.
-4. **The prime non-membership (second wave).** One module, created when it lands, because it is not
-   one theorem: the proof brings four generic helpers of its own (the expanded slots' distinctness,
-   the conjugate-lands-in-the-range lemma, the seed equality, the slot-constancy lemma) plus the
-   headline. The statement, with the carrier it needs and its two per-layer inputs:
+4. **The prime non-membership (second wave) — landed 2026-11-07.** The statement, with the carrier
+   it needs and its two per-layer inputs:
 
    ```lean
    theorem prime_notMem_levelField (ε : LaurentSeries κ →+* LaurentSeries κ')
-       (jg : LaurentSeries κ) {M p : ℕ} [NeZero M] [NeZero p] [hp : Fact (Nat.Prime p)]
-       (hpM : ¬ p ∣ M) (h : PkgAt jg M)
-       (hbase : levelSeries jg p ∉ (baseField jg : Set (LaurentSeries κ)))
-       (hdeg : degreeAt jg p) :
+       (jg : LaurentSeries κ) (hε : ε jg = jqModC κ')
+       (hεq : ∀ (N : ℕ) [NeZero N] (x : LaurentSeries κ), ε (qExpand κ N x) = qExpand κ' N (ε x))
+       {M p : ℕ} [NeZero M] [NeZero p] [hp : Fact (Nat.Prime p)]
+       {ζ : κ'ˣ} (hζ : IsPrimitiveRoot (ζ : κ') (M * p)) (hpM : ¬ p ∣ M) (h : PkgAt jg M)
+       (hbase : levelSeries jg p ∉ (baseField jg : Set (LaurentSeries κ))) :
        levelSeries jg p ∉ levelField jg M
    ```
 
-   Two things are open until then, which is why the statement is not parked in the tree as a `sorry`:
+   The two carrier premises are not decoration: the first cut of this statement dropped them, and
+   the body was unprovable — `hroots` is `pushedMinpolyAt_map_qExpand ε jg hεq …` and the slot
+   theory reads `slotValue` through `TS` only under `hε`. It is the §6.1g lesson a second time, and
+   the scaffolding-then-body order is what surfaced it cheaply (the three helpers already took the
+   two explicitly, so only the headline changed).
 
-   * **the seam.** The conclusion is over `κ`; `κ'`, `ε` and `ζ` are the carrier the slots are
-     computed in and appear nowhere in the conclusion. The audit's seam test says the public theorem
-     should lose the carrier and the target-free form should belong to the layer that can manufacture
-     one (`ℚ` builds its cyclotomic field; the char-`p` layer uses the working field itself). Whether
-     *this* statement is therefore the certificate (public, because the layer above calls it) or
-     should be restated once the `ℚ` form exists is a question for the wave, not for a skeleton.
-   * **the inputs.** `hdeg` and `hbase` are two level-`p` facts; together with `PkgAt jg M` they are
-     three hypotheses for one conclusion, and whether the level-`p` pair should be a single named
-     object (or whether `hbase` should disappear into a statement of the form "membership forces
-     membership in the base field") is exactly the fan-in question. The pin's `C` headline takes
-     them as two, so two is the default, but the form is not frozen yet.
+   Two guesses of this section were wrong, and the wave corrected them:
+
+   * **the seam stays a binder.** `κ'`, `ε` and `ζ` are in the statement because the slot argument
+     runs in a field carrying a primitive `(M * p)`-th root, and no such root exists in a general
+     `κ`. Each instance manufactures one — `ℚ` the cyclotomic field, `C` the root its own statement
+     already carries — and the conclusion stays over `κ`. The audit's seam test is satisfied as the
+     interface note states it (§8: the fan-in is the content); there is no target-free restatement to
+     write, because there is no target-free proof.
+   * **there is no `degreeAt jg p`**, and no `hall_prime`. The first cut classified the conjugate
+     through the level-`p` slot product and therefore needed `PkgAt jg p`; the landed proof uses the
+     `Φ_p`-dichotomy instead — the seed relation `Φ_p(levelSeries jg 1, levelSeries jg p) = 0`
+     (`seed_eval_zero` at `d = 1`, pushed along `ε` with `phiAtSeed_eval_of_injective`), the at-slot
+     root dichotomy `isRoot_prime_at_slot_iff_of_isPrimitiveRoot`, and the twist branch killed on the
+     `q ^ (-M)` coefficient by `p ∤ M` (`qExpand_coeff_of_not_dvd` against `TS_coeff_neg`). So the
+     per-layer inputs are `hbase` and the package at `M` — the pin's own two, and one fewer than
+     this note predicted. The route was taken from the shelved `C` twin, not from the `ℚ` body; the
+     carrier plumbing is the `ℚ` body's.
+
+   The module is `Generic/PrimeNonmembership.lean`: 354 lines, three `private` helpers
+   (`nodup_slotValues_expanded`, `map_mem_fieldRange`, `eval_map_eq_of_mem_slotValues`) and the
+   headline, zero `sorry`, silent build, every declaration `[propext, Classical.choice,
+   Quot.sound]`, and the statement elaborates at `ZMod 5`. Two hub edits made it fit: the
+   `exists_algHom_adjoin_of_isRoot` of `Generic/SlotProduct` is now public and stated at a general
+   level and root (the descent's single call site was updated, the change a strict generalization),
+   and `seed_eval_zero` is public.
+
+   Both instances are delegations: `CharP/Nonmembership.lean` states the pinned
+   `jqNModC_prime_not_mem_fullC` in 20 lines (carrier premises `rfl`, `pkg_pkgAt`, then
+   `mem_levelField_of_mem_divisorAdjoin` for the absolute-to-relative step — the new generic lemma),
+   and `Nonmembership.lean`'s `jqN_prime_not_mem_adjoin` manufactures the cyclotomic carrier. The
+   `ℚ` module went from 985 to 687 lines: the five private helpers
+   (`nodup_slotValues_qExpand`, `map_mem_fieldRange`, `hall_prime`,
+   `eq_seed_of_mem_slotValues_of_mem_fieldRange`, `eval_map_eq_of_mem_slotValues`) are gone,
+   `jqN_prime_not_mem_base` stays as `hbase`, and the prime-power tower below is untouched.
 
 5. **Instances, then consumers.** The `ℚ` theorems stay at their current paths, each a delegation;
    `rval_aux`, `SlotProductAt`, `sv_inj_slot` move to `Generic/`; the instance data and
@@ -852,6 +913,25 @@ Each step is green on its own; none needs a tree build.
    call sites that changed *by hand, last*: the hypothesis-spelling ones at
    `Descent.lean:331`/`ModularPolynomialLeadingCoeff.lean:188` (§5). `dedup.py` and `move_dead.py`
    over the touched modules.
+
+6. **The prime step (wave 6) — landed 2026-11-07.** `levelSeries_mem_levelField_mul_prime` in
+   `Generic/PrimeStep.lean`: `levelSeries jg M ∈ levelField jg (M * p)`, the `Gen` half of the
+   divisor induction, with the same carrier premises and `ζ` seam as the non-membership. It is the
+   `ℚ` descent's theorem (`Descent`'s former proof, refactored into two producers and three named
+   index facts) generalized to `κ`; both instances are now delegations, and the `C` layer's `S_`
+   engine `jqNModC_mem_mffC_mul_prime_of_prod` is retired with it (its hypothesis was the slot
+   product, its only consumer was the headline). Numbers: the generic module is 313 lines — one
+   public theorem, eight `private` lemmas and five `private` definitions (`levelNomeMap` and the
+   four level abbreviations); `Descent.lean` went 473 → 179; `MffCMulPrime.lean` 249 → 68. Two facts the wave established that the earlier plan had wrong:
+
+   * the certificate's polynomial lives over the **level** field, so the theory needs a nome map on
+     `levelField jg N`, not only `SlotProduct`'s `nomeMap` on `baseField` — `levelNomeMap`. The
+     workorder's `IntermediateField.inclusion` recipe does not typecheck: `baseField jg` and
+     `levelField jg (M*p)` are `IntermediateField`s over different bases, so the inclusion is the
+     `Algebra` instance itself;
+   * `exists_phiAtSeed_roots` needs `hεq` (not only `hε`): the seed push is a statement about
+     `qExpand κ' … (jqModC κ')`, i.e. inside the image of `ε`, so it needs level commutation. The
+     workorder had listed `hε` alone; the body corrected it.
 
 Expected end state: one induction, one slot-value definition, one package predicate, `Hall`/`Pkg`
 untouched, `hall_pkgAt` as the only bridge, no `ℚ` vocabulary below `Rat/` — and no `C`-layer copy
@@ -937,14 +1017,15 @@ anywhere: `Reserve` is deleted, and a future char-`p` instance is written fresh 
   *statement* is not the section's (keep the `∀ {K}` shape where it is).
 ## 8. What stays per-layer (this is not duplication)
 
-* The **degree theorems**: `Tight`/`Gen` at `ℚ` (`Capstone.hall_all`) versus `Pkg` at `K`
+* The **socket degree theorems**: `Tight`/`Gen` at `ℚ` (`Capstone.hall_all`) versus `Pkg` at `K`
   (`PrimePowerStepAnyField`, the socket). Different theorems, one shape — the master takes the
-  shape as a hypothesis.
-* **The base non-membership and the degree at the prime**: `jqN_prime_not_mem_base`,
-  `finrank_adjoin_jqN_eq_of_prime` at `ℚ`; the `hbase` hypothesis and `natDegree_minpoly_jqNMod` at
-  `C`. The master's non-membership takes both as hypotheses, which is exactly the `…_of_socket`
-  shape D-S wants.
-* **The prime-power tower** `jqN_pow_not_mem_adjoin_full` (`Nonmembership.lean:972`): the `Φ_p`
+  shape as a hypothesis. This is *not* the prime step: that one (`jqN(q^M) ∈ F_{M·p}`) is the same
+  theorem in both layers and is shared (`Generic/PrimeStep.lean`, wave 6, §6.2).
+* **The base non-membership**: `jqN_prime_not_mem_base` at `ℚ`, the `hbase` hypothesis at `C`.
+  That is the theory's `hbase` and the only non-membership input — the *degree* at the prime is not
+  one (§6.2: the `Φ_p`-dichotomy route spends no `PkgAt jg p`). Each layer keeps its own base
+  non-membership proof, which is exactly the `…_of_socket` shape D-S wants.
+* **The prime-power tower** `jqN_pow_not_mem_adjoin_full` (`Nonmembership.lean:676`): the `Φ_p`
   chain of fields `C_i`, the compatible family `σ_i`, `eq_spread_of_eval_eq_zero_of_mem_range`. It
   is `ℚ`-modular-equation mathematics with no generic counterpart, and nothing in the theory needs
   it.
@@ -958,11 +1039,13 @@ anywhere: `Reserve` is deleted, and a future char-`p` instance is written fresh 
 ### 8.1 The C degree layer's `ℚ` correspondence
 
 The shelved `PrimePowerStepAnyField` (1555 lines) is the twin of **three** live modules at once, not
-of one — which is why the degree layer is the natural boundary of this refactor rather than another
-target for it:
+of one — which is why the *socket* degree layer is the natural boundary of this refactor rather than
+another target for it. Its neighbour `MffCMulPrime` was the exception: it is one theorem, the `ℚ`
+descent's, and wave 6 shared it (§6.2).
 
 | C declaration | `ℚ` counterpart |
 |---|---|
+| `jqNModC_mem_modularFunctionFieldC_mul_prime` | `Descent.jqN_div_mem_modularFunctionField` — **one theorem**, shared as `Generic/PrimeStep.lean` (wave 6); the row is no longer a twin |
 | `jqNModC_mem_of_div_primes`, `jqNModC_mem_of_div_prime_of_mul_prime` | `Generation.jqN_mem_of_div_primes` |
 | `jqNModC_mem_adjoin_top_insert`, `fullC_succ_eq_adjoin_insert_divSet`, `fullC_mul_prime_eq_adjoin_insert_image`, `mffC_eq_fullC_of_steps` | `Generation.full_eq_adjoin_full_div_prime`, the `Gen` half of `Capstone.hall_all` |
 | `finrank_adjoin_jqNModC_prime_of_not_mem'` | `DegreeStep.finrank_adjoin_jqN_prime_of_not_mem` |

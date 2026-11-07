@@ -94,3 +94,4 @@ FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.tensorUn
 FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.tensorUnit_apply	own: port-own tensor-unit factorization for the base-change seam (no pin declaration)
 FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.bcTensorFracIotaFinrank	own: port-own finrank helper for the base-change seam (no pin declaration)
 FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean	ModularCurve.bcTensorFracIotaSeam	own: port-own seam packaging for the base-change finrank (no pin declaration)
+FLTForHuman/ModularCurve/FunctionFieldGeneration/CharP/SlotProduct.lean	ModularCurve.pushedMinpoly_anyField	own: the pin's inline `(minpoly (adjoin K {jqModC K}) (jqNModC K M)).map ((qExpand K M).comp algebraMap)` named as the theory's `pushedMinpoly` at the identity carrier; proved by `rfl`, i.e. definitionally the pin's text

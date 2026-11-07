@@ -104,4 +104,18 @@ theorem natDegree_minpoly_levelSeries (jg : LaurentSeries κ) (M : ℕ) [NeZero 
   rw [← IntermediateField.adjoin.finrank (isIntegral_levelSeries jg M hf)]
   exact hf
 
+/-- **The absolute divisor field lies in the level field**: the adjoin of the level series at the
+divisors of `M` is contained in `levelField jg M`, given the generation clause. Both instances
+state their headline *absolutely* — `ℚ`'s full field and the `C` layer's `adjoin` over the divisor
+set — so each of them takes this one step back to the relative field the theory's theorems
+conclude about; it is stated here once, as the consequence of `generatedAt` that it is. -/
+theorem mem_levelField_of_mem_divisorAdjoin {jg : LaurentSeries κ} {M : ℕ} [NeZero M]
+    (hgen : generatedAt jg M) {x : LaurentSeries κ}
+    (hx : x ∈ IntermediateField.adjoin κ
+      {x : LaurentSeries κ | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ M ∧ x = levelSeries jg d'}) :
+    x ∈ levelField jg M := by
+  show x ∈ (levelField jg M : Set (LaurentSeries κ))
+  rw [coe_adjoin_baseField, hgen]
+  exact IntermediateField.adjoin.mono κ _ _ Set.subset_union_right hx
+
 end ModularCurve

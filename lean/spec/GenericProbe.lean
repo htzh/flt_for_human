@@ -10,6 +10,8 @@
   It is a probe, not part of the library: it is elaborated on demand and has no consumers.
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.PrimeNonmembership
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.PrimeStep
 
 set_option autoImplicit false
 
@@ -81,5 +83,19 @@ example (jg : LaurentSeries (ZMod 5)) (M : ℕ) [NeZero M] (hf : degreeAt jg M) 
 example (jg : LaurentSeries (ZMod 5)) (M : ℕ) [NeZero M] (hf : degreeAt jg M) :
     (minpoly (baseField jg) (levelSeries jg M)).natDegree = dedekindPsi M :=
   natDegree_minpoly_levelSeries jg M hf
+
+/-- The two prime facts apply at `ZMod 5`, from their stated hypotheses: the non-membership
+(no degree bought by a prime that divides nothing already there) and the prime step (the level
+series at `M` lies in the level-`M * p` field). Neither asks for a `ℚ`-algebra. -/
+example (ε : LaurentSeries (ZMod 5) →+* LaurentSeries (ZMod 5)) (jg : LaurentSeries (ZMod 5))
+    (hε : ε jg = jqModC (ZMod 5))
+    (hεq : ∀ (N : ℕ) [NeZero N] (x : LaurentSeries (ZMod 5)),
+      ε (qExpand (ZMod 5) N x) = qExpand (ZMod 5) N (ε x))
+    {M p : ℕ} [NeZero M] [NeZero p] [hp : Fact (Nat.Prime p)] {ζ : (ZMod 5)ˣ}
+    (hζ : IsPrimitiveRoot (ζ : ZMod 5) (M * p)) (hpM : ¬ p ∣ M) (h : PkgAt jg M)
+    (hbase : levelSeries jg p ∉ (baseField jg : Set (LaurentSeries (ZMod 5)))) :
+    levelSeries jg p ∉ levelField jg M ∧ levelSeries jg M ∈ levelField jg (M * p) :=
+  ⟨prime_notMem_levelField ε jg hε hεq hζ hpM h hbase,
+    levelSeries_mem_levelField_mul_prime ε jg hε hεq hζ h⟩
 
 end ModularCurve

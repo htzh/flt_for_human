@@ -205,40 +205,36 @@ private theorem isRoot_map_minpoly_of_isRoot_subfield {ε : LaurentSeries κ →
   rw [hψcomp] at h1
   exact Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero h1 hroot
 
-/-- **The conjugate at the descended slot**: if the expanded slot value is a root of the
-`nomeMap ε jg M`-push of `minpoly (baseField jg) (levelSeries jg (a * d''))`, then it is the image
-of the slot generator under a `baseField jg`-algebra map `ψ₁` out of
-`levelField jg (a * d'')`, and the push of scalars along `ψ₁` is `nomeMap ε jg M`. The `AlgHom`
-needs the `Algebra (baseField jg) (LaurentSeries κ')` of the caller, which is why it is taken as an
-instance argument here. -/
-private theorem exists_algHom_adjoin_of_isRoot {ε : LaurentSeries κ →+* LaurentSeries κ'}
-    {jg : LaurentSeries κ} {M a b d'' p : ℕ} [NeZero M] [NeZero a]
-    [NeZero d''] [NeZero p] [NeZero (a * d'')] {ζ : κ'ˣ}
-    (hα' : IsIntegral (baseField jg) (levelSeries jg (a * d'')))
-    (hroot' : ((minpoly (baseField jg) (levelSeries jg (a * d''))).map
-      ((ε.comp (qExpand κ M)).comp (algebraMap (baseField jg) (LaurentSeries κ)))).IsRoot
-      (qExpand κ' p (slotValue ε jg (ζ ^ p) a (b % d''))))
+/-- **A root of the pushed minimal polynomial extends to the level field**: if `y` is a root of
+`minpoly (baseField jg) (levelSeries jg d)` read in the working field along `nomeMap ε jg M`, then `y`
+is the image of the level-`d` generator under a `baseField jg`-algebra map `ψ` out of
+`levelField jg d`, and the push of scalars along `ψ` is `nomeMap ε jg M`. The `AlgHom` needs the
+`Algebra (baseField jg) (LaurentSeries κ')` of the caller, which is why it is taken as an instance
+argument here.
+
+The descent calls this at `d = a * d''` and at the expanded slot value; the non-membership calls it
+at `d = M` and at an arbitrary slot of the pushed polynomial, which is why it is stated at a general
+level and a general root. -/
+theorem exists_algHom_adjoin_of_isRoot (ε : LaurentSeries κ →+* LaurentSeries κ')
+    (jg : LaurentSeries κ) {M d : ℕ} [NeZero M] [NeZero d] {y : LaurentSeries κ'}
+    (hα : IsIntegral (baseField jg) (levelSeries jg d))
+    (hroot : ((minpoly (baseField jg) (levelSeries jg d)).map (nomeMap ε jg M)).IsRoot y)
     [Algebra (baseField jg) (LaurentSeries κ')]
-    (halg : algebraMap (baseField jg) (LaurentSeries κ')
-      = (ε.comp (qExpand κ M)).comp (algebraMap (baseField jg) (LaurentSeries κ))) :
-    ∃ ψ₁ : levelField jg (a * d'') →ₐ[baseField jg] LaurentSeries κ',
-      ψ₁ (IntermediateField.AdjoinSimple.gen (baseField jg) (levelSeries jg (a * d'')))
-          = qExpand κ' p (slotValue ε jg (ζ ^ p) a (b % d''))
-        ∧ (ψ₁ : levelField jg (a * d'') →+* LaurentSeries κ').comp
-            (algebraMap (baseField jg) (levelField jg (a * d'')))
-          = (ε.comp (qExpand κ M)).comp (algebraMap (baseField jg) (LaurentSeries κ)) := by
-  have hy_mem : qExpand κ' p (slotValue ε jg (ζ ^ p) a (b % d''))
-      ∈ (minpoly (baseField jg) (levelSeries jg (a * d''))).aroots (LaurentSeries κ') := by
+    (halg : algebraMap (baseField jg) (LaurentSeries κ') = nomeMap ε jg M) :
+    ∃ ψ : levelField jg d →ₐ[baseField jg] LaurentSeries κ',
+      ψ (IntermediateField.AdjoinSimple.gen (baseField jg) (levelSeries jg d)) = y
+        ∧ (ψ : levelField jg d →+* LaurentSeries κ').comp
+            (algebraMap (baseField jg) (levelField jg d)) = nomeMap ε jg M := by
+  have hy_mem : y ∈ (minpoly (baseField jg) (levelSeries jg d)).aroots (LaurentSeries κ') := by
     rw [Polynomial.mem_aroots]
-    refine ⟨minpoly.ne_zero hα', ?_⟩
+    refine ⟨minpoly.ne_zero hα, ?_⟩
     rw [Polynomial.aeval_def, halg, Polynomial.eval₂_eq_eval_map]
-    exact hroot'
-  obtain ⟨ψ₁, hψ₁⟩ : ∃ ψ₁ : levelField jg (a * d'') →ₐ[baseField jg] LaurentSeries κ',
-      ψ₁ (IntermediateField.AdjoinSimple.gen (baseField jg) (levelSeries jg (a * d'')))
-        = qExpand κ' p (slotValue ε jg (ζ ^ p) a (b % d'')) :=
-    ⟨(IntermediateField.algHomAdjoinIntegralEquiv (baseField jg) hα').symm ⟨_, hy_mem⟩,
-      IntermediateField.algHomAdjoinIntegralEquiv_symm_apply_gen (baseField jg) hα' ⟨_, hy_mem⟩⟩
-  refine ⟨ψ₁, hψ₁, ?_⟩
+    exact hroot
+  obtain ⟨ψ, hψ⟩ : ∃ ψ : levelField jg d →ₐ[baseField jg] LaurentSeries κ',
+      ψ (IntermediateField.AdjoinSimple.gen (baseField jg) (levelSeries jg d)) = y :=
+    ⟨(IntermediateField.algHomAdjoinIntegralEquiv (baseField jg) hα).symm ⟨_, hy_mem⟩,
+      IntermediateField.algHomAdjoinIntegralEquiv_symm_apply_gen (baseField jg) hα ⟨_, hy_mem⟩⟩
+  refine ⟨ψ, hψ, ?_⟩
   rw [AlgHom.comp_algebraMap]
   exact halg
 
@@ -448,7 +444,7 @@ private theorem nomeMap_congr (ε : LaurentSeries κ →+* LaurentSeries κ') (j
 /-- **The modular relation at a level**: `Φ_n` vanishes at `(levelSeries jg d, levelSeries jg (d * n))`.
 This is the working field's `phiAtSeed_jqNModC_eval` pulled back along the carrier, which is injective
 because it is a ring map out of a field. -/
-private theorem seed_eval_zero (ε : LaurentSeries κ →+* LaurentSeries κ') (jg : LaurentSeries κ)
+theorem seed_eval_zero (ε : LaurentSeries κ →+* LaurentSeries κ') (jg : LaurentSeries κ)
     (hε : ε jg = jqModC κ')
     (hεq : ∀ (N : ℕ) [NeZero N] (x : LaurentSeries κ), ε (qExpand κ N x) = qExpand κ' N (ε x))
     (n : ℕ) [NeZero n] (dp : ModularPolynomialData n) (d : ℕ) [NeZero d] :
@@ -831,7 +827,7 @@ private theorem isRoot_map_minpoly_slot_of_descent (ε : LaurentSeries κ →+* 
   let halgI : Algebra (baseField jg) (LaurentSeries κ') := (nomeMap ε jg M).toAlgebra
   have halg : algebraMap (baseField jg) (LaurentSeries κ') = nomeMap ε jg M :=
     RingHom.algebraMap_toAlgebra _
-  obtain ⟨ψ₁, hψ₁, hψcomp⟩ := exists_algHom_adjoin_of_isRoot hα' hroot' halg
+  obtain ⟨ψ₁, hψ₁, hψcomp⟩ := exists_algHom_adjoin_of_isRoot ε jg hα' hroot' halg
   obtain ⟨dp, -, hdpsym⟩ := exists_phiIrreducible_evalSymm p
   have hup : (phiAtSeed dp (levelSeries jg (a * d''))).eval (levelSeries jg M) = 0 := by
     have h1 := seed_eval_zero ε jg hε hεq p dp (a * d'')

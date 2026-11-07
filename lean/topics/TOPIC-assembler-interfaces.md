@@ -2,20 +2,26 @@
 
 **Status: methods note, written from the FFG T15 case (2026-11-04); §7–§8 added the same day from
 the T16 dispatcher case; §5's fan-in/fan-out rule added 2026-11-06 from the T15 re-cut.** §1–§4 are the diagnosis, §5 the remedy menu, §6 the measured cost of
-each mechanism, §7 the proof-script tests, §8 the certificate and module-graph tests, §9 the
+each choice, §7 the proof-script tests, §8 the certificate and module-graph tests, §9 the
 naming/namespace policy, §10 the audit recipe, §11 where else in the tree to look. The two worked
-instances — the exact edits, the module splits, the gates — are
+instances — the exact edits, the module splits, the measurements — are
 [functionFieldGeneration/TOPIC-ffg-refactor.md](functionFieldGeneration/TOPIC-ffg-refactor.md) §13.
 Companions: [TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md) (what to do with content the
 port already has) and [TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md) (where a
-declaration belongs). Authority for statement fidelity is
-[porting-playbook.md](../porting-playbook.md) §4, for what to export §5.
+declaration belongs).
+
+**One doctrine up front.** The pin's statement is the port's specification of the *mathematics*, not
+of the sentence. While a node's consumers are unported, the pin's text is also the only way to know
+what the port is supposed to prove, so it is kept verbatim; once the consumers are ported, they hold
+the interface and the spelling is the port's — respelling a statement is what a refactor is for.
+What must not change is the theorem. Authority that the theorem is still the pin's:
+[porting-playbook.md](../porting-playbook.md) §4; for what to export, §5.
 
 **The worked instances, end to end: [CASE-hall-all.md](CASE-hall-all.md).** That is the note to
 point at when you say "refactor this like `hall_all`": symptoms, the seven-step treatment, the
-before/after arc with numbers, the things the first attempts got wrong, and the gates — twice, the
-second time one node down on the prime-power degree dispatcher, where the last step turned out to
-be a module boundary rather than a statement. This note is the method; the case note is what it
+before/after arc with numbers, the things the first attempts got wrong, and the checks it went
+through, twice — the second time one node down on the prime-power degree dispatcher, where the last
+step turned out to be a module boundary rather than a statement. This note is the method; the case note is what it
 looks like on real nodes.
 
 **The claim, stated once.** An *assembler* — the theorem that closes a node by applying three or
@@ -32,13 +38,13 @@ claim below is a number measured there.
 
 **Readability has three surfaces, and a fix on one does not reach the others.**
 
-| surface | the defect | the tests | the gates |
+| surface | the defect | the tests | what anchors it |
 |---|---|---|---|
-| the **statement** | it records the pin's proof script (§2) | decode into one sentence, count copies, find the `rcases` (§4) | the checker's diff against the wrapper |
+| the **statement** | it records the pin's proof script (§2) | decode into one sentence, count copies, find the `rcases` (§4) | the consumers' call sites |
 | the **proof script** | it performs arithmetic and setup instead of mathematics (§7) | the five-lines test, the closure test, the orientation test (§7) | none — only a reader |
-| the **module graph** | a certificate is homed by the file its proof came from, so the caller pays for it (§8) | producer-versus-consumer order, subject-versus-dependency (§8) | the wire, the register, the import cone |
+| the **module graph** | a certificate is homed by the file its proof came from, so the caller pays for it (§8) | producer-versus-consumer order, subject-versus-dependency (§8) | the import cone |
 
-The last two have no mechanical gate: a body can be fully checkable and unreadable, and a tree can
+The last two have no mechanical anchor: a body can be fully checkable and unreadable, and a tree can
 be fully green while every module is homed by an accident of its proof's import list. That is why
 they are in a methods note and not in a script.
 
@@ -169,10 +175,11 @@ was first noticed is the right *first* step (§6), but if a second module re-der
 same bound, a second private copy is the wrong second step: the fact needs an upstream
 home both already import, and that home's own standard has to be discharged in the same
 change. Measured on the FFG level bounds — once the second module needed them, the cost
-stopped being two lines of Lean and became a regularisation pass on the home (7 `spec-pin`
-wires, 5 `own:` rows, retirement from the frozen checker, `dedup`, silent-build check).
-Budget for the home, not the helper; and pick the home by subject *and* by its
-verification tier, because a subject-correct home in a legacy module costs the pass.
+stopped being two lines of Lean and became a regularisation pass on the home (its
+inherited statements made to read as sentences, `dedup`, a silent build, and the
+vocabulary the helper itself had been spelling out by hand).
+Budget for the home, not the helper; and pick the home by subject *and* by its state,
+because a subject-correct home in a legacy module costs the same pass.
 
 ### Fan-in and fan-out are not symmetric
 
@@ -236,89 +243,42 @@ and say so in the docstring.
 
 ### What not to do
 
-* **Do not respell a pinned statement to make it readable.** The checker's diff is textual;
-  measured: rewriting `IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ))` as the notation
-  `ℚ⟮jq⟯` inside `jqN_div_mem_modularFunctionField` reports **MISMATCH** (1 ok, 1 mismatch) and
-  fails the module. The pinned text stays; the readable spelling goes in a *new* declaration (step
-  1–5 above) whose statement is the port's own.
-* **Do not make real mathematics `private` to dodge the diff** (playbook §4). The mechanism exists
-  (§6); using it to hide a transcription is the failure it was built to prevent.
-* **Do not delete the wire** to make an unreadable statement "not our problem". A module with no
-  `spec-pin:` line is not diffed at all, so the module silently leaves statement verification.
+* **Do not keep the pin's spelling for the pin's sake.** §1's correction is the reason: the notation
+  was not the disease, so `ℚ⟮jq⟯` for the adjoin inside `jqN_div_mem_modularFunctionField` buys no
+  reader anything — the binders are still the script's. Fix the *signature* (steps 1–5 above) and
+  respell the statement. If the mathematics changes, that is a new declaration, not a respelling.
+* **Do not make a declaration `private` to avoid finishing its interface.** Privacy is a statement
+  about consumers (§6), not a drawer for a statement whose shape has not been worked out yet.
 
-## 6. What each mechanism costs (measured on `Descent.lean`, 2026-11-04)
+## 6. What each choice costs (measured on `Descent.lean`, 2026-11-04)
 
-The port has four kinds of public surface (see `spec/unwired_register.py`'s docstring for the
-canonical statement of the three tiers). Mechanisms, for a declaration in an already-wired module,
-with the counts measured on a copy of `Descent.lean` when it still had two diffable statements
-(`2 ok` is therefore the starting point):
+A declaration transcribed from a pin wrapper has four treatments. The choice is about **who can name
+it**; the sentence it states is the port's to write. Measured on `Descent.lean`, when it still had
+two such statements:
 
-| mechanism | `check_port.py` result | bookkeeping | when |
+| treatment | public surface | what the tree pays | when |
 |---|---|---|---|
-| do nothing, declaration is public | `2 ok, 1 missing` — **FAIL** | none | never |
-| `private` | `2 ok` — unchanged | none | the only consumers are in this module |
-| public + `own:` row in `spec/decl_markers.tsv` | `2 ok, 1 own` — pass | one TSV row with a reason | ≥2 modules need the name |
-| **retire a pinned statement**: pin's name kept, statement rewritten, `own:` row | that declaration reads `own`, not `missing` — pass | one TSV row, whose reason names the wrapper | the signature is the defect (§6) |
-| new module with no `spec-pin:` line (tier 3) | not diffed at all | header must justify it; register it with `unwired_register.py` | a whole module's worth of port-own content |
+| transcribe | the pin's name and text | — | the statement already reads as a sentence |
+| **respell in place** | the pin's name, the port's sentence | the pin's sentence leaves the tree; the note and git history carry it | the mathematics is the same and the text is not readable |
+| new declaration | a port-own name | one more name in the namespace | the mathematics is a different statement |
+| `private` | none | the theorem is invisible outside its module | the only consumers are in this module |
 
-Three facts that are easy to get wrong, all verified:
+The test is the consumer: a change is safe when every call site of the public API compiles unchanged,
+and it is a change of contract when a caller has to learn a new word. Two facts follow, and both are
+easy to get wrong:
 
-* **Where a marker goes (policy, 2026-11-04).** Only `spec/decl_markers.tsv`. The in-source
-  `-- pin:` / `-- own:` comments the checker still reads are the obsolete spelling and are not to
-  be reintroduced. A **promotion** whose statement is unchanged (a pin-`private` declaration made
-  public) needs no row at all: the checker matches it by name — nine of the ten promotions in the
-  dispatcher case did. A port-own *new* statement that must be public is the case a row exists for.
-* **`own:` is tier 2, not an exemption from review.** `spec/decl_markers.tsv` takes
-  `<module path>`, `<full declaration name as the checker parses it>`, and `own: <reason>`. The name
-  must be the one the parser produced: read it out of `spec/check_port.py --json` rather than
-  typing it from the Lean file. A name the parser did not produce yields `STALE MARKER` **and** the
-  declaration stays `missing`, so the module still fails — the marker silently does nothing.
-* **A tier-3 module is a real cost.** It is built and elaborated but its statements are never
-  diffed, and the register is how anyone finds out what is in it. Prefer `own:` on a small number of
-  declarations to a new unwired module unless the module is wholly the port's own (the `SlotValues`
-  case: the pin has no counterpart because its content is the named sub-goals of a monolithic
-  proof).
-* **The wire is per module, the marker is per declaration.** Adding a wire never invalidates an
-  `own:` row, and a `pin:` row can name a file the header does not list.
+* **Respell the existing declaration; do not add a readable twin.** A second declaration beside the
+  pinned one is two statements of one theorem, and it makes the readable one an adapter over the bad
+  one, so the bad one can never be removed later without redoing the work.
+* **The name is the consumer's; the sentence is yours.** The pin's *name* keeps its role — it is what
+  a reader arriving from the pin types, what consumers `#check`, what the presentation labels — and
+  that is the reason to keep it. Nothing about the name constrains the text.
 
-**When a pinned statement is the thing to retire.** Once an assembler's signature is judged
-unreadable, the wrong repair is to add a readable declaration beside the pinned one. That keeps two
-statements of one theorem and — because the proof stays with the pinned statement — leaves the
-mathematics under the unreadable text, where the reader who arrives from the pin's name will land.
-It also makes the readable declaration an adapter over the bad one, so the bad one can never be
-removed later without redoing the work.
-
-The repair is to **retire the text and keep the name**:
-
-> the pin's declaration *name* keeps its role (it is what a reader arriving from the pin types, what
-> consumers `#check`, what the presentation labels); its *statement* is replaced by the readable one;
-> the retirement is recorded as an `own:` row whose reason names the wrapper file; the verbatim text
-> is preserved in the topic note and in git history; **no `spec-pin:` line is removed.**
-
-What this costs, stated honestly: the wire no longer diffs that statement, so nothing mechanical
-checks that the port still states the pin's theorem — the port's statement becomes the spec, and the
-`own:` reason plus the quoted text in the notes carry the record. That is a real loss of automation
-and it is the right trade when the statement's readability is the deliverable, which for this port
-it is. A module-level wire is the wrong granularity for the same reason: the *other* declarations in
-the module still mirror their wrappers and must keep being diffed. What is measured is the verdict
-(`own:` turns a `missing` into a passing `own`); the count that a particular module ends up with is
-arithmetic on how many of its statements it still mirrors — `Descent.lean` lands on `1 ok + 1 own`,
-recorded as a prediction in the FFG order §13.7.
-
-**What still keeps a pinned statement verbatim.** Two cases, and only two: (a) the readable
-declaration is a *different* statement, not a respelling — e.g. `Hall M` in place of two slot
-hypotheses is genuinely new, so it is a second theorem, not a replacement; (b) the statement is not
-yet understood well enough to respell it, in which case leaving it alone is honest and adding a gloss
-in prose is cheaper than a second declaration.
-
-**And when does the module's wire go?** When *no* public declaration in it mirrors the pin any more.
-That happened in the FFG wave: after the descent was respelled, `Descent.lean`'s other statement
-was still the pin's, so the wire stayed; once that one was respelled too
-([functionFieldGeneration/TOPIC-ffg-refactor.md](functionFieldGeneration/TOPIC-ffg-refactor.md) §14),
-the wire diffed nothing and was removed, and the module became tier 3 with its provenance in the
-header (`no spec-pin: directive — not wired (tier 3)`, one measured line of output). The distinction
-is per declaration for the retirement and per module for the wire, and keeping them apart is what
-stops a module-level edit from unverifying a statement that still matches.
+**What still keeps the pin's text verbatim.** Two cases, and only two: (a) the readable declaration
+is a *different* statement, not a respelling — e.g. `Hall M` in place of two slot hypotheses is
+genuinely new, so it is a second theorem, not a replacement; (b) the statement is not yet understood
+well enough to respell it, in which case leaving it alone is honest and adding a gloss in prose is
+cheaper than a second declaration.
 
 ## 7. The proof script: does it read as mathematics?
 
@@ -438,13 +398,11 @@ it is non-membership, and that mis-homing is exactly what produced the `T16 ⇒ 
 reads (correctly) as a symptom. When a node's statement is the thing a module is *named for*, the
 module imports the machinery it needs; it does not host the machinery's other clients.
 
-**The tier test.** A port-own declaration — one the pin has only as a `private`, or not at all —
-has exactly two lawful homes: `private` in its consumer, or a **tier-3** module (no `spec-pin:`,
-registered with `spec/unwired_register.py`). A *promotion* whose statement is unchanged needs
-neither: the checker matches a promoted pin-`private` declaration by name (nine of ten promotions in
-the dispatcher case matched and cost nothing). `spec/decl_markers.tsv` is the residue mechanism, for
-a port-own statement that must be public: one row, with the reason. The in-source `-- pin:` /
-`-- own:` comments are the obsolete spelling and should not be reintroduced.
+**The visibility test.** A port-own declaration — one the pin has only as a `private`, or not at all —
+has exactly two lawful homes: `private` in its consumer, or a public home whose docstring and topic
+note carry its provenance. A *promotion* (a pin-`private` declaration made public) costs neither: the
+name is the pin's, so nothing is invented and no consumer changes. A public home for a new name is
+paid for by the reader who has to know why it exists.
 
 **The seam test.** When the conclusion is over `ℚ` and the signature mentions a field `K`, the
 proof is base-changing and the certificate is the proof's, not the caller's. The statement then
@@ -454,11 +412,10 @@ same module (the port's first answer — a second public statement in a seam mod
 withdrawn on 2026-11-05). A seam module is the right answer only when the certificate's
 dependencies and the caller's would otherwise force one module to serve two import directions.
 
-A last, unglamorous note. **No gate checks any of this.** The build, the checker, the register and
-`dedup` verify that the statement matches the pin, that nothing is unreachable, that the imports
-resolve and that the axioms are the three expected ones. They cannot tell whether the statement
-reads as a sentence, whether the body reads as mathematics, or whether a module is homed by subject.
-Those three are why the case notes exist.
+A last, unglamorous note. **No gate checks any of this.** The build, `dedup` and `#print axioms`
+verify that nothing is unreachable, that the imports resolve and that the axioms are the three
+expected ones. They cannot tell whether the statement reads as a sentence, whether the body reads as
+mathematics, or whether a module is homed by subject. Those three are why the case notes exist.
 
 ## 9. Naming and namespace for port-invented vocabulary
 
@@ -467,26 +424,23 @@ to avoid colliding with a future pin declaration?
 
 The two questions are orthogonal, and it helps to say which one is being answered:
 
-* **`private` vs public** answers *"does another module need to name it, and does the checker see
-  it?"* — the table in §6.
-* **namespace** answers *"can a future pin file collide with this name?"* — and the checker is
-  **blind to it**: matching keys on the last name component and the statement's content hash, so a
-  namespace neither creates nor removes a `missing`/`mismatch`. Measured: `check_port` reports the
-  same counts before and after a namespace move.
+* **`private` vs public** answers *"does another module need to name it?"* — the table in §6.
+* **namespace** answers *"can a future pin file collide with this name?"* — and nothing in the tree
+  can answer it for you: a port-invented name is new by definition, so the only place it can collide
+  is a pin move, and the only defence is to check the pin's namespace before exporting it.
 
 Policy, in the port's terms:
 
 1. **Default to `private`** for a helper whose consumers are all in one module. It is free on both
-   axes (`lean_parser.py`: "a `private` port helper is never diffed").
+   axes: no name in the namespace, and no consumer to update.
 2. **Export it, in a sub-namespace, when a second module needs it.** The port's `ModularCurve`
-   namespace is otherwise *exactly the pin's*, so a bare port-invented name there is an
-   undetectable collision waiting for a re-pin. Six sub-namespaces already exist
+   namespace is otherwise *exactly the pin's*, so a bare port-invented name there is a collision
+   waiting for a re-pin. Six sub-namespaces already exist
    (`ModularCurve.Period`, `.LevelP`, `.TateCurve`, `.X1HeckeCorrespondence`, `.SiegelUnit`,
    `.LevelN`), so this is house style, and it costs a consumer one `open`.
-3. **Audit the candidate name against the pin before exporting it**, not after:
-   `cd lean && python3 spec/statement_db.py grep <name> --limit 3`. Zero hits today is not a
-   guarantee for the next pin, but the corpus is rebuilt on every pin move and the command is one
-   line — re-run it at the re-pin, not per wave.
+3. **Audit the candidate name against the pin before exporting it**, not after: `rg -nw <name>` over
+   the pin clone at the pinned sha. Zero hits today is not a guarantee for the next pin, but the
+   grep is one line — re-run it at the re-pin, not per wave.
 4. **Name the object, not the construction.** `nomeMap` and `x₀`, not
    `minpoly_map_comp_coeffEmb_qExpand`. If the module's prose already names the thing ("the pushed
    minimal polynomial"), that phrase is the name — but the name is earned by the writing it saves,
@@ -507,37 +461,36 @@ awk 'NR>=75 && NR<=90' FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.
 
 # 2. is the vocabulary already named somewhere? (zero is the answer that means "add a def" —
 #    and §4 of the case note and §17 of the log are the record of what naming it cost)
-python3 spec/statement_db.py grep pushedMinpoly --limit 3      # the pin
-grep -rn "minpoly ℚ⟮jq⟯" --include=*.lean FLTForHuman | wc -l  # the port
+grep -rn "pushedMinpoly" --include=*.lean FLTForHuman | wc -l   # the port
+rg -nw "pushedMinpoly" <pin clone> -g '*.lean'                  # the pin
 
 # 3. does a port-invented name collide with the pin's?
-python3 spec/statement_db.py grep <candidate> --limit 3
+rg -nw "<candidate>" <pin clone> -g '*.lean'
 
-# 4. the wire and the marker table, after an edit
-python3 spec/check_port.py <module> --force --json | head -40   # the parsed names, for `own:` rows
-python3 spec/check_port.py <module> --force                     # 0 mismatch / 0 missing
+# 4. every consumer of the names the edit touched, read at the call site
+grep -rn "<declaration>" --include=*.lean FLTForHuman
 
-# 5. nothing new is unreachable or duplicated
-python3 spec/unwired_register.py --check
+# 5. the build and the residue: silent, no `sorry`, nothing unreachable or duplicated
+lake build <module>                     # 0 errors, 0 warnings
 cd ../tools/deps && python3 dedup.py --module <...> --no-json
+python3 move_dead.py --source <module> --select dead --dry-run
 ```
 
-The `--json` run in (4) is not optional: it is the only way to learn the declaration name the marker
-table must use (§6), and the only way to see the `own:` rows that have gone stale.
+Step 4 is the one a refactor is tempted to skip: a declaration is "happy" only when its callers
+are, and the callers are what (4) shows.
 
 ## 11. Where else to look, and what is not settled
 
 Candidates of the same shape, in the FFG directory first because that is where the case was measured:
 
 * `SlotProduct.minpoly_jqN_map_eq_prod_slots` — a ~15-line statement whose subject is the slot list.
-  Its spelling cannot change (a pinned statement), but a readable restatement is blocked one level
-  earlier: the slot vocabulary `sv` that would state it is `private` to its own module, so the
-  readable form has to be invented in a public home first. **The blocker is gone (2026-11-06)**: the
-  public home is the generic layer's `slotValue`, and the three objects the statement was spelling
-  out (`nomeMap`, `pushedMinpoly`, `slotPolynomial`) are now named there, with
-  `pushedMinpoly_rat := rfl` recording that the naming is a transcription. The readable statement is
-  `Rat.minpoly_eq_prod_slotValues`, ready to receive the pinned name's delegation once the `ℚ`
-  surface is re-pointed.
+  A readable restatement was blocked one level earlier: the slot vocabulary `sv` that would state it
+  is `private` to its own module, so the readable form had to be invented in a public home first.
+  **The blocker is gone (2026-11-06)**: the public home is the generic layer's `slotValue`, and the
+  three objects the statement was spelling out (`nomeMap`, `pushedMinpoly`, `slotPolynomial`) are now
+  named there, with `pushedMinpoly_rat := rfl` recording that the naming is a transcription. The
+  readable statement is `Rat.minpoly_eq_prod_slotValues`; the pinned name is re-pointed at it as a
+  delegation, which is the respelling kept under the consumer's name.
 * `SlotProduct.jqN_prime_not_mem_full` and `Nonmembership` — check for symptom 1: the hypotheses
   may be branches of one case split.
 * `PrimePowerStepAnyField` (the C-layer twin) — **done** (2026-11-04, same wave): four
@@ -553,19 +506,20 @@ Candidates of the same shape, in the FFG directory first because that is where t
   **The lesson to carry: read the caller.** A two-hypothesis statement can look fine on its own and
   still be paying for itself twice at every use.
 * `DegreeStep`, `Generation`, `Collapse` — 1–3 public declarations each; cheap to read end to end.
-* The `C`-layer twins (`SlotProductAnyField`) carry the same signatures, so a fix lands twice or
-  not at all; decide which before editing either.
+* The `C`-layer twins (`SlotProductAnyField`) carry the same signatures, but the slot product's
+  second instance is now a delegation (`CharP/SlotProduct.lean`), so a fix to *that* statement lands
+  once; what is left in the twin is the non-membership, which has no generic counterpart to delegate
+  to yet — decide where that one goes before editing either.
 
-**Settled (2026-11-04).** Whether to retire a pinned but unreadable statement: **yes, retire the
-text and keep the name**; keep the wire while some declaration in the module still mirrors the pin,
-and retire the wire with the last of them (§6). Not a policy question any more — it is what the FFG
-wave 7 did, and the module is now tier 3 with its provenance in the header.
+**Settled (2026-11-04).** Whether to respell a pinned but unreadable statement: **yes, respell it and
+keep the name** — the pin's text specifies the mathematics, not the sentence, and the consumers hold
+the interface (§6). Not a policy question any more — it is what the FFG wave 7 did.
 
 **Not settled here.** (a) Whether to thread the auxiliary datum (symptom 5) through the signature
 as an explicit argument: it is the deeper fix, it *does* change the shape of the statement beyond
-respelling, and it has no consumer yet. (b) Whether the same retirement should be applied to the
+respelling, and it has no consumer yet. (b) Whether the same respelling should be applied to the
 other assemblers in §11's list — each is a separate judgement, and the FFG case was chosen because it
 had a measured caller. (c) The threshold in §4 (4 : 1) is a review heuristic measured on one case,
 not a rule. (d) A port-own helper that two modules need has no single lawful home yet: the
-dispatcher case promoted it and paid one `.tsv` row, the alternative is to move the vocabulary it
-depends on into a tier-3 module — both were argued on the day and neither is settled.
+dispatcher case promoted it, the alternative is to move the vocabulary it depends on into a module
+whose subject it is — both were argued on the day and neither is settled.

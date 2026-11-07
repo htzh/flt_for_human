@@ -9,10 +9,18 @@ Three conventions. **The pin is the authority and faithfulness is mechanical**: 
 *statement* is diffed against the pin by `spec/check_port.py`, never trusted; where
 prose and Lean differ, the Lean is right. **The port is ours**: a module is a mathematical
 role, not a source file; shared mathematics is written once and promoted; adapters stay
-`private` — while FLT's declaration *names and statements* stay, so comparison stays
-mechanical. **A node is ported whole** (§2.3). Earlier records cite an older numbering
+`private`, while the pin's declaration *names* stay, because consumers and readers arrive by them.
+**A node is ported whole** (§2.3). Earlier records cite an older numbering
 ("§3.11" build discipline, "§7.4" faithfulness); the
 [appendix](#appendix-section-map-from-earlier-revisions) maps them.
+
+**Which phase you are in decides what "faithfulness" means.** The three conventions, and every
+instrument in §4, are for the **initial port**, while the node's consumers are still unported and the
+pin's text is therefore the only record of what the port must prove. Once a node's consumers are
+ported, they hold the interface: a refactor may respell the statement — notation, binders, a
+hypothesis split in two, an auxiliary datum named — and the test is that every call site compiles
+unchanged, not that the text still matches the pin. What must not change is the theorem. The FFG
+waves are the standing case of the second phase (§4, last paragraph; §10).
 
 ## The six principles
 
@@ -31,12 +39,13 @@ mechanical. **A node is ported whole** (§2.3). Earlier records cite an older nu
    time rather than counting rounds (§0.2). Hand over a complete, self-contained brief, then
    leave the agent alone — no polling, no micromanaging — and review when it reports (§0.2,
    §3.3, §3.4).
-5. **The manager owns the statement check.** A module declares its pin sources in its own
-   header (`spec-pin:`), and `spec/check_port.py` diffs every public declaration against them;
-   a declaration that is renamed or deliberately spelled differently is recorded in the central
-   `spec/decl_markers.tsv` (checker metadata, never source). Public theorems (the API) stay
-   public: never make real mathematics `private`, and never add a module, to make a diff go
-   away (§4, §5).
+5. **The manager owns the statement check while the node is being ported.** A module declares
+   its pin sources in its own header (`spec-pin:`), and `spec/check_port.py` diffs every public
+   declaration against them; a declaration that is renamed or deliberately spelled differently is
+   recorded in the central `spec/decl_markers.tsv` (checker metadata, never source). In a refactor
+   of ported mathematics the check is the consumer instead: respell the statement, keep the name,
+   and let the call sites decide (§4). Public theorems (the API) stay public: never make real
+   mathematics `private`, and never add a module that only holds a headline (§4, §5).
 6. **Enforce the build discipline: plan, then edit in waves.** Build time is the one
    unbounded cost; keep the edit-loop cap low and fix what exceeds it — almost always an
    instance-inference defect — rather than raising it (§3.5, §6).
@@ -58,9 +67,10 @@ gitignored `Scratch.lean` (§2.6). While coding: module = role, directory = theo
 landed order rather than an older one (§3.3); each in-scope node whole (§2.3);
 faithfulness from the first declaration (§4); friction logged as it is hit (§3.6); nothing
 dropped by inspection — `grep -c` or `diff` (§2.4). At the end: checker `0 mismatched / 0
-missing`, consumer exit 0, `#print axioms` clean, no `sorry`, coverage `0 / 0 / 0` where a
-report exists. A whole-tree build is *not* a wave gate: it is the session's last act and must
-be agreed with the user, never started unilaterally (§3.5).
+missing` (during the port — a refactor is measured by its consumers, §4), consumer exit 0,
+`#print axioms` clean, no `sorry`, coverage `0 / 0 / 0` where a report exists. A whole-tree build
+is *not* a wave gate: it is the session's last act and must be agreed with the user, never started
+unilaterally (§3.5).
 
 ### 0.2 Working with subagents
 
@@ -616,12 +626,15 @@ one-line edit a consumer makes, and that promotion is §5's decision, not this o
 
 ## 4. Faithfulness, made mechanical
 
-With a pinned source, correctness is checkable rather than trusted. Four instruments:
+**These are the instruments of the initial port.** With a pinned source, correctness is checkable
+rather than trusted, and while a node's consumers are unported the pin's statement is the
+specification of what the port must prove, so it is kept and diffed. Four instruments:
 
 1. **The statement checker** (`spec/check_port.py`) diffs every ported *statement* (signature up
    to the first top-level `:=`/`where`; for a `structure`, header plus ordered field names)
-   against the pin. Proofs are ignored: the port adapts proofs, never statements. Target
-   `0 mismatched / 0 missing` per module, and read a `missing` as carefully as a `mismatched`.
+   against the pin. Proofs are ignored: during the initial port the port adapts proofs, never
+   statements. Target `0 mismatched / 0 missing` per module, and read a `missing` as carefully as a
+   `mismatched`.
 
    **The module declares its own check.** The leading `/- … -/` block carries one
    `spec-pin: <pin file>` line per pin source; the checker reads those files from the pinned
@@ -740,6 +753,23 @@ premise is an argument or already proved, the consumer's abstract-square test is
 analogue. When a public helper moves or is demoted, re-key its `spec/decl_markers.tsv` entries in
 the same change (the table is keyed by the module path), and treat the demotion as a decision
 about the mathematics (§5), not as a way to change the number of statements compared.
+
+**When the regime stops applying: refactoring ported mathematics.** The instruments above police a
+*transcription*, and a transcription stops being the deliverable once the node's consumers are
+themselves ported. A refactor of ported mathematics — the FFG waves are the standing case — has
+different goals: the pin's statement specifies the *mathematics*, not the sentence, and the API is
+redesigned for the reader. So the statement is respelled where it does not read as a sentence —
+notation, binders, a hypothesis split in two, an auxiliary datum named, a certificate replaced by the
+condition the caller actually holds — while the pin's *name* stays, because consumers `#check` it and
+a reader arrives by it. A statement whose mathematics changes is a new declaration, not a respelling.
+The check is the consumer: every call site of the public API compiles unchanged, and a call site that
+has to learn a new word is a change of contract, to be argued for rather than made quietly. Nothing
+is gained by consulting the checker mid-refactor: a respelled statement that its consumers accept is
+the goal, and the marker table is not a design input. What still applies is everything that measures
+*content*: a silent per-module build, `#print axioms`, `dedup`, `move_dead`, and the
+`spec/<X>Consumer.lean` zones where they exist. The method for the respelling itself — the symptoms,
+the tests, the fan-in/fan-out rule — is
+[topics/TOPIC-assembler-interfaces.md](topics/TOPIC-assembler-interfaces.md).
 
 ## 5. Structure and sharing across theories
 
