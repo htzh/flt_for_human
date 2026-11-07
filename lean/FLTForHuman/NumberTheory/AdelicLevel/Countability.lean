@@ -11,6 +11,17 @@
   Transcribed from `S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean`
   lines 24–142 (pinned `aa2d8b3`), the pin namespace `NumberField.AdelicCountability`
   kept. The pin's `import Mathlib` is replaced by specific mathlib modules.
+
+  The last two theorems are the pin's public faces of that block, at the pin's own names in
+  `NumberField.AdeleRing`: the adèle ring is second countable, and so is the unit group
+  `GL₂(𝔸_K)`, which embeds in `M₂(𝔸_K) × M₂(𝔸_K)ᵐᵒᵖ`. Their proofs are the instances above,
+  so nothing is re-proved here; only the statements are exported.
+
+  spec-pin: P2M/Sol/S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean
+  spec-pin: Theorems/Thm_NumberField_AdeleRing_secondCountableTopology.lean
+  spec-pin: P2M/Sol/S_NumberField_AdeleRing_secondCountableTopology.lean
+  spec-pin: Theorems/Thm_NumberField_AdeleRing_secondCountableTopology_generalLinearGroup_finTwo.lean
+  spec-pin: P2M/Sol/S_NumberField_AdeleRing_secondCountableTopology_generalLinearGroup_finTwo.lean
 -/
 import FLTForHuman.LinearAlgebra.Countable
 import Mathlib.NumberTheory.NumberField.AdeleRing
@@ -29,7 +40,6 @@ namespace NumberField
 
 namespace AdelicCountability
 
--- pin: instCountableIdeal (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:29)
 scoped instance instCountableIdeal (R : Type*) [CommRing R] [Countable R] [IsNoetherianRing R] :
     Countable (Ideal R) := by
   have hsurj : Function.Surjective (fun s : Finset R => Ideal.span (s : Set R)) := by
@@ -38,7 +48,6 @@ scoped instance instCountableIdeal (R : Type*) [CommRing R] [Countable R] [IsNoe
     exact ⟨s, hs⟩
   exact hsurj.countable
 
--- pin: instCountableHeightOneSpectrum (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:37)
 scoped instance instCountableHeightOneSpectrum (R : Type*) [CommRing R] [IsDedekindDomain R]
     [Countable R] : Countable (HeightOneSpectrum R) := by
   have hinj : Function.Injective (fun v : HeightOneSpectrum R => v.asIdeal) := by
@@ -46,16 +55,13 @@ scoped instance instCountableHeightOneSpectrum (R : Type*) [CommRing R] [IsDedek
     exact HeightOneSpectrum.ext h
   exact hinj.countable
 
--- pin: instCountableValueGroup₀ (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:44)
 scoped instance instCountableValueGroup₀ {R Γ₀ : Type*} [CommRing R] [LinearOrderedCommGroupWithZero Γ₀]
     [Countable Γ₀] (v : R →*₀ Γ₀) : Countable (MonoidWithZeroHom.ValueGroup₀ v) :=
   MonoidWithZeroHom.ValueGroup₀.embedding_strictMono.injective.countable
 
--- pin: instCountableUnits (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:48)
 scoped instance instCountableUnits {M : Type*} [Monoid M] [Countable M] : Countable Mˣ :=
   Units.val_injective.countable
 
--- pin: instCountableWithZero (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:51)
 scoped instance instCountableWithZero {α : Type*} [Countable α] : Countable (WithZero α) := by
   classical
   obtain ⟨f, hf⟩ := Countable.exists_injective_nat α
@@ -70,13 +76,11 @@ scoped instance instCountableWithZero {α : Type*} [Countable α] : Countable (W
   · rw [dite_eq_right ha, dite_eq_right hb] at hab
     rw [← WithZero.coe_unzero ha, ← WithZero.coe_unzero hb, hf (Nat.add_right_cancel hab)]
 
--- pin: isCountablyGenerated_uniformity_of_valued (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:65)
 theorem isCountablyGenerated_uniformity_of_valued (R : Type*) (Γ₀ : Type*) [Ring R]
     [LinearOrderedCommGroupWithZero Γ₀] [Countable Γ₀] [vR : Valued R Γ₀] :
     (uniformity R).IsCountablyGenerated :=
   (Valued.hasBasis_uniformity R Γ₀).isCountablyGenerated
 
--- pin: instSecondCountableAdicCompletion (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:70)
 scoped instance instSecondCountableAdicCompletion (R K : Type*) [CommRing R] [IsDedekindDomain R]
     [Field K] [Algebra R K] [IsFractionRing R K] [Countable K] (v : HeightOneSpectrum R) :
     SecondCountableTopology (v.adicCompletion K) := by
@@ -89,7 +93,6 @@ scoped instance instSecondCountableAdicCompletion (R K : Type*) [CommRing R] [Is
 open RestrictedProduct Topology in
 -- the pin's `haveI` is load-bearing: it feeds the instance search below.
 set_option linter.style.haveILetI false in
--- pin: secondCountableTopology_restrictedProduct (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:79)
 theorem secondCountableTopology_restrictedProduct {ι : Type*} [Countable ι]
     {R : ι → Type*} {B : ∀ i, Set (R i)}
     [∀ i, TopologicalSpace (R i)] [∀ i, SecondCountableTopology (R i)]
@@ -127,7 +130,6 @@ open scoped RestrictedProduct in
 
 -- the pin's `haveI` is load-bearing: it feeds the instance search below.
 set_option linter.style.haveILetI false in
--- pin: instSecondCountableFiniteAdeleRing (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:115)
 scoped instance instSecondCountableFiniteAdeleRing (R K : Type*) [CommRing R] [IsDedekindDomain R]
     [Field K] [Algebra R K] [IsFractionRing R K] [Countable R] [Countable K] :
     SecondCountableTopology (FiniteAdeleRing R K) := by
@@ -139,7 +141,6 @@ scoped instance instSecondCountableFiniteAdeleRing (R K : Type*) [CommRing R] [I
 
 -- the pin's `haveI` walls are load-bearing: they feed the instance search below.
 set_option linter.style.haveILetI false in
--- pin: instSecondCountableInfiniteAdeleRing (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:124)
 scoped instance instSecondCountableInfiniteAdeleRing (K : Type*) [Field K] [NumberField K] :
     SecondCountableTopology (InfiniteAdeleRing K) := by
   haveI : ∀ v : InfinitePlace K, SecondCountableTopology v.Completion := by
@@ -149,18 +150,44 @@ scoped instance instSecondCountableInfiniteAdeleRing (K : Type*) [Field K] [Numb
     exact (NumberField.InfinitePlace.Completion.isometryEquivCompletion v).toHomeomorph.secondCountableTopology
   exact inferInstanceAs <| SecondCountableTopology <| (v : InfinitePlace K) → v.Completion
 
--- pin: instSecondCountableAdeleRing (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:133)
 scoped instance instSecondCountableAdeleRing (R K : Type*) [CommRing R] [IsDedekindDomain R]
     [Field K] [NumberField K] [Algebra R K] [IsFractionRing R K] [Countable R] :
     SecondCountableTopology (AdeleRing R K) :=
   inferInstanceAs <| SecondCountableTopology (InfiniteAdeleRing K × FiniteAdeleRing R K)
 
--- pin: instCountableRingOfIntegers (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:138)
 scoped instance instCountableRingOfIntegers (K : Type*) [Field K] [NumberField K] :
     Countable (NumberField.RingOfIntegers K) :=
   Subtype.countable
 
 end AdelicCountability
+
+namespace AdeleRing
+
+open scoped NumberField.AdelicCountability
+
+/-- The adèle ring `𝔸_K` of a number field is second countable: it is the product of the
+second-countable infinite adèles and the second-countable finite adèles. -/
+theorem secondCountableTopology (K : Type*) [Field K] [NumberField K] :
+    SecondCountableTopology (NumberField.AdeleRing (NumberField.RingOfIntegers K) K) :=
+  AdelicCountability.instSecondCountableAdeleRing (NumberField.RingOfIntegers K) K
+
+/-- The unit group `GL₂(𝔸_K)` is second countable: `M₂(𝔸_K)` is second countable as
+`Fin 2 → Fin 2 → 𝔸_K`, its opposite is second countable, and `GL₂` embeds into their product. -/
+theorem secondCountableTopology_generalLinearGroup_finTwo (K : Type*) [Field K] [NumberField K] :
+    SecondCountableTopology
+      (Matrix.GeneralLinearGroup (Fin 2) (NumberField.AdeleRing (NumberField.RingOfIntegers K) K)) := by
+  have hAdele : SecondCountableTopology
+      (NumberField.AdeleRing (NumberField.RingOfIntegers K) K) := secondCountableTopology K
+  have hMatrix : SecondCountableTopology
+      (Matrix (Fin 2) (Fin 2) (NumberField.AdeleRing (NumberField.RingOfIntegers K) K)) :=
+    inferInstanceAs (SecondCountableTopology
+      (Fin 2 → Fin 2 → NumberField.AdeleRing (NumberField.RingOfIntegers K) K))
+  have hOp : SecondCountableTopology
+      (Matrix (Fin 2) (Fin 2) (NumberField.AdeleRing (NumberField.RingOfIntegers K) K))ᵐᵒᵖ :=
+    MulOpposite.opHomeomorph.symm.secondCountableTopology
+  exact Units.isEmbedding_embedProduct.isInducing.secondCountableTopology
+
+end AdeleRing
 
 end NumberField
 

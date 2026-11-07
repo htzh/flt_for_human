@@ -15,11 +15,17 @@
   and `continuous_unipotentGL2` from
   `P2M/Sol/S_AutomorphicForm_continuous_unipotentGL2.lean` (pinned `aa2d8b3`). The
   pin's `import Mathlib` is replaced by the specific modules the file uses; the
-  pin's `private` helper stays `private`.
+  pin's `private` helper stays `private`. The two right-translation rows of the constant
+  term (`constantTerm_rightTranslate` and `IsCuspidalFn.rightTranslate`) are the pin's own
+  nodes on top of this vocabulary and are stated here, at the pin's names.
 
   spec-pin: Definitions/Def_AutomorphicForm_ConstantTerm.lean
   spec-pin: Theorems/Thm_AutomorphicForm_continuous_unipotentGL2.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_continuous_unipotentGL2.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_constantTerm_rightTranslate.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_constantTerm_rightTranslate.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_IsCuspidalFn_rightTranslate.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_IsCuspidalFn_rightTranslate.lean
 -/
 import Mathlib.LinearAlgebra.Matrix.Notation
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
@@ -111,5 +117,22 @@ def IsCuspidalFn (μ : Measure Q) (u : Q → G) (f : G → ℂ) : Prop :=
   ∀ g : G, constantTerm μ u f g = 0
 
 end ConstantTerm
+
+/-- Right translation re-indexes the constant term: the constant term of `x ↦ f (x * h)` at `g`
+is the constant term of `f` at `g * h`. -/
+theorem constantTerm_rightTranslate
+    {Q : Type*} [MeasurableSpace Q] {G : Type*} [Group G]
+    (μ : MeasureTheory.Measure Q) (u : Q → G) (f : G → ℂ) (g h : G) :
+    AutomorphicForm.constantTerm μ u (fun x => f (x * h)) g
+      = AutomorphicForm.constantTerm μ u f (g * h) := by
+  simp only [constantTerm, constantTermIntegrand, mul_assoc]
+
+/-- Cuspidality is invariant under right translation. -/
+theorem IsCuspidalFn.rightTranslate
+    {Q : Type*} [MeasurableSpace Q] {G : Type*} [Group G]
+    {μ : MeasureTheory.Measure Q} {u : Q → G} {f : G → ℂ}
+    (hf : AutomorphicForm.IsCuspidalFn μ u f) (h : G) :
+    AutomorphicForm.IsCuspidalFn μ u (fun x => f (x * h)) :=
+  fun g => by rw [constantTerm_rightTranslate]; exact hf (g * h)
 
 end AutomorphicForm

@@ -29,11 +29,16 @@ MD-002 for the measurement).
 `frontier.py --selfcheck` prints `source node not covered by the name scan` for every
 node the source tier claims (a `Thm_` source in `SOURCES` or a `spec-pin:` line) that no
 port declaration carries by last name.  On 2026-10-27 the inventory was MD-001..003 below;
-SET 7 fixed MD-002 and MD-003, and SET MC-7 fixed MD-001, so the live inventory is **empty**
-(`--selfcheck` PASSes).  It cannot see a node
+SET 7 fixed MD-002 and MD-003, and SET MC-7 fixed MD-001, so the live inventory was
+**empty** (`--selfcheck` PASSes).  MD-004 was the mirror case — a node the port does not
+declare at all, read as ported — and was found and resolved by SET-AF18 (2026-11-07); with
+it, the live inventory is **empty** again.  It cannot see a node
 that a *different* pin node's last name
-shadows (the FR-0047 name-shadow artifact; `weilReciprocity` is the known case — that is a
-tool limitation, not tree metadata, and is not listed here).  `twin_scan.py --node <qual>`
+shadows (the FR-0047 name-shadow artifact; `weilReciprocity` and
+`Place.isRational_of_isAlgClosed` are the two known cases — that is a tool limitation, not
+tree metadata, and they are not listed here; MD-004 was the same shadow *and* tree
+metadata: the port had the mathematics under a name the checker cannot diff, so its cure
+was a declaration).  `twin_scan.py --node <qual>`
 says whether the missing statement exists in the port under another name (`twin-public` /
 `twin-private`), which is how to tell a wire that only needs a rename from a wire that
 names mathematics the port does not have.
@@ -186,6 +191,43 @@ for the next edit of their module.
   `WeilExchange/FiberOverCount.lean` (checker **4 ok / 0 mismatch / 0 missing**), and
   `frontier.py --selfcheck` no longer names the node; the `SOURCES` row now names a ported
   statement.  The 214 row left the demand.
+
+## MD-004 — the port has no declaration for `NumberField.AdeleRing.secondCountableTopology`; its last name is shadowed by an unrelated lemma
+
+- **module**: `FLTForHuman/NumberTheory/AdelicLevel/Countability.lean` (the home the pin's block belongs in).
+- **metadata**: the pin node `NumberField.AdeleRing.secondCountableTopology` (62 silo) and its consumer
+  `NumberField.AdeleRing.secondCountableTopology_generalLinearGroup_finTwo` (32, a graph leaf whose only
+  premise is the 62) had **no port declaration at either name**. The port held the mathematics as
+  `scoped instance instSecondCountableAdeleRing` (and the whole instance block beside it), at names the pin's
+  `Theorems/` wrappers do not carry and which the checker therefore cannot diff.
+- **symptom**: `frontier.py --selfcheck` **PASSes**, but the shelf carries four rows whose premise is the
+  62-line node (`--selfcheck` cannot see a shadow: it checks only that `Thm_` *source* claims are covered by
+  the name tier). The names tier marks the node ported because the port declares
+  `lemma RestrictedProduct.secondCountableTopology`
+  (`FLTForHuman/Topology/Algebra/RestrictedProduct/TopologicalSpace.lean`, a different statement, same last
+  name) — the FR-0047 mechanism, third instance after `AlgebraicCurve.weilReciprocity` and
+  `Place.isRational_of_isAlgClosed`. `twin_scan.py --node NumberField.AdeleRing.secondCountableTopology`
+  reports `relative=1` (same last name, different statement), i.e. no twin either.
+- **effect**: the 32-line leaf and three `NumberField.AdelicHaar` rows (215 / 128 / 119) read **ready** when
+  their premise is absent — the corrected read
+  (`frontier.py --ds --ready --include-leaves --unport NumberField.AdeleRing.secondCountableTopology`)
+  moves `needed` 838/344,897 → 839/344,959 and takes those four rows (494 silo) off the shelf. Three
+  `AutomorphicForm` rows are gated on the same chain.
+- **correction (SET-AF18's ground prep, 2026-11-07)**: declare the two pin statements as **theorems** in
+  `NumberTheory/AdelicLevel/Countability.lean`, in `namespace NumberField.AdeleRing`, at the pin's text
+  (`theorem secondCountableTopology (K : Type*) [Field K] [NumberField K] : SecondCountableTopology
+  (NumberField.AdeleRing (NumberField.RingOfIntegers K) K)` and the `GeneralLinearGroup (Fin 2)` form),
+  proved by the module's own instances — no re-proof, no new module. Add `spec-pin:` wires for the two
+  wrappers and their two `S_` copies, and strip the module's twelve grandfathered `-- pin:` markers into a
+  single wire for the bruhat `S_` file they all came from (the module is now **wired**, where it was tier-3
+  unchecked).
+- **verify**:
+  * `python3 spec/check_port.py --force FLTForHuman/NumberTheory/AdelicLevel/Countability.lean` →
+    **4 ok / 0 mismatch / 0 missing / 0 own**;
+  * `python3 frontier.py --selfcheck` still PASSes, and the node is now genuinely in the names tier;
+  * the read moves `needed` 838/344,897 → **836/344,831** and the shelf goes 61 / 16,105 → **64 / 17,200**
+    (four rows in: the leaf is ported and three rows become ready).
+- **status**: **resolved (2026-11-07, SET-AF18 §3.1)**. Recorded in `logs/frictions.md` as FR-0138.
 
 ## Resolved / not metadata
 

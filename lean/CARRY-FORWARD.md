@@ -1012,6 +1012,28 @@ different statements — so each rename needs a collision check before the wave,
 `M4aLocalCFT` one is a 59-site job over a frozen cluster. Do them as their own wave when the owning
 cluster is next active, keeping every last name so the checker's dotted fallback still matches.
 
+### `ideleNorm_one` / `ideleNorm_inv` — three copies of a two-lemma pair, one home
+
+The pair
+
+* `ideleNorm K (1 : (AdeleRing (𝓞 K) K)ˣ) = 1` (5 lines), and
+* `ideleNorm K c⁻¹ = (ideleNorm K c)⁻¹` (16 lines, from the first and `ideleNorm_mul`)
+
+is proved `private` three times in the port — the pin duplicates it across the `S_` files that
+consume it, and the port followed: `Adelic/RightTranslateAdjoint.lean:87/92`
+(`ideleNorm_one'`/`ideleNorm_inv'`),
+`Adelic/RightConvAdjoint.lean:149/154` (same names — the pin's second copy, kept because the pin has
+it `private`), `Adelic/Siegel/SlabCovering.lean:349/352` (`ideleNorm_one`/`ideleNorm_inv`).
+
+**End-state**: one **public** pair next to `ideleNorm_mul` in
+`NumberTheory/NumberField/TateGlobal/Defs.lean`, the three modules importing it and deleting their
+copies. Price: ~21 lines promoted, three modules' private helpers deleted, three module builds
+(the two `Adelic/Right*Adjoint` modules and `Siegel/SlabCovering`), no statement changes, no checker
+rows (the declared helpers are `private`, so nothing in a wire moves). Not done in SET-AF18 because it
+is a refactor of three landed modules and the mathematics is **trivia** derived from `ideleNorm_mul` —
+playbook §5 keeps trivia unexported, so this is a cleanliness call to make when one of the three is
+next opened, not a cost worth a wave of its own.
+
 ### Tool hazards
 
 - **`frontier.py` credits a `spec-pin:` header before the module is green.** The `sources`

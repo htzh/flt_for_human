@@ -38,7 +38,10 @@
   Transcribed from
   `P2M/Sol/S_AutomorphicForm_continuous_rightConv_and_contDiff_of_isFactorizableTestFn.lean`
   (pinned `aa2d8b3`) with the pin's wrapper namespace dropped: the prelude stays
-  `private` here and the headline is the `Theorems/` wrapper's statement. Assumes the
+  `private` here and the headline is the `Theorems/` wrapper's statement. The
+  continuity of `rightConv` for continuous `φ` and compactly supported continuous `g`
+  is its own pin row (`continuous_rightConv_of_continuous_of_hasCompactSupport`), stated
+  publicly here; the `C^∞` headline below consumes it. Assumes the
   unipotent embedding and its continuity (`Adelic/ConstantTerm.lean`), the unfolding
   of `rightConv` (`Adelic/RightConvolution.lean`), the factorisable decomposition
   (`Adelic/FactorizableTestFn.lean`), its continuity and compact support
@@ -49,6 +52,8 @@
 
   spec-pin: Theorems/Thm_AutomorphicForm_continuous_rightConv_and_contDiff_of_isFactorizableTestFn.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_continuous_rightConv_and_contDiff_of_isFactorizableTestFn.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_continuous_rightConv_of_continuous_of_hasCompactSupport.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_continuous_rightConv_of_continuous_of_hasCompactSupport.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.RightConvolution
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFn
@@ -449,27 +454,32 @@ private theorem contDiff_slice (φ : AdelicGL2 (𝓞 K) K → ℂ) (hcont : Cont
   exact shape_applies K (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) Φ hΦ wt hwt (sliceCD K g)
     (continuous_sliceCD K g) hsupp m
 
-set_option linter.style.haveILetI false in
-private theorem continuous_rightConv (φ : AdelicGL2 (𝓞 K) K → ℂ) (hcont : Continuous φ)
-    (f : AdelicGL2 (𝓞 K) K → ℂ) (hfc : Continuous f) (hfs : HasCompactSupport f) :
-    Continuous (rightConv K φ f) := by
-  letI : MeasurableSpace (AdelicGL2 (𝓞 K) K) := AdelicHaar.glBorel (Fin 2) (𝓞 K) K
-  haveI : BorelSpace (AdelicGL2 (𝓞 K) K) := AdelicHaar.borelSpace_glBorel (Fin 2) (𝓞 K) K
-  haveI : (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K).IsHaarMeasure :=
-    AdelicHaar.isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 K) K
-  have hint : ∀ h : AdelicGL2 (𝓞 K) K,
-      Integrable (fun x => φ (h * x) * f x) (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := by
+end Slice
+
+/-- Right convolution of a continuous function by a continuous compactly supported function is
+continuous: the classical `ε`/`δ` estimate on the compact `tsupport g`, with `δ = ε / (‖g‖₁ + 1)`. -/
+theorem continuous_rightConv_of_continuous_of_hasCompactSupport
+    (F : Type) [Field F] [NumberField F]
+    (φ : GL (Fin 2) (AdeleRing (𝓞 F) F) → ℂ) (hφ : Continuous φ)
+    (g : GL (Fin 2) (AdeleRing (𝓞 F) F) → ℂ) (hg : Continuous g) (hgc : HasCompactSupport g) :
+    Continuous (AutomorphicForm.rightConv F φ g) := by
+  let mSpace : MeasurableSpace (GL (Fin 2) (AdeleRing (𝓞 F) F)) := AdelicHaar.glBorel (Fin 2) (𝓞 F) F
+  have hBorel : BorelSpace (GL (Fin 2) (AdeleRing (𝓞 F) F)) := AdelicHaar.borelSpace_glBorel (Fin 2) (𝓞 F) F
+  have hHaar : (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F).IsHaarMeasure :=
+    AdelicHaar.isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 F) F
+  have hint : ∀ h : GL (Fin 2) (AdeleRing (𝓞 F) F),
+      Integrable (fun x => φ (h * x) * g x) (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F) := by
     intro h
-    have hc : Continuous fun x : AdelicGL2 (𝓞 K) K => φ (h * x) * f x :=
-      (hcont.comp (continuous_const.mul continuous_id)).mul hfc
-    have hs : HasCompactSupport fun x : AdelicGL2 (𝓞 K) K => φ (h * x) * f x := by
-      refine HasCompactSupport.intro' hfs.isCompact (isClosed_tsupport f) fun x hx => ?_
-      show φ (h * x) * f x = 0
+    have hc : Continuous fun x : GL (Fin 2) (AdeleRing (𝓞 F) F) => φ (h * x) * g x :=
+      (hφ.comp (continuous_const.mul continuous_id)).mul hg
+    have hs : HasCompactSupport fun x : GL (Fin 2) (AdeleRing (𝓞 F) F) => φ (h * x) * g x := by
+      refine HasCompactSupport.intro' hgc.isCompact (isClosed_tsupport g) fun x hx => ?_
+      show φ (h * x) * g x = 0
       rw [image_eq_zero_of_notMem_tsupport hx, mul_zero]
     exact hc.integrable_of_hasCompactSupport hs
-  have hnorm : Integrable (fun x => ‖f x‖) (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) :=
-    (hfc.integrable_of_hasCompactSupport hfs).norm
-  set M : ℝ := ∫ x, ‖f x‖ ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) with hM
+  have hnorm : Integrable (fun x => ‖g x‖) (AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F) :=
+    (hg.integrable_of_hasCompactSupport hgc).norm
+  set M : ℝ := ∫ x, ‖g x‖ ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F) with hM
   have hM0 : 0 ≤ M := integral_nonneg fun x => norm_nonneg _
   refine continuous_iff_continuousAt.2 fun g₀ => ?_
   rw [ContinuousAt, Metric.tendsto_nhds]
@@ -477,35 +487,33 @@ private theorem continuous_rightConv (φ : AdelicGL2 (𝓞 K) K → ℂ) (hcont 
   have hM1 : 0 < M + 1 := by linarith
   set δ : ℝ := ε / (M + 1) with hδ
   have hδpos : 0 < δ := div_pos hε hM1
-  have hev : ∀ᶠ h in 𝓝 g₀, ∀ x ∈ tsupport f, dist (φ (h * x)) (φ (g₀ * x)) < δ := by
-    refine hfs.isCompact.eventually_forall_of_forall_eventually fun x _ => ?_
-    have hc : Continuous fun p : AdelicGL2 (𝓞 K) K × AdelicGL2 (𝓞 K) K =>
+  have hev : ∀ᶠ h in 𝓝 g₀, ∀ x ∈ tsupport g, dist (φ (h * x)) (φ (g₀ * x)) < δ := by
+    refine hgc.isCompact.eventually_forall_of_forall_eventually fun x _ => ?_
+    have hc : Continuous fun p : GL (Fin 2) (AdeleRing (𝓞 F) F) × GL (Fin 2) (AdeleRing (𝓞 F) F) =>
         dist (φ (p.1 * p.2)) (φ (g₀ * p.2)) :=
-      (hcont.comp (continuous_fst.mul continuous_snd)).dist
-        (hcont.comp (continuous_const.mul continuous_snd))
+      (hφ.comp (continuous_fst.mul continuous_snd)).dist
+        (hφ.comp (continuous_const.mul continuous_snd))
     have h0 : dist (φ ((g₀, x).1 * (g₀, x).2)) (φ (g₀ * (g₀, x).2)) < δ := by
       simpa using hδpos
     exact hc.continuousAt.eventually_lt continuousAt_const h0
   filter_upwards [hev] with h hh
-  have hsub : rightConv K φ f h - rightConv K φ f g₀ =
-      ∫ x, (φ (h * x) - φ (g₀ * x)) * f x ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := by
+  have hsub : rightConv F φ g h - rightConv F φ g g₀ =
+      ∫ x, (φ (h * x) - φ (g₀ * x)) * g x ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F) := by
     simp_rw [sub_mul]
     rw [integral_sub (hint h) (hint g₀)]
     rfl
   rw [dist_eq_norm, hsub]
-  calc ‖∫ x, (φ (h * x) - φ (g₀ * x)) * f x ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K)‖
-      ≤ ∫ x, δ * ‖f x‖ ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 K) K) := by
+  calc ‖∫ x, (φ (h * x) - φ (g₀ * x)) * g x ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F)‖
+      ≤ ∫ x, δ * ‖g x‖ ∂(AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F) := by
         refine norm_integral_le_of_norm_le (hnorm.const_mul δ) (Eventually.of_forall fun x => ?_)
         rw [norm_mul]
-        by_cases hx : x ∈ tsupport f
+        by_cases hx : x ∈ tsupport g
         · exact mul_le_mul_of_nonneg_right (by rw [← dist_eq_norm]; exact (hh x hx).le)
             (norm_nonneg _)
         · rw [image_eq_zero_of_notMem_tsupport hx, norm_zero, mul_zero, mul_zero]
     _ = δ * M := integral_const_mul δ _
     _ < δ * (M + 1) := mul_lt_mul_of_pos_left (lt_add_one M) hδpos
     _ = ε := by rw [hδ]; field_simp
-
-end Slice
 
 end AutomorphicForm
 
@@ -525,6 +533,6 @@ theorem AutomorphicForm.continuous_rightConv_and_contDiff_of_isFactorizableTestF
           rightConv K φ f (unipotentGL2 (R := AdeleRing (𝓞 K) K)
             ((InfiniteAdeleRing.ringEquiv_mixedSpace K).symm z, 0) * g)) := by
   obtain ⟨hfc, hfs⟩ := continuous_and_hasCompactSupport_of_isFactorizableTestFn K f hf
-  refine ⟨continuous_rightConv K φ hcont f hfc hfs, fun g => ?_⟩
+  refine ⟨continuous_rightConv_of_continuous_of_hasCompactSupport K φ hcont f hfc hfs, fun g => ?_⟩
   have h := contDiff_slice K φ hcont f hf hfs g (Module.finrank ℚ K + 1)
   exact_mod_cast h

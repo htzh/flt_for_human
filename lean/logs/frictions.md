@@ -2938,3 +2938,112 @@ round promotes what generalizes.
   against the declaration count that `dedup.py --within` reports for the module (18 here), which is the
   cheap cross-check that catches a short reading immediately.
 - **seen**: 2026-11-02, SET-AF17 order C (manager's own first pass; corrected on the second).
+
+## FR-0137 [instrument] [setup] — a fresh session's `check_port` reads every pin file as `UNKNOWN PIN FILE` and every declaration as `MISSING`
+
+- **where**: SET-AF18's ground prep, 2026-11-07. `spec/check_port.py --force` on a wired module reported
+  `0 ok, 0 mismatch, 2 missing` with the line `UNKNOWN PIN FILE S_AutomorphicForm_bruhatTransversal_…`, and the
+  two "missing" declarations were plainly present in the pin file. The checker was fine; the **corpus was absent**.
+- **cause**: `check_port` resolves a module's `spec-pin:` files through the statement corpus
+  (`tmp/flt-statements/statements.{tsv,idx}`), which is a *build artifact*, not a tracked file. `tmp/` is
+  git-ignored and does not survive a clean checkout, so a session that starts after one has no corpus; `Wire`
+  then sees no declarations for any source, `db.has_file` is false, and every declaration falls to `MISSING`
+  with the misleading `UNKNOWN PIN FILE` header. Nothing in the module's own text is at fault, and the
+  per-module verdict cache (`tmp/check-port/state.json`) is gone with it, so this looks like a regression in
+  the tree.
+- **rule**: before believing any checker verdict, check `ls $REPO/tmp/flt-statements/statements.idx`. If it is
+  absent, run `python3 spec/statement_db.py build` (measured 2026-11-07: 35 s, 60,478 pin files, 718,874
+  declarations, 459 MB — the same count the playbook quotes). Note the path: the corpus lands in the **repo**
+  root's `tmp/`, not `lean/tmp/`.
+- **seen**: 2026-11-07, SET-AF18 (one wasted checker run).
+
+## FR-0138 [instrument] [shelf] — a third false ported marker: `NumberField.AdeleRing.secondCountableTopology` is read ported because of a last-name shadow, and `--selfcheck` cannot see it
+
+- **where**: SET-AF18's scoping read. The D–S shelf carried
+  `NumberField.AdeleRing.secondCountableTopology_generalLinearGroup_finTwo` (32) and three
+  `NumberField.AdelicHaar` rows (215 / 128 / 119) as **ready**, and three `AutomorphicForm` rows
+  (`isCuspidalFn_rightConv`, `isKfSmooth_rightConv`, `rightConv_rightConv_eq_rightConv_rightConv_comp_inv`) were
+  read as one edge from ready — all of them through the premise
+  `NumberField.AdeleRing.secondCountableTopology` (62), which the port does **not** declare at that name.
+- **symptom**: `frontier.py --selfcheck` **PASSes**. The names tier marks the node ported because the port
+  declares `lemma RestrictedProduct.secondCountableTopology`
+  (`Topology/Algebra/RestrictedProduct/TopologicalSpace.lean`), a different statement with the same last name
+  (FR-0047's mechanism, met a third time). The corrected read, `--unport NumberField.AdeleRing.secondCountableTopology`,
+  moves `needed` 838/344,897 → 839/344,959 and takes the four rows above off the shelf (494 silo).
+- **cause**: the readiness test is last-name membership (`port_decl_nodes`), and `--selfcheck` validates only
+  that `Thm_` *source* claims are covered by the name tier — it never asks whether the name tier's match is the
+  statement. The port *did* have the mathematics, as `scoped instance instSecondCountableAdeleRing` (a name the
+  pin's wrapper does not carry), so no re-proof was needed; the missing thing was a declaration the checker
+  could diff.
+- **rule**: for any shelf row whose premises are few, `twin_scan.py --node <premise>` the premises of the rows
+  you mean to cut; a `relative` verdict means the premise's *statement* is absent and the row is not ready.
+  Then either port the premise at the pin's name (cheap when the instance exists: a two-line theorem) or
+  `--unport` it and re-read. Do not trust a bare `needed = 1` whose premise you have not seen declared.
+- **seen**: 2026-11-07, SET-AF18 (§0.2 of its brief; repaired in §3.1).
+
+## FR-0139 [tooling] [linter] — no linter suppression is needed for `haveI`/`letI`: `have`/`let` register local instances
+
+- **where**: SET-AF18's ground prep, promoting `continuous_rightConv` to the pin's public
+  `continuous_rightConv_of_continuous_of_hasCompactSupport`. Its proof is a proposition goal with three
+  instance walls, and the landed module carried
+  `set_option linter.style.haveILetI false in` above it (a pattern several port modules carry, transcribed
+  from the pin's own file-wide suppressions).
+- **symptom**: `haveI`/`letI` in a `Prop` goal makes mathlib's `linter.style.haveILetI` fire
+  ("The goal is a proposition, so `have` is preferred over `haveI`"). Deleting the suppression therefore
+  looked like it required either warnings or a proof rewrite.
+- **cause**: the linter's own docstring states the fact — "in Lean 4, `have` and `let` register local
+  instances themselves, so inlining is the only remaining difference" — so the rewrite is mechanical:
+  `haveI h : <class>` → `have h : <class>`, `letI : T` → `let name : T`. Measured on the promotion: the
+  three walls became `let mSpace` / `have hBorel` / `have hHaar` and the module elaborates silent, no
+  `set_option`. The same conversion was used for the two new countability theorems in
+  `AdelicLevel/Countability.lean`.
+- **rule**: never silence `linter.style.haveILetI`; convert. (And never add `set_option maxHeartbeats` — that
+  is a defect marker.) One parser detail that costs a round: a docstring cannot be followed by a `--` comment
+  and then a `set_option … in` line — Lean reports `unexpected token 'set_option'; expected 'lemma'` at the
+  docstring. Put the comment above the `set_option`, or the docstring inside it.
+- **seen**: 2026-11-07, SET-AF18 ground prep (`RightConvRegularity.lean`, `AdelicLevel/Countability.lean`).
+
+## FR-0140 [workorder] [tools] — an order's copy-pasteable tool commands did not resolve: `tools/deps` sits at the repo root, and `dedup.py --within` takes a module pattern
+
+- **where**: SET-AF18's orders A and C, 2026-11-07. Both carried the recipe's (and SET-AF17's) form of
+  the two post-flight commands: `python3 tools/deps/dedup.py --within FLTForHuman/…/X.lean` and
+  `python3 tools/deps/move_dead.py --source FLTForHuman/…/X.lean …`, to be run from `lean/`. Neither
+  resolves in this checkout.
+- **symptom**: `No such file or directory` for `tools/deps/dedup.py` (the tools live at the **repo**
+  root, i.e. one level above `lean/`), and, once found, `dedup.py --within` rejects a file path — it
+  takes a **module pattern** (`FLTForHuman.AutomorphicForm.Adelic.RightConvAdjoint`), not
+  `…/RightConvAdjoint.lean`. Order A's worker reported both; order B's worker ran the tools from `lean/`
+  with a relative `../tools/deps/` path and got there by trial.
+- **cause**: the work orders were written by copying SET-AF17's §6 gate block, which predates the
+  working-directory convention being stated anywhere in the order; and `dedup.py`'s `--within` argument
+  is documented in its `--help` but not in the playbook's §8 line for the tool.
+- **rule**: in a work order, give the two commands **verbatim with their working directory**, e.g.
+  ```
+  (from the repo root) python3 tools/deps/dedup.py --within FLTForHuman.<Area>.<Module>
+  (from the repo root) python3 tools/deps/move_dead.py --source lean/FLTForHuman/<Area>/<Module>.lean --target /dev/null --dry-run
+  ```
+  The checker, by contrast, is run from `lean/` with a path (`python3 spec/check_port.py --force
+  FLTForHuman/…/X.lean`) and the graph tools from `tools/deps/` with `build/…` output — three different
+  working directories in one set of gates, which is exactly why they get copied wrong.
+- **seen**: 2026-11-07, SET-AF18 (two of three workers; no proof work lost).
+
+## FR-0141 [build] [dispatch] — three concurrent workers on one tree: transient `object file … does not exist`, and the 60 s tool cap while queueing on the build lock
+
+- **where**: SET-AF18's dispatch (three orders, four modules, one tree), 2026-11-07. Both the carrier
+  and the operator-algebra workers report the same two symptoms; neither cost proof work (retries
+  cleared them), but both burn turns.
+- **symptom 1**: the edit loop (`lake env lean <file>`) fails with `object file
+  '.lake/build/lib/lean/FLTForHuman/…/X.olean' of module … does not exist` for a *dependency* another
+  worker is rebuilding at that moment — the other job has removed/replaced the `.olean` between this
+  job's import resolution and its read. It is transient by construction, and the module's own
+  `lake build` re-establishes it.
+- **symptom 2**: `flock .lake/flt_build.lock timeout 280 lake build <module>` — a *correctly bounded*
+  build — can exceed the agent's own 60 s per-tool-call cap while it waits on the lock, and is then
+  killed by the harness, not by its own `timeout`. The retry usually finishes in seconds (measured:
+  a 3.5 s build killed once while queued).
+- **rule**: with more than one worker in the tree, (a) retry an `object file … does not exist` once
+  before diagnosing it, and mention it in the report as *transient* rather than as a blocker; (b) run
+  every `lake build` under `flock`/`timeout` in the **background** and read its log
+  (`run_in_background` + `job_output`), so a lock wait cannot eat the foreground turn; (c) never
+  attribute a proof failure to either symptom — both are I/O-level and self-healing.
+- **seen**: 2026-11-07, SET-AF18 orders A, B and C (each hit at least one; no rework).
