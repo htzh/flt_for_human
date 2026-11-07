@@ -758,6 +758,10 @@ and `coeffEmb_qExpand`, so its own statement is unchanged — which is why the d
 had yet had to *prove* it. The lesson for the rest of the port is the same one §6.1f records: a
 statement's hypotheses are only tested when something consumes it in a proof.
 
+The premises are true for the instance and spent in the proof, so they are not decoration — but the
+*carrier itself* is a separate question: whether to keep it, and with it the two premises everywhere,
+or to state the theory at one coefficient field and let each instance transport, is §9.3.
+
 ### 6.1h What the first consumer asked the theory to change
 
 Wave 5 was the first time the theory was consumed by the real layer, and it came back with five
@@ -1078,19 +1082,58 @@ of the module (`eFull`, the socket, `fullC`) is `CharP/`.
 
 ## 9. What is still the owner's call
 
-1. **Whether wave 4 (the prime non-membership) lands with waves 1–3 or when the char-`p` route
-   resumes.** §1's argument says the theory is only complete for D-S once the prime non-membership is
-   in it; the slot product is what this port consumes today. If it lands, the generic part gets its
-   own module downstream of `Generic/SlotProduct` (its needs are separate: the general-`ι` form of
-   `mem_range_of_eval_eq_const`, the `qExpand`-range dichotomy), and the tower stays where it is.
+1. ~~Whether wave 4 (the prime non-membership) lands with waves 1–3 or when the char-`p` route
+   resumes.~~ **Landed** 2026-11-07 as `Generic/PrimeNonmembership.lean` (§6.2 item 4), with
+   `Generic/PrimeStep.lean` (wave 6) as its positive twin.
 2. **Whether `Reserve` is deleted now or left in place until the next wave.** The arrangement above
    assumes it is gone (git is the record); leaving it costs build time, four `port_graph`
-   modules, and it keeps the `C`-suffix naming pressure alive.
+   modules, and it keeps the `C`-suffix naming pressure alive. Since waves 4 and 6, the shelf's
+   remaining unique content is the socket degree half (`PrimePowerStepAnyField`'s `eFull` tower and
+   `package_of_socket`); its `MffCMulPrime` is a delegation and its `SlotProductAnyField` headlines
+   are duplicated by `CharP/` (the two `dedup` clusters left in the region).
+3. **Whether the carrier should be folded away — deferred, and not urgent.** Both seamed theorems
+   take a carrier `ε : κ((q)) → κ'((q))` with `hε`/`hεq` (§6.1g), because the slots are read where a
+   primitive `(M*p)`-th root exists while the conclusion is over `κ`. The `C` instance is
+   `ε = RingHom.id` (both premises `rfl`); the `ℚ` instance is `coeffEmb` into the `(M*p)`-th
+   cyclotomic field, and it *needs* a carrier because `ℚ` has no such root.
 
-Everything else is settled by §6.1: the theory is `Generic/{LevelPackage,SlotValues,SlotValue,
-SlotProduct}.lean`, the `ℚ` instance data and `hall_pkgAt` are `Rat/LevelPackage.lean`, the `ℚ`
-theorems stay at the current paths as delegations, and the identifiers are `baseField`,
-`levelSeries`, `slotValue`, `PkgAt`, `SlotProductAt`.
+   **The gain.** Folding it in — state the theory at one coefficient field with `ζ : κˣ` and let
+   each instance transport — removes `κ'`, `ε`, `hε`, `hεq` from the theory and from every helper,
+   including the two `rfl`s in the `C` delegation. That is a real simplification: the carrier is
+   threaded through the slot-value API, both producers and both headlines, and it is the one thing
+   in the theory that is not stated in the conclusion's frame.
+
+   **The price is one lemma, not per-instance series work.** The `ℚ` instance would instantiate at
+   `κ = ℚ(ζ_{M*p})` and must then supply, in `K`, the package at `M`, the base non-membership, and
+   the *descent* of the conclusion — the last of which is the hard-looking one, because the prime
+   step's conclusion is a membership and does not descend by an adjoin induction. All three follow
+   from one function-field statement: **`K` and the level function field are linearly disjoint over
+   `ℚ` inside `K((q))`** (equivalently `K · Mff(M) ∩ ℚ((q)) = Mff(M)` and
+   `[K · Mff : Mff] = [K : ℚ]`). The mathematics is easy — `K/ℚ` is Galois, `K ∩ ℚ(q) = ℚ` since the
+   algebraic elements of a purely transcendental extension are the constants, then a basis-of-`K`
+   argument — but its Lean form is not in the tree: `IntermediateField.LinearDisjoint` and
+   `LinearDisjoint.inf_eq_bot` are, while the *descend through a subfield* form and the
+   adjoin-image generation lemma are not (~60–120 lines, once). The K-side generation clause is the
+   cheap one either way: the `K`-generators are the `coeffEmb`-images of the `ℚ`-generators
+   (`coeffEmb_jq`, `coeffEmb_qExpand`), so it is adjoin monotonicity, not a new proof.
+
+   **What this is, and is not.** It changes no statement's mathematics; it decides *where the
+   embedding is quantified* — in the theory once, or in each instance. And it does not by itself
+   give the function-first formulation, which would also replace the theory's `jg` parameter by the
+   base field `F` plus an embedding, i.e. revisit §4's "`F` is not a parameter". The two decisions
+   belong together: the same function-field view that makes the base field a derived object is the
+   one that makes the carrier an instance's business.
+
+   **No urgency.** Both theorems are proved, green and axiom-clean; the fold is a simplification of
+   the theory, not a fix. If it is taken up, the order is the linear-disjointness lemma first (with
+   its two consequences stated), then the fold, statements first and bodies dispatched as in waves
+   4–6 — and the `ℚ` instance re-verified against the same pinned statements.
+
+Everything else is settled by §6.1: the theory is
+`Generic/{LevelPackage,SlotValues,SlotValue,SlotProduct,PrimeNonmembership,PrimeStep}.lean`, the
+instance data and the bridges (`hall_pkgAt`, `pkg_pkgAt`) are `Rat/LevelPackage.lean` and
+`CharP/LevelPackage.lean`, the `ℚ` and `C` theorems stay at the current paths as delegations, and the
+identifiers are `baseField`, `levelSeries`, `levelField`, `slotValue`, `PkgAt`, `SlotProductAt`.
 
 ## 10. What to check
 
