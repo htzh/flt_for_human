@@ -1829,7 +1829,9 @@ declaration that names the certificate is the right trade.
 
 ## 17. Wave 7h — one descent, one statement: the certificate goes inside
 
-**Status: landed 2026-11-05.** §16 left the node with two public statements of one theorem:
+**Status: landed 2026-11-05.** This section is the wave's record; the module's shape is stated
+in `Descent.lean`'s header, [TOPIC-descent.md](TOPIC-descent.md) §2.1 and case note §2. §16 left
+the node with two public statements of one theorem:
 `Descent.lean`'s `jqN_div_mem_modularFunctionField` (taking `K`, `ζ`, `hζ`, `htw`, `hsp`) and
 `DescentFromSlots.lean`'s `jqN_mem_modularFunctionField_of_hall` (`Hall M` only), the second
 discharging the first. The record's verdict is now the case note's §4: the wave-7 trigger was a

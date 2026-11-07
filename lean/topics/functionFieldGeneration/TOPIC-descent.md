@@ -1,11 +1,11 @@
 # Topic 15: descent by one prime, and the one-prime reduction
 
-**Status: done (2026-09-22) — one goal round; interface revised 2026-11-05.**
-`FunctionFieldGeneration/Descent.lean` is **424 lines** against the 173-line pin tail; the
-descent's statement now takes `Hall M` and its certificate engine is private (see the note
-after the table below). Both declarations are public, statements the `Theorems/` wrappers'
-verbatim, `#print axioms` clean, `lake build` green with 0 warnings and no `sorry`.
-The checker moved **276 → 278** (0 mismatched, 0 missing). The two `Inputs` fields
+**Status: done.**
+`FunctionFieldGeneration/Descent.lean` is **537 lines** against the 173-line pin tail; the
+descent's statement takes `Hall M`, and its certificate and the comparison of the two
+polynomials live in the proof (§2.1). Both declarations are public and the module is tier 3
+— its statements are the port's own, so there is no `spec-pin:` wire. `#print axioms` clean,
+`lake build` green with 0 warnings and no `sorry`. The two `Inputs` fields
 are discharged, so the capstone's debt is **7 → 5**, and the consumer's Zone M wire
 test builds a partially discharged `Inputs` with them filled. All four route risks
 resolved on the first build: the `Algebra`/`ι₀`/`hcomp` machinery closed by `rfl`
@@ -70,11 +70,11 @@ Both are `Inputs` fields of `Spine.lean`, so proving them shrinks the conditiona
 capstone's debt **7 → 5**.
 
 **Why now.** T15 is the first consumer of T14's prelude and the first topic that
-produces a field-theoretic `Inputs` field. Its two statements are also the ones
-`Spine`'s private `htw_of`/`hsp_of`/`root_shape` were written to feed: the descent
-takes the slot hypotheses `htw`/`hsp` as **arguments**, exactly as the pin's node
-does, and T19's slot product is what later discharges them. So T15 composes with
-T14 and T19 without changing the `Inputs` statements.
+produces a field-theoretic `Inputs` field. Its two statements are also the ones the pin's
+private `htw_of`/`hsp_of`/`root_shape` were written to feed. The port discharges them
+inside this module: T19's slot product gives the certificate's roots their slot
+description, and the descent compares that description with the level-`p` equation's. So
+T15 composes with T14 and T19 without changing the `Inputs` statements.
 
 **Settled: the `735`-line file is one development, and most of it is already
 ported.** `S_ModularCurve_jqN_div_mem_modularFunctionField.lean` and
@@ -132,24 +132,26 @@ still transcribes the pin is the **proof** of the descent: everything except
 `hBev`'s type and the two hypothesis applications is the pin's script, which is what
 §2.1 below describes.
 
-### 2.1 The proof's shape (so the port is a transcription, not a redesign)
+### 2.1 The proof's shape
 
-`jqN_div_mem_modularFunctionField` (math/010 §4) sets
-`` $`F = \mathbb{Q}(j(q), j(q^{Mp}))`$ ``, `A = phiAtSeed data ⟨jqN (M*p)⟩` (the
-level-`p` polynomial evaluated at the level-`Mp` nome), and `B =` the
-`minpoly`-of-`jqN M` mapped into `F`; then applies
-`Polynomial.mem_range_of_unique_common_root` with
-`x₀ = coeffEmb K (qExpand ℚ (M*p) (jqN M))`. The two hypotheses `htw`/`hsp`
-supplied by the caller rule out every other common root. The tail strips the
-coefficient extension with `coeffMap_injective` composed with
-`qExpand_injective`:
+`jqN_div_mem_modularFunctionField` (math/010 §4) reads everything in
+`` $`L = \mathbb{Q}(\zeta_{Mp})((q))`$ `` and states:
 
-```lean
-have hrange := Polynomial.mem_range_of_unique_common_root A B hA0 hAs hAnd x₀ hxA hxB huniq
-obtain ⟨f, hf⟩ := RingHom.mem_range.mp hrange
-...
-have hval : (f : LaurentSeries ℚ) = jqN M := qExpand_injective (M * p) (hemb hf')
-```
+1. **the level-`p` equation** (`exists_phiAtSeed_roots`): a monic `A` over
+   `` $`F = \mathrm{modularFunctionField}\ (Mp)`$ `` whose nome-read roots are exactly
+   `j(q ^ (conjLevel M p))` and the `p` twists `j(ζ ^ (b * M) q ^ (twistLevel M p))`; that
+   `x₀` is a root is that `↔` read at `b = 0` (`iota_jqN`), and the descent reads it there;
+2. **the certificate** (`exists_transported_minpoly`): a monic, split, squarefree `B` over `F`
+   whose nome-read roots are the slot values `j(ζ ^ (p * b * a) q ^ (slotLevel p a))` for
+   `a ∣ M`, `b < M / a`, and which has `x₀` as a root;
+3. **the comparison** (the body's `huniq`): by `TS_injective`, a common root is a root of both
+   equations, so the conjugate's slot index would have to divide `M` — it does not
+   (`slotLevel_ne_conjLevel`) — and a twist's slot index is `(M, 0)`, whose unit is `1`, so its
+   twist index vanishes (`eq_zero_of_pow_eq_one`).
+
+`Polynomial.mem_range_of_unique_common_root` is then applied to `B` and `A` at `x₀`, and
+`mem_of_mem_range_nome` turns the result into `jqN M ∈ modularFunctionField (M * p)` through
+`coeffMap_injective` composed with `qExpand_injective`.
 
 `modularFunctionField_eq_full_of` (math/010 §5) is 34 lines of `adjoin_le_iff` and
 `Nat.minFac` arithmetic with no analytic content.
@@ -185,12 +187,11 @@ One new module, because the pin ships one development:
 |---|---|---|
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` | `ModularCurve.jqN_div_mem_modularFunctionField`, `ModularCurve.modularFunctionField_eq_full_of` | `S_…_modularFunctionField_eq_full_of.lean` 553–727 |
 
-**Since 2026-11-05 the module is as named above**, with a revised interface: the descent takes
-`Hall M` (`hall` pushed into it — no splitting field, no root predicate) and the
-unique-common-root engine that names the certificate is the body of that theorem's proof, with
-no certificate-taking statement anywhere in the module. The file also absorbed `DescentFromSlots.lean`, the seam module the
-refactor had split off; with one statement it has nothing left to hold. Because the `Hall`
-statement's proof needs T19's slot product, this module now imports `SlotProduct`. The record is
+The descent takes `Hall M` and nothing else: no splitting field, no root predicate. Its proof
+holds the two producers (one per polynomial), the comparison between their root descriptions,
+and the arithmetic of that comparison as three private claims. There is no certificate-taking
+statement anywhere in the module. Because the `Hall` statement's proof needs T19's slot
+product, this module imports `SlotProduct`. The record is
 `TOPIC-ffg-refactor.md` §17 and case note §4.
 
 It sits in the theory directory beside `Target.lean`, `Collapse.lean` and

@@ -2,103 +2,79 @@
   The descent by one prime, with its slot hypotheses discharged, and the one-prime
   reduction of `Gen`.
 
-  `jqN_div_mem_modularFunctionField` is the descent of math/010 §4: under `Hall M`,
-  `j(q ^ M)` lies in `ℚ(j(q), j(q ^ (M * p)))`. Its engine is the unique-common-root
-  argument on the level-`p` modular equation and the pushed minimal polynomial of
-  `j(q ^ M)`; the two root conditions that argument needs are *derived* here, from
-  T19's slot product (`minpoly_jqN_map_eq_prod_slots`) plus `Hall M`, at the root of
-  unity `cycUnit (M * p)`. So the statement names no splitting field, no root of unity
-  and no root predicate: a caller supplies `Hall M` and nothing else. The engine, which
-  does name them, has no statement of its own: it is applied in the body of that theorem,
-  with its certificate produced by the private `exists_transported_minpoly`. Nothing in
-  the port exposes it.
+  `jqN_div_mem_modularFunctionField` is the descent by one prime: under `Hall M`,
+  `j(q ^ M)` lies in `ℚ(j(q), j(q ^ (M * p)))`. The mathematics is a *comparison of two
+  polynomials* over the level-`M * p` field, both read at the level-`M * p` nome:
 
-  The one genuinely algebraic input is that `j(q ^ M)` is *integral* over the `j`-line — the
-  `Tight` half of `Hall M`. It is not left implicit: it enters `exists_transported_minpoly` as
-  the monicity of the certificate, and is consumed there as the equation
-  `B.map nomeAlgebra = pushedMinpoly`; `nomeMap_injective` turns that into the nonvanishing of
-  the pushed minimal polynomial, which `root_shape` takes as a hypothesis because
-  `Polynomial.roots` of the zero polynomial is empty.
+  * `exists_phiAtSeed_roots` states, about the level-`p` equation `A`, what its roots are:
+    the conjugate `j(q ^ (conjLevel M p))` and the `p` twists
+    `j(ζ ^ (b * M) q ^ (twistLevel M p))`;
+  * `exists_transported_minpoly` states, about the certificate `B` — the conjugate equation
+    of `j(q ^ M)` — that it is monic, split, squarefree, has `x₀` as a root, and that its
+    roots are the slot values `j(ζ ^ (p * b * a) q ^ (slotLevel p a))` for `a ∣ M`,
+    `b < M / a`;
+  * the theorem makes the two descriptions face each other, in one place and one place
+    only. A common root is then the untwisted twist, which is `x₀`.
 
-  The layers, in dependency order:
+  Every step of index arithmetic that comparison needs is a named fact rather than a
+  tactic incantation in the mainline: `slotLevel_ne_conjLevel` (no divisor of `M` is the
+  conjugate's slot index), `slotUnit_eq_one_of_twistLevel` (the twist's level is the slot
+  `(M, 0)`, whose unit is `1`), `eq_zero_of_pow_eq_one` (`ζ`'s order kills a twist index
+  below `p`). The descent's body therefore reads as the argument: two producers, one case
+  split, one helper per branch.
 
-  * the pushed minimal polynomial `pushedMinpoly` with the nome map `nomeMap` it is read
-    through, and `nomeAlgebra`, the level-`N` reading of the function field that the
-    descent installs as its `Algebra` structure on `LaurentSeries K`;
-  * `nomeMap_injective`: the reading of the `j`-line at a nome loses nothing;
-  * `exists_transported_minpoly`: the engine's certificate `B` — the conjugate equation of
-    `j(q ^ M)`, monic, with its roots read at the level-`N` nome — its transport equation
-    `B.map nomeAlgebra = pushedMinpoly` and the fact that the nome image of `j(q ^ M)` is one of
-    its roots. It takes only `Tight M`;
-  * `mem_of_mem_range_nome`: the other half of the transport, turning membership in the
-    image of the function field back into `j(q ^ M) ∈ F`;
-  * `qExpand_qTwist_coeffEmb`, `iota_jqN_seed`: the translation between the `TS` spelling of
-    a slot and the `qExpand`/`qTwist` spelling the level-`p` slot description uses, so that
-    no proof step unfolds `TS` or `coeffEmb jq` by hand;
-  * `exists_phiAtSeed_roots`: the level-`p` equation over the level-`M * p` field — monic, with
-    its root list (the extra conjugate `j(q ^ (p * (p * (M * p * M))))` and, for `b < p`, the `p`
-    twists `j(ζ ^ (b * M) q ^ ((M * p) * M))`) and the nome image of `j(q ^ M)` among them. It
-    chooses `Φ_p` itself (T12), so no modular-polynomial datum is passed around. The two
-    equations are packaged alike and each delivers its own `x₀`-root;
-  * `slot_inj`, `pushedMinpoly_eq_prod_slots`, `pushedMinpoly_splits`,
-    `pushedMinpoly_roots_nodup`: the certificate's own root theory — T19's slot product read
-    at the level-`M * p` nome, its splitting, and the distinctness of the `ψ(M)` slot values
-    (the slot parameter `(a, b)` is recoverable from the value). The engine therefore runs on
-    the certificate, and the level-`p` equation enters only as its companion;
-  * `root_shape`: every root of `pushedMinpoly K M (M * p)` (a multiset, so nonvanishing is
-    a hypothesis) is a slot value `j(ζ ^ (b * a) q ^ (a * a))` with `a ∣ M`, `b < M / a`
-    (the slot list of the level-`M` minimal polynomial, read at the level-`M * p` nome);
-  * `htw_of` / `hsp_of`: the two root conditions, by index arithmetic on that shape and
-    `TS_injective`;
-  * `jqN_div_mem_modularFunctionField`: the descent — its certificate, its engine, and
-    a statement over `ℚ` only. The uniqueness (`huniq`) is the theorem's content and stays
-    in its body: a root of the level-`p` equation is the extra conjugate (no root of the
-    certificate, by `hsp`) or a twist (untwisted, hence the untwisted slot, by `htw` and
-    `iota_jqN`).
+  ## The field is chosen, not passed
+
+  The descent reads in `CyclotomicField (M * p) ℚ`, at `cycUnit (M * p)`: a splitting
+  field and a root of unity are chosen data of the proof, not parameters of the theorem.
+  They are definitions here (`Lc`, `slotUnit`), so no statement carries a type parameter
+  and no call site writes `(K := …)`. `Tight M` is likewise the first projection of the
+  `Hall M` hypothesis, consumed inside `exists_transported_minpoly`.
+
+  ## Layers, in dependency order
+
+  * `Lc`, `nomeMap`, `nomeAlgebra`, `x₀`: the field, the nome readings and the element the
+    theorem is about. `nomeMap` keeps a field parameter because `nomeMap_qExpand` composes
+    two levels over one field; everything the statements name is read at `Lc`;
+  * `slotLevel` / `conjLevel` / `twistLevel`: the three levels the statements name, as
+    `abbrev`s so that instance search finds `NeZero` for `TS`'s level argument;
+  * `slotLevel_ne_conjLevel`, `slotUnit_eq_one_of_twistLevel`, `eq_zero_of_pow_eq_one`:
+    the arithmetic of the comparison, one claim per branch;
+  * `slotUnit`, `isPrimitiveRoot_slotUnit`: the `M`-th root the certificate is read at;
+  * `qExpand_qTwist_coeffEmb`: the translation between the `qExpand`/`qTwist` spelling of a
+    slot and the `TS` spelling;
+  * `slotTS`, `slot_inj`, `exists_slotValue_of_mem_slotValues`: the certificate's
+    slot values, their injectivity, and the index shape of a slot;
+  * `exists_phiAtSeed_roots`, `exists_transported_minpoly`: the two producers, each stating
+    facts about one polynomial. The certificate's proof carries its own root theory — the
+    slot product, its splitting, and the distinctness `slot_inj` gives;
+  * `mem_of_mem_range_nome`: the transport that undoes the nome reading;
+  * `jqN_div_mem_modularFunctionField`: the descent.
 
   Its second subject is the one-prime reduction of `Gen`, in the same `Hall` form:
   `modularFunctionField_eq_full_of` takes the strong induction hypothesis itself
   (`∀ m < N, m ≠ 0 → Hall m`) and derives what it consumes — the level `m < N` that a
   proper divisor `d` divides with `N = m * p`, `Hall m`, `jqN m ∈ F_N` from the descent
-  above, and `Gen m` from `Hall m`. The pin instead passes two facts per factorization;
-  the caller passes `ih` unchanged.
-
-  ## Source
-
-  FLT `anthropics/fermats-last-theorem@aa2d8b3`:
-
-  * `P2M/Sol/S_ModularCurve_modularFunctionField_eq_full_of.lean` lines 553–690 — the
-    descent, `private` in the pin and stated with `ζ`, `hζ` and the two root conditions.
-    That text is the body of the descent here, at `ζ = cycUnit (M * p)`; the pin's
-    hypotheses are discharged in its first four lines and the statement takes `Hall M`;
-  * the same file, lines 694–727 — the one-prime reduction, whose two hypothesis
-    applications (`hstep`, `hgen'`) become the derivation of what they carry;
-  * `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean` lines 541–613 — `root_shape`,
-    `htw_of` and `hsp_of`, `private` in the pin and consumed only by the pin's
-    `hall_all`. They live here because this is the layer where T15 and T19 meet: the
-    discharge needs T19's slot product, and the descent does not (the pin proves it
-    without).
+  above, and `Gen m` from `Hall m`. The caller passes `ih` unchanged.
 
   ## Verification tier
 
-  No `spec-pin:` header, deliberately: the public statements are the port's own. The
-  descent's engine is the pin's text with its hypotheses folded into the statement, and
-  the reduction's text was retired to the `Hall` form, so a wire would diff nothing.
-  Registered by `spec/unwired_register.py`.
+  No `spec-pin:` header: the public statements are the port's own — the descent takes
+  `Hall M` with its certificate private, and the reduction is stated in the `Hall` form —
+  so a wire would diff nothing. Registered by `spec/unwired_register.py`.
 
-  If a future public declaration in this module transcribes a pin statement, it needs a
+  If a future public declaration in this module transcribes a pinned statement, it needs a
   `spec-pin:` line, and this note is then wrong.
 
   ## Assumptions
 
-  T4's `Polynomial.mem_range_of_unique_common_root`; T12's
-  `exists_phiIrreducible_evalSymm`; T14's `phiAtSeed`/`phiAtSeed_map`,
-  `isRoot_prime_at_slot_iff`, `iota_jqN`, `TS_congr`; `Defs/Laurent`'s
-  `coeffMap_injective` and `qExpand_injective`; `Defs/PhiAtSlot`'s `pushedMinpoly`,
-  `Defs/TS`'s `TS` and `TS_injective`, `Defs/Cyclotomic`'s `cycUnit`,
-  `Defs/Fields`'s `modularFunctionField`, `adjoin_jq_le`, `jqN_mem` and `jqd_mem_full`;
-  `SlotValues`'s `slotValues`/`prod_slotValues`/`nodup_slotValues`; T19's
-  `minpoly_jqN_map_eq_prod_slots`; `NumberTheory/DedekindPsi`'s `lt_of_mul_prime_eq`.
+  `Polynomial.mem_range_of_unique_common_root`, `exists_phiIrreducible_evalSymm`,
+  `phiAtSeed`, `phiAtSeed_map`, `phiAtSeed_monic`, `isRoot_prime_at_slot_iff`,
+  `iota_jqN`, `minpoly_jqN_map_eq_prod_slots`, `isIntegral_adjoin_jqN`,
+  `modularFunctionField`, `adjoin_jq_le`, `jqN_mem`, `jqd_mem_full`, `cycUnit`,
+  `coeffMap_injective`, `coeffEmb_qExpand`, `qExpand_injective`, `TS`, `TS_injective`,
+  `TS_congr`, `qExpand_TS`, `slotValues`, `prod_slotValues`, `nodup_slotValues` and
+  `lt_of_mul_prime_eq`.
 -/
 import Mathlib.NumberTheory.Cyclotomic.Basic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
@@ -110,7 +86,6 @@ import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.ModularCurve.PhiSlotRoots
-import FLTForHuman.ModularCurve.PhiGenSplits
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
 
@@ -122,255 +97,182 @@ open Polynomial HahnSeries IntermediateField
 
 namespace ModularCurve
 
-variable {K : Type} [Field K] [Algebra ℚ K]
+/-! ## The field, fixed once
 
-/-! ## The pushed minimal polynomial, private to this module
+The descent only ever reads in `CyclotomicField (M * p) ℚ`. Making that a definition
+rather than a section variable is what removes `K` from every statement below. -/
 
-The two names the descent's engine is stated in. Both are spellings of expressions the pin
-writes inline at every use: `nomeMap K N` is the composite `coeffEmb K ∘ qExpand ℚ N ∘
-(ℚ⟮jq⟯ ↪ ℚ((q)))`, which *reads a function of `ℚ(j(q))` at the level-`N` nome*, and
-`pushedMinpoly K M N` is the minimal polynomial of `j(q ^ M)` read through it. They are
-private here because the public statement below names neither: the certificate stays inside
-the module, and nothing outside reads these terms. -/
+/-- The field the descent reads everything in: the `(M * p)`-th cyclotomic field, as the
+coefficients of the nome expansions. -/
+private abbrev Lc (M p : ℕ) : Type := LaurentSeries (CyclotomicField (M * p) ℚ)
 
-/-- Read a function of `ℚ(j(q))` at the level-`N` nome `q ↦ q ^ N`, with coefficients
-extended to `K`. -/
+/-- Read the `j`-line at the level-`N` nome, with coefficients in `K`. The field stays a
+parameter here: `nomeMap_qExpand` composes two levels over one field. -/
 private def nomeMap (K : Type*) [Field K] [Algebra ℚ K] (N : ℕ) [NeZero N] :
     ℚ⟮jq⟯ →+* LaurentSeries K :=
   ((coeffEmb K).comp (qExpand ℚ N)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))
 
-/-- The level-`N` reading of the function field, as a ring hom: `j(q) ↦ j(q ^ N)`, with
-coefficients extended to `K`. The descent builds its `Algebra` structure on `LaurentSeries K`
-from this map, and reads every root through it. -/
-private def nomeAlgebra (N : ℕ) [NeZero N] : ↥(modularFunctionField N) →+* LaurentSeries K :=
-  ((coeffEmb K).comp (qExpand ℚ N)).comp (algebraMap ↥(modularFunctionField N) (LaurentSeries ℚ))
+/-- Read the level-`N` function field at the level-`N` nome, inside the cyclotomic field.
+This is the map the descent's `Algebra` structure on `Lc` is built from. -/
+private def nomeAlgebra (N : ℕ) [NeZero N] :
+    ↥(modularFunctionField N) →+* LaurentSeries (CyclotomicField N ℚ) :=
+  ((coeffEmb (CyclotomicField N ℚ)).comp (qExpand ℚ N)).comp
+    (algebraMap ↥(modularFunctionField N) (LaurentSeries ℚ))
 
-/-- The minimal polynomial of `j(q ^ M)` over `ℚ(j(q))`, pushed to the level-`N` nome: the
-polynomial whose roots the descent compares with those of the level-`p` modular equation. -/
-private def pushedMinpoly (K : Type*) [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M] (N : ℕ) [NeZero N] :
-    Polynomial (LaurentSeries K) :=
-  (minpoly ℚ⟮jq⟯ (jqN M)).map (nomeMap K N)
+/-- The element whose membership in the function field is the whole theorem: `j(q ^ M)`
+read at the level-`M * p` nome. -/
+private abbrev x₀ (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] : Lc M p :=
+  coeffEmb (CyclotomicField (M * p) ℚ) (qExpand ℚ (M * p) (jqN M))
 
-/-- Reading at the level `M` and then at the level `e` is reading at the level `M * e`. -/
-private theorem nomeMap_qExpand (K : Type*) [Field K] [Algebra ℚ K] (M e : ℕ) [NeZero M] [NeZero e] :
-    (qExpand K e).comp (nomeMap K M) = nomeMap K (M * e) := by
+/-- Reading the `j`-line at the level `M` and then at the level `e` is reading it at the
+level `M * e`. -/
+private theorem nomeMap_qExpand (K : Type*) [Field K] [Algebra ℚ K] (M e : ℕ) [NeZero M]
+    [NeZero e] : (qExpand K e).comp (nomeMap K M) = nomeMap K (M * e) := by
   refine RingHom.ext fun z => ?_
   simp only [RingHom.comp_apply, nomeMap]
   rw [coeffEmb_qExpand, coeffEmb_qExpand, qExpand_qExpand]
   exact qExpand_congr (mul_comm e M) _
 
-/-- The nome reading of functions of `j(q)` loses nothing: `nomeMap` is injective. -/
-private theorem nomeMap_injective (N : ℕ) [NeZero N] : Function.Injective (nomeMap (K := K) N) := by
-  have hemb : Function.Injective (coeffEmb K) := coeffMap_injective ((algebraMap ℚ K).injective)
-  intro x y h
-  have h1 : qExpand ℚ N ((algebraMap ↥ℚ⟮jq⟯ (LaurentSeries ℚ)) x)
-      = qExpand ℚ N ((algebraMap ↥ℚ⟮jq⟯ (LaurentSeries ℚ)) y) :=
-    hemb (by simpa only [nomeMap, RingHom.comp_apply] using h)
-  exact Subtype.ext (qExpand_injective N h1)
+/-! ## The three levels the two equations are read at
 
-/-! ## The coefficient transport of the minimal polynomial
+Each is the exponent of a `TS`, i.e. the `e` in `j(u q ^ e)`, so naming them is what lets
+the statements say *which* slot an index denotes instead of repeating the arithmetic. They
+are `abbrev`s, not `def`s: instance search unfolds `abbrev`, so `NeZero (conjLevel M p)` is
+found for `TS`'s level argument, where a `def` would leave every such `TS` unelaboratable. -/
 
-The descent's second polynomial lives over `F`, but the polynomial whose roots are known lives
-over the `j`-line `ℚ⟮jq⟯`. Moving the coefficients along `ℚ⟮jq⟯ ≤ F` changes neither the roots nor
-their values, so each direction of the transport is stated once: producing the certificate,
-and undoing the reading at the end of the descent. -/
+/-- The level of the certificate's slot `a`: `p * a ^ 2`. -/
+private abbrev slotLevel (p a : ℕ) : ℕ := p * (a * a)
 
-/-- **The certificate.** The conjugate equation of `jqN M` over the level-`N` field: the minimal
-polynomial of `jqN M` over the `j`-line, with coefficients transported over that field. It is
-monic — `Tight M` is the algebraic input, through integrality — and its roots, read in
-`LaurentSeries K` at the level-`N` nome, are the roots of the pushed minimal polynomial, the nome
-image of `jqN M` among them. -/
-private theorem exists_transported_minpoly {N : ℕ} [NeZero N] (M : ℕ) [NeZero M] (htM : Tight M) :
-    ∃ B : Polynomial (modularFunctionField N),
-      B.Monic ∧ B.map (nomeAlgebra (K := K) N) = pushedMinpoly K M N ∧
-        (∀ y : LaurentSeries K,
-          Polynomial.eval₂ (nomeAlgebra (K := K) N) y B = 0 ↔ (pushedMinpoly K M N).IsRoot y) ∧
-          Polynomial.eval₂ (nomeAlgebra (K := K) N) (coeffEmb K (qExpand ℚ N (jqN M))) B = 0 := by
-  have hmonic : (minpoly ℚ⟮jq⟯ (jqN M)).Monic := minpoly.monic (isIntegral_adjoin_jqN htM)
-  have hcomp : (nomeAlgebra (K := K) N).comp (IntermediateField.inclusion (adjoin_jq_le N))
-      = nomeMap K N := by
-    refine RingHom.ext fun x => ?_
-    simp only [nomeAlgebra, RingHom.comp_apply, nomeMap]
-    rfl
-  refine ⟨(minpoly ℚ⟮jq⟯ (jqN M)).map (IntermediateField.inclusion (adjoin_jq_le N)),
-    hmonic.map _, ?_, ?_, ?_⟩
-  · rw [Polynomial.map_map, hcomp, pushedMinpoly]
-  · intro y
-    rw [Polynomial.IsRoot.def, pushedMinpoly, Polynomial.eval₂_map, hcomp,
-      Polynomial.eval₂_eq_eval_map]
-  · have hx : coeffEmb K (qExpand ℚ N (jqN M))
-        = ((coeffEmb K).comp (qExpand ℚ N)) (jqN M) := rfl
-    rw [Polynomial.eval₂_map, hcomp, nomeMap, ← Polynomial.eval₂_map, hx, Polynomial.eval₂_hom,
-      Polynomial.eval_map, ← Polynomial.aeval_def, minpoly.aeval, map_zero]
+/-- The level of the conjugate root of the level-`p` equation: `p` times the twist's level.
+It is the certificate's slot level at `a = M * p`. -/
+private abbrev conjLevel (M p : ℕ) : ℕ := p * (p * (M * p * M))
 
-/-- **Undoing the nome reading.** If the level-`N` nome image of `y` is rational over the
-level-`N` function field, then `y` itself is an element of it: reading the field at a nome is
-injective on it. This is the descent's last step, where the transport of the coefficients is
-undone. -/
-private theorem mem_of_mem_range_nome {N : ℕ} [NeZero N] {y : LaurentSeries ℚ}
-    (hy : coeffEmb K (qExpand ℚ N y) ∈ (nomeAlgebra (K := K) N).range) :
-    y ∈ modularFunctionField N := by
-  obtain ⟨f, hf⟩ := RingHom.mem_range.mp hy
-  have hf' : coeffEmb K (qExpand ℚ N ((f : LaurentSeries ℚ))) = coeffEmb K (qExpand ℚ N y) := by
-    rw [← hf, nomeAlgebra]
-    rfl
-  have hemb : Function.Injective (coeffEmb K) :=
-    coeffMap_injective ((algebraMap ℚ K).injective)
-  have hval : (f : LaurentSeries ℚ) = y := qExpand_injective N (hemb hf')
-  rw [← hval]
-  exact f.2
+/-- The level of the `p` twists of the level-`p` equation: the certificate's slot level at
+`a = M`. -/
+private abbrev twistLevel (M p : ℕ) : ℕ := (M * p) * M
 
-/-! ## Slot spellings of the `j`-slices
+/-- The `M`-th root of unity the certificate's slots are read at: the `(M * p)`-th
+cyclotomic unit raised to the `p`. -/
+private abbrev slotUnit (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] :
+    (CyclotomicField (M * p) ℚ)ˣ :=
+  cycUnit (M * p) ^ p
 
-`root_shape` yields roots as `TS` values, while the level-`p` slot description writes the
-same values as `qExpand`/`qTwist` of `coeffEmb jq`. These three lemmas are that translation. -/
+/-- The slot root is primitive of order `M`. -/
+private theorem isPrimitiveRoot_slotUnit (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] :
+    IsPrimitiveRoot ((slotUnit M p : (CyclotomicField (M * p) ℚ)ˣ) : CyclotomicField (M * p) ℚ)
+      M := by
+  have h := isPrimitiveRoot_pow_div (cycUnit_spec (M * p)) (dvd_mul_right M p)
+  rwa [show M * p / M = p from Nat.mul_div_right p (NeZero.pos M)] at h
+
+/-! ## The arithmetic of the comparison
+
+Three claims, one per step the comparison needs. Each is what a comment would otherwise
+carry about the levels above. -/
+
+/-- No divisor of `M` is the conjugate's slot index: the conjugate sits at the slot level
+`a = M * p`, and `M * p > M`. -/
+private theorem slotLevel_ne_conjLevel {M p a : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)]
+    (haM : a ∣ M) : conjLevel M p ≠ slotLevel p a := by
+  simp only [conjLevel, slotLevel]
+  intro he
+  have h1 : p * (M * p * M) = a * a := Nat.eq_of_mul_eq_mul_left hp.out.pos he
+  have h2 : a * a = (M * p) * (M * p) := by rw [← h1]; ring
+  have h3 : a = M * p := Nat.mul_self_inj.mp h2
+  have h4 : p ≤ 1 := Nat.le_of_mul_le_mul_left
+    (by rw [← h3, mul_one]; exact Nat.le_of_dvd (NeZero.pos M) haM) (NeZero.pos M)
+  have hp2 : 2 ≤ p := hp.out.two_le
+  omega
+
+/-- The twist's level is the slot at `a = M`, and there the slot index range is `1`: a twist
+that is also a slot value carries the certificate's unit at `(M, 0)`, which is `1`. -/
+private theorem slotUnit_eq_one_of_twistLevel {M p a b : ℕ} [NeZero M]
+    [hp : Fact (Nat.Prime p)] (haM : a ∣ M) (hb : b < M / a)
+    (he : twistLevel M p = slotLevel p a) : slotUnit M p ^ (b * a) = 1 := by
+  simp only [twistLevel, slotLevel] at he
+  have h1 : a * a = M * M := Nat.eq_of_mul_eq_mul_left hp.out.pos (by rw [← he]; ring)
+  have h2 : a = M := Nat.mul_self_inj.mp h1
+  subst a
+  rw [Nat.div_self (NeZero.pos M)] at hb
+  have hb0 : b = 0 := by omega
+  subst b
+  rw [zero_mul, pow_zero]
+
+/-- `ζ ^ (b * M) = 1` with `b < p` forces `b = 0`: `ζ` has order `M * p`, and `b < p` keeps
+the exponent `b * M` inside the order. -/
+private theorem eq_zero_of_pow_eq_one {M p b : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)]
+    (hb : b < p) (h : (cycUnit (M * p) : (CyclotomicField (M * p) ℚ)ˣ) ^ (b * M) = 1) :
+    b = 0 := by
+  have hM : 0 < M := NeZero.pos M
+  have hbM : b * M < M * p := by
+    rw [mul_comm M p]
+    exact Nat.mul_lt_mul_of_pos_right hb hM
+  have huK : ((cycUnit (M * p) : (CyclotomicField (M * p) ℚ)ˣ) : CyclotomicField (M * p) ℚ)
+      ^ (b * M) = 1 := by
+    rw [← Units.val_pow_eq_pow_val, h, Units.val_one]
+  have hbM0 : b * M = 0 :=
+    (cycUnit_spec (M * p)).pow_inj hbM (NeZero.pos (M * p)) (by rw [huK, pow_zero])
+  rcases Nat.mul_eq_zero.mp hbM0 with h0 | h0
+  · exact h0
+  · exact absurd h0 (NeZero.ne M)
+
+/-! ## The slot spellings
+
+The certificate's roots are read as `TS` values, while the slot product writes the same
+values as `qExpand`/`qTwist` of `coeffEmb jq`. This lemma is that translation. -/
 
 /-- A twisted `j`-slice read over a `ℚ`-algebra is the `TS` value at the same level: `TS` is
 this very expression with `jqModC` in place of `coeffEmb jq`. -/
-private theorem qExpand_qTwist_coeffEmb (e : ℕ) [NeZero e] (u : Kˣ) :
-    qExpand K e (qTwist u (coeffEmb K jq)) = TS K e u := by
+private theorem qExpand_qTwist_coeffEmb {K : Type*} [Field K] [Algebra ℚ K] (e : ℕ)
+    [NeZero e] (u : Kˣ) : qExpand K e (qTwist u (coeffEmb K jq)) = TS K e u := by
   rw [TS, coeffEmb_jq]
 
-/-- **The seed of the level-`p` equation.** The level-`M * p` invariant `j(q ^ (M * p))`, read at
-that same nome, spelled the way the slot description writes its seed. -/
-private theorem iota_jqN_seed (M p : ℕ) [NeZero M] [NeZero p] :
-    coeffEmb K (qExpand ℚ (M * p) (jqN (M * p)))
-      = qExpand K (p * (M * p * M)) (qTwist ((1 : Kˣ) ^ p) (coeffEmb K jq)) := by
-  rw [one_pow, iota_jqN, qExpand_qTwist_coeffEmb]
-  exact TS_congr (by ring) 1
+/-! ## Fact about `A`: the level-`p` equation at the seed -/
 
-/-! ## The shape of a root of the pushed minimal polynomial -/
-
-/-- **Every root is a slot value.** A root `x` of `pushedMinpoly K M (M * p)` is
-`j(ζ ^ (b * a) q ^ (a * a))` for some `a ∣ M` and `b < M / a`: the slot description
-of the level-`M` minimal polynomial (T19), read at the level-`M * p` nome. Nonvanishing is
-`Tight M`'s, and is what lets the multiset of roots be spoken about at all. -/
-private theorem root_shape (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
-    (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M)
-    (hne : pushedMinpoly K M (M * p) ≠ 0) (x : LaurentSeries K)
-    (hx : x ∈ (pushedMinpoly K M (M * p)).roots) :
-    ∃ a : ℕ, ∃ _ : NeZero a, a ∣ M ∧ ∃ b : ℕ, b < M / a ∧
-      x = TS K (p * (a * a)) (ζ ^ (b * a)) := by
-  have hid := minpoly_jqN_map_eq_prod_slots (K := K) M ζ hζ hallM
-  have hcomp : (qExpand K p).comp (((coeffEmb K).comp (qExpand ℚ M)).comp
-      (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = ((coeffEmb K).comp (qExpand ℚ (M * p))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) := by
-    simpa only [nomeMap] using nomeMap_qExpand K M p
-  have hx' : Polynomial.eval x ((minpoly ℚ⟮jq⟯ (jqN M)).map
-      (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
-        (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) = 0 := (Polynomial.mem_roots hne).mp hx
-  rw [← hcomp, ← Polynomial.map_map, hid, Polynomial.eval_map,
-    Polynomial.eval₂_finsetProd] at hx'
-  obtain ⟨a, ha, hx'⟩ := Finset.prod_eq_zero_iff.mp hx'
-  rw [Polynomial.eval₂_finsetProd] at hx'
-  obtain ⟨b, hb, hx'⟩ := Finset.prod_eq_zero_iff.mp hx'
-  rw [Polynomial.eval₂_sub, Polynomial.eval₂_X, Polynomial.eval₂_C, sub_eq_zero] at hx'
-  have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors ha)
-  rw [dite_eq_right ha0] at hx'
-  have : NeZero a := ⟨ha0⟩
-  refine ⟨a, ⟨ha0⟩, Nat.dvd_of_mem_divisors ha, b,
-    (Finset.mem_range.mp (Finset.mem_filter.mp hb).1), ?_⟩
-  rw [hx', coeffEmb_jq]
-  exact qExpand_TS p (a * a) (ζ ^ (b * a))
-
-/-! ## The two slot facts -/
-
-/-- **`htw`.** At nome-level `(M * p) * M` the only root of the pushed minimal
-polynomial is the untwisted one: comparing the level in `root_shape` with `M²p`
-forces `a = M`, and the twist index `b < M / a = 1` forces `b = 0`. -/
-private theorem htw_of (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
-    (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M)
-    (hne : pushedMinpoly K M (M * p) ≠ 0) (w : Kˣ)
-    (hw : (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * M) w)) : w = 1 := by
-  obtain ⟨a, _, haM, b, hb, heq⟩ :=
-    root_shape M p ζ hζ hallM hne _ ((Polynomial.mem_roots hne).mpr hw)
-  obtain ⟨he, hu⟩ := TS_injective heq
-  have he' : p * (a * a) = p * (M * M) := by rw [← he]; ring
-  have haM' : a = M := Nat.mul_self_inj.mp (Nat.eq_of_mul_eq_mul_left hp.out.pos he')
-  subst haM'
-  have hb0 : b = 0 := by
-    rw [Nat.div_self (Nat.pos_of_ne_zero (NeZero.ne a))] at hb
-    omega
-  subst hb0
-  rw [zero_mul, pow_zero] at hu
-  exact hu
-
-/-- **`hsp`.** The extra conjugate `j(q ^ (p * (p * (M * p * M))))` of the level-`p`
-equation is not a root: a root at that level would have `a² = (M p)²` by the same
-comparison, hence `a = M p > M`, contradicting `a ∣ M`. -/
-private theorem hsp_of (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
-    (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M)
-    (hne : pushedMinpoly K M (M * p) ≠ 0) :
-    ¬ (pushedMinpoly K M (M * p)).IsRoot (TS K (p * (p * (M * p * M))) 1) := by
-  intro hx
-  obtain ⟨a, _, haM, b, _, heq⟩ :=
-    root_shape M p ζ hζ hallM hne _ ((Polynomial.mem_roots hne).mpr hx)
-  obtain ⟨he, _⟩ := TS_injective heq
-  have hp2 : 2 ≤ p := hp.out.two_le
-  have hM : 0 < M := Nat.pos_of_ne_zero (NeZero.ne M)
-  have ha : a ≤ M := Nat.le_of_dvd hM haM
-  have h1 : a * a = (M * p) * (M * p) := by
-    have h2 : p * (a * a) = p * ((M * p) * (M * p)) := by rw [← he]; ring
-    exact Nat.eq_of_mul_eq_mul_left hp.out.pos h2
-  have h2 : a = M * p := Nat.mul_self_inj.mp h1
-  have : M * p ≤ M := h2 ▸ ha
-  have : M * 2 ≤ M * p := Nat.mul_le_mul_left M hp2
-  omega
-
-/-! ## The level-`p` equation over the level-`M * p` field -/
-
-/-- **The level-`p` equation.** `Φ_p` — chosen by `exists_phiIrreducible_evalSymm` — seeded at the
-level-`M * p` invariant `j(q ^ (M * p))`, as a polynomial over that field: monic, with root list
-the extra conjugate `j(q ^ (p * (p * (M * p * M))))` and, for `b < p`, the twists
-`j(ζ ^ (b * M) q ^ ((M * p) * M))`, the nome image of `j(q ^ M)` among them. -/
-private theorem exists_phiAtSeed_roots {M p : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)]
-    (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) (M * p)) :
-    ∃ A : Polynomial (modularFunctionField (M * p)),
+/-- Over the level-`M * p` field there is a monic `A` — `Φ_p` seeded at the level-`M * p`
+invariant — whose roots, read at that nome, are the conjugate
+`j(q ^ (conjLevel M p))` and the `p` twists `j(ζ ^ (b * M) q ^ (twistLevel M p))`. `x₀` is
+the untwisted twist, so it is a root of `A`; that is a reading of this `↔` at `b = 0`, not
+a conjunct of it. -/
+private theorem exists_phiAtSeed_roots {M p : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)] :
+    ∃ A : Polynomial ↥(modularFunctionField (M * p)),
       A.Monic ∧
-        (∀ y : LaurentSeries K,
-          Polynomial.eval₂ (nomeAlgebra (K := K) (M * p)) y A = 0 ↔
-            (y = TS K (p * (p * (M * p * M))) 1 ∨
-              ∃ b < p, y = TS K (M * p * M) (ζ ^ (b * (M * p / p))))) ∧
-          Polynomial.eval₂ (nomeAlgebra (K := K) (M * p))
-            (coeffEmb K (qExpand ℚ (M * p) (jqN M))) A = 0 := by
+        ∀ y : Lc M p, A.eval₂ (nomeAlgebra (M * p)) y = 0 ↔
+          y = TS _ (conjLevel M p) 1 ∨
+            ∃ b < p, y = TS _ (twistLevel M p) (cycUnit (M * p) ^ (b * M)) := by
   obtain ⟨data, -, -⟩ := exists_phiIrreducible_evalSymm p
-  have hroot : ∀ y : LaurentSeries K,
-      Polynomial.eval₂ (nomeAlgebra (K := K) (M * p)) y
-          (phiAtSeed data (⟨jqN (M * p), jqN_mem (M * p)⟩ : modularFunctionField (M * p))) = 0 ↔
-        (y = TS K (p * (p * (M * p * M))) 1 ∨
-          ∃ b < p, y = TS K (M * p * M) (ζ ^ (b * (M * p / p)))) := by
-    intro y
-    have hx : (nomeAlgebra (K := K) (M * p)) ⟨jqN (M * p), jqN_mem (M * p)⟩
-        = coeffEmb K (qExpand ℚ (M * p) (jqN (M * p))) := rfl
-    rw [Polynomial.eval₂_eq_eval_map, phiAtSeed_map, hx, iota_jqN_seed M p]
-    refine (isRoot_prime_at_slot_iff (M * p) ζ hζ p (dvd_mul_left p M) data (M * p * M) 1 y).trans ?_
-    simp only [qExpand_qTwist_coeffEmb, one_pow, one_mul]
-  exact ⟨phiAtSeed data (⟨jqN (M * p), jqN_mem (M * p)⟩ : modularFunctionField (M * p)),
-    phiAtSeed_monic data _, hroot,
-    (hroot _).mpr (Or.inr ⟨0, hp.out.pos, by
-      rw [Nat.zero_mul, pow_zero]
-      exact iota_jqN (M * p) M⟩)⟩
+  refine ⟨phiAtSeed data (⟨jqN (M * p), jqN_mem (M * p)⟩ : modularFunctionField (M * p)),
+    phiAtSeed_monic data _, ?_⟩
+  intro y
+  have hx : (nomeAlgebra (M * p)) ⟨jqN (M * p), jqN_mem (M * p)⟩
+      = coeffEmb (CyclotomicField (M * p) ℚ) (qExpand ℚ (M * p) (jqN (M * p))) := rfl
+  rw [Polynomial.eval₂_eq_eval_map, phiAtSeed_map, hx]
+  rw [show coeffEmb (CyclotomicField (M * p) ℚ) (qExpand ℚ (M * p) (jqN (M * p)))
+      = qExpand (CyclotomicField (M * p) ℚ) (p * (M * p * M))
+          (qTwist ((1 : (CyclotomicField (M * p) ℚ)ˣ) ^ p)
+            (coeffEmb (CyclotomicField (M * p) ℚ) jq)) from by
+    rw [one_pow, iota_jqN, qExpand_qTwist_coeffEmb]
+    exact TS_congr (by ring) 1]
+  refine (isRoot_prime_at_slot_iff (M * p) (cycUnit (M * p)) (cycUnit_spec (M * p)) p
+    (dvd_mul_left p M) data (M * p * M) 1 y).trans ?_
+  simp only [qExpand_qTwist_coeffEmb, one_pow, one_mul]
+  rw [Nat.mul_div_left M hp.out.pos]
 
-/-! ## The conjugate equation's roots
+/-! ## Facts about `B`: the conjugate equation of `j(q ^ M)` -/
 
-The slot product T19, read at the level-`M * p` nome: the conjugate equation of `jqN M` is the
-product of `X - C` over the `ψ(M)` slot values, and those values are distinct because the slot
-parameter `(a, b)` is recoverable from the value. -/
+/-- The slot values of the conjugate equation at the level-`M * p` nome, with the `a = 0`
+guard the slot product carries. -/
+private abbrev slotTS (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] (a b : ℕ) : Lc M p :=
+  if h : a = 0 then 0 else letI : NeZero a := ⟨h⟩;
+    TS _ (slotLevel p a) (slotUnit M p ^ (b * a))
 
-/-- The slot values of the conjugate equation at the level-`M * p` nome, with the `a = 0` guard
-the slot product carries. -/
-private def slotTS (p : ℕ) [NeZero p] (ζ : Kˣ) (a b : ℕ) : LaurentSeries K :=
-  if h : a = 0 then 0 else letI : NeZero a := ⟨h⟩; TS K (p * (a * a)) (ζ ^ (b * a))
-
-omit [Algebra ℚ K] in
 /-- The slot parameter is recoverable from the `p`-scaled slot value. -/
-private theorem slot_inj {M p : ℕ} [NeZero M] [NeZero p] {ζ : Kˣ}
-    (hζ : IsPrimitiveRoot (ζ : K) M) {a a' b b' : ℕ} (haM : a ∣ M) (haM' : a' ∣ M)
-    (hb : b < M / a) (hb' : b' < M / a')
-    (h : slotTS (K := K) p ζ a b = slotTS (K := K) p ζ a' b') : a = a' ∧ b = b' := by
-  have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_dvd_of_pos haM (NeZero.pos M))
-  have ha0' : a' ≠ 0 := Nat.ne_of_gt (Nat.pos_of_dvd_of_pos haM' (NeZero.pos M))
-  unfold slotTS at h
+private theorem slot_inj {M p : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)] {a a' b b' : ℕ}
+    (haM : a ∣ M) (haM' : a' ∣ M) (hb : b < M / a) (hb' : b' < M / a')
+    (h : slotTS M p a b = slotTS M p a' b') : a = a' ∧ b = b' := by
+  have hM0 : 0 < M := NeZero.pos M
+  have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_dvd_of_pos haM hM0)
+  have ha0' : a' ≠ 0 := Nat.ne_of_gt (Nat.pos_of_dvd_of_pos haM' hM0)
+  simp only [slotTS] at h
   rw [dite_eq_right ha0, dite_eq_right ha0'] at h
   obtain ⟨he, hu⟩ :=
     letI : NeZero a := ⟨ha0⟩
@@ -378,114 +280,153 @@ private theorem slot_inj {M p : ℕ} [NeZero M] [NeZero p] {ζ : Kˣ}
     TS_injective h
   have haa : a * a = a' * a' := Nat.eq_of_mul_eq_mul_left (NeZero.pos p) he
   have haa' : a = a' := Nat.mul_self_inj.mp haa
-  subst haa'
-  have ha0pos : 0 < a := Nat.pos_of_ne_zero ha0
-  have hbM : b * a < M := by
+  subst a
+  have hbM : b * a' < M := by
     rw [← Nat.div_mul_cancel haM]
-    exact Nat.mul_lt_mul_of_pos_right hb ha0pos
-  have hbM' : b' * a < M := by
-    rw [← Nat.div_mul_cancel haM]
-    exact Nat.mul_lt_mul_of_pos_right hb' ha0pos
-  have hu' : (ζ : K) ^ (b * a) = (ζ : K) ^ (b' * a) := by
+    exact Nat.mul_lt_mul_of_pos_right hb (Nat.pos_of_ne_zero ha0)
+  have hbM' : b' * a' < M := by
+    rw [← Nat.div_mul_cancel haM']
+    exact Nat.mul_lt_mul_of_pos_right hb' (Nat.pos_of_ne_zero ha0')
+  have hu' : ((slotUnit M p : (CyclotomicField (M * p) ℚ)ˣ) : CyclotomicField (M * p) ℚ)
+        ^ (b * a') = ((slotUnit M p : (CyclotomicField (M * p) ℚ)ˣ)
+          : CyclotomicField (M * p) ℚ) ^ (b' * a') := by
     simpa using congrArg Units.val hu
-  exact ⟨rfl, Nat.eq_of_mul_eq_mul_right ha0pos (hζ.pow_inj hbM hbM' hu')⟩
+  exact ⟨rfl, Nat.eq_of_mul_eq_mul_right (Nat.pos_of_ne_zero ha0')
+    ((isPrimitiveRoot_slotUnit M p).pow_inj hbM hbM' hu')⟩
 
-/-- **The conjugate equation, factored.** T19's slot product at the level-`M * p` nome: the
-pushed minimal polynomial of `jqN M` is the product of `X - C` over the `ψ(M)` slot values. -/
-private theorem pushedMinpoly_eq_prod_slots {M p : ℕ} [NeZero M] [NeZero p]
-    (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M) :
-    pushedMinpoly K M (M * p)
+/-- **A slot value is an index.** A value in the slot multiset is
+`j(ζ ^ (p * b * a) q ^ (slotLevel p a))` for some `a ∣ M` and `b < M / a`: the index
+shape of the level-`M` minimal polynomial's slots, with the `a = 0` guard `slotTS` carries
+discharged on the indices that occur. -/
+private theorem exists_slotValue_of_mem_slotValues {M p : ℕ} [NeZero M]
+    [hp : Fact (Nat.Prime p)] {y : Lc M p}
+    (h : y ∈ slotValues M (slotTS (M := M) (p := p))) :
+    ∃ (a : ℕ) (_ : NeZero a), a ∣ M ∧ ∃ b : ℕ, b < M / a ∧
+      y = TS _ (slotLevel p a) (slotUnit M p ^ (b * a)) := by
+  obtain ⟨a, b, ha, hb, h⟩ := mem_slotValues.mp h
+  have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors ha)
+  refine ⟨a, ⟨ha0⟩, Nat.dvd_of_mem_divisors ha, b,
+    (Finset.mem_range.mp (Finset.mem_filter.mp hb).1), ?_⟩
+  rw [h, slotTS, dite_eq_right ha0]
+
+/-- **The certificate.** The conjugate equation of `jqN M` read at the level-`M * p` nome:
+monic, split, squarefree, with `x₀` a root, and every root a slot value. One hypothesis,
+`Hall M`; `Tight M` and the slot product are consumed here, so neither crosses.
+
+The slot product (`hprod`), its splitting and the distinctness of the slots are this
+proof's own, because it is their only reader; what a root of that product looks like is
+`exists_slotValue_of_mem_slotValues`, which names no polynomial. -/
+private theorem exists_transported_minpoly {M p : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)]
+    (hallM : Hall M) :
+    ∃ B : Polynomial ↥(modularFunctionField (M * p)),
+      B.Monic ∧ (B.map (nomeAlgebra (M * p))).Splits ∧
+        (B.map (nomeAlgebra (M * p))).roots.Nodup ∧
+        B.eval₂ (nomeAlgebra (M * p)) (x₀ M p) = 0 ∧
+        ∀ y : Lc M p, B.eval₂ (nomeAlgebra (M * p)) y = 0 →
+          ∃ (a : ℕ) (_ : NeZero a), a ∣ M ∧ ∃ b : ℕ, b < M / a ∧
+            y = TS _ (slotLevel p a) (slotUnit M p ^ (b * a)) := by
+  classical
+  have hmonic : (minpoly ℚ⟮jq⟯ (jqN M)).Monic :=
+    minpoly.monic (isIntegral_adjoin_jqN (hallM M dvd_rfl).1)
+  have hcomp : (nomeAlgebra (M * p)).comp (IntermediateField.inclusion (adjoin_jq_le (M * p)))
+      = nomeMap (CyclotomicField (M * p) ℚ) (M * p) := by
+    refine RingHom.ext fun _ => ?_
+    simp only [nomeAlgebra, RingHom.comp_apply, nomeMap]
+    rfl
+  set B : Polynomial ↥(modularFunctionField (M * p)) :=
+    (minpoly ℚ⟮jq⟯ (jqN M)).map (IntermediateField.inclusion (adjoin_jq_le (M * p))) with hBdef
+  have hBmonic : B.Monic := by
+    rw [hBdef]
+    exact hmonic.map _
+  have hprod : B.map (nomeAlgebra (M * p))
       = ∏ a ∈ M.divisors, ∏ b ∈ (Finset.range (M / a)).filter
           (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
-          (Polynomial.X - Polynomial.C (slotTS (K := K) p ζ a b)) := by
-  rw [pushedMinpoly, ← nomeMap_qExpand (K := K) M p, ← Polynomial.map_map, nomeMap,
-    minpoly_jqN_map_eq_prod_slots (K := K) M ζ hζ hallM, Polynomial.map_prod]
-  refine Finset.prod_congr rfl fun a ha => ?_
-  rw [Polynomial.map_prod]
-  refine Finset.prod_congr rfl fun b hb => ?_
-  have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors ha)
-  simp only [slotTS, dite_eq_right ha0, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C,
-    qExpand_qTwist_coeffEmb, qExpand_TS]
+          (Polynomial.X - Polynomial.C (slotTS M p a b)) := by
+    rw [hBdef, Polynomial.map_map, hcomp,
+      ← nomeMap_qExpand (K := CyclotomicField (M * p) ℚ) M p,
+      ← Polynomial.map_map, nomeMap,
+      minpoly_jqN_map_eq_prod_slots (K := CyclotomicField (M * p) ℚ) M (slotUnit M p)
+        (isPrimitiveRoot_slotUnit M p) hallM, Polynomial.map_prod]
+    refine Finset.prod_congr rfl fun a ha => ?_
+    rw [Polynomial.map_prod]
+    refine Finset.prod_congr rfl fun b _ => ?_
+    have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors ha)
+    simp only [slotTS, dite_eq_right ha0, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C,
+      qExpand_qTwist_coeffEmb, qExpand_TS]
+  refine ⟨B, hBmonic, ?_, ?_, ?_, ?_⟩
+  · rw [hprod]
+    exact Polynomial.Splits.prod fun _ _ =>
+      Polynomial.Splits.prod fun _ _ => Polynomial.Splits.X_sub_C _
+  · rw [hprod, ← prod_slotValues M (slotTS (M := M) (p := p)), roots_multiset_prod_X_sub_C]
+    exact nodup_slotValues fun a b a' b' ha ha' hb hb' h => slot_inj
+      (Nat.dvd_of_mem_divisors ha) (Nat.dvd_of_mem_divisors ha')
+      (Finset.mem_range.mp (Finset.mem_filter.mp hb).1)
+      (Finset.mem_range.mp (Finset.mem_filter.mp hb').1) h
+  · have hx : x₀ M p
+        = ((coeffEmb (CyclotomicField (M * p) ℚ)).comp (qExpand ℚ (M * p))) (jqN M) := rfl
+    rw [Polynomial.eval₂_map, hcomp, nomeMap, ← Polynomial.eval₂_map, hx, Polynomial.eval₂_hom,
+      Polynomial.eval_map, ← Polynomial.aeval_def, minpoly.aeval, map_zero]
+  · intro y hy
+    have hne : B.map (nomeAlgebra (M * p)) ≠ 0 := (hBmonic.map _).ne_zero
+    have hroots : y ∈ (B.map (nomeAlgebra (M * p))).roots :=
+      (Polynomial.mem_roots hne).mpr (by rwa [Polynomial.eval₂_eq_eval_map] at hy)
+    rw [hprod, ← prod_slotValues M (slotTS (M := M) (p := p)),
+      roots_multiset_prod_X_sub_C] at hroots
+    exact exists_slotValue_of_mem_slotValues hroots
 
-/-- The conjugate equation splits: it is a product of linear factors. -/
-private theorem pushedMinpoly_splits {M p : ℕ} [NeZero M] [NeZero p]
-    (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M) :
-    (pushedMinpoly K M (M * p)).Splits := by
-  rw [pushedMinpoly_eq_prod_slots (M := M) (p := p) ζ hζ hallM]
-  exact Polynomial.Splits.prod fun a _ =>
-    Polynomial.Splits.prod fun b _ => Polynomial.Splits.X_sub_C _
-
-/-- The conjugate equation has distinct roots: the slot parameter is recoverable from the slot
-value, so the multiset of slots has no repetitions. -/
-private theorem pushedMinpoly_roots_nodup {M p : ℕ} [NeZero M] [NeZero p]
-    (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M) :
-    (pushedMinpoly K M (M * p)).roots.Nodup := by
-  rw [pushedMinpoly_eq_prod_slots (M := M) (p := p) ζ hζ hallM,
-    ← prod_slotValues M (slotTS (K := K) p ζ), roots_multiset_prod_X_sub_C]
-  exact nodup_slotValues fun a b a' b' ha ha' hb hb' h => slot_inj hζ
-    (Nat.dvd_of_mem_divisors ha) (Nat.dvd_of_mem_divisors ha')
-    (Finset.mem_range.mp (Finset.mem_filter.mp hb).1)
-    (Finset.mem_range.mp (Finset.mem_filter.mp hb').1) h
+/-- **Undoing the nome reading.** If the level-`N` nome image of `y` is rational over the
+level-`N` function field, then `y` itself is an element of it: reading the field at a nome
+is injective on it. This is the descent's last step. -/
+private theorem mem_of_mem_range_nome {N : ℕ} [NeZero N] {y : LaurentSeries ℚ}
+    (hy : coeffEmb (CyclotomicField N ℚ) (qExpand ℚ N y) ∈ (nomeAlgebra N).range) :
+    y ∈ modularFunctionField N := by
+  obtain ⟨f, hf⟩ := RingHom.mem_range.mp hy
+  have hf' : coeffEmb (CyclotomicField N ℚ) (qExpand ℚ N ((f : LaurentSeries ℚ)))
+      = coeffEmb (CyclotomicField N ℚ) (qExpand ℚ N y) := by
+    rw [← hf, nomeAlgebra]
+    rfl
+  have hemb : Function.Injective (coeffEmb (CyclotomicField N ℚ)) :=
+    coeffMap_injective ((algebraMap ℚ (CyclotomicField N ℚ)).injective)
+  have hval : (f : LaurentSeries ℚ) = y := qExpand_injective N (hemb hf')
+  rw [← hval]
+  exact f.2
 
 /-! ## The descent -/
-
-
 
 /-- **Descent by one prime**: under `Hall M` and `p` prime, `j(q ^ M)` lies in
 `ℚ(j(q), j(q ^ (M * p)))`.
 
-The unique-common-root argument it runs needs two conditions on the roots of the
-pushed minimal polynomial of `j(q ^ M)` read at the level-`M * p` nome; `htw_of` and
-`hsp_of` derive both from T19's slot product at the root of unity `cycUnit (M * p) ^
-((M * p) / M)`. That is why the statement names neither a splitting field nor a root
-predicate: `Hall M` is the whole input, and the certificate stays inside. -/
+The proof is the comparison of the two polynomials the two producers above describe: a
+common root is a root of the level-`p` equation at the seed and a slot value of the
+certificate, so the conjugate's slot index would have to divide `M` (it does not), and a
+twist's slot index is `(M, 0)` with unit `1` (so the twist index vanishes). That is the
+whole input, and `Hall M` is the whole hypothesis. -/
 theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
     [hp : Fact (Nat.Prime p)] (hallM : Hall M) :
     jqN M ∈ modularFunctionField (M * p) := by
-  set K := CyclotomicField (M * p) ℚ
-  set ζ : Kˣ := cycUnit (M * p)
-  have hζ : IsPrimitiveRoot (ζ : K) (M * p) :=
-    cycUnit_spec (M * p)
-  have hζM : IsPrimitiveRoot ((ζ ^ ((M * p) / M) : Kˣ) : K) M :=
-    isPrimitiveRoot_pow_div hζ (dvd_mul_right M p)
-  classical
-
-  set F := modularFunctionField (M * p)
-  let : Algebra F (LaurentSeries K) := (nomeAlgebra (K := K) (M * p)).toAlgebra
-
-  obtain ⟨A, -, hrootA, hxA⟩ := exists_phiAtSeed_roots ζ hζ
-
-  set x₀ : LaurentSeries K := coeffEmb K (qExpand ℚ (M * p) (jqN M))
-
-  obtain ⟨B, hBmonic, hBmap, hB, hxB⟩ :=
-    exists_transported_minpoly (K := K) (N := M * p) (M := M) (hallM M dvd_rfl).1
-  have hne : pushedMinpoly K M (M * p) ≠ 0 := by
-    rw [← hBmap]
-    exact (hBmonic.map (nomeAlgebra (K := K) (M * p))).ne_zero
-  have htw : ∀ w : Kˣ, (pushedMinpoly K M (M * p)).IsRoot (TS K ((M * p) * M) w) → w = 1 :=
-    htw_of M p (ζ ^ ((M * p) / M)) hζM hallM hne
-  have hsp : ¬ (pushedMinpoly K M (M * p)).IsRoot (TS K (p * (p * (M * p * M))) 1) :=
-    hsp_of M p (ζ ^ ((M * p) / M)) hζM hallM hne
-  have huniq : ∀ y : LaurentSeries K,
-      Polynomial.aeval y A = 0 → (pushedMinpoly K M (M * p)).IsRoot y → y = x₀ := by
+  obtain ⟨A, -, hA⟩ := exists_phiAtSeed_roots (M := M) (p := p)
+  have hxA : A.eval₂ (nomeAlgebra (M * p)) (x₀ M p) = 0 :=
+    (hA (x₀ M p)).mpr (Or.inr ⟨0, hp.out.pos, by
+      simpa using iota_jqN (K := CyclotomicField (M * p) ℚ) (M * p) M⟩)
+  obtain ⟨B, hBmonic, hBs, hBnd, hxB, hB⟩ :=
+    exists_transported_minpoly (M := M) (p := p) hallM
+  let : Algebra ↥(modularFunctionField (M * p)) (Lc M p) := (nomeAlgebra (M * p)).toAlgebra
+  have huniq : ∀ y : Lc M p, Polynomial.aeval y A = 0 → Polynomial.aeval y B = 0 →
+      y = x₀ M p := by
     intro y hyA hyB
-    rcases (hrootA y).mp hyA with hy1 | ⟨b, _, hy1⟩
-    · exact (hsp (hy1 ▸ hyB)).elim
-    · have hw : ζ ^ (b * (M * p / p)) = 1 := htw _ (hy1 ▸ hyB)
-      rw [hy1, hw]
-      exact (iota_jqN (M * p) M).symm
+    obtain ⟨a, _, haM, b', hb', hyB⟩ := hB y hyB
+    rcases (hA y).mp hyA with hyA | ⟨b, hb, hyA⟩
+    · rw [hyA] at hyB
+      exact absurd (TS_injective hyB).1 (slotLevel_ne_conjLevel haM)
+    · rw [hyA] at hyB
+      obtain ⟨he, hu⟩ := TS_injective hyB
+      have hb0 : b = 0 :=
+        eq_zero_of_pow_eq_one hb (by rw [hu, slotUnit_eq_one_of_twistLevel haM hb' he])
+      subst b
+      simpa [x₀, iota_jqN] using hyA
+  exact mem_of_mem_range_nome (Polynomial.mem_range_of_unique_common_root B A hBmonic.ne_zero
+    hBs hBnd (x₀ M p) hxB hxA fun y hyB hyA => huniq y hyA hyB)
 
-  have hB0 : B ≠ 0 := hBmonic.ne_zero
-  have hBs : (B.map (algebraMap F (LaurentSeries K))).Splits := by
-    rw [show B.map (algebraMap F (LaurentSeries K)) = pushedMinpoly K M (M * p) from hBmap]
-    exact pushedMinpoly_splits (ζ ^ ((M * p) / M)) hζM hallM
-  have hBnd : (B.map (algebraMap F (LaurentSeries K))).roots.Nodup := by
-    rw [show B.map (algebraMap F (LaurentSeries K)) = pushedMinpoly K M (M * p) from hBmap]
-    exact pushedMinpoly_roots_nodup (ζ ^ ((M * p) / M)) hζM hallM
-
-  have hrange := Polynomial.mem_range_of_unique_common_root B A hB0 hBs hBnd x₀ hxB hxA
-    fun y hyB hyA => huniq y hyA ((hB y).mp hyB)
-  exact mem_of_mem_range_nome (N := M * p) hrange
 /-! ## The one-prime reduction -/
 
 /-- **The step down the divisor lattice.** A proper divisor `d` of `N` divides a level `m`

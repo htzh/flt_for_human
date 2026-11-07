@@ -26,13 +26,13 @@ field*.
 |---|---|---|
 | the descent's statement | 16 lines: `K`, `ζ`, `hζ` and two root predicates whose types spell the pushed minimal polynomial out in full, twice | 3 lines: `(M) [NeZero M] (p) [Fact p.Prime] (hallM : Hall M)` → `jqN M ∈ modularFunctionField (M * p)` |
 | what a caller supplies | a splitting field, a primitive `(M * p)`-th root of unity, and two facts about the roots of the pushed minimal polynomial | `Hall M` |
-| the descent's engine | the same argument, as that statement's proof | the pin's T15 text as the body of the *one* public theorem, after four lines that fix the certificate — no statement of its own anywhere |
-| the slot facts that feed it (`root_shape`, `htw_of`, `hsp_of`) | private in the spine module (later `Capstone.lean`), with 75 lines of glue around them | private in `Descent.lean`, beside the engine |
-| vocabulary for the certificate | written inline in the statement | `private` (`nomeMap`, `pushedMinpoly`, `nomeMap_qExpand`) |
+| the descent's engine | the same argument, as that statement's proof | two `private` producers stating facts about one polynomial each, and a 12-line `huniq` in the theorem's body where the two descriptions face each other |
+| the slot facts that feed it (`root_shape`, `htw_of`, `hsp_of`) | private in the spine module (later `Capstone.lean`), with 75 lines of glue around them | `private` in `Descent.lean`: `slotLevel_ne_conjLevel` and `slotUnit_eq_one_of_twistLevel`, one claim per branch of the comparison |
+| vocabulary for the certificate | written inline in the statement | `private`: `Lc`, `nomeAlgebra`, `x₀`, the three levels, `slotUnit` — the pushed minimal polynomial itself is gone |
 | the reduction's hypothesis | two facts per factorization (`Gen M` and `jqN M ∈ F_N`), `Gen` unfolded | the induction hypothesis as the induction gives it: `∀ m < N, m ≠ 0 → Hall m` |
 | the reduction's caller | an 8-line lambda, 6 of them assembling those two facts | `exact modularFunctionField_eq_full_of N ih` |
 | `hall_all` | 80 lines: its `Tight` half opened with 9 lines of setup and closed with an 11-line case split over `a = 0` | 37 lines: the setup is one `obtain` from a private helper |
-| modules | `Descent.lean` (252) plus the spine holding the slot machinery | one `Descent.lean` (412): slot facts, descent with its engine and certificate, reduction |
+| modules | `Descent.lean` (252) plus the spine holding the slot machinery | one `Descent.lean`: the two producers with the certificate's root theory, the comparison, and the reduction |
 | `FunctionFieldGeneration/Capstone.lean` | 337 lines | 192 lines |
 | `Defs/PhiAtSlot.lean` | 243 lines, `check_port` 18 ok + 0 own | 247 lines, `check_port` 18 ok + 0 own |
 | public statements of the descent | 1, carrying the certificate | 1, carrying only `Hall` |
@@ -54,25 +54,27 @@ changed is what those statements *carry*.
    conclusion stays over `ℚ`, so the statement is readable by a reader who does not know what a
    nome is.
 
-2. **The engine has no statement.** The pin's T15 text — the unique-common-root argument
-   given `ζ`, `hζ` and the two root conditions — is the *body* of the one public theorem, opened
-   by four lines that fix `K := CyclotomicField (M * p) ℚ`, `ζ := cycUnit (M * p)`, the power
-   `ζ ^ ((M * p) / M)` of order `M`, and the two root conditions at it. There is no
-   certificate-taking declaration to make `private`, tier-3, or to leave lying around: the
-   interface that used to exist is gone, and the proof is the only place in the port where this
-   step names `K`, `ζ` or an `IsRoot` predicate.
+2. **The engine is the body.** The two producers state what each polynomial's roots are —
+   `exists_phiAtSeed_roots` for the level-`p` equation, `exists_transported_minpoly` for the
+   certificate — and the theorem's `huniq` makes those two descriptions face each other.
+   `Polynomial.mem_range_of_unique_common_root` is then applied literally to what the producers
+   deliver, so nothing sits between them and the comparison, which happens in one place and is
+   visible there. The certificate's root theory — the slot product, its splitting and the
+   distinctness `slot_inj` gives — is inside that producer's proof, which is its only reader;
+   reading a member of the slot multiset back as an index is
+   `exists_slotValue_of_mem_slotValues`, a fact about slots that names no polynomial.
 
-3. **The two slot facts are private.** `root_shape`, `htw_of`, `hsp_of` discharge the engine's
-   two hypotheses from T19's slot product at the root of unity
-   `cycUnit (M * p) ^ ((M * p) / M)`. They are the discharge, not the theorem, so nothing
-   outside reads them — but they must sit downstream of T19, which is why they are here and not
-   in the spine where they started.
+3. **The arithmetic of the comparison is three named claims.** `slotLevel_ne_conjLevel` (no
+   divisor of `M` is the conjugate's slot index), `slotUnit_eq_one_of_twistLevel` (the twist's
+   level is the slot `(M, 0)`, so its unit is `1`) and `eq_zero_of_pow_eq_one` (`ζ`'s order kills
+   a twist index below `p`). The levels they compare are the descent's own, so nothing outside
+   reads them — but they must sit downstream of T19, which is why they are here and not in the
+   spine where the slot machinery started.
 
-4. **The vocabulary for the certificate is private too.** `nomeMap`, `pushedMinpoly` and
-   `nomeMap_qExpand` are readings of the two root conditions; they are worth a name because the
-   pin writes the same five-line term at each use, and they are worthless as API because the
-   public statement never mentions them. `pushedMinpoly_def` (the `rfl` bridge for consumers)
-   was deleted with the public statement that needed it.
+4. **The vocabulary is private.** `Lc` (the field), `nomeAlgebra`/`nomeMap` (the two readings),
+   `x₀` (the element the theorem is about), the three levels and `slotUnit`. Each is worth a
+   name because the pin writes the same five-line term at each use, and none is API because the
+   public statement mentions no nome.
 
 5. **One module, named for the node, downstream of T19.** The `Hall` statement's proof needs
    the slot product, so the module that states it is downstream of both T15 and T19 — and the
@@ -174,10 +176,11 @@ direction.
 
 ### 4.4 The correction
 
-One public statement, `jqN_div_mem_modularFunctionField (hallM : Hall M)`; the certificate in
-four lines of its proof; the engine as the rest of that proof, with no statement of its own; the
-vocabulary private beside it;
-the seam module's content back in the node's own module, which is 412 lines and the pin's name.
+One public statement, `jqN_div_mem_modularFunctionField (hallM : Hall M)`; the certificate and
+the level-`p` equation as two private producers; the comparison between their two root
+descriptions in the theorem's body; the arithmetic of that comparison as three private claims
+beside it; the vocabulary private too; and the seam module's content back in the node's own
+module, which carries the pin's name.
 The checker went **18 ok + 4 own → 18 ok + 0 own**, the register lost a module, and the
 statements were untouched.
 
@@ -186,10 +189,13 @@ statements were untouched.
 1. **A binder the conclusion never mentions is a certificate, and certificates move inside.**
    Do not name it, do not wrap it: change the signature so the caller supplies the invariant
    the induction actually has.
-2. **Naming a term only repairs a statement the term stays in.** `pushedMinpoly` earned its
-   definition while the engine's statement was public; once the engine went private, every
-   consumer of the definition was private too, so it went private with them. A port-own public
-   definition in a wired module needs a reason that survives the refactor it is introduced for.
+2. **Naming a term only repairs a statement the term stays in.** The pushed minimal polynomial
+   earned its definition while the engine's statement was public; once the engine went private,
+   every consumer of the definition was private too, so it went private with them — and once the
+   remaining consumers numbered one, the definition went as well and the term is written where it
+   is used. A port-own definition needs a reason that survives the refactor it is introduced for,
+   and "it appears in four statements" is not one: it is a measure of how often it would have to
+   be written, not of whether a reader is served by the name.
 3. **Do not state one theorem twice.** When the friendly form is what every consumer wants, it
    *is* the statement; the certificate-taking form becomes `private`, or disappears. A wrapper
    whose proof is all certificate is a second interface, not a refactor.

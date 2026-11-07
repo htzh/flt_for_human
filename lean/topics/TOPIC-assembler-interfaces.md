@@ -1,7 +1,7 @@
 # Assembler interfaces, proof scripts, and module boundaries: how a ported proof becomes readable
 
 **Status: methods note, written from the FFG T15 case (2026-11-04); §7–§8 added the same day from
-the T16 dispatcher case.** §1–§4 are the diagnosis, §5 the remedy menu, §6 the measured cost of
+the T16 dispatcher case; §5's fan-in/fan-out rule added 2026-11-06 from the T15 re-cut.** §1–§4 are the diagnosis, §5 the remedy menu, §6 the measured cost of
 each mechanism, §7 the proof-script tests, §8 the certificate and module-graph tests, §9 the
 naming/namespace policy, §10 the audit recipe, §11 where else in the tree to look. The two worked
 instances — the exact edits, the module splits, the gates — are
@@ -51,7 +51,7 @@ the `Hall` form, and case note §4 corrects this section's conclusion — stated
 
 > For a prime `p` and a level `M`, `j(q ^ M) ∈ ℚ(j(q), j(q ^ (M * p)))`.
 
-Counted on the current tree:
+Counted on the tree as it then stood:
 
 | quantity | count |
 |---|---|
@@ -141,7 +141,9 @@ ones are easier once the earlier ones have names to work with.
 
 1. **Name the objects** (§3): a `def` per repeated term, with a `rfl` bridge.
 2. **Replace formulas by predicates**: `P.IsRoot y`, or a named root-set relation. Instantiate the
-   `∀` yourself in the hypothesis; the caller never wants the general form.
+   `∀` yourself in the hypothesis; the caller never wants the general form. *Which* spelling is not
+   free — pick the one the declaration that finally consumes the hypothesis already takes, or you
+   buy an adapter (see "Fan-in and fan-out" below).
 3. **Name the case-free hypothesis.** The engine's hypothesis — here "the pushed minimal polynomial
    and the level-`p` equation have the unique common root `x₀`" — is a `def` or a named hypothesis
    of the *core* theorem, and the case split becomes a separate lemma that *derives* it, so the core
@@ -171,6 +173,66 @@ stopped being two lines of Lean and became a regularisation pass on the home (7 
 wires, 5 `own:` rows, retirement from the frozen checker, `dedup`, silent-build check).
 Budget for the home, not the helper; and pick the home by subject *and* by its
 verification tier, because a subject-correct home in a legacy module costs the pass.
+
+### Fan-in and fan-out are not symmetric
+
+Steps 1–6 say what to *name*. They do not say whether a name should be a producer or a consumer,
+and the two directions are not the same kind of thing:
+
+* the **fan-out** of a declaration is what one application of it delivers;
+* the **fan-in** is what the reader has to bring.
+
+**High fan-out is a producer, and it is the good kind.** `exists_phiAtSeed_roots`
+(`Descent.lean`) takes two instance arguments and delivers a polynomial plus three facts about it,
+all three used by the one caller. A consumer reads the statement and stops: nothing behind the name
+can change what the call site means, so there is no reason to open the file. Producers are also
+where a case split belongs — "the root is the conjugate or one of the `p` twists" is one conjunct
+once the set has a name (`IsPhiRoot`), and naming it is what kept the certificate's statement from
+taking the companion polynomial as a parameter.
+
+**High fan-in is a funnel, and it is the bad kind whenever the declaration could have been a
+producer's statement instead.** The measured case (2026-11-06, the T15 re-cut): the engine takes
+`Polynomial.aeval y A = 0`, the certificate's readable spelling was
+`(A.map (nomeAlgebra N)).IsRoot y`, and the two are the same fact. The tempting repair is one
+private adapter —
+
+    private theorem mem_range_of_unique_common_root' (hB hBs hBnd hxA hxB huniq) : x ∈ …
+
+— whose statement is the generic lemma's statement modulo spelling and whose proof is six lines of
+`IsRoot`/`Algebra`-instance shuffling. It is a *cost* disguised as a name. A reader who meets it in
+a proof cannot see that its content is `Polynomial.mem_range_of_unique_common_root`'s, nor what its
+six hypotheses have to do with the goal, and the only way to learn either is to open the file —
+exactly the click-through this note exists to remove. Six in, one out, no new mathematics.
+
+**The boundary.** Fan-in is not wrong in itself: the engine has seven hypotheses and one
+conclusion, and it is the best declaration in the segment. The test is whether a declaration
+*forwards* or *is* the mathematics — specifically, whether its statement duplicates another
+declaration's statement modulo notation:
+
+| declaration | in | out | verdict |
+|---|---|---|---|
+| `Polynomial.mem_range_of_unique_common_root` | 7 | 1 | fine — the fan-in **is** the content; there is no upstream declaration it could forward to |
+| `exists_transported_minpoly` | 1 | 5 | fine — a producer; read at its statement |
+| `mem_of_mem_range_nome` | 1 | 1 | fine — one hypothesis, and its twelve lines of `q`-expansion injectivity exist nowhere else |
+| `mem_range_of_unique_common_root'` | 6 | 1 | **not fine** — an adapter over a declaration with the same content; the content lives behind the name |
+
+So: **push the work into high-fan-out producers, and give a consumer a reason to exist besides
+notation.** When you want a low-fan-out consumer whose statement is another theorem's statement in
+a different spelling, one of three things is true.
+
+1. **The producers are speaking the wrong notation** and should be respelled to speak the final
+   consumer's language directly. Here that is the whole fix: state the root conditions as
+   `P.eval₂ (nomeAlgebra N) y = 0`, which is the engine's own spelling, and the adapter has nothing
+   left to do — the descent's body becomes four lines with no conversion at all. The prettier
+   spelling was the thing paying for the adapter.
+2. **The consumer is not a re-spelling** but new reasoning, in which case it is a declaration and
+   the fan-in is the interface to mathematics that lives nowhere else (`mem_of_mem_range_nome`).
+3. **The conversion belongs at the call site** — and if the call site is the one theorem the
+   segment exists for, that is the right place: the reader is already standing there.
+
+**The one lawful funnel is a seam**, where the statement is deliberately unlike the content because
+the content is a base change the caller must not see (§8's seam test). Keep those to one per seam,
+and say so in the docstring.
 
 ### What not to do
 
@@ -299,6 +361,33 @@ a *name* — a `def`, a lemma, a helper, or a different statement — and the ex
 the module header, the topic note, or a test the build runs (`fail_if_success`). Corollary: do not
 add a comment to record why a step is there; add the step's name.
 
+**The arithmetic and commentary tests meet on one line.** A comment that explains arithmetic — "the
+conjugate sits at level `p * N * N`, so `a = N`, which does not divide `M`" — fails both at once, and
+the repair is one declaration: **the sentence becomes the helper's statement, and its subject becomes
+the name.** Measured on the T15 re-cut's comparison (2026-11-06): three comments in the mainline
+became three `private theorem`s —
+
+| the comment | what it became |
+|---|---|
+| "the conjugate sits at level `p * N * N`, so `a = N`, which does not divide `M`" | `conjLevel M p ≠ slotLevel p a`, given `a ∣ M` |
+| "its level forces `a = M`, and then the twist index `b'` is `0`" | `twistLevel M p = slotLevel p a → b < M / a → ζ ^ (p * (b * a)) = 1` |
+| "`b < p` keeps the exponent below the order, so `ζ ^ (b * M) = ζ ^ 0`" | `ζ ^ (b * M) = 1 → b < p → b = 0` |
+
+— and the descent's body went from 45 lines to 19 with no `omega`, no `ring`, no `Nat.*` rewrite and
+no comment in it. The count that matters is *where the noise went*: it did not disappear, it moved
+into proof bodies whose statements now say what they prove, and the mainline became
+`obtain` / `rcases` / one helper per branch. Note also what the third row buys: the mainline keeps
+the case split and the confrontation of the two descriptions — that is the proof — while every step
+of *index arithmetic* is a name.
+
+**Name the magnitudes the comments name, as `abbrev`.** The statements above cannot read without the
+three levels, and they must be `abbrev`s, not `def`s: instance search unfolds `abbrev` at `reducible`
+transparency, so `NeZero (conjLevel M p)` is synthesized for `TS`'s level argument, while the same
+`slotLevel` as a `def` fails to elaborate at every `TS` that mentions it (verified: `def` gives
+`failed to synthesize NeZero (conjLevel M p)` at three sites). `abbrev` has a second payoff —
+`TS_injective` then returns `conjLevel M p = slotLevel p a` in exactly the terms the helper takes,
+so no unfolding happens at the call site.
+
 **The call-site test.** A continued line that exists only to hold a certificate, a
 `(by rw [...])` inside an argument, or a nested application of a theorem that produces another
 theorem's hypothesis: these are §8's symptom, not a style matter. The caller should be able to
@@ -398,9 +487,12 @@ Policy, in the port's terms:
    `cd lean && python3 spec/statement_db.py grep <name> --limit 3`. Zero hits today is not a
    guarantee for the next pin, but the corpus is rebuilt on every pin move and the command is one
    line — re-run it at the re-pin, not per wave.
-4. **Name the object, not the construction.** `pushedMinpoly` and `nomeMap`, not
+4. **Name the object, not the construction.** `nomeMap` and `x₀`, not
    `minpoly_map_comp_coeffEmb_qExpand`. If the module's prose already names the thing ("the pushed
-   minimal polynomial"), that phrase is the name.
+   minimal polynomial"), that phrase is the name — but the name is earned by the writing it saves,
+   and the writing that counts is inside a proof, not across statements. The pushed minimal
+   polynomial was named while four *statements* spelled it out and lost the name once one proof
+   was the only place it appeared (see §5's fan-in/fan-out rule).
 5. **Group, do not scatter.** One sub-namespace per family of port-invented vocabulary (here: the
    two nome/slot readers), not one namespace per `def` and not one per module.
 

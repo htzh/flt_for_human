@@ -1,42 +1,35 @@
 /-
   The capstone of `functionFieldGeneration`: the unconditional theorem.
 
-  FLT provenance, pinned `aa2d8b3`:
-  `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean` —
-  lines 106–109 (`iota_jqN`, over the interface's `coeffEmb_qExpand`);
-  413–435 (`Tight`/`Gen`/`Hall` and the congruence plumbing);
-  436–466 (the `ψ` arithmetic); 467–613 (`tight_one` through `hsp_of` — the
-  `hsp_of` end, with the cyclotomic root and the slot glue it consumes, is now
-  `FunctionFieldGeneration/Descent.lean`);
-  614–700 (`hall_all`).
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_functionFieldGeneration.lean
-
-  `hall_all` is the strong induction of math/010 §7 carrying the two invariants
+  `hall_all` is the module's strong induction: it carries the two invariants
   `Tight` (the relative degree of `ℚ⟮jq⟯(jqN d)` over `ℚ⟮jq⟯` is `ψ(d)`) and `Gen`
-  (the two-generator field is already the full divisor field) over the divisor
-  lattice; the block above it is glue. It is private because it is an internal
-  induction with no consumer of its own; `functionFieldGeneration` and the three
-  corollaries below are the public surface, stated as in the pin. The induction
-  consumes the seven significant statements directly, as FLT's does.
+  (the two-generator field is already the full divisor field) over the divisor lattice.
+  It is private — an internal induction with no consumer of its own — and
+  `functionFieldGeneration` with the three corollaries below is the public surface.
+
+  The induction applies, and only applies:
+
+  * the induction hypothesis in the shape the induction gives it, `Hall (M * p ^ a)`;
+  * `modularFunctionField_eq_full_of` for the `Gen` half — the descent and the
+    divisor-lattice collapse in one step;
+  * `relfinrank_full_eq_mul` for the `Tight` half, at `Hall M`;
+  * `relfinrank_modularFunctionField`, `relfinrank_mul_relfinrank`, `full_degeneracy_le`,
+    `full_congr`, `dedekindPsi_mul_prime_pow_succ` and `jqd_mem_full` for the degree
+    arithmetic along the tower;
+  * `tight_one`/`gen_one` for the base of the induction;
+  * `functionFieldGeneration_iff_full_eq` for the headline.
+
+  The descent is consumed in its `Hall M` form, `jqN_div_mem_modularFunctionField`,
+  through `modularFunctionField_eq_full_of`.
+
+  The private helpers are the induction's own data: the prime-power decomposition of a
+  level `d ≠ 1` (`exists_eq_mul_pow_succ_of_ne_one`) and the bound below it
+  (`lt_of_eq_mul_pow_succ`).
 
   spec-pin: Theorems/Thm_ModularCurve_functionFieldGeneration.lean
   spec-pin: Theorems/Thm_ModularCurve_modularFunctionField_eq_full.lean
   spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean
   spec-pin: Theorems/Thm_ModularCurve_relfinrank_full_eq_dedekindPsi.lean
-
-  Assumes the seven significant statements (descent, the prime-power degree step,
-  the non-membership tower, one new generator per prime power, the slot product
-  and the prime non-membership), the `Tight`/`Gen`/`Hall` vocabulary with
-  `tight_one`/`gen_one`, and the §2 collapse. The descent is consumed in its
-  `Hall M` form (`jqN_div_mem_modularFunctionField`), so this module no longer
-  names the splitting field, the root of unity, `TS`, or a root predicate: that
-  argument is `Descent`'s, downstream of T19.
-
-  The private helpers this module keeps are the induction's own data: the
-  prime-power decomposition of the level (`exists_eq_mul_pow_succ_of_ne_one`) and its
-  bound. Both certificates the degree step needs are derived inside that theorem from
-  the prime-level non-membership, so the step is one application here:
-  `relfinrank_full_eq_mul M p a hpM hnotmem`, with `hnotmem` the prime-level fact.
 -/
 import Mathlib.FieldTheory.Relrank
 import Mathlib.Data.Nat.Factorization.Basic
@@ -55,34 +48,7 @@ open scoped IntermediateField
 
 namespace ModularCurve
 
-/-! ## What this module no longer names
-
-The slot analysis the pin carries inside `hall_all` — the cyclotomic root, `TS`,
-`root_shape`, `htw_of`, `hsp_of` (pin lines 199–240 and 541–613) — is
-`FunctionFieldGeneration/Descent.lean`, behind the single statement
-`jqN_div_mem_modularFunctionField`. That is why `Defs/Cyclotomic` and
-`Defs/TS` are not imported here: this module consumes a ℚ-level statement and no
-longer builds a splitting field. `coeffMap_qExpand`/`coeffEmb_qExpand` still live
-beside `coeffMap`/`coeffEmb` in `Defs/Laurent.lean`, reachable through the
-`FunctionFieldGeneration` imports below. -/
-
-/-! ## Congruence plumbing and `ψ` arithmetic
-
-`jqN_congr` was promoted by T14 to `Defs/Jq.lean` beside `jqN`; `Defs/TS`
-imports `Defs/Jq`, so it is in scope here and the private twin is gone. -/
-
-/-! ## The invariants
-
-`Tight`/`Gen`/`Hall` and the one-step facts `tight_one`/`gen_one` were promoted by
-T13 and moved by T18 to `Defs/Fields.lean` beside the two fields they concern;
-`Defs/TS`/`Collapse` import that module, so they are in scope here without a
-local copy. `gen_prime` (T19's substitution) lives there too. -/
-
-/-! ## The auxiliary block -/
-
--- The two prime-step case splits `dedekindPsi_mul_prime_{dvd,not_dvd}` were
--- private here and duplicated verbatim in `SlotProduct.lean`; both now live
--- once, publicly, in `FLTForHuman/NumberTheory/DedekindPsi.lean`.
+/-! ## The induction's own data -/
 
 /-- `Hall` gives the relative degree of the full field: `relfinrank_modularFunctionField`
 with `Gen` substituted. -/
@@ -119,11 +85,10 @@ private theorem lt_of_eq_mul_pow_succ {d M p a : ℕ} (hM : M ≠ 0) (hp : p.Pri
   lt_of_mul_prime_eq (mul_ne_zero hM (pow_ne_zero _ hp.ne_zero)) hp
     (by rw [h, pow_succ, mul_assoc])
 
-/-- **The strong induction of math/010 §7.** From the seven significant
-statements, `Tight` and `Gen` hold at every divisor of every `N ≠ 0`. It is the
-source of the capstone's corollary layer (`modularFunctionField_eq_full`,
-`finrank_adjoin_jqN_eq_dedekindPsi`, `relfinrank_full_eq_dedekindPsi`), so it is
-kept in this module; `functionFieldGeneration` consumes it just below. -/
+/-- **The module's strong induction.** `Tight` and `Gen` hold at every divisor of every
+`N ≠ 0`. It is the source of the corollary layer below (`modularFunctionField_eq_full`,
+`finrank_adjoin_jqN_eq_dedekindPsi`, `relfinrank_full_eq_dedekindPsi`), so it is kept in
+this module; `functionFieldGeneration` consumes it just below. -/
 private theorem hall_all : ∀ N : ℕ, N ≠ 0 → Hall N := by
   intro N
   induction N using Nat.strong_induction_on with
@@ -159,27 +124,23 @@ private theorem hall_all : ∀ N : ℕ, N ≠ 0 → Hall N := by
 
 /-- **The theorem.** For every `N ≠ 0`, every `j(q ^ d)` with `d ∣ N` lies in
 `ℚ(j(q), j(q ^ N))`: the function field of `X₀(N)` is generated by `j` and `j_N`.
-Unconditional. Verbatim from
-`Theorems/Thm_ModularCurve_functionFieldGeneration.lean`. -/
+Unconditional. -/
 theorem functionFieldGeneration (N : ℕ) [NeZero N] : FunctionFieldGeneration N :=
   (functionFieldGeneration_iff_full_eq N).mpr (hall_all N (NeZero.ne N) N dvd_rfl).2.symm
 
-/-- The two-generator field is the full divisor field. Verbatim from
-`Theorems/Thm_ModularCurve_modularFunctionField_eq_full.lean`. -/
+/-- The two-generator field is the full divisor field. -/
 theorem modularFunctionField_eq_full (N : ℕ) [NeZero N] :
     modularFunctionField N = modularFunctionFieldFull N :=
   (hall_all N (NeZero.ne N) N dvd_rfl).2
 
-/-- The modular equation at level `N` has full degree `ψ(N)`. Verbatim from
-`Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean`. -/
+/-- The modular equation at level `N` has full degree `ψ(N)`. -/
 theorem finrank_adjoin_jqN_eq_dedekindPsi (N : ℕ) [NeZero N] :
     Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
       (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
         ({jqN N} : Set (LaurentSeries ℚ))) = dedekindPsi N :=
   (hall_all N (NeZero.ne N) N dvd_rfl).1
 
-/-- The full field has degree `ψ(N)` over `ℚ(j)`. Verbatim from
-`Theorems/Thm_ModularCurve_relfinrank_full_eq_dedekindPsi.lean`. -/
+/-- The full field has degree `ψ(N)` over `ℚ(j)`. -/
 theorem relfinrank_full_eq_dedekindPsi (N : ℕ) [NeZero N] :
     IntermediateField.relfinrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
       (modularFunctionFieldFull N) = dedekindPsi N := by
