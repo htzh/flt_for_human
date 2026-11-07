@@ -532,7 +532,12 @@ Candidates of the same shape, in the FFG directory first because that is where t
 * `SlotProduct.minpoly_jqN_map_eq_prod_slots` — a ~15-line statement whose subject is the slot list.
   Its spelling cannot change (a pinned statement), but a readable restatement is blocked one level
   earlier: the slot vocabulary `sv` that would state it is `private` to its own module, so the
-  readable form has to be invented in a public home first.
+  readable form has to be invented in a public home first. **The blocker is gone (2026-11-06)**: the
+  public home is the generic layer's `slotValue`, and the three objects the statement was spelling
+  out (`nomeMap`, `pushedMinpoly`, `slotPolynomial`) are now named there, with
+  `pushedMinpoly_rat := rfl` recording that the naming is a transcription. The readable statement is
+  `Rat.minpoly_eq_prod_slotValues`, ready to receive the pinned name's delegation once the `ℚ`
+  surface is re-pointed.
 * `SlotProduct.jqN_prime_not_mem_full` and `Nonmembership` — check for symptom 1: the hypotheses
   may be branches of one case split.
 * `PrimePowerStepAnyField` (the C-layer twin) — **done** (2026-11-04, same wave): four

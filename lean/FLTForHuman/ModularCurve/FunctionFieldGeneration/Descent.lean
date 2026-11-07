@@ -33,9 +33,11 @@
 
   ## Layers, in dependency order
 
-  * `Lc`, `nomeMap`, `nomeAlgebra`, `x₀`: the field, the nome readings and the element the
-    theorem is about. `nomeMap` keeps a field parameter because `nomeMap_qExpand` composes
-    two levels over one field; everything the statements name is read at `Lc`;
+  * `Lc`, `nomeAlgebra`, `x₀`: the field, the nome readings and the element the
+    theorem is about. The nome reading is the theory's `nomeMap` — at the carrier
+    `coeffEmb K` and the base field `ℚ⟮jq⟯` it is this layer's nome map, so the module
+    imports it rather than declaring a twin; `nomeMap_qExpand` composes two levels over
+    one field. Everything the statements name is read at `Lc`;
   * `slotLevel` / `conjLevel` / `twistLevel`: the three levels the statements name, as
     `abbrev`s so that instance search finds `NeZero` for `TS`'s level argument;
   * `slotLevel_ne_conjLevel`, `slotUnit_eq_one_of_twistLevel`, `eq_zero_of_pow_eq_one`:
@@ -107,12 +109,6 @@ rather than a section variable is what removes `K` from every statement below. -
 coefficients of the nome expansions. -/
 private abbrev Lc (M p : ℕ) : Type := LaurentSeries (CyclotomicField (M * p) ℚ)
 
-/-- Read the `j`-line at the level-`N` nome, with coefficients in `K`. The field stays a
-parameter here: `nomeMap_qExpand` composes two levels over one field. -/
-private def nomeMap (K : Type*) [Field K] [Algebra ℚ K] (N : ℕ) [NeZero N] :
-    ℚ⟮jq⟯ →+* LaurentSeries K :=
-  ((coeffEmb K).comp (qExpand ℚ N)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))
-
 /-- Read the level-`N` function field at the level-`N` nome, inside the cyclotomic field.
 This is the map the descent's `Algebra` structure on `Lc` is built from. -/
 private def nomeAlgebra (N : ℕ) [NeZero N] :
@@ -128,7 +124,8 @@ private abbrev x₀ (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] : Lc M p :=
 /-- Reading the `j`-line at the level `M` and then at the level `e` is reading it at the
 level `M * e`. -/
 private theorem nomeMap_qExpand (K : Type*) [Field K] [Algebra ℚ K] (M e : ℕ) [NeZero M]
-    [NeZero e] : (qExpand K e).comp (nomeMap K M) = nomeMap K (M * e) := by
+    [NeZero e] :
+    (qExpand K e).comp (nomeMap (coeffEmb K) jq M) = nomeMap (coeffEmb K) jq (M * e) := by
   refine RingHom.ext fun z => ?_
   simp only [RingHom.comp_apply, nomeMap]
   rw [coeffEmb_qExpand, coeffEmb_qExpand, qExpand_qExpand]
@@ -273,7 +270,7 @@ private theorem slotTS_eq {M p : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)] (a b 
       (sv (CyclotomicField (M * p) ℚ) (slotUnit M p) a b) := by
   by_cases ha : a = 0
   · subst ha
-    rw [slotTS, dite_eq_left rfl, sv, dite_eq_left rfl, map_zero]
+    rw [slotTS, dite_eq_left rfl, sv, slotValue, dite_eq_left rfl, map_zero]
   · have : NeZero a := ⟨ha⟩
     rw [slotTS, dite_eq_right ha, sv_eq_TS, qExpand_TS]
 
@@ -312,7 +309,7 @@ private theorem exists_transported_minpoly {M p : ℕ} [NeZero M] [hp : Fact (Na
   have hmonic : (minpoly ℚ⟮jq⟯ (jqN M)).Monic :=
     minpoly.monic (isIntegral_adjoin_jqN (hallM M dvd_rfl).1)
   have hcomp : (nomeAlgebra (M * p)).comp (IntermediateField.inclusion (adjoin_jq_le (M * p)))
-      = nomeMap (CyclotomicField (M * p) ℚ) (M * p) := by
+      = nomeMap (coeffEmb (CyclotomicField (M * p) ℚ)) jq (M * p) := by
     refine RingHom.ext fun _ => ?_
     simp only [nomeAlgebra, RingHom.comp_apply, nomeMap]
     rfl

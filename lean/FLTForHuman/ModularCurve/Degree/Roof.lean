@@ -197,11 +197,6 @@ end DiagonalDegree
 
 section Roof
 
-private theorem jqNModC_congr {L : Type*} [Field L] [Algebra ℚ L] {n m : ℕ} [NeZero n]
-    [NeZero m] (h : n = m) : jqNModC L n = jqNModC L m := by
-  subst h
-  rfl
-
 private theorem mem_range_towerInclBar_iff (L : Type*) [Field L] [Algebra ℚ L]
     {N M : ℕ} [NeZero N] [NeZero M] (h : N ∣ M)
     (x : laurentBaseChange L (modularFunctionFieldFull M)) :

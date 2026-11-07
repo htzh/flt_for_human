@@ -26,6 +26,21 @@
 
   ## Route
 
+  * **The induction is the theory's, not this module's.** It lives at a general coefficient
+    field in `FunctionFieldGeneration/Generic/SlotProduct.lean`
+    (`slotProductInduction`, `pushedMinpoly_eq_slotPolynomial`, on the level-degree package
+    `PkgAt` of `Generic/LevelPackage.lean`), with its `ℚ` instance in
+    `FunctionFieldGeneration/Rat/SlotProduct.lean` (`minpoly_eq_prod_slotValues`,
+    `pushedMinpoly_rat`, `pushedMinpolyAt_rat`): base field `ℚ⟮jq⟯`, level series `jqN M`,
+    carrier `coeffEmb K`. What stays here is the pin's *spelling* of that content, delegated:
+    `sv` is `slotValue (coeffEmb K) jq`, so the pin's `if`-form is `sv`'s own body (pinned
+    by `slotValue_def`); `sv_eq_TS`, `sv_inj` and `sv_inj_slot` are the theory's
+    `slotValue_eq_TS`, `slotValue_inj` and `slotValue_inj_slot` at that carrier;
+    `map_qExpand_minpoly_eq` is the theory's slot-free level step
+    `pushedMinpolyAt_map_qExpand` pasted onto the pin's iterated product by
+    `map_slotPolynomial`; and the headline is the theory's `slotProductInduction` read back
+    into that iterated product (`slotPolynomial_eq_prod`). No step of the induction is
+    re-proved here.
   * **Slot count.** The pin's 108-line CRT `slotAt_mul` is replaced by the closed
     form `slotAt n d = h (n / d, d)` with
     `h (a, d) = (d / gcd a d) * φ (gcd a d)`, proved from mathlib's
@@ -37,52 +52,33 @@
     [audit-slot-counting-mathlib.md](../../logs/audit-slot-counting-mathlib.md).
     The chain (`slotAt`, `slots`, `card_slotFilter_eq_dedekindPsi`) lives in
     `FunctionFieldGeneration/SlotValues.lean`, next to the `card_slotValues` that cites it.
-  * **`rval_aux`** transcribes the pin's 680 lines (the 493-line `hslot_root` is
-    ~64% irreducible mathematics; the audit found no shorter route).
   * **M-arbitrary non-membership** uses T18's `gen_prime`/`tight_one`/`gen_one` in
     its `hallp`, replacing the pin's `functionFieldGeneration_of_squarefree p`
     call; `mem_range_of_eval_eq_const` is imported from `FieldTheory/CommonRoot`.
 
   ## Structure
 
-  Both long proofs are chains of `private` lemmas named after the sub-goal each
-  closes; the headlines are then short assemblies. This mirrors the `C` twin
-  `SlotProductAnyField.lean`, whose split has the same seams.
-
-  * **The slot multiset** (`slotValues`) makes the product's index set explicit. Its generic
-    half — the slot count (`slotAt`/`slots`/`card_slotFilter_eq_dedekindPsi`, whose chain closes
-    at `ψ(M)` from `NumberTheory/DedekindPsi.card_fibre`), `slotValues`, `mem_slotValues`,
-    `card_slotValues`, `slotValues_le_roots`, `prod_slotValues`, `nodup_slotValues` — is **homed
-    once**, in `FunctionFieldGeneration/SlotValues.lean`, which the `C` twin imports as well, so
-    that `card_slotValues` states the count rather than taking it; this module supplies the
-    `sv`-specific instantiation (`sv_inj_slot`, `nodup_slotValues_sv`, `nodup_slotValues_qExpand`).
-  * **`rval_aux`** (strong induction on `M`) keeps only the induction. Its statement is
-    the `def` `SlotProductAt`; `minpoly_map_eq_prod_slots_one` is the base case;
-    `isRoot_map_minpoly_sv` collects the slot roots — `isRoot_map_minpoly_sv_top` at
-    `a = M`, and `isRoot_map_minpoly_sv_of_descent` otherwise. The descent rests on
-    `exists_slot_descent_data`, `isRoot_qExpand_sv_of_slot_product`,
-    `finrank_adjoin_mul_dedekindPsi` (the `finrank_mul_finrank` tower, one type check),
-    `phiAtSeed_slot_factor`, `qExpand_qTwist_slot_eq_sv`, and the two prime cases
-    `isRoot_map_minpoly_sv_of_dvd` / `…_of_not_dvd` (which use `sv_ne_image_of_dvd`,
-    `not_isRoot_minpoly_of_prime_deg` and `isRoot_map_minpoly_of_isRoot_subfield`).
-    The shared counting (`card_slotValues`, instantiated at `sv`), distinctness
-    (`nodup_slotValues_sv`) and degree (`natDegree_minpoly_jqN`) then squeeze the slot list onto
-    the roots.
-  * **`jqN_prime_not_mem_adjoin`** keeps only the final contradiction: the constancy of
-    `g'` on the slots is `eval_map_eq_of_mem_slotValues`, and the `hall` input at the
-    prime is `hall_prime`.
-
-  The `ℚ`-layer differences from the `C` twin stay visible rather than being forced
-  into its shape: the coefficient map is `(coeffEmb K).comp (qExpand ℚ M)`, the
-  function field is the port's opaque `modularFunctionField`/`modularFunctionFieldFull`
-  pair, and `isRoot_map_minpoly_sv_of_descent` / `eval_map_eq_of_mem_slotValues`
-  install the pin's `letI : Algebra ℚ⟮jq⟯ (LaurentSeries K)` (its `p2m_open` instance)
-  together with the equation `halg : algebraMap … = (coeffEmb K).comp (qExpand ℚ M) ∘ …`.
+  * `sv` and `sv_eq_TS` are the `ℚ` spelling of the theory's slot value: `sv K ζ a b` is
+    `slotValue (coeffEmb K) jq ζ a b`, and `sv_eq_TS` is its defining equation in the `TS`
+    vocabulary every slot computation runs on. `TS_congr'` is the pinned generic congruence
+    for `TS` (its own `ℚ`-free statement, kept as the pin has it).
+  * `sv_inj` (the pin's raw-bound form) and `sv_inj_slot` (the slot-bound form a certificate's
+    distinctness step holds) are the theory's slot separation at the carrier `coeffEmb K`;
+    `sv_inj` delegates to the theory's raw-bound `slotValue_inj`, and this module no longer
+    touches `TS_injective`.
+  * `map_qExpand_minpoly_eq` is the pin's iterated-product bridge — the level-`M'` slot product
+    read at the higher nome `k * M'`. The theory proves the level step slot-free
+    (`pushedMinpolyAt_map_qExpand`, with the two-level object `pushedMinpolyAt`, transcribed at
+    `ℚ` by `pushedMinpolyAt_rat`); the product-map step onto the iterated spelling is the
+    theory's `map_slotPolynomial`, so no `Polynomial.map_prod` is re-derived here.
+  * `mem_adjoin_jqN_of_mem_mff` is the adjoin collapse the non-membership needs; it never
+    depended on the induction.
   spec-pin: P2M/Sol/S_ModularCurve_minpoly_jqN_map_eq_prod_slots.lean
   spec-pin: P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean
   spec-pin: Theorems/Thm_ModularCurve_minpoly_jqN_map_eq_prod_slots.lean
   spec-pin: Theorems/Thm_ModularCurve_jqN_prime_not_mem_full.lean
 -/
+
 import Mathlib.Data.Nat.Count
 import Mathlib.Data.Nat.Periodic
 import Mathlib.NumberTheory.Divisors
@@ -102,6 +98,8 @@ import FLTForHuman.ModularCurve.PhiGenSplits
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
 import FLTForHuman.NumberTheory.DedekindPsi
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Rat.SlotProduct
 
 set_option autoImplicit false
 -- The pin installs the `Algebra ℚ⟮jq⟯ (LaurentSeries K)` instance (via `letI`) and
@@ -128,19 +126,11 @@ variable {K : Type*} [Field K] [Algebra ℚ K]
 /-- The slot value `sv K ζ a b = qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq))`,
 with `sv K ζ 0 b = 0` so the `if`-form matches the pin's wrapper. -/
 def sv (K : Type*) [Field K] [Algebra ℚ K] (ζ : Kˣ) (a b : ℕ) : LaurentSeries K :=
-  if h : a = 0 then 0 else
-    letI : NeZero a := ⟨h⟩
-    qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq))
-
-private theorem sv_eq (ζ : Kˣ) (a b : ℕ) [NeZero a] :
-    sv K ζ a b = qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq)) := by
-  unfold sv
-  rw [dite_eq_right (NeZero.ne a)]
+  slotValue (coeffEmb K) jq ζ a b
 
 theorem sv_eq_TS (ζ : Kˣ) (a b : ℕ) [NeZero a] :
     sv K ζ a b = TS K (a * a) (ζ ^ (b * a)) := by
-  rw [sv_eq, coeffEmb_jq]
-  rfl
+  exact slotValue_eq_TS (coeffEmb K) jq ζ a b (coeffEmb_jq K)
 
 omit [Algebra ℚ K] in
 theorem TS_congr' {e e' : ℕ} [NeZero e] [NeZero e'] {u u' : Kˣ} (he : e = e')
@@ -148,28 +138,13 @@ theorem TS_congr' {e e' : ℕ} [NeZero e] [NeZero e'] {u u' : Kˣ} (he : e = e')
   subst he
   rw [hu]
 
-/-- The slots `sv K ζ a b` are distinct for `a ≠ 0`, `b * a < M`: the exponent and
-the twist separate them by `TS_injective` and `IsPrimitiveRoot.pow_inj`. -/
+/-- **The slots `sv K ζ a b` are distinct** for `a ≠ 0`, `b * a < M`. Delegated: the theory's
+`slotValue_inj` is stated on exactly these raw bounds, so the pin's raw-bound form is one
+application. -/
 theorem sv_inj {M : ℕ} {ζ : Kˣ} (hζ : IsPrimitiveRoot (ζ : K) M)
     {a b a' b' : ℕ} (ha0 : a ≠ 0) (ha0' : a' ≠ 0) (hb : b * a < M) (hb' : b' * a' < M)
-    (h : sv K ζ a b = sv K ζ a' b') : a = a' ∧ b = b' := by
-  haveI : NeZero a := ⟨ha0⟩
-  haveI : NeZero a' := ⟨ha0'⟩
-  rw [sv_eq_TS, sv_eq_TS] at h
-  obtain ⟨he, hu⟩ := TS_injective h
-  have haa : a = a' := (mul_self_inj (Nat.zero_le a) (Nat.zero_le a')).mp he
-  subst haa
-  refine ⟨rfl, ?_⟩
-  have hv : ((ζ : K)) ^ (b * a) = ((ζ : K)) ^ (b' * a) := by
-    have h1 := congrArg Units.val hu
-    rwa [Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val] at h1
-  have h2 : b * a = b' * a := hζ.pow_inj hb hb' hv
-  exact Nat.eq_of_mul_eq_mul_right (Nat.pos_of_ne_zero ha0) h2
-
-private theorem sv_top (M : ℕ) [NeZero M] (ζ : Kˣ) :
-    sv K ζ M 0 = coeffEmb K (qExpand ℚ M (jqN M)) := by
-  rw [sv_eq_TS, iota_jqN M M]
-  exact TS_congr' rfl (by rw [zero_mul, pow_zero])
+    (h : sv K ζ a b = sv K ζ a' b') : a = a' ∧ b = b' :=
+  slotValue_inj (coeffEmb K) jq (coeffEmb_jq K) hζ ha0 ha0' hb hb' h
 
 /-- A member of the two-generator field `ℚ(jq, jqN M)` lies in `ℚ⟮jq⟯⟮jqN M⟯`: the
 scalars-extended adjoin collapses to the simple extension by `jqN M`. -/
@@ -211,32 +186,30 @@ theorem map_qExpand_minpoly_eq {M' : ℕ} [NeZero M'] (k : ℕ) [NeZero k] {N : 
           (fun b => Nat.gcd (Nat.gcd a b) (M' / a) = 1),
           (Polynomial.X - Polynomial.C (qExpand K k (sv K ζ' a b))) := by
   subst hN
-  have hcomp : (qExpand K k).comp (((coeffEmb K).comp (qExpand ℚ M')).comp
-      (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = ((coeffEmb K).comp (qExpand ℚ (k * M'))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) := by
-    refine RingHom.ext fun z => ?_
-    simp only [RingHom.comp_apply]
-    rw [coeffEmb_qExpand, qExpand_qExpand, ← coeffEmb_qExpand]
   have h1 : (minpoly ℚ⟮jq⟯ (jqN M')).map
       (((coeffEmb K).comp (qExpand ℚ (k * M'))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = ((minpoly ℚ⟮jq⟯ (jqN M')).map
-          (((coeffEmb K).comp (qExpand ℚ M')).comp
-            (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).map (qExpand K k) := by
-    rw [Polynomial.map_map, hcomp]
-  rw [h1, hid, Polynomial.map_prod]
-  refine Finset.prod_congr rfl fun a _ => ?_
-  rw [Polynomial.map_prod]
-  refine Finset.prod_congr rfl fun b _ => ?_
-  rw [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C]
+      = (pushedMinpoly (coeffEmb K) jq M').map (qExpand K k) := by
+    rw [← pushedMinpolyAt_rat M' (k * M')]
+    rw [pushedMinpolyAt_map_qExpand (coeffEmb K) jq
+      (fun N _ x => coeffEmb_qExpand K N x) (m := M') (k := k), pushedMinpolyAt_self]
+  rw [h1, pushedMinpoly_rat M', hid]
+  show (∏ a ∈ M'.divisors, ∏ b ∈ (Finset.range (M' / a)).filter
+      (fun b => Nat.gcd (Nat.gcd a b) (M' / a) = 1),
+      (Polynomial.X - Polynomial.C (slotValue (coeffEmb K) jq ζ' a b))).map (qExpand K k)
+    = ∏ a ∈ M'.divisors, ∏ b ∈ (Finset.range (M' / a)).filter
+      (fun b => Nat.gcd (Nat.gcd a b) (M' / a) = 1),
+      (Polynomial.X - Polynomial.C (qExpand K k (sv K ζ' a b)))
+  rw [← slotPolynomial_eq_prod (coeffEmb K) jq M' ζ']
+  exact map_slotPolynomial (coeffEmb K) jq M' ζ' (qExpand K k)
 
-/-! ## The base field and the slot multiset
+/-! ## The slot multiset
 
 The slot product of the headline is a product over the multiset of slot values
 `∏ a ∈ M.divisors, ∏ b ∈ (range (M / a)).filter (gcd … = 1), (X - C (F a b))`. Making
 that multiset explicit lets the counting (`card_slotValues`), the distinctness
 (`nodup_slotValues`) and "the product is the factored multiset" (`prod_slotValues`)
-be stated once; both headlines then run on the same three lemmas. This is the
-`ℚ`-layer twin of the same block in `SlotProductAnyField.lean`. -/
+be stated once; the headlines then run on those three lemmas. The multiset API is
+`FunctionFieldGeneration/SlotValues.lean`. -/
 
 /-- **Slot values separate their parameters**: for `a, a' ∣ M`, `b < M / a`,
 `b' < M / a'` and `ζ` a primitive `M`-th root, equal slot values force `(a, b) = (a', b')`.
@@ -246,798 +219,7 @@ theorem sv_inj_slot {M : ℕ} {ζ : Kˣ} (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K)
     (hM0 : M ≠ 0) {a b a' b' : ℕ} (haM : a ∣ M) (haM' : a' ∣ M)
     (hb : b < M / a) (hb' : b' < M / a') (h : sv K ζ a b = sv K ζ a' b') :
     a = a' ∧ b = b' := by
-  have ha0 : a ≠ 0 := by
-    rintro rfl
-    exact hM0 (Nat.eq_zero_of_zero_dvd haM)
-  have ha0' : a' ≠ 0 := by
-    rintro rfl
-    exact hM0 (Nat.eq_zero_of_zero_dvd haM')
-  have hba : b * a < M := by
-    calc b * a < M / a * a :=
-        (Nat.mul_lt_mul_right (Nat.pos_of_ne_zero ha0)).mpr hb
-      _ = M := Nat.div_mul_cancel haM
-  have hba' : b' * a' < M := by
-    calc b' * a' < M / a' * a' :=
-        (Nat.mul_lt_mul_right (Nat.pos_of_ne_zero ha0')).mpr hb'
-      _ = M := Nat.div_mul_cancel haM'
-  exact sv_inj hζ ha0 ha0' hba hba' h
-
-/-- **The slots of `ζ` are distinct**: the slot values `sv K ζ a b` form a multiset
-without repetitions. -/
-private theorem nodup_slotValues_sv {M : ℕ} {ζ : Kˣ} (hM0 : M ≠ 0)
-    (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M) :
-    (slotValues M (fun a b => sv K ζ a b)).Nodup := by
-  refine nodup_slotValues fun a b a' b' ha ha' hb hb' h => ?_
-  exact sv_inj_slot hζ hM0 (Nat.mem_divisors.mp ha).1 (Nat.mem_divisors.mp ha').1
-    (Finset.mem_range.mp (Finset.mem_filter.mp hb).1)
-    (Finset.mem_range.mp (Finset.mem_filter.mp hb').1) h
-
-/-! ## The slot product `rval_aux` and its named steps
-
-`rval_aux` is a strong induction on `M`. Its content is split as follows.
-
-* `SlotProductAt M K ζ` is the induction statement itself, packaged so that it can be
-  passed around as the induction hypothesis.
-* `isRoot_map_minpoly_sv`: every slot value `sv K ζ a b` is a root of the mapped minimal
-  polynomial. For `a = M` this is `isRoot_map_minpoly_sv_top`; otherwise the slot descends
-  along the least prime `p` of `M / a` to the level `a * d''`, which is
-  `isRoot_map_minpoly_sv_of_descent`. That step uses the induction hypothesis at
-  `a * d''` (`isRoot_qExpand_sv_of_slot_product`), the degree of the step
-  (`finrank_adjoin_mul_dedekindPsi`), the factorisation of `Φ_p` at the descended slot
-  (`phiAtSeed_slot_factor`), and then splits on whether `p ∣ a * d''`:
-  `isRoot_map_minpoly_sv_of_dvd` (the seed polynomial is divided by the linear factor at the
-  descended conjugate) and `isRoot_map_minpoly_sv_of_not_dvd` (degrees agree, so the minimal
-  polynomial is the seed polynomial).
-* `minpoly_map_eq_prod_slots_one` is the base case `M = 1`.
-* The counting `card_slotValues`, the distinctness `nodup_slotValues_sv` and the degree
-  `natDegree_minpoly_jqN` then show that the `ψ(M)` slot values exhaust the roots.
-
-The `ℚ`-layer differences from the `C` twin (`SlotProductAnyField.lean`) are the
-coefficient map `(coeffEmb K).comp (qExpand ℚ M)` and the `letI : Algebra ℚ⟮jq⟯
-(LaurentSeries K)` installed in `isRoot_map_minpoly_sv_of_descent` (the pin's
-`p2m_open` instance, needed to read the conjugates `ψ` as `ℚ⟮jq⟯`-algebra maps). -/
-
-section RValCore
-
-/-- **The slot-product statement at `M`**: the conclusion of `rval_aux`, as a named
-predicate, so the strong-induction hypothesis can be passed to the lemmas below. It is a
-`def`, not an `abbrev`: as an `abbrev` it would re-unfold at every use.
-
-Public: this is the port's name for the induction statement (the pin writes the same
-product inline in `rval_aux` and in each of its step lemmas). -/
-def SlotProductAt (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℚ K] (ζ : Kˣ) : Prop :=
-  IsPrimitiveRoot ((ζ : Kˣ) : K) M →
-    (∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank ℚ⟮jq⟯
-          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d) →
-    (minpoly ℚ⟮jq⟯ (jqN M)).map
-        (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = ∏ a ∈ M.divisors, ∏ b ∈ (Finset.range (M / a)).filter
-          (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
-          (Polynomial.X - Polynomial.C (sv K ζ a b))
-
-/-- **The base case `M = 1`**: `jqN 1 = jq` already lies in the base field `ℚ⟮jq⟯`, so its
-minimal polynomial is `X - C jq`; the slot product has the single slot
-`sv K ζ 1 0 = coeffEmb K jq`. -/
-private theorem minpoly_map_eq_prod_slots_one (ζ : Kˣ) :
-    (minpoly ℚ⟮jq⟯ (jqN 1)).map
-        (((coeffEmb K).comp (qExpand ℚ 1)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = ∏ a ∈ (1 : ℕ).divisors, ∏ b ∈ (Finset.range (1 / a)).filter
-          (fun b => Nat.gcd (Nat.gcd a b) (1 / a) = 1),
-          (Polynomial.X - Polynomial.C (sv K ζ a b)) := by
-  have hjq1 : jqN 1 = algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ) jGen := by
-    rw [show jqN 1 = jq from by rw [jqN, qExpand_one_apply]]
-    rfl
-  have hmin : minpoly ℚ⟮jq⟯ (jqN 1) = Polynomial.X - Polynomial.C jGen := by
-    rw [hjq1]
-    exact minpoly.eq_X_sub_C (B := LaurentSeries ℚ) jGen
-  have hfil : (Finset.range (1 / 1)).filter
-      (fun b => Nat.gcd (Nat.gcd 1 b) (1 / 1) = 1) = {0} := by decide
-  rw [hmin, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, Nat.divisors_one,
-    Finset.prod_singleton, hfil, Finset.prod_singleton]
-  congr 1
-  have h1 : (((coeffEmb K).comp (qExpand ℚ 1)).comp
-      (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) jGen = coeffEmb K jq := by
-    simp only [RingHom.comp_apply]
-    rw [show (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) jGen = jq from rfl, qExpand_one_apply]
-  rw [h1]
-  haveI : NeZero (1 : ℕ) := ⟨one_ne_zero⟩
-  have h2 : sv K ζ 1 0 = coeffEmb K jq := by
-    rw [sv_eq_TS]
-    have h3 : TS K (1 * 1) (ζ ^ (0 * 1)) = TS K 1 1 :=
-      TS_congr' (Nat.mul_one 1) (by rw [Nat.zero_mul, pow_zero])
-    rw [h3, TS, qTwist_one_apply, qExpand_one_apply, coeffEmb_jq]
-  rw [h2]
-
-/-- **The slot at the top divisor**: for `a = M` (i.e. `M / a = 1`) the only slot is
-`b = 0`, and `sv K ζ M 0 = coeffEmb K (qExpand ℚ M (jqN M))` is a root of the mapped
-minimal polynomial by definition of `minpoly`. -/
-private theorem isRoot_map_minpoly_sv_top {M a b : ℕ} [NeZero M] (ζ : Kˣ) (haM : a ∣ M)
-    (hd1 : M / a = 1)
-    (hb : b ∈ (Finset.range (M / a)).filter
-      (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1)) :
-    ((minpoly ℚ⟮jq⟯ (jqN M)).map
-      (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
-      (sv K ζ a b) := by
-  have had : a * (M / a) = M := Nat.mul_div_cancel' haM
-  have hbr : b < M / a := Finset.mem_range.mp (Finset.mem_filter.mp hb).1
-  have haM' : a = M := by rw [hd1, mul_one] at had; exact had
-  have hb0 : b = 0 := by omega
-  subst hb0
-  rw [show sv K ζ a 0 = sv K ζ M 0 from by rw [haM'], sv_top,
-    show coeffEmb K (qExpand ℚ M (jqN M))
-      = ((coeffEmb K).comp (qExpand ℚ M)) (jqN M) from rfl]
-  rw [Polynomial.IsRoot, Polynomial.eval_map, ← Polynomial.hom_eval₂]
-  have h0 : Polynomial.eval₂ (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) (jqN M)
-      (minpoly ℚ⟮jq⟯ (jqN M)) = 0 := by
-    rw [← Polynomial.aeval_def]
-    exact minpoly.aeval _ _
-  rw [h0, map_zero]
-
-/-- **The degree step at a divisor**: adjoining `jqN M` to `ℚ⟮jq⟯⟮jqN d⟯` multiplies the
-degree by `ψ(d)`, i.e. `[top : ℚ⟮jq⟯⟮jqN d⟯] * ψ(d) = ψ(M)`. The adjoin
-`ℚ⟮jq⟯⟮jqN d⟯⟮jqN M⟯` collapses to `ℚ⟮jq⟯⟮jqN M⟯` because `jqN d` already lies in the
-modular function field of `M` (`modularFunctionField M`, which `hgM` identifies with
-`modularFunctionFieldFull M`). -/
-private theorem finrank_adjoin_mul_dedekindPsi {M d : ℕ} [NeZero M] [NeZero d] (hd : d ∣ M)
-    (htM : Module.finrank ℚ⟮jq⟯
-      (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ))) = dedekindPsi M)
-    (hgM : modularFunctionField M = modularFunctionFieldFull M)
-    (htd : Module.finrank ℚ⟮jq⟯
-      (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d) :
-    Module.finrank ℚ⟮jq⟯⟮jqN d⟯ (ℚ⟮jq⟯⟮jqN d⟯⟮jqN M⟯) * dedekindPsi d = dedekindPsi M := by
-  haveI : Module.Free ℚ⟮jq⟯⟮jqN d⟯ ℚ⟮jq⟯⟮jqN d⟯⟮jqN M⟯ :=
-    Module.Free.of_divisionRing _ _
-  have htow := Module.finrank_mul_finrank ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN d⟯ ℚ⟮jq⟯⟮jqN d⟯⟮jqN M⟯
-  have habs : IntermediateField.adjoin ℚ⟮jq⟯
-      (({jqN d} : Set (LaurentSeries ℚ)) ∪ {jqN M})
-      = IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ)) := by
-    refine le_antisymm (IntermediateField.adjoin_le_iff.mpr ?_)
-      (IntermediateField.adjoin.mono _ _ _ Set.subset_union_right)
-    rintro z (hz | hz)
-    · rw [Set.mem_singleton_iff] at hz
-      subst hz
-      have h1 : jqN d ∈ modularFunctionFieldFull M := jqd_mem_full M hd
-      rw [← hgM] at h1
-      exact mem_adjoin_jqN_of_mem_mff h1
-    · rw [Set.mem_singleton_iff] at hz
-      subst hz
-      exact IntermediateField.subset_adjoin _ _ rfl
-  have htop : Module.finrank ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN d⟯⟮jqN M⟯ = dedekindPsi M := by
-    have h1 := IntermediateField.adjoin_adjoin_left ℚ⟮jq⟯
-      ({jqN d} : Set (LaurentSeries ℚ)) {jqN M}
-    have h2 : Module.finrank ℚ⟮jq⟯
-        (IntermediateField.restrictScalars ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN d⟯⟮jqN M⟯)
-        = Module.finrank ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN d⟯⟮jqN M⟯ := rfl
-    rw [← h2, h1, habs]
-    exact htM
-  rw [← htd, ← htop, Nat.mul_comm]
-  exact htow
-
-/-- **The descended slot root, pushed up**: if the slot product holds at the level
-`d = a * d''` for the primitive root `ζ ^ p` (the strong-induction hypothesis) and
-`M = p * (a * d'')`, then the expanded slot value `qExpand K p (sv K (ζ ^ p) a (b % d''))`
-is a root of the `qExpand ℚ M`-push of `minpoly ℚ⟮jq⟯ (jqN (a * d''))`: it is one of the
-slots of the slot product at `a * d''`, read after `qExpand K p`. -/
-private theorem isRoot_qExpand_sv_of_slot_product {M a b d'' p : ℕ} [NeZero M] [NeZero a]
-    [NeZero d''] [NeZero p] {ζ : Kˣ} (hM : M = p * (a * d''))
-    (hprod : (minpoly ℚ⟮jq⟯ (jqN (a * d''))).map
-        (((coeffEmb K).comp (qExpand ℚ (a * d''))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = ∏ a' ∈ (a * d'').divisors, ∏ b' ∈ (Finset.range (a * d'' / a')).filter
-          (fun b' => Nat.gcd (Nat.gcd a' b') (a * d'' / a') = 1),
-          (Polynomial.X - Polynomial.C (sv K (ζ ^ p) a' b')))
-    (hb''lt : b % d'' < d'') (hprim' : Nat.gcd (Nat.gcd a (b % d'')) d'' = 1) :
-    ((minpoly ℚ⟮jq⟯ (jqN (a * d''))).map
-      (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
-      (qExpand K p (sv K (ζ ^ p) a (b % d''))) := by
-  have hM'0 : a * d'' ≠ 0 := Nat.mul_ne_zero (NeZero.ne a) (NeZero.ne d'')
-  rw [map_qExpand_minpoly_eq p hM (ζ ^ p) hprod, Polynomial.IsRoot, Polynomial.eval_prod]
-  refine Finset.prod_eq_zero (i := a) (Nat.mem_divisors.mpr ⟨⟨d'', rfl⟩, hM'0⟩) ?_
-  rw [Polynomial.eval_prod]
-  have hM'a : a * d'' / a = d'' := Nat.mul_div_cancel_left d'' (Nat.pos_of_ne_zero (NeZero.ne a))
-  refine Finset.prod_eq_zero (i := b % d'') ?_ ?_
-  · rw [hM'a]
-    exact Finset.mem_filter.mpr ⟨Finset.mem_range.mpr hb''lt, hprim'⟩
-  · rw [Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_self]
-
-/-- **The `Φ_p`-factorisation at a slot**: the seed polynomial `Φ_p` evaluated at the slot
-`qExpand K p (sv K (ζ ^ p) a b)` splits as the extra conjugate at level `p * p` times the
-`p` finite conjugates `qExpand K (a * a) (qTwist (ζ ^ (b * a) * ζ ^ (c * (M / p))) …)`.
-This is `PhiGen.splits_prime_at_slot` after rewriting the slot value through `TS`. -/
-private theorem phiAtSeed_slot_factor {M a b p : ℕ} [NeZero M] [NeZero a] [NeZero p]
-    {ζ : Kˣ} (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M) (hpp : p.Prime) (hpM : p ∣ M)
-    (dp : ModularPolynomialData p) :
-    phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a b))
-      = (Polynomial.X - Polynomial.C (qExpand K (p * (p * (a * a)))
-          (qTwist ((ζ ^ (b * a)) ^ (p * p)) (coeffEmb K jq))))
-        * ∏ c ∈ Finset.range p, (Polynomial.X - Polynomial.C (qExpand K (a * a)
-          (qTwist (ζ ^ (b * a) * ζ ^ (c * (M / p))) (coeffEmb K jq)))) := by
-  haveI : Fact p.Prime := ⟨hpp⟩
-  have hseed : qExpand K p (sv K (ζ ^ p) a b)
-      = qExpand K (p * (a * a)) (qTwist ((ζ ^ (b * a)) ^ p) (coeffEmb K jq)) := by
-    rw [sv_eq_TS, qExpand_TS, coeffEmb_jq]
-    show TS K (p * (a * a)) ((ζ ^ p) ^ (b * a))
-      = TS K (p * (a * a)) ((ζ ^ (b * a)) ^ p)
-    exact TS_congr' rfl (by rw [← pow_mul, ← pow_mul, Nat.mul_comm])
-  have hC5 := PhiGen.splits_prime_at_slot M ζ hζ p hpM dp (a * a) (ζ ^ (b * a))
-  rw [hseed]
-  exact hC5
-
-/-- **The target slot**: for `M = a * d'' * p` and `b < M / a`, the `(b / d'')`-th finite
-conjugate at the descended slot is the slot value `sv K ζ a b` — the two exponents agree
-because `b = b % d'' + (b / d'') * d''`. -/
-private theorem qExpand_qTwist_slot_eq_sv {M a b d'' p : ℕ} [NeZero M] [NeZero a]
-    [NeZero p] {ζ : Kˣ} (hMp : M / p = a * d'') (hbsplit : b % d'' + b / d'' * d'' = b) :
-    qExpand K (a * a) (qTwist (ζ ^ (b % d'' * a) * ζ ^ (b / d'' * (M / p)))
-      (coeffEmb K jq)) = sv K ζ a b := by
-  rw [sv_eq, coeffEmb_jq]
-  show TS K (a * a) (ζ ^ (b % d'' * a) * ζ ^ (b / d'' * (M / p))) = TS K (a * a) (ζ ^ (b * a))
-  refine TS_congr' rfl ?_
-  rw [hMp, ← pow_add]
-  congr 1
-  rw [show b % d'' * a + b / d'' * (a * d'')
-    = (b % d'' + b / d'' * d'') * a from by ring, hbsplit]
-
-/-- **Transfer to the base field**: a root of the `ψ`-push of the minimal polynomial over
-`A = ℚ⟮jq⟯⟮jqN d⟯` is a root of the `(coeffEmb K ∘ qExpand ℚ M)`-push of the minimal
-polynomial over `ℚ⟮jq⟯`: the base minimal polynomial maps into `A` as a multiple of the
-`A`-minimal polynomial. -/
-private theorem isRoot_map_minpoly_of_isRoot_subfield {M d : ℕ} [NeZero M] [NeZero d]
-    {ψ : ℚ⟮jq⟯⟮jqN d⟯ →+* LaurentSeries K}
-    (hψcomp : ψ.comp (algebraMap ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN d⟯)
-      = ((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-    {x : LaurentSeries K}
-    (hroot : ((minpoly ℚ⟮jq⟯⟮jqN d⟯ (jqN M)).map ψ).IsRoot x) :
-    ((minpoly ℚ⟮jq⟯ (jqN M)).map
-      (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot x := by
-  have htowdvd : minpoly ℚ⟮jq⟯⟮jqN d⟯ (jqN M)
-      ∣ (minpoly ℚ⟮jq⟯ (jqN M)).map (algebraMap ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN d⟯) :=
-    minpoly.dvd_map_of_isScalarTower ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN d⟯ (jqN M)
-  have h1 := Polynomial.map_dvd ψ htowdvd
-  rw [Polynomial.map_map] at h1
-  rw [hψcomp] at h1
-  exact Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero h1 hroot
-
-/-- **The conjugate at the descended slot**: if the expanded slot value
-`qExpand K p (sv K (ζ ^ p) a (b % d''))` is a root of the `qExpand ℚ M`-push of
-`minpoly ℚ⟮jq⟯ (jqN (a * d''))`, then it is the image of the slot generator under a
-`ℚ⟮jq⟯`-algebra map `ψ₁` out of `A = ℚ⟮jq⟯⟮jqN (a * d'')⟯`, and the push of scalars along
-`ψ₁` is the `(coeffEmb K).comp (qExpand ℚ M)` map. This is the pin's
-`p2m_open`-instance step: the `AlgHom` needs the `letI : Algebra ℚ⟮jq⟯ (LaurentSeries K)`
-of the caller, which is why it is taken as an instance argument here. -/
-private theorem exists_algHom_adjoin_of_isRoot {M a b d'' p : ℕ} [NeZero M] [NeZero a]
-    [NeZero d''] [NeZero p] [NeZero (a * d'')] {ζ : Kˣ}
-    (hα' : IsIntegral ℚ⟮jq⟯ (jqN (a * d'')))
-    (hroot' : ((minpoly ℚ⟮jq⟯ (jqN (a * d''))).map
-      (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
-      (qExpand K p (sv K (ζ ^ p) a (b % d''))))
-    [Algebra ℚ⟮jq⟯ (LaurentSeries K)]
-    (halg : algebraMap ℚ⟮jq⟯ (LaurentSeries K)
-      = ((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) :
-    ∃ ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →ₐ[ℚ⟮jq⟯] LaurentSeries K,
-      ψ₁ (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d'')))
-          = qExpand K p (sv K (ζ ^ p) a (b % d''))
-        ∧ (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K).comp
-            (algebraMap ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN (a * d'')⟯)
-          = ((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) := by
-  have hy_mem : qExpand K p (sv K (ζ ^ p) a (b % d''))
-      ∈ (minpoly ℚ⟮jq⟯ (jqN (a * d''))).aroots (LaurentSeries K) := by
-    rw [Polynomial.mem_aroots]
-    refine ⟨minpoly.ne_zero hα', ?_⟩
-    rw [Polynomial.aeval_def, halg, Polynomial.eval₂_eq_eval_map]
-    exact hroot'
-  obtain ⟨ψ₁, hψ₁⟩ : ∃ ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →ₐ[ℚ⟮jq⟯] LaurentSeries K,
-      ψ₁ (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d'')))
-        = qExpand K p (sv K (ζ ^ p) a (b % d'')) :=
-    ⟨(IntermediateField.algHomAdjoinIntegralEquiv ℚ⟮jq⟯ hα').symm ⟨_, hy_mem⟩,
-      IntermediateField.algHomAdjoinIntegralEquiv_symm_apply_gen ℚ⟮jq⟯ hα' ⟨_, hy_mem⟩⟩
-  refine ⟨ψ₁, hψ₁, ?_⟩
-  rw [AlgHom.comp_algebraMap]
-  exact halg
-
-/-- **The seed polynomial at the descended conjugate**: for `a * d'' = p * m` the seed
-polynomial `phiAtSeed dp`, evaluated at the expanded slot
-`qExpand K p (sv K (ζ ^ p) a (b % d''))`, is rooted at `ψ ⟨jqN m, _⟩`. The proof reads the
-vanishing of `phiAtSeed dp` at `jqN (a * d'')` through `EvalSymm` (`phiAtSeed_eval_symm`),
-descends it to the element of `A`, and pushes it along `ψ`. -/
-private theorem isRoot_phiAtSeed_slot_apply {a b d'' p m : ℕ} [NeZero a]
-    [NeZero p] [NeZero (a * d'')] [NeZero m] {ζ : Kˣ} {dp : ModularPolynomialData p} (hdpsym : EvalSymm dp.Φ)
-    (hm : a * d'' = p * m) {hmem : jqN m ∈ ℚ⟮jq⟯⟮jqN (a * d'')⟯}
-    {ψ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K}
-    (hψ₁ : ψ (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d'')))
-      = qExpand K p (sv K (ζ ^ p) a (b % d''))) :
-    (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d'')))).IsRoot (ψ ⟨jqN m, hmem⟩) := by
-  have hdown : (phiAtSeed dp (jqN (a * d''))).eval (jqN m) = 0 := by
-    rw [phiAtSeed_eval_symm dp hdpsym]
-    have h1 := phiAtSeed_jqN_eval p dp m
-    rwa [show jqN (m * p) = jqN (a * d'') from jqN_congr (by rw [hm]; ring)] at h1
-  have hdownF₁ : (phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯
-      (jqN (a * d'')))).eval (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯) = 0 :=
-    phiAtSeed_eval_of_injective dp _ _
-      (algebraMap ℚ⟮jq⟯⟮jqN (a * d'')⟯ (LaurentSeries ℚ)) (RingHom.injective _) hdown
-  have h1 := phiAtSeed_eval_map dp _ _ ψ hdownF₁
-  rwa [hψ₁] at h1
-
-/-- **Separation at the descended point** (the case `p ∣ a * d''`): if `a * d'' = m * p` and
-`m < M`, then the slot value `sv K ζ a b` is not the image `ψ ⟨jqN m, _⟩` of the descended
-conjugate. If it were, `TS`-injectivity applied to the slot product at `m` (the induction
-hypothesis for `ζ ^ (p * p)`) would force `p ∣ gcd (gcd a b) (M / a)`, against the
-coprimality of the slot. -/
-private theorem sv_ne_image_of_dvd {M a b d'' p m : ℕ} [NeZero M] [NeZero a] [NeZero d'']
-    [NeZero p] [NeZero m] {ζ : Kˣ} (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M) (hpp : p.Prime)
-    (hMM' : M = a * d'' * p) (hm : a * d'' = p * m) (hm0 : m ≠ 0) (hmM : m ∣ M)
-    (hmlt : m < M) (hbr : b < M / a) (haM : a ∣ M)
-    (hbc : Nat.gcd (Nat.gcd a b) (M / a) = 1) (hdd : M / a = p * d'')
-    (hmem : jqN m ∈ ℚ⟮jq⟯⟮jqN (a * d'')⟯)
-    {ψ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K}
-    (hroot : ((minpoly ℚ⟮jq⟯ (jqN m)).map
-      (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
-      (ψ ⟨jqN m, hmem⟩))
-    (IH : ∀ (n : ℕ), n < M → ∀ [NeZero n] (ζ : Kˣ), SlotProductAt n K ζ)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank ℚ⟮jq⟯
-          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d) :
-    sv K ζ a b ≠ ψ ⟨jqN m, hmem⟩ := by
-  intro hcon
-  have hζ'' : IsPrimitiveRoot ((ζ ^ (p * p) : Kˣ) : K) m := by
-    have h1 := isPrimitiveRoot_pow_div hζ hmM
-    have h2 : M / m = p * p := by
-      have hM : M = m * (p * p) := by rw [hMM', hm]; ring
-      rw [hM]
-      exact Nat.mul_div_cancel_left _ (Nat.pos_of_ne_zero hm0)
-    rwa [h2] at h1
-  have hIH'' := IH m hmlt (ζ ^ (p * p)) hζ''
-    (fun e he'' _ => hall e (he''.trans hmM))
-  have hIHM'' := map_qExpand_minpoly_eq (p * p)
-    (show M = p * p * m from by rw [hMM', hm]; ring) (ζ ^ (p * p)) hIH''
-  rw [hIHM'', Polynomial.IsRoot, Polynomial.eval_prod] at hroot
-  obtain ⟨α, hαmem, hα0⟩ := Finset.prod_eq_zero_iff.mp hroot
-  rw [Polynomial.eval_prod] at hα0
-  obtain ⟨β, hβmem, hβ0⟩ := Finset.prod_eq_zero_iff.mp hα0
-  rw [Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_eq_zero] at hβ0
-  obtain ⟨hαdvd, -⟩ := Nat.mem_divisors.mp hαmem
-  obtain ⟨hβr, -⟩ := Finset.mem_filter.mp hβmem
-  rw [Finset.mem_range] at hβr
-  have hα0' : α ≠ 0 := by
-    rintro rfl
-    exact hm0 (Nat.eq_zero_of_zero_dvd hαdvd)
-  haveI : NeZero α := ⟨hα0'⟩
-  have hcoll : TS K (a * a) (ζ ^ (b * a))
-      = TS K (p * p * (α * α)) (ζ ^ (p * p * (β * α))) := by
-    calc TS K (a * a) (ζ ^ (b * a)) = sv K ζ a b := (sv_eq_TS ζ a b).symm
-      _ = ψ ⟨jqN m, hmem⟩ := hcon
-      _ = qExpand K (p * p) (sv K (ζ ^ (p * p)) α β) := hβ0
-      _ = qExpand K (p * p) (TS K (α * α) ((ζ ^ (p * p)) ^ (β * α))) := by
-          rw [sv_eq_TS]
-      _ = TS K (p * p * (α * α)) ((ζ ^ (p * p)) ^ (β * α)) := qExpand_TS _ _ _
-      _ = TS K (p * p * (α * α)) (ζ ^ (p * p * (β * α))) :=
-          TS_congr' rfl (by rw [← pow_mul])
-  obtain ⟨hexp, hunit⟩ := TS_injective hcoll
-  have haα : a = p * α := by
-    have h2 : a * a = (p * α) * (p * α) := by rw [hexp]; ring
-    exact (mul_self_inj (Nat.zero_le _) (Nat.zero_le _)).mp h2
-  have hpa : p ∣ a := ⟨α, haα⟩
-  have hba : b * a < M := by
-    calc b * a < M / a * a :=
-        (Nat.mul_lt_mul_right (Nat.pos_of_ne_zero (NeZero.ne a))).mpr hbr
-      _ = M := Nat.div_mul_cancel haM
-  have hppβα : p * p * (β * α) < M := by
-    have h1 : β * α < m := by
-      calc β * α < m / α * α :=
-          (Nat.mul_lt_mul_right (Nat.pos_of_ne_zero hα0')).mpr hβr
-        _ ≤ m := Nat.div_mul_le_self m α
-    calc p * p * (β * α) < p * p * m :=
-        (Nat.mul_lt_mul_left (Nat.mul_pos hpp.pos hpp.pos)).mpr h1
-      _ = M := by rw [hMM', hm]; ring
-  have hvv : ((ζ : K)) ^ (b * a) = ((ζ : K)) ^ (p * p * (β * α)) := by
-    have h1 := congrArg Units.val hunit
-    rwa [Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val] at h1
-  have hexp2 : b * a = p * p * (β * α) := hζ.pow_inj hba hppβα hvv
-  have hpb : p ∣ b := by
-    refine ⟨β, ?_⟩
-    rw [haα] at hexp2
-    have h1 : b * (p * α) = p * β * (p * α) := by
-      rw [hexp2]
-      ring
-    exact Nat.eq_of_mul_eq_mul_right (Nat.mul_pos hpp.pos
-      (Nat.pos_of_ne_zero hα0')) h1
-  have hfinal : p ∣ Nat.gcd (Nat.gcd a b) (M / a) :=
-    Nat.dvd_gcd (Nat.dvd_gcd hpa hpb) ⟨d'', hdd⟩
-  rw [hbc] at hfinal
-  exact hpp.ne_one (Nat.dvd_one.mp hfinal)
-
-/-- **The root at a slot when `p ∣ a * d''`** (one case of the descent): the minimal
-polynomial of `jqN M` over `A = ℚ⟮jq⟯⟮jqN (a * d'')⟯` has degree `p`, one less than the
-seed polynomial `phiAtSeed dp` of degree `p + 1`; it is therefore the seed polynomial
-divided by the linear factor at the descended conjugate. Evaluating the remaining `p`
-finite conjugates at `sv K ζ a b` gives a root. -/
-private theorem isRoot_map_minpoly_sv_of_dvd {M a b d'' p m : ℕ} [NeZero M] [NeZero a]
-    [NeZero d''] [NeZero p] [NeZero m] {ζ : Kˣ} (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M)
-    (hpp : p.Prime) (hpM : p ∣ M) (dp : ModularPolynomialData p)
-    (hα₁ : IsIntegral ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M))
-    (hdeg : (minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).natDegree = p)
-    (hmem : jqN m ∈ ℚ⟮jq⟯⟮jqN (a * d'')⟯)
-    (hmindvd : minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)
-      ∣ phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d''))))
-    (hc₀p : b / d'' < p)
-    (hMp : M / p = a * d'') (hbsplit : b % d'' + b / d'' * d'' = b)
-    {ψ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K}
-    (hψ₁ : ψ (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d'')))
-      = qExpand K p (sv K (ζ ^ p) a (b % d'')))
-    (hψx : (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d'')))).IsRoot
-      (ψ ⟨jqN m, hmem⟩))
-    (hψxnotmin : ¬ ((minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ).IsRoot
-      (ψ ⟨jqN m, hmem⟩))
-    (htarget_ne : sv K ζ a b ≠ ψ ⟨jqN m, hmem⟩) :
-    ((minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ).IsRoot (sv K ζ a b) := by
-  have hΦfact := phiAtSeed_slot_factor (M := M) (a := a) (b := b % d'') (p := p) (K := K)
-    hζ hpp hpM dp
-  have htarget := qExpand_qTwist_slot_eq_sv (M := M) (a := a) (b := b) (d'' := d'') (p := p)
-    (K := K) (ζ := ζ) hMp hbsplit
-  have hQ : (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩)) *
-      (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) /ₘ
-        (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩)))
-      = phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) :=
-    Polynomial.mul_divByMonic_eq_iff_isRoot.mpr hψx
-  have hΦmonic : (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d'')))).Monic :=
-    phiAtSeed_monic dp _
-  have hQmonic : (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) /ₘ
-      (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩))).Monic :=
-    Polynomial.Monic.of_mul_monic_left (Polynomial.monic_X_sub_C _)
-      (by rw [hQ]; exact hΦmonic)
-  have hΦdeg : (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d'')))).natDegree = p + 1 := by
-    rw [phiAtSeed_natDegree]
-    exact dedekindPsi_prime hpp
-  have hQdeg : (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) /ₘ
-      (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩))).natDegree = p := by
-    have h1 : p + 1 = 1 + (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) /ₘ
-        (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩))).natDegree := by
-      rw [← hΦdeg]
-      conv_lhs => rw [← hQ]
-      rw [Polynomial.natDegree_mul (Polynomial.X_sub_C_ne_zero _) hQmonic.ne_zero,
-        Polynomial.natDegree_X_sub_C]
-    omega
-  have hP₁dvd : (minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ
-      ∣ phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) := by
-    have h1 := Polynomial.map_dvd ψ hmindvd
-    rwa [phiAtSeed_map, hψ₁] at h1
-  have hcop : IsCoprime (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩))
-      ((minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ) := by
-    rw [(Polynomial.irreducible_X_sub_C _).coprime_iff_not_dvd]
-    intro hcon
-    exact hψxnotmin (Polynomial.dvd_iff_isRoot.mp hcon)
-  have hP₁dvdQ : (minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ
-      ∣ phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) /ₘ
-        (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩)) := by
-    have h1 := hP₁dvd
-    rw [← hQ] at h1
-    exact (hcop.symm).dvd_of_dvd_mul_left h1
-  have hdeg₁ : ((minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ).natDegree = p := by
-    rw [Polynomial.Monic.natDegree_map (minpoly.monic hα₁)]
-    exact hdeg
-  have hmineqQ : (minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ
-      = phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) /ₘ
-        (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩)) :=
-    Polynomial.eq_of_monic_of_dvd_of_natDegree_le ((minpoly.monic hα₁).map _)
-      hQmonic hP₁dvdQ (le_of_eq (hQdeg.trans hdeg₁.symm)) |>.symm
-  have htargetΦ : (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d'')))).IsRoot
-      (sv K ζ a b) := by
-    rw [hΦfact, Polynomial.IsRoot, Polynomial.eval_mul]
-    refine mul_eq_zero.mpr (Or.inr ?_)
-    rw [Polynomial.eval_prod]
-    refine Finset.prod_eq_zero (Finset.mem_range.mpr hc₀p) ?_
-    rw [htarget, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_self]
-  rw [hmineqQ, Polynomial.IsRoot]
-  have h1 : ((Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩)) *
-      (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d''))) /ₘ
-        (Polynomial.X - Polynomial.C (ψ ⟨jqN m, hmem⟩)))).eval (sv K ζ a b) = 0 := by
-    rw [hQ]
-    exact htargetΦ
-  rw [Polynomial.eval_mul, Polynomial.eval_sub, Polynomial.eval_X,
-    Polynomial.eval_C] at h1
-  rcases mul_eq_zero.mp h1 with h2 | h2
-  · exact absurd (sub_eq_zero.mp h2) htarget_ne
-  · exact h2
-
-/-- **The root at a slot when `p ∤ a * d''`** (the other case of the descent): the degree of
-`jqN M` over `A = ℚ⟮jq⟯⟮jqN (a * d'')⟯` is `p + 1`, the degree of `phiAtSeed dp`; the two
-monic polynomials coincide, and `sv K ζ a b` is one of the `p` finite conjugates of `Φ_p` at
-that slot. -/
-private theorem isRoot_map_minpoly_sv_of_not_dvd {M a b d'' p : ℕ} [NeZero M] [NeZero a]
-    [NeZero d''] [NeZero p] {ζ : Kˣ} (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M) (hpp : p.Prime)
-    (hpM : p ∣ M) (dp : ModularPolynomialData p) (hpM' : ¬ p ∣ a * d'')
-    (hstep : Module.finrank ℚ⟮jq⟯⟮jqN (a * d'')⟯
-        (ℚ⟮jq⟯⟮jqN (a * d'')⟯⟮jqN M⟯) * dedekindPsi (a * d'') = dedekindPsi M)
-    (hMM' : M = a * d'' * p) (hM'0 : a * d'' ≠ 0)
-    (hα₁ : IsIntegral ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M))
-    (hmindvd : minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)
-      ∣ phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d''))))
-    (hc₀p : b / d'' < p)
-    (hMp : M / p = a * d'') (hbsplit : b % d'' + b / d'' * d'' = b)
-    {ψ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K}
-    (hψ₁ : ψ (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d'')))
-      = qExpand K p (sv K (ζ ^ p) a (b % d''))) :
-    ((minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map ψ).IsRoot (sv K ζ a b) := by
-  have hΦfact := phiAtSeed_slot_factor (M := M) (a := a) (b := b % d'') (p := p) (K := K)
-    hζ hpp hpM dp
-  have htarget := qExpand_qTwist_slot_eq_sv (M := M) (a := a) (b := b) (d'' := d'') (p := p)
-    (K := K) (ζ := ζ) hMp hbsplit
-  have hψM : dedekindPsi M = dedekindPsi (a * d'') * (p + 1) := by
-    rw [hMM']
-    exact dedekindPsi_mul_prime_not_dvd hpp hpM'
-  have he : Module.finrank ℚ⟮jq⟯⟮jqN (a * d'')⟯ (ℚ⟮jq⟯⟮jqN (a * d'')⟯⟮jqN M⟯) = p + 1 := by
-    have h1 : Module.finrank ℚ⟮jq⟯⟮jqN (a * d'')⟯
-        (ℚ⟮jq⟯⟮jqN (a * d'')⟯⟮jqN M⟯) * dedekindPsi (a * d'')
-        = (p + 1) * dedekindPsi (a * d'') := by
-      rw [hstep, hψM]
-      ring
-    exact Nat.eq_of_mul_eq_mul_right (dedekindPsi_pos _ hM'0) h1
-  have hdeg₁ : (minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).natDegree = p + 1 := by
-    rw [← IntermediateField.adjoin.finrank hα₁]
-    exact he
-  have hΦdeg : (phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯
-      (jqN (a * d'')))).natDegree = p + 1 := by
-    rw [phiAtSeed_natDegree]
-    exact dedekindPsi_prime hpp
-  have hmineq : minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)
-      = phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d''))) :=
-    Polynomial.eq_of_monic_of_dvd_of_natDegree_le (minpoly.monic hα₁)
-      (phiAtSeed_monic dp _) hmindvd (le_of_eq (hΦdeg.trans hdeg₁.symm)) |>.symm
-  rw [hmineq, phiAtSeed_map, hψ₁, hΦfact, Polynomial.IsRoot, Polynomial.eval_mul]
-  refine mul_eq_zero.mpr (Or.inr ?_)
-  rw [Polynomial.eval_prod]
-  refine Finset.prod_eq_zero (Finset.mem_range.mpr hc₀p) ?_
-  rw [htarget, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_self]
-
-/-- **The root at a descending slot** (the main case `M / a ≠ 1` of
-`isRoot_map_minpoly_sv`): let `p = (M / a).minFac` and `M / a = p * d''`. Replacing `M` by
-`a * d''` and `ζ` by `ζ ^ p` (the induction hypothesis), the slot `(a, b % d'')` at level
-`a * d''` pushes up to a conjugate `ψ₁` of `jqN M` over `ℚ⟮jq⟯⟮jqN (a * d'')⟯`; the value
-`sv K ζ a b` is then read off the `Φ_p`-factorisation at that conjugate, in the two cases
-`p ∣ a * d''` and `p ∤ a * d''`. -/
-private theorem isRoot_map_minpoly_sv_of_descent {M : ℕ} [NeZero M] (ζ : Kˣ)
-    (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank ℚ⟮jq⟯
-          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d)
-    (IH : ∀ (n : ℕ), n < M → ∀ [NeZero n] (ζ : Kˣ), SlotProductAt n K ζ)
-    {a b : ℕ} (haM : a ∣ M) (ha0 : a ≠ 0) (hd1 : M / a ≠ 1) (hbr : b < M / a)
-    (hbc : Nat.gcd (Nat.gcd a b) (M / a) = 1) :
-    ((minpoly ℚ⟮jq⟯ (jqN M)).map
-      (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
-      (sv K ζ a b) := by
-  classical
-  obtain ⟨htM_self, hgM_self⟩ := hall M dvd_rfl
-  have had : a * (M / a) = M := Nat.mul_div_cancel' haM
-  obtain ⟨p, d'', hpp, hd''0, hdd, hb''lt, hc₀p, hprim', hbsplit⟩ :=
-    exists_slot_descent_data (NeZero.ne M) haM hd1 hbr hbc
-  haveI : Fact p.Prime := ⟨hpp⟩
-  haveI : NeZero p := ⟨hpp.ne_zero⟩
-  haveI : NeZero a := ⟨ha0⟩
-  haveI : NeZero d'' := ⟨hd''0⟩
-  have hM'0 : a * d'' ≠ 0 := Nat.mul_ne_zero ha0 hd''0
-  haveI : NeZero (a * d'') := ⟨hM'0⟩
-  have hMM' : M = a * d'' * p := by rw [← had, hdd]; ring
-  have hM'M : a * d'' ∣ M := ⟨p, hMM'⟩
-  have hM'lt : a * d'' < M := by
-    calc a * d'' = a * d'' * 1 := by ring
-      _ < a * d'' * p := (Nat.mul_lt_mul_left (Nat.pos_of_ne_zero hM'0)).mpr hpp.one_lt
-      _ = M := hMM'.symm
-  have hpM : p ∣ M := by
-    have hpd : p ∣ M / a := ⟨d'', hdd⟩
-    exact hpd.trans (Nat.div_dvd_of_dvd haM)
-  have hMp : M / p = a * d'' := by
-    rw [hMM']
-    exact Nat.mul_div_cancel _ hpp.pos
-  have hζ' : IsPrimitiveRoot ((ζ ^ p : Kˣ) : K) (a * d'') := by
-    have h1 := isPrimitiveRoot_pow_div hζ hM'M
-    have h2 : M / (a * d'') = p := by
-      rw [hMM']
-      exact Nat.mul_div_cancel_left p (Nat.pos_of_ne_zero hM'0)
-    rwa [h2] at h1
-  -- the induction hypothesis at `a * d''`, pushed up by `qExpand K p`
-  have hprod := IH (a * d'') hM'lt (ζ ^ p) hζ' (fun e he _ => hall e (he.trans hM'M))
-  have hroot' := isRoot_qExpand_sv_of_slot_product (M := M) (a := a) (b := b) (d'' := d'')
-    (p := p) (K := K) (ζ := ζ) (show M = p * (a * d'') from by rw [hMM']; ring) hprod
-    hb''lt hprim'
-  -- the conjugate `ψ₁` at the descended slot; the `Algebra` instance is the pin's `letI`
-  obtain ⟨htM', hgM'⟩ := hall (a * d'') hM'M
-  have hα' : IsIntegral ℚ⟮jq⟯ (jqN (a * d'')) := isIntegral_adjoin_jqN htM'
-  letI : Algebra ℚ⟮jq⟯ (LaurentSeries K) :=
-    (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))).toAlgebra
-  have halg : algebraMap ℚ⟮jq⟯ (LaurentSeries K)
-      = ((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)) :=
-    RingHom.algebraMap_toAlgebra _
-  obtain ⟨ψ₁, hψ₁, hψcomp⟩ := exists_algHom_adjoin_of_isRoot (K := K) hα' hroot' halg
-  -- the seed polynomial at the descended slot
-  obtain ⟨dp, _, hdpsym⟩ := exists_phiIrreducible_evalSymm p
-  have hup : (phiAtSeed dp (jqN (a * d''))).eval (jqN M) = 0 := by
-    have h1 := phiAtSeed_jqN_eval p dp (a * d'')
-    rwa [show jqN (a * d'' * p) = jqN M from jqN_congr hMM'.symm] at h1
-  have haev : Polynomial.aeval (jqN M)
-      (phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d'')))) = 0 := by
-    rw [Polynomial.aeval_def, Polynomial.eval₂_eq_eval_map, phiAtSeed_map]
-    exact hup
-  have hα₁ : IsIntegral ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M) :=
-    ⟨phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d''))),
-      phiAtSeed_monic dp _, by rw [← Polynomial.aeval_def]; exact haev⟩
-  have hmindvd : minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)
-      ∣ phiAtSeed dp (IntermediateField.AdjoinSimple.gen ℚ⟮jq⟯ (jqN (a * d''))) :=
-    minpoly.dvd _ _ haev
-  -- the degree of the step and its two prime cases
-  have hstep := finrank_adjoin_mul_dedekindPsi hM'M htM_self hgM_self htM'
-  by_cases hpM' : p ∣ a * d''
-  · -- `p ∣ a * d''`: the degree over `A` is `p`, and the seed polynomial is divided
-    have hψM : dedekindPsi M = dedekindPsi (a * d'') * p := by
-      rw [hMM']
-      exact dedekindPsi_mul_prime_dvd hpp hpM'
-    have he : Module.finrank ℚ⟮jq⟯⟮jqN (a * d'')⟯ (ℚ⟮jq⟯⟮jqN (a * d'')⟯⟮jqN M⟯) = p := by
-      have h1 : Module.finrank ℚ⟮jq⟯⟮jqN (a * d'')⟯
-          (ℚ⟮jq⟯⟮jqN (a * d'')⟯⟮jqN M⟯) * dedekindPsi (a * d'')
-          = p * dedekindPsi (a * d'') := by
-        rw [hstep, hψM]
-        ring
-      exact Nat.eq_of_mul_eq_mul_right (dedekindPsi_pos _ hM'0) h1
-    have hdeg : (minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).natDegree = p := by
-      rw [← IntermediateField.adjoin.finrank hα₁]
-      exact he
-    obtain ⟨m, hm⟩ := hpM'
-    have hm0 : m ≠ 0 := by
-      rintro rfl
-      rw [mul_zero] at hm
-      exact hM'0 hm
-    haveI : NeZero m := ⟨hm0⟩
-    have hmM : m ∣ M := ⟨p * p, by rw [hMM', hm]; ring⟩
-    have hmlt : m < M := by
-      calc m ≤ a * d'' := by rw [hm]; exact Nat.le_mul_of_pos_left m hpp.pos
-        _ < M := hM'lt
-    have hmem : jqN m ∈ ℚ⟮jq⟯⟮jqN (a * d'')⟯ := by
-      have h1 : jqN m ∈ modularFunctionFieldFull (a * d'') :=
-        jqd_mem_full (a * d'') ⟨p, by rw [hm]; ring⟩
-      rw [← hgM'] at h1
-      exact mem_adjoin_jqN_of_mem_mff h1
-    have hxnotmin : ¬ (minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).IsRoot
-        (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯) :=
-      not_isRoot_minpoly_of_prime_deg p hpp hα₁ hdeg ⟨jqN m, hmem⟩
-    have hψxnotmin : ¬ ((minpoly ℚ⟮jq⟯⟮jqN (a * d'')⟯ (jqN M)).map
-        (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K)).IsRoot
-        (ψ₁ (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯)) := by
-      intro hcon
-      refine hxnotmin ?_
-      rw [Polynomial.IsRoot, Polynomial.eval_map,
-        show ψ₁ (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯)
-          = (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K)
-            (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯) from rfl,
-        Polynomial.eval₂_hom] at hcon
-      exact (injective_iff_map_eq_zero _).mp
-        (RingHom.injective (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K)) _ hcon
-    have htarget_ne : sv K ζ a b ≠ ψ₁ (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯) := by
-      intro hcon
-      have hroot'' : ((minpoly ℚ⟮jq⟯ (jqN m)).map (((coeffEmb K).comp
-          (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
-          (ψ₁ (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯)) := by
-        have h1 : Polynomial.aeval (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯)
-            (minpoly ℚ⟮jq⟯ (jqN m)) = 0 := by
-          refine aeval_intermediateField_eq_zero ?_
-          show Polynomial.aeval (jqN m) (minpoly ℚ⟮jq⟯ (jqN m)) = 0
-          exact minpoly.aeval _ _
-        have h2 := Polynomial.aeval_algHom_apply ψ₁
-          (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯) (minpoly ℚ⟮jq⟯ (jqN m))
-        rw [h1, map_zero] at h2
-        rw [Polynomial.aeval_def, halg, Polynomial.eval₂_eq_eval_map] at h2
-        exact h2
-      exact sv_ne_image_of_dvd (ψ := (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K))
-        hζ hpp hMM' hm hm0 hmM hmlt hbr haM hbc hdd hmem hroot'' IH hall hcon
-    have hψx : (phiAtSeed dp (qExpand K p (sv K (ζ ^ p) a (b % d'')))).IsRoot
-        (ψ₁ (⟨jqN m, hmem⟩ : ℚ⟮jq⟯⟮jqN (a * d'')⟯)) :=
-      isRoot_phiAtSeed_slot_apply (K := K) (dp := dp) (m := m) hdpsym hm
-        (ψ := (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K)) hψ₁
-    have hroot_step := isRoot_map_minpoly_sv_of_dvd (K := K)
-      (ψ := (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K))
-      hζ hpp hpM dp hα₁ hdeg hmem hmindvd hc₀p hMp hbsplit hψ₁ hψx hψxnotmin htarget_ne
-    exact isRoot_map_minpoly_of_isRoot_subfield (K := K) hψcomp hroot_step
-  · -- `p ∤ a * d''`: degrees agree, so the minimal polynomial *is* the seed polynomial
-    exact isRoot_map_minpoly_of_isRoot_subfield (K := K) hψcomp
-      (isRoot_map_minpoly_sv_of_not_dvd (K := K)
-        (ψ := (ψ₁ : ℚ⟮jq⟯⟮jqN (a * d'')⟯ →+* LaurentSeries K))
-        hζ hpp hpM dp hpM' hstep hMM' hM'0 hα₁ hmindvd hc₀p hMp hbsplit hψ₁)
-
-/-- **Every slot value is a root**: for a slot `(a, b)` of `M` (`a ∈ M.divisors`,
-`b < M / a` coprime to `M / a`), the value `sv K ζ a b` is a root of the
-`(coeffEmb K ∘ qExpand ℚ M)`-push of `minpoly ℚ⟮jq⟯ (jqN M)`. Either `a = M` (the top slot,
-`b = 0`), or the slot descends along the least prime of `M / a` to the level `a * d''`. -/
-private theorem isRoot_map_minpoly_sv {M : ℕ} [NeZero M] (ζ : Kˣ)
-    (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank ℚ⟮jq⟯
-          (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d
-        ∧ modularFunctionField d = modularFunctionFieldFull d)
-    (IH : ∀ (n : ℕ), n < M → ∀ [NeZero n] (ζ : Kˣ), SlotProductAt n K ζ)
-    {a b : ℕ} (ha : a ∈ M.divisors)
-    (hb : b ∈ (Finset.range (M / a)).filter
-      (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1)) :
-    ((minpoly ℚ⟮jq⟯ (jqN M)).map
-      (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot
-      (sv K ζ a b) := by
-  obtain ⟨haM, -⟩ := Nat.mem_divisors.mp ha
-  have hbr : b < M / a := Finset.mem_range.mp (Finset.mem_filter.mp hb).1
-  have hbc : Nat.gcd (Nat.gcd a b) (M / a) = 1 := (Finset.mem_filter.mp hb).2
-  have ha0 : a ≠ 0 := by
-    rintro rfl
-    exact NeZero.ne M (Nat.eq_zero_of_zero_dvd haM)
-  by_cases hd1 : M / a = 1
-  · exact isRoot_map_minpoly_sv_top (K := K) ζ haM hd1 hb
-  · exact isRoot_map_minpoly_sv_of_descent (K := K) ζ hζ hall IH haM ha0 hd1 hbr hbc
-
-/-- **The slot product** (strong induction on `M`): the mapped minimal polynomial of `jqN M`
-over `ℚ⟮jq⟯` is the product of `X - C (sv K ζ a b)` over the slots — i.e. `SlotProductAt M K ζ`.
-The `ψ(M)` slot values are distinct roots (`isRoot_map_minpoly_sv`, `nodup_slotValues_sv`), and
-`ψ(M) = deg` of that polynomial, so they are exactly its roots. -/
-theorem rval_aux : ∀ (M : ℕ) [NeZero M], ∀ {K : Type*} [Field K] [Algebra ℚ K] (ζ : Kˣ),
-    SlotProductAt M K ζ := by
-  intro M
-  induction M using Nat.strong_induction_on with
-  | _ M IH =>
-  intro _ K _ _ ζ hζ hall
-  classical
-  by_cases hM1 : M = 1
-  · subst hM1
-    exact minpoly_map_eq_prod_slots_one (K := K) ζ
-  · have hM0 : M ≠ 0 := NeZero.ne M
-    obtain ⟨htM_self, -⟩ := hall M dvd_rfl
-    have hα : IsIntegral ℚ⟮jq⟯ (jqN M) := isIntegral_adjoin_jqN htM_self
-    have hdeg : (minpoly ℚ⟮jq⟯ (jqN M)).natDegree = dedekindPsi M :=
-      natDegree_minpoly_jqN htM_self
-    have hPne : ((minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ M)).comp
-        (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) ≠ 0 :=
-      ((minpoly.monic hα).map _).ne_zero
-    have hPdeg : ((minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ M)).comp
-        (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).natDegree = dedekindPsi M := by
-      rw [Polynomial.Monic.natDegree_map (minpoly.monic hα)]
-      exact hdeg
-    have hroot : ∀ a b : ℕ, a ∈ M.divisors →
-        b ∈ (Finset.range (M / a)).filter
-          (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1) →
-        ((minpoly ℚ⟮jq⟯ (jqN M)).map
-          (((coeffEmb K).comp (qExpand ℚ M)).comp
-            (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).IsRoot (sv K ζ a b) :=
-      fun a b ha hb =>
-        isRoot_map_minpoly_sv ζ hζ hall (fun n hn _ ζ' => IH n hn ζ') ha hb
-    have hTnodup : (slotValues M (fun a b => sv K ζ a b)).Nodup :=
-      nodup_slotValues_sv hM0 hζ
-    have hTle : slotValues M (fun a b => sv K ζ a b) ≤
-        ((minpoly ℚ⟮jq⟯ (jqN M)).map
-          (((coeffEmb K).comp (qExpand ℚ M)).comp
-            (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots :=
-      slotValues_le_roots hPne hTnodup fun a b ha hb =>
-        Polynomial.mem_roots'.mpr ⟨hPne, hroot a b ha hb⟩
-    have hroots_eq : ((minpoly ℚ⟮jq⟯ (jqN M)).map
-        (((coeffEmb K).comp (qExpand ℚ M)).comp
-          (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots
-        = slotValues M (fun a b => sv K ζ a b) := by
-      refine (Multiset.eq_of_le_of_card_le hTle ?_).symm
-      rw [card_slotValues hM0 _]
-      calc Multiset.card ((minpoly ℚ⟮jq⟯ (jqN M)).map
-            (((coeffEmb K).comp (qExpand ℚ M)).comp
-              (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).roots
-          ≤ ((minpoly ℚ⟮jq⟯ (jqN M)).map
-            (((coeffEmb K).comp (qExpand ℚ M)).comp
-              (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))).natDegree := Polynomial.card_roots' _
-        _ = dedekindPsi M := hPdeg
-    have hsp : Polynomial.Splits ((minpoly ℚ⟮jq⟯ (jqN M)).map
-        (((coeffEmb K).comp (qExpand ℚ M)).comp
-          (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) := by
-      rw [Polynomial.splits_iff_card_roots, hroots_eq, card_slotValues hM0 _, hPdeg]
-    have hfact := hsp.eq_prod_roots_of_monic ((minpoly.monic hα).map _)
-    rw [hfact, hroots_eq]
-    exact prod_slotValues M (fun a b => sv K ζ a b)
-
-end RValCore
-
-/-! ## The public node -/
+  exact slotValue_inj_slot (coeffEmb K) jq (coeffEmb_jq K) hζ hM0 haM haM' hb hb' h
 
 /-- **The slot product**: the mapped minimal polynomial of `jqN M` is the product
 of `(X - C (sv K ζ a b))` over the slots. Verbatim from
@@ -1058,7 +240,9 @@ theorem minpoly_jqN_map_eq_prod_slots {K : Type*} [Field K] [Algebra ℚ K]
           (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
           (Polynomial.X - Polynomial.C (if h : a = 0 then 0 else
             letI : NeZero a := ⟨h⟩; qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq)))) :=
-  rval_aux M ζ hζ hall
+  (pushedMinpoly_rat M).symm.trans <|
+    (minpoly_eq_prod_slotValues M ζ hζ hall).trans <|
+      prod_slotValues M (fun a b => sv K ζ a b)
 
 end ModularCurve
 

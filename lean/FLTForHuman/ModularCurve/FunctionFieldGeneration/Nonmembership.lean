@@ -46,9 +46,10 @@
   The non-membership section uses nine helpers of the slot machinery, exported by
   `SlotProduct.lean` for it (`slots`, `sv`, `sv_eq_TS`, `mem_adjoin_jqN_of_mem_mff`,
   `map_qExpand_minpoly_eq`, `nodup_slotValues_qExpand`, `isIntegral_adjoin_jqN`,
-  `natDegree_minpoly_jqN`, `rval_aux`); the pin has them `private` only because it re-proves
-  them per file. Nothing of T14's prelude is re-copied here. The pin's
-  `set_option maxHeartbeats 3200000 in` are omitted — below the port's global 4000000.
+  `natDegree_minpoly_jqN`, `minpoly_jqN_map_eq_prod_slots`); the pin has them `private`
+  only because it re-proves them per file. Nothing of T14's prelude is re-copied here.
+  The pin's `set_option maxHeartbeats 3200000 in` are omitted — below the port's global
+  4000000.
 
   ## Assumptions
 
@@ -284,7 +285,8 @@ private theorem eval_map_eq_of_mem_slotValues {M p : ℕ} [NeZero M] [NeZero p]
     intro w
     rw [← coeffEmb_qExpand, qExpand_qExpand]
     exact congrArg (coeffEmb K) (qExpand_congr (Nat.mul_comm M p) w)
-  have hidpB := map_qExpand_minpoly_eq M rfl (ζ ^ M) (rval_aux p (ζ ^ M) hζp (hall_prime p))
+  have hidpB := map_qExpand_minpoly_eq M rfl (ζ ^ M)
+    (minpoly_jqN_map_eq_prod_slots p (ζ ^ M) hζp (hall_prime p))
   obtain ⟨a₀, b₀, ha₀, hb₀, hyval⟩ := mem_slotValues.mp hy
   have hyS : y ∈ (qExpand K p).fieldRange := by
     rw [hyval]
@@ -383,7 +385,7 @@ private theorem jqN_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ) [hp : Fa
   have hdeg : (minpoly ℚ⟮jq⟯ (jqN M)).natDegree = dedekindPsi M := natDegree_minpoly_jqN htM
   have hidMB := map_qExpand_minpoly_eq p (show M * p = p * M from Nat.mul_comm M p)
     ((cycUnit (M * p) : Kˣ) ^ p)
-    (rval_aux M ((cycUnit (M * p) : Kˣ) ^ p) hζM hallM)
+    (minpoly_jqN_map_eq_prod_slots M ((cycUnit (M * p) : Kˣ) ^ p) hζM hallM)
   letI : Algebra ℚ⟮jq⟯ (LaurentSeries K) :=
     (((coeffEmb K).comp (qExpand ℚ (M * p))).comp
       (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))).toAlgebra
