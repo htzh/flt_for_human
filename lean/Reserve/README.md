@@ -49,10 +49,16 @@ belongs in the bin instead — is [porting-playbook.md](../porting-playbook.md)
 
 ## The CL4 island (shelved 2026-11-06)
 
-The `C`-layer twin of the `ℚ` slot product, and the socket-route degree formula it feeds.
-Nothing in the tree reaches the route: its only exit,
-`finrank_adjoin_jqNModC_eq_dedekindPsi_of_charZero`, had no consumer, which is why the
-`ℚ`/`C` duplication it carried was paid for with nothing. The live half of
+The `C`-layer twin of the `ℚ` slot product and the socket-route degree formula it feeds
+(`package_of_socket`, the pin's prelude of the char-`p` route: `→
+modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos → … → mazurStepThree… →
+fermat_last_theorem`). Nothing in the current tree reaches it — the port's frontier stops three
+nodes above `_of_socket`, and the `ℚ` `hall_all` route supplies the degree facts — so it sat as a
+consumerless prelude that duplicated the whole `ℚ` slot product.
+
+**Not a re-port target.** When the char-`p` route resumes, `git mv` these four files back (imports
+and `spec-pin:` wires travel) instead of porting the pin's `S_` files a second time: `Reserve` is a
+shelf and `FLTForHuman` must never import it. The live half of
 `Degree/FinrankAdjoinJqNModC.lean` (the Tate `c₄`/`c₆`/`j` in terms of `jqModC`, cited by
 `TateSlots/ToricPointDictionary.lean`) stayed in `FLTForHuman`.
 

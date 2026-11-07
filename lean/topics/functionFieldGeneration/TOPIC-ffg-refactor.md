@@ -1908,3 +1908,83 @@ python3 spec/unwired_register.py --rebuild
 `ModularCurve.modularFunctionField_eq_full_of` and `ModularCurve.functionFieldGeneration`:
 `[propext, Classical.choice, Quot.sound]` — unchanged, as it must be: this wave changes no
 mathematics, only where the certificate lives.
+
+## The T19 `C`-layer island is on the shelf (2026-11-06)
+
+The `C`-layer twin of the slot product and the socket route it feeds are now
+`Reserve/ModularCurve/FunctionFieldGeneration/{SlotProductAnyField,MffCMulPrime,PrimePowerStepAnyField}.lean`
+plus the dead half `Reserve/ModularCurve/Degree/FinrankAdjoinJqNModCDead.lean`; the live half of
+that module (the Tate `c₄`/`c₆`/`j` block) stayed in
+`FLTForHuman/ModularCurve/Degree/FinrankAdjoinJqNModC.lean`.
+
+**Why it was ported.** CL4 (`WORKORDER-CL4-socket-assembly`) ported the pin's
+`S_ModularCurve_package_of_socket` / `…_finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` /
+`…_of_charZero` to reach `Pkg K M`, the level-degree package the two `C` heads take as `hall`.
+That was not a wild guess: the node is on a shortest citation path to the main theorem —
+`package_of_socket → finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket →
+modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos →
+modularFunctionFieldC_eq_modularFunctionFieldFullC →
+exists_jZeroGoodReductionSpecialization_doorPredicates →
+mazurQuotientSpecialization_heckeModuleBar → mazurStepThree_not_inZeroComponentAt →
+FreyPackage.frey_no_cofixed_large → … → fermat_last_theorem` —
+i.e. it is the **prelude of the char-`p` route**, not of the `ℚ` route.
+
+**"No consumer" is port-side only — do not read it as dead mathematics.** In this tree the
+island's output is uncited (`finrank_adjoin_jqNModC_eq_dedekindPsi_of_charZero` has zero port
+consumers; the only external edge out of the island was `TateSlots/ToricPointDictionary`'s use of
+the Tate block). In the **pin** the same nodes are load-bearing: `package_of_socket` is used by 2
+theorems, `…_of_socket` by 9, `…_of_charZero` by 3 (e.g.
+`mem_laurentBaseChange_of_coeffMap_eq_qExpansion_div`), and they sit on the shortest citation path
+above. The island is therefore a **prelude ported ahead of its consumers**: the port's frontier
+stops three nodes above `_of_socket`, and the `ℚ` `hall_all` route currently supplies the degree
+facts. Same shape as the sibling case in `ModularCurve/Analytic/CuspDichotomy.lean`
+(`finrank_adjoin_jqNModC_eq_of_prime`: 5 pin consumers, e.g.
+`relfinrank_modularFunctionFieldFull_prime`, and the missing premise of `relfinrank_full_prime`,
+which `Degree/Relfinrank.lean` deliberately did not port): ported, correct, currently uncited. Neither
+may be deleted as "dead" — only shelved or kept warm.
+
+**Do not port it again — un-shelve it.** The pin files it resolves are
+
+```
+P2M/Sol/S_ModularCurve_minpoly_jqNModC_map_eq_prod_slots.lean
+P2M/Sol/S_ModularCurve_jqNModC_prime_not_mem_fullC.lean
+P2M/Sol/S_ModularCurve_package_of_socket.lean
+P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket.lean
+P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_eq_dedekindPsi_of_charZero.lean
+P2M/Sol/S_ModularCurve_map_intCast_pow_char_eq_qExpand.lean
+P2M/Sol/S_ModularCurve_qExpand_jqModC_eq_pow_unconditional.lean
+```
+
+with their `Theorems/Thm_ModularCurve_…` wrappers. The route is not only the FLT route: the whole
+island is inside the **D-S cone** (`prune.FltPayoff.closure` of
+`DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` contains both `C` headlines, the
+level-multiplication, `package_of_socket`, `…_of_socket` and
+`modularFunctionFieldC_eq_modularFunctionFieldFullC(_of_charP_pos)`), so D-S work resumes here
+first. When the char-`p` route resumes (the next candidate above the shelf is
+`modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos`),
+the move is **`git mv` back plus an import fix**, never a re-port: `Reserve` is a shelf, and
+`FLTForHuman` must never import it, so the moment the route needs these lemmas they must move
+back into `FunctionFieldGeneration/` (their `spec-pin:` wires travel with them).
+
+**What makes that automatic.** Porting candidates come from `tools/deps/frontier.py`, whose
+`DEFAULT_PORT_ROOTS` already includes `Reserve` — so a shelved node reads as *ported* and is not
+offered again. Checked directly against `Frontier().declared`: all five island declarations
+are `True` (`package_of_socket`, `finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket`, `…_of_charZero`,
+`minpoly_jqNModC_map_eq_prod_slots`, `jqNModC_prime_not_mem_fullC`), while the next node up,
+`modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos`, is `False` — that is the candidate
+the frontier should be offering, not a re-port of the shelf.
+`dedup.py`, `spec/check_port.py` (`LIBS = ("FLTForHuman", "Reserve")`, so the three wired shelf
+modules stay statement-diffed) and `spec/unwired_register.py` (the unwired shelf half is in the
+tier-3 register). `tools/deps/twin_scan.py` was the one oracle with `FLTForHuman` only as its
+default root; its `--port` now defaults to both.
+
+**Decision (2026-11-06).** Because the island is the char-`p` prelude, the `ℚ`/`C` duplication is
+*not* retired by shelving: the target is **one any-field theory** — one induction, parameterized by
+the base field, with the `ℚ` and the any-field statements as instantiations of it. The plan, the
+master's shape, the `PkgAt` vocabulary and the traps are in
+[`TOPIC-t19-any-field.md`](TOPIC-t19-any-field.md).
+
+The shelf is the **staging area** for that plan, not a copy to discard: the shelved
+`SlotProductAnyField` is the proof body to generalise, and `PrimePowerStepAnyField`,
+`MffCMulPrime` and the `_of_socket`/`_of_charZero` half come back warm with it — by instantiation,
+not by re-porting.

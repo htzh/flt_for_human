@@ -12,6 +12,8 @@ Exception will be explicitly granted by the user.
 
 ## Dependendcy tools
 
+You must be familiar with the dependency tools and use them for research before you make any claims about what are and
+are not needed for the project.
 `tools/deps/` is untracked and contains tools for studying the dependency graphs.
 
 ## git
