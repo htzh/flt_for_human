@@ -109,7 +109,7 @@ cascade-free (recipe §5), and the subject is a distinct role — "the lift of a
 
 ## 4. The cut, and the gates
 
-One order, `lean/tmp/WORKORDER-AF25-spectrum-lift.md`, dispatched against the checker-green scaffold
+One order, dispatched against the checker-green scaffold
 (**5 ok / 0 mismatch / 0 missing**). The order carries the build ladder, the axiom gate, the silence
 gate, `dedup --within` / `move_dead`, and a consumer zone
 (`spec/AutomorphicFormSetAF25Consumer.lean`) with a real composition and no `#check`s.

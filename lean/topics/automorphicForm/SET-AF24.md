@@ -158,9 +158,9 @@ module is cascade-free (recipe §5: a new module is a price, not a preference).
 Two orders, dispatched together on **disjoint files** (no hub is edited by either; the only shared
 thing is the build lock):
 
-- `lean/tmp/WORKORDER-AF24A-su2-strings.md` — `Adelic/Su2Strings.lean`: the prelude first, then
+- the A order — `Adelic/Su2Strings.lean`: the prelude first, then
   `su2Derivs` → `exists_su2Strings` → `hasArchCharacterAtZero_one` (§5 of the recipe's gates);
-- `lean/tmp/WORKORDER-AF24B-rot-coordinate.md` — `Adelic/ArchRotCoordinate.lean`: the two generic
+- the B order — `Adelic/ArchRotCoordinate.lean`: the two generic
   lemmas then the headline.
 
 Each order carries the build ladder (low-cap edit loop, `flock` + `timeout` per module build, never a

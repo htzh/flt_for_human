@@ -80,7 +80,7 @@ vocabulary). No insertion, no legacy module, cascade-free.
 
 ## 4. The cut and the gates
 
-One order, `lean/tmp/WORKORDER-AF26-lsxi-bound.md`, against the checker-green scaffold
+One order, against the checker-green scaffold
 (**2 ok / 0 mismatch / 0 missing**), which already carries the pin's three
 `attribute [local instance]` lines — without them `MeasurableSpace (AdelicGL2 (𝓞 K) K)` does not
 resolve, the same deviation AF25 recorded.

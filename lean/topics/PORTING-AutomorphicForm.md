@@ -694,6 +694,100 @@ hypothesis uses an auto-bound binder that the project-wide `autoImplicit false` 
 one-line **manager** decisions recorded as FR-0151, which is where the next pass starts.
 
 
+The twenty-eighth **is landed** (2026-11-07): [automorphicForm/SET-AF28.md](automorphicForm/SET-AF28.md),
+the **left Casimir on factorizable test functions** — `Ω α` is again factorizable and arch-bi-finite,
+right convolution by `Ω α` is the Casimir of the convolution, and the level/arch-cut memberships hold;
+the real and complex places, plus the eigenvalue transfer (an arch-cut eigenvector of
+`rightConv · f` is one of `rightConv · f'` for an arch-bi-finite `f'`). 3 rows / 1,535 silo / **1,338
+net in 95 declaration groups**, one new module `Adelic/LeftCasimirTestFn.lean` (**1,174 lines, 81
+ok / 0 / 0**), the pin's cross-file block written once (14 declarations shared by the real and complex
+places). The set's one route change is its best: the eigenvalue headline does **not** replay the pin's
+290-line `sandwich` — the port's `ArchApproxIdentity.integral_mul_dconvWith` *is* that sandwich's
+conclusion — so the pin's `set_option maxHeartbeats 3200000` disappears and the module fits the default
+200,000 budget. The re-read: `needed` **781 / 329,875 → 778 / 328,340**, frontier 1,635 → 1,638, ready
+69 → 66, no rows readied.
+
+The twenty-ninth **is landed** (2026-11-07): [automorphicForm/SET-AF29.md](automorphicForm/SET-AF29.md),
+the **Whittaker coefficient at `diagOne`** — the circle-weight identity against the split torus, and the
+cusp-constituent expansion in two normalizations. 3 rows / 2,343 silo / **1,539 net**, of which 563 were
+one prelude the pin copies into two files: the two `CuspidalConstituent` `S_` files are byte-identical
+over lines 1–574 except their `namespace` line, and their proofs differ in exactly one `refine` conjunct
+(the normalized row keeps one more conjunct), so the second row is the first with that line changed.
+Its manager layer is a **`Def_` port**: the 913 row names
+`NumberField.AdeleRing.infiniteUnitsComponent`, which the port had never carried, so it was added at the
+pin's name in `NumberField/NumberField/FiniteIdeles.lean` with its `rfl` lemma (module 3 ok → 5 ok).
+Landed as `Adelic/WhittakerDiagOne.lean` (**1,865 lines, 97 ok / 0 / 0**), one `dedup` cluster pair that
+is the pin's own per-file duplication. Re-read: **778 / 328,340 → 775 / 325,997**.
+
+The thirtieth **is landed** (2026-11-07): [automorphicForm/SET-AF30.md](automorphicForm/SET-AF30.md),
+the **centre-cut Siegel set as a cover modulo the centre** — the ample cover, its `u = 0` non-vacuity,
+the finite `L²` mass of the union, and the flat conjugation-invariant test factor. 4 rows / 2,203 silo /
+**1,737 net in 166 declaration groups**; `Adelic/Siegel/CentreCutCover.lean`, **1,961 lines**, landing at
+**143 ok / 0 / 0** — the column's largest checked surface for a set. Two findings. The 346-line
+`not_coversModCentre…of_eq_zero` row is a **one-line proof** (its whole engine is already public at
+`Cusp/CentreCutEngine.lean:417-749`, ported from a sibling `S_` file) — the cheapest row landed so far;
+and the 905-line test-factor row is genuinely new (`BumpAux`: `Real.smoothTransition`, the Hilbert–Schmidt
+distance to the identity, the `1/16` threshold forcing `U = {det ≠ 0}`, the determinant weight, the
+flatness identity). **This set also produced the round's main review finding (FR-0152/0153)**: the worker
+landed 128 helpers `private` on a sibling module's precedent while the pin states them publicly, so the
+checker read 5 ok for a module holding ~140 pin declarations; the promotion experiment took it to 143 ok
+with nothing private, and the single `MISMATCH` it exposed was cured by dropping an *unused* `open` from
+the module header rather than by privatising the declaration. Re-read: **775 / 325,997 →
+771 / 323,794**.
+
+The thirty-first **is landed** (2026-11-07): [automorphicForm/SET-AF31.md](automorphicForm/SET-AF31.md),
+the **determinant-window cover and the archimedean unit's strict contraction** — cut on the return column
+(136 silo readies 871, ratio 6.4, the shelf's last leader) as a gate-and-door pair. 2 rows / 1,007 silo /
+**746 net**; `Adelic/Siegel/DetWindowCover.lean`, **1,058 lines, 53 ok / 0 / 0**, surface faithful from
+the start (the pin's 51 helpers public, 5 port-local `private`). The door does **not** in fact reuse
+SET-AF26's `∫⁻` bound — its finiteness is five lines from its own `hL2` and its non-vanishing is the
+pin's 178-line open-set positivity lemma — so four imports of the scaffold turned out idle and were
+removed. Carried item: the pin's four shared helpers exist in the port only as `private` copies in five
+modules, which is the next dedup pass's first job.
+
+The thirty-second **is landed** (2026-11-07): [automorphicForm/SET-AF32.md](automorphicForm/SET-AF32.md),
+the **archimedean type lattice and the isotypic cusp submodule** — the type-submodule interpolation, the
+pointwise isotypic predicate from isotypic-submodule membership (**27 project consumers**, the shelf's
+fan-in leader), the inf/sup exchange for the `τ`-isotypic parts, and the arch test factor's character
+twist. 4 rows / 1,128 silo / **1,005 net in 68 declaration groups**; `Adelic/IsotypicArchType.lean`,
+**1,148 lines, 34 ok / 0 / 0** after the surface gate again (4 → 34, no `MISMATCH`, 33 declarations
+left private with a reason each: 30 pin-private, 2 port-only extractions, 1 the pin's `scoped instance`
+that the statement corpus cannot index). The hardest row was 214, and the difficulty is the port's own:
+compactness of the row-isometry group is a `scoped instance` in `ArchCompactOrbit`, so the pin's
+`haveI : CompactSpace` cannot be transcribed and its `haveI := hSfd` walls pass hypotheses into instance
+search — the one place `have` and `let` differ at v4.34.
+
+**The six sets together** (AF27–AF32): `needed` **781 / 329,875 → 765 / 321,659** (−16 nodes / −8,216
+lines, matching the sets' silo to the line), frontier 1,635 / 797,501 → 1,651 / 805,717, ready
+69 / 22,193 → 62 / 16,628, leaves 204 / 52,711, `AutomorphicForm` demand 275 / 121,503. Five new modules
+and one `Def_` port; every set's re-read exact on lines. The largest subject left is still the **Weyl
+intertwining pair** (1,349 + 1,291: 2,640 silo / 1,072 net), blocked on the two statement-spelling
+decisions of FR-0151, and the **isCuspConstituent cluster** (94 nodes / 21,595 silo).
+
+
+The thirty-third **is landed** (2026-11-07): [automorphicForm/SET-AF33.md](automorphicForm/SET-AF33.md),
+the **Weyl intertwining pair** — the set SET-AF27 §7 had written off as blocked on two statement-spelling
+"conflicts" (FR-0151). **Both were scaffolding errors**: the qualified
+`NumberField.AdelicBox.integralFiniteAdeles` exists (in `TateGlobal/IdeleNormValues.lean`, which the AF27
+skeleton did not import) and the "untyped binder" failure was `open scoped NNReal` missing, without which
+`ℝ≥0` in the `let α` block is an inequality rather than the type. With the pin's own imports and scoped
+opens both statements elaborate **verbatim**, and the pair is now landed: two modules, two orders, run in
+parallel. `Adelic/WeylIntegrable/FiniteSlice.lean` (**265 lines / 15 declarations, 15 ok / 0 / 0**) is the
+most striking composition measurement in the column: the pin file is 1,349 lines and 175 indexed
+declaration rows, and **172 of them were already byte-identical** in the port (verified by recomputing
+statement hashes over `WeylIntegrable/{Coset,Transfer,BoxBounds,LatticeEstimates,Assembly}.lean`), so the
+module adds five blocks and 170 lines of Lean. `Adelic/LocalIntertwiningFinprod.lean` (**1,315 lines / 87
+declarations, 87 ok / 0 / 0, nothing private**) is the finite-adèle Euler product of the unramified
+integral — a genuine transcription whose mathematics is the landed local identity
+(`integral_unramifiedWeylIntegrand_adicCompletion`, 2,110) and whose `m_prod` premise only licenses the
+`tprod` limit. Both dropped the pin's heartbeat overrides (B's pin file asks for
+`maxHeartbeats 4000000`) and fit the 200,000 budget. The re-read: `needed` **765 / 321,659 →
+763 / 319,019**, frontier 1,651 / 805,717 → 1,653 / 808,357, ready 62 / 16,628 → **60 / 13,988**, leaves
+204 / 52,711, `AutomorphicForm` demand 275 / 121,503 → **273 / 118,863** — and the forecast's two wrong
+cells (it subtracted the 1,072 *net* where the demand counts the 2,640 *silo*) are recorded as the second
+instance of AF24's arithmetic rule.
+
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

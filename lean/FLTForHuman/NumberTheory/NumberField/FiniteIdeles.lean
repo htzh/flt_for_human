@@ -13,10 +13,11 @@
 
   Transcribed from the pin's `Definitions/Def_IsDedekindDomain_FiniteUnitIdeles.lean`
   (pinned `aa2d8b3`, the whole 30-line module: `unitIdeles` and `mem_unitIdeles_iff`) and
-  the one declaration `finitePartUnits` of `Definitions/Def_NumberField_IdeleBox.lean`
-  (`:96`), at the pin's names and namespaces. The pin's `import Mathlib` is replaced by the
-  two specific modules this file uses; the pin's `val_finitePartUnits` is not carried (no
-  consumer on the shelf names it).
+  the two declarations `finitePartUnits` (`:96`) and `infiniteUnitsComponent` (`:110`) of
+  `Definitions/Def_NumberField_IdeleBox.lean`, at the pin's names and namespaces, together
+  with the latter's `rfl` lemma `val_infiniteUnitsComponent` (its consumer is the Whittaker
+  `diagOne` row, SET-AF29). The pin's `import Mathlib` is replaced by the two specific modules
+  this file uses; the pin's `val_finitePartUnits` is still not carried (no consumer names it).
 
   spec-pin: Definitions/Def_IsDedekindDomain_FiniteUnitIdeles.lean
   spec-pin: Definitions/Def_NumberField_IdeleBox.lean
@@ -61,5 +62,15 @@ variable (R : Type*) [CommRing R] [IsDedekindDomain R] (K : Type*) [Field K] [Al
 
 noncomputable def finitePartUnits : (AdeleRing R K)ˣ →* (IsDedekindDomain.FiniteAdeleRing R K)ˣ :=
   Units.map (RingHom.snd (InfiniteAdeleRing K) (IsDedekindDomain.FiniteAdeleRing R K)).toMonoidHom
+
+/-- The projection of an idèle onto its component at an infinite place `w`. -/
+noncomputable def infiniteUnitsComponent (w : InfinitePlace K) : (AdeleRing R K)ˣ →* (w.Completion)ˣ :=
+  Units.map ((Pi.evalRingHom (fun w : InfinitePlace K => w.Completion) w).comp
+    (RingHom.fst (InfiniteAdeleRing K) (IsDedekindDomain.FiniteAdeleRing R K))).toMonoidHom
+
+@[simp]
+theorem val_infiniteUnitsComponent (w : InfinitePlace K) (x : (AdeleRing R K)ˣ) :
+    ((infiniteUnitsComponent R K w x : (w.Completion)ˣ) : w.Completion) = (x : AdeleRing R K).1 w :=
+  rfl
 
 end NumberField.AdeleRing

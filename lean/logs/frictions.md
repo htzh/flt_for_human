@@ -3258,21 +3258,126 @@ round promotes what generalizes.
   does not carry the name, so the pin's text fails to elaborate with `Unknown constant
   NumberField.AdelicBox.integralFiniteAdeles`. Respelling it is a *statement* change (the checker's text
   hash sees the qualifier), so it cannot be a worker's silent adaptation.
-- **symptom 2 — an auto-bound binder.** The 1,349 wrapper's hypothesis is
-  `(hα : ∀ x, 0 < ((α x : ℝˣ) : ℝ))`: `x` is auto-bound (its type comes from `α`'s domain). The port
-  sets `autoImplicit false` project-wide, so the same text reports `failed to synthesize LE Type` /
-  `OfNat Type 0` — Lean has auto-bound `x` as a *type* variable. Writing `∀ x : (AdeleRing (𝓞 F) F)ˣ`
-  elaborates, but changes the statement text.
+- **symptom 2 — an auto-bound binder, and only partly diagnosed.** The 1,349 wrapper's hypothesis is
+  `(hα : ∀ x, 0 < ((α x : ℝˣ) : ℝ))`: `x` is untyped, its type meant to come from `α`'s domain. In the
+  port the same text reports `failed to synthesize LE Type` / `OfNat Type 0` (Lean has bound `x` as a
+  *type* variable), and the failure survives `set_option autoImplicit true` **and** an explicit binder
+  annotation — so the cause is not `autoImplicit` alone. What *does* work is the same hypothesis with
+  `α` a section variable instead of a `let`-bound term, which points at the `let α : … := …` block
+  (its value is a `distribHaarChar`-composed hom that needs instances the port's context may not
+  synthesize, leaving `α`'s type unforced when the binder is elaborated). Treat it as **unresolved**:
+  the next pass should elaborate the wrapper text in a scratch file with the pin's own imports first
+  (`Mathlib.MeasureTheory.Measure.Haar.DistribChar` included) before deciding between a port-side
+  spelling and an `own:` row.
 - **cause**: the pin's own `set_option autoImplicit false` sits in each `S_` file and does **not** govern
   the `Theorems/` wrapper's generated statement (the wrapper has its own, later, and the statement was
   machine-generated from the solution's binders), and the pin's namespace layout (`AdelicBox` owning
   `integralFiniteAdeles`) is not the port's.
-- **rule**: scaffold a set's statements *before* pricing the order, and treat either failure as a
-  **manager** decision with exactly two admissible outcomes: (a) restore the pin's spelling in the port
-  (an `abbrev` alias in the module that owns the namespace — a hub edit with its own cascade build), or
-  (b) record an `own:` row in `spec/decl_markers.tsv` with the reason, which stops the checker diffing
-  that declaration. Never respell a statement in the source and leave the wire silent, and never let a
-  worker make the choice. Both rows above are otherwise ready and cheap in net terms (1,072 net against
-  2,640 silo), so the pair is worth the manager pass.
+- **CORRECTION (same session, superseded by FR-0154).** **Neither symptom was a port obstruction.** Both
+  were scaffolding gaps in my own module skeletons: (1) `NumberField.AdelicBox.integralFiniteAdeles`
+  *does* exist in the port — it is declared in `NumberTheory/NumberField/TateGlobal/IdeleNormValues.lean`,
+  which my scaffold did not import (`#check @NumberField.AdelicBox.integralFiniteAdeles` succeeds once it
+  is), so the pin's qualified text needed an import, not an alias; (2) the `∀ x` binder was never the
+  problem — `open scoped NNReal` was missing, so `ℝ≥0` in the `let α` block parsed as an inequality
+  instead of the type, the `let` collapsed into type-valued metavariables, and the untyped binder then
+  reported `LE Type`. With `open scoped NNReal` the statement elaborates **verbatim**. The pair was
+  scaffolded the same session (SET-AF33, both scaffolds checker-green) and is being ported.
+- **rule**: scaffold a set's statements *before* pricing the order, and when a statement will not
+  elaborate, **classify the failure before acting on it**: an *environment* failure (a missing `import`,
+  a missing `open`/`open scoped`, a missing instance) is fixed in the scaffold and says nothing about the
+  pin or the port; a *conflict* (the port states the declaration differently, or does not have it at all)
+  is the manager's `own:`/alias decision. Never record a row as "blocked" without that distinction — this
+  entry cost the shelf its largest subject for one round on two false positives.
 - **seen**: 2026-11-07, SET-AF27's scoping (the pair was dropped from the set and the `L²`-continuity
   trio taken instead; this entry is what a future pass needs to pick it up).
+
+## FR-0152 [checker] — a worker's `private` default can cost a whole set's checked surface, and a sibling module's precedent is not the pin's text
+
+- **where**: SET-AF30's landing (`Adelic/Siegel/CentreCutCover.lean`, four headlines over 905 + 520 + 432
+  + 346 pin lines), reviewed after the worker reported "all gates green".
+- **symptom**: the checker read **5 ok / 0 mismatch / 0 missing** and looked perfect: the four headlines
+  plus the one helper the worker had left public. The module actually holds ~140 pin declarations, and
+  the pin's own `S_` files state them **publicly** (measured: 103 public / 0 private in the 905 file, 20/0
+  in the 520 file, 17/0 in the 432 file, 1 public + 19 private in the 346 file). So 137 pin-faithful
+  statements were invisible to the checker and unavailable to any future consumer.
+- **cause**: the worker applied the column's *private-prelude* habit with a real precedent
+  (`Siegel/SlabCovering.lean`'s header: "the shared prelude is transcribed once, `private`"), which is
+  right for a prelude the pin itself keeps private and wrong for a node whose `S_` file is a public
+  development. `check_port` cannot see the difference — it only diffs what is public, so a `private`
+  module is always "0 mismatch / 0 missing".
+- **fix**: run the recipe's surface gate at review, as one experiment: strip `private` from the module's
+  declaration keywords, elaborate (it cost nothing here — no names clashed), and re-run `check_port`.
+  Read three numbers: every **`ok`** is a pin-faithful statement that belongs public (here 137 of them),
+  every **`MISMATCH`** is either a local re-spelling (keep *that one* private — here a single qualifier,
+  `integralFiniteAdeles` vs `AdelicLevel.integralFiniteAdeles`) or a genuine mis-transcription, and every
+  **`MISSING`** is a port-side helper (keep it private). Side effects worth knowing: the promotion also
+  emptied `move_dead`'s "4 declarations / 18 lines dead" finding, because those declarations were dead
+  only in the private world, and the module's build went 29 s → 44 s.
+- **rule**: an order's gate section must say *which* visibility the pin's file has (quote the `private`
+  count), and the reviewer must run the promotion experiment before accepting a "5 ok" module with a
+  three-figure pin line count. A landed module whose `ok` count is a small fraction of its pin's public
+  declarations is not "green", it is unchecked.
+- **seen**: 2026-11-07, SET-AF30 (5 ok → 142 ok in one pass; the only casualty was the qualifier
+  re-spelling, which stayed private).
+
+## FR-0153 [checker] — a surface-gate `MISMATCH` is usually fixed by the *open*, not by re-privatising the declaration
+
+- **where**: SET-AF30's surface gate, second pass (a follow-up to FR-0152).
+- **symptom**: after stripping `private` the checker read 142 ok / **1 mismatch**: the pin writes the
+  bare `integralFiniteAdeles`, the port had it as `AdelicLevel.integralFiniteAdeles`. My first call was
+  to keep that one declaration `private` (the recipe allows it: "the pin's own prelude copy re-spelled").
+- **cause**: the re-spelling was not the pin's text but the *module header's* doing. Three namespaces were
+  opened (`NumberField`, `NumberField.AdelicLevel`, `NumberField.AdelicBox`, and `AdelicHaar` further
+  down), and `integralFiniteAdeles` exists in two of them (`AdelicLevel/IdealBall.lean:159`,
+  `AdelicHaar/PlaceMeasure.lean:48`), so the bare name was ambiguous and the worker had qualified it.
+  Nothing in the module used `NumberField.AdelicBox` at all.
+- **fix**: drop the unneeded `open` and restore the pin's text — one line, and the declaration goes from
+  `MISMATCH` + `private` (invisible to the checker) to `ok` + public. Measured: **142 ok / 1 mismatch**
+  → **143 ok / 0 mismatch / 0 missing / 0 own**, `grep -c private` = 0, `move_dead` still 0/0, build
+  35 s, consumer 0 errors.
+- **rule**: when a promoted declaration mismatches on a *qualifier*, first ask whether an `open` in the
+  module's own header is what forced the qualifier; if it is unused elsewhere, remove the `open` and take
+  the pin's spelling. Keep `private` only for a genuine local re-spelling (a stated-at-a-different-type
+  `show`, a port-side helper) — and say which in the module header. A header that opens one namespace
+  more than it needs silently costs the checker the declarations it touches.
+- **seen**: 2026-11-07, SET-AF30 (`AdelicBox` open dropped; 143 ok, nothing private).
+
+## FR-0154 [tooling] — classify a statement that will not elaborate: *environment* first, *conflict* second
+
+- **where**: scaffolding a set's statements (recipe §0/§3: "the scaffolding is the statement gate").
+- **symptom**: the pin's wrapper text reports an error that looks like the port cannot state the theorem
+  — `LE Type` / `OfNat Type 0` for an untyped binder, `unknown constant NumberField.AdelicBox.integralFiniteAdeles`
+  for a qualified name — and the temptation is to write the row down as "blocked on a statement-spelling
+  conflict" (FR-0151 did exactly that for the Weyl intertwining pair, the largest open subject on the
+  column's shelf, and one round was spent on smaller sets because of it).
+- **cause**: both errors were *environment*, not conflict. `ℝ≥0` needs `open scoped NNReal`; without it the
+  `let α : (AdeleRing …)ˣ →* ℝˣ` block does not mean what it looks like, the `let` leaves type-valued
+  metavariables behind, and the *untyped* binder downstream reports a `Type`-shaped failure that has
+  nothing to do with binders. And a qualified pin name (`NumberField.AdelicBox.integralFiniteAdeles`) can
+  simply live in a module the scaffold did not import — the port had it all along.
+- **fix / rule**: before concluding anything about the pin or the port, run the two cheap checks:
+  `#check @<qualified name>` after importing the pin's own `import` list (the port usually has a home for
+  it), and re-elaborate with the pin's **`open scoped`** line copied verbatim. Only if both fail is it a
+  conflict, and then it is the manager's `own:`/alias decision. A "blocked" note must name which of the
+  two classes it is, and a scaffolding failure should be retried with the pin's header — imports *and*
+  scoped opens — before it is recorded.
+- **seen**: 2026-11-07, SET-AF33 (the Weyl intertwining pair): both scaffolds green at **1 ok** each after
+  copying the pin's imports and `open scoped NNReal`, where FR-0151 had recorded two obstructions.
+
+## FR-0155 [build] — the edit loop (`lake env lean`) takes no lock, so a sibling's `lake build` can pull the oleans out from under it
+
+- **where**: two orders dispatched in parallel on one tree (SET-AF33A/AF33B, and the same shape in
+  AF30/AF31/AF32): the `lake build` half is serialized by `flock .lake/flt_build.lock`, the `lake env lean`
+  edit loop is not.
+- **symptom**: a `lake env lean <file>` that had been silent for many passes suddenly fails with
+  `object file '…/.lake/build/lib/lean/FLTForHuman/…/X.olean' of module … does not exist`, for a module
+  nobody edited. Re-running the same command minutes later succeeds unchanged.
+- **cause**: `lake build <sibling>` re-elaborates its dependency chain and rewrites the shared `.lake`
+  directory; if it is mid-flight (or a build directory was pruned), the oleans the edit loop imports are
+  transiently absent. The lock only orders *builds* against each other, not a build against a read.
+- **fix**: treat that message as *not* a code error: check whether another `lake build` is in flight
+  (the `flock` holder), wait for it, and re-run — never start editing the apparently-missing module. For a
+  parallel dispatch, either give each agent a disjoint *import* closure (preferred) or have the edit loop
+  take the same lock in shared mode (`flock -s`), which `lake` does not do itself.
+- **seen**: 2026-11-07, SET-AF33B (transient, self-resolving; the agent re-ran after the sibling's build
+  finished and every gate line in its report is post-hoc clean).

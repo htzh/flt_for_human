@@ -67,7 +67,7 @@ appears.
 
 ## 4. The cut, and the gates
 
-One order, `lean/tmp/WORKORDER-AF27-lp-continuity.md`, against the checker-green scaffold
+One order, against the checker-green scaffold
 (**3 ok / 0 mismatch / 0 missing**), which carries the three `attribute [local instance]` lines and the
 `Filter`/`Topology` opens the two headlines need. No legacy module, no definition gate, no cascade.
 
