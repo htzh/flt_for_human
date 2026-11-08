@@ -63,7 +63,7 @@ the hypothesis that the root of unity lies in $`\kappa`$.
 **(T19) Slot description.** Let $`\zeta \in \kappa`$ be a primitive $`M`$-th root of
 unity and assume $`\mathrm{Pkg}(M)`$. Then
 
-$$\nu_M\bigl(\operatorname{minpoly}_{F_0}(j(q^M))\bigr)
+$$\nu_M\bigl(\mathrm{minpoly}_{F_0}(j(q^M))\bigr)
   \\;=\\; \prod_{a \mid M}\\,\prod_{\substack{0 \le b < M/a \\\\ \gcd(\gcd(a,b),M/a)=1}}
   \bigl(Y - j(\zeta^{ab} q^{a^2})\bigr).$$
 
@@ -97,7 +97,7 @@ $`x_0 \in L`$ be the unique common root of $`A`$ and $`B`$; then $`x_0 \in F`$.*
 descent the two polynomials are
 
 $`A(Y) = \Phi_p\bigl(j(q^{Mp}), Y\bigr) \in F_{Mp}[Y]`$ and $`B`$ the transport to
-$`F_{Mp}`$ of $`\operatorname{minpoly}_{F_0}(j(q^M))`$, with common root
+$`F_{Mp}`$ of $`\mathrm{minpoly}_{F_0}(j(q^M))`$, with common root
 $`x_0 = j(q^M)`$. The principle is one line: the minimal polynomial of $`x_0`$ over
 $`F`$ divides both $`A`$ and $`B`$; if it had degree $`> 1`$, its other roots would be
 roots of $`A`$ and hence, $`A`$ splitting with distinct roots, would give a second
@@ -186,14 +186,14 @@ the degrees agree, and the degree clause of the package transports. Neither (5.1
 (5.2) needs any hypothesis on $`\kappa/\kappa_0`$.
 
 **(5.3) Minimal polynomials.** The coefficient extension of
-$`\operatorname{minpoly}_{F_0}(j(q^M))`$ is $`\operatorname{minpoly}_{\kappa\cdot F_0}(j(q^M))`$.
+$`\mathrm{minpoly}_{F_0}(j(q^M))`$ is $`\mathrm{minpoly}_{\kappa\cdot F_0}(j(q^M))`$.
 Write $`P`$ for the coefficient extension and $`Q`$ for the minimal polynomial over
 $`\kappa\cdot F_0`$. Both are monic; $`P`$ kills the extended element, so $`Q`$ divides
 $`P`$; by (5.2) their degrees agree, so $`P = Q`$. Again no hypothesis on the extension.
 
 **(5.4) Faithfulness on the rational slice.** Assume $`\kappa/\kappa_0`$ finite and
 $`[\kappa : \kappa_0] \neq 0`$ in $`\kappa_0`$. If $`x \in \kappa_0((q))`$ and
-$`\operatorname{ext}(x) \in \kappa\cdot F`$ for a subfield
+$`\mathrm{ext}(x) \in \kappa\cdot F`$ for a subfield
 $`\kappa_0 \subseteq F \subseteq \kappa_0((q))`$, then $`x \in F`$. Equivalently,
 
 $$\kappa\cdot F \\;\cap\\; \kappa_0((q)) \\;=\\; F \qquad \text{inside } \kappa((q)).$$
@@ -201,14 +201,14 @@ $$\kappa\cdot F \\;\cap\\; \kappa_0((q)) \\;=\\; F \qquad \text{inside } \kappa(
 *Proof.* Since $`\kappa/\kappa_0`$ is finite, every element of the compositum is a
 finite sum $`\sum_i c_i f_i`$ with $`c_i \in \kappa`$ and $`f_i \in F`$: fix a
 $`\kappa_0`$-basis $`b_1, \dots, b_n`$ of $`\kappa`$; the compositum is the $`F`$-span
-of the $`b_j`$, and every element is of that form. Let $`\operatorname{tr}`$ be the
+of the $`b_j`$, and every element is of that form. Let $`\mathrm{tr}`$ be the
 trace of $`\kappa/\kappa_0`$, extended coefficientwise to a $`\kappa_0`$-linear map
 $`\kappa((q)) \to \kappa_0((q))`$. On a spanning element $`c f`$ with $`c \in \kappa`$
-and $`f \in F`$ one has $`\operatorname{tr}(cf) = \operatorname{tr}(c)\,f \in F`$,
+and $`f \in F`$ one has $`\mathrm{tr}(cf) = \mathrm{tr}(c)\,f \in F`$,
 because the coefficients of $`f`$ lie in $`\kappa_0`$; by linearity
-$`\operatorname{tr}(\kappa\cdot F) \subseteq F`$. On the other hand
-$`\operatorname{tr}(\operatorname{ext}(x)) = [\kappa : \kappa_0]\,x`$ for
-$`x \in \kappa_0((q))`$. Hence if $`\operatorname{ext}(x) \in \kappa\cdot F`$ then
+$`\mathrm{tr}(\kappa\cdot F) \subseteq F`$. On the other hand
+$`\mathrm{tr}(\mathrm{ext}(x)) = [\kappa : \kappa_0]\,x`$ for
+$`x \in \kappa_0((q))`$. Hence if $`\mathrm{ext}(x) \in \kappa\cdot F`$ then
 $`[\kappa : \kappa_0]\,x \in F`$, and since the degree is invertible in
 $`\kappa_0`$, $`x \in F`$. $`\square`$
 
