@@ -3170,3 +3170,109 @@ round promotes what generalizes.
   is the sign that the workaround belongs in a shared supplement rather than in each module — the
   candidate home is the next `MeasureTheory/` supplement this column writes.
 - **seen**: 2026-11-07, SET-AF21 orders A/C/D and SET-AF22 (same lemma, four sites).
+
+## FR-0147 [tooling] — `gate_scan`'s `--port-root` is relative to the *invocation directory*, so from the pin root every declaration reads `MISS`
+
+- **where**: `spec/gate_scan.py`, the definition-gate first cut of a set's scoping read.
+- **symptom**: run as `cd ~/proj/fermats-last-theorem && python3 <port>/lean/spec/gate_scan.py --pin Definitions/Def_X.lean --rows Theorems/Thm_….lean`
+  it reports `uses 9/32 — 9 missing from the port` for declarations the port has had for weeks
+  (`archDerivAtComplex`, `archFlowAtComplex`, `archComplexLiftAt`, `IsArchSmoothAtComplex`), i.e. the
+  whole gate looks unpaid.
+- **cause**: `--pin-root` defaults to the pin clone but `--port-root` defaults to the *relative* path
+  `FLTForHuman`, resolved against the CWD. From the pin root that directory does not exist, so the
+  port index is empty and every name is `MISS`. The tool's own usage block says "from `lean/`"; the
+  invocation in the set notes drops the `cd`.
+- **fix**: run it from `lean/` (`cd lean && python3 spec/gate_scan.py --pin Definitions/…`), where the
+  default port root is right; or pass `--port-root <repo>/lean/FLTForHuman` explicitly. Verify by the
+  count: a gate that reads "0 missing" on a module this column landed in an earlier wave is the
+  signal, and a `MISS` on a declaration `rg` finds in `FLTForHuman/` is the contradiction.
+- **seen**: 2026-11-07, SET-AF24's scoping read (the first run said 6–13 missing on all four rows;
+  the same command from `lean/` said 0 missing everywhere).
+
+## FR-0148 [tooling] — a `def` whose type is a function type "substitutes" to any same-typed `def`
+
+- **where**: `port_plan`'s `substitutions:` block, on a pin file that writes a derivative as a bare
+  `def D0 (y : G → ℂ) : G → ℂ := archDerivAtComplex hw .iH y`.
+- **symptom**: three of SET-AF24's six substitution rows read `2 D0 -> AutomorphicForm.OsAlg.Dk`,
+  `2 D1 -> …`, `2 D2 -> …` — three different derivatives "already in the port" as one unrelated
+  `def`, which would price 6 lines as reused and, worse, invite a worker to delete them.
+- **cause**: the checker's type view of `def D0 (y : G → ℂ) : G → ℂ := …` is the function *type*
+  `(G → ℂ) → G → ℂ`; every definition of that shape has the same type text, so the substitution tier
+  matches them all. It is the `def … : Prop` false positive of playbook §2.4 in its function-type
+  form.
+- **rule**: read every `substitutions:` row whose pin side is a `def` (not a theorem) and check the
+  body by eye before accepting it; `port_plan` already marks these as "suspect". A `def` row is only
+  a real substitute when the *body* is the same mathematics.
+- **seen**: 2026-11-07, SET-AF24 (`port_advise --nodes` over the four rows).
+
+## FR-0149 [lean] — `!![…]` inserts a second `Matrix.of` at v4.34, so `Matrix.of_apply` will not fire in a `simp`/`rw` script
+
+- **where**: any pin proof that writes a matrix as `!![(cos s : ℂ), -(sin s : ℂ); (sin s : ℂ), (cos s : ℂ)]`
+  and then simplifies its *entries* — on this column `archComplexLiftAt hw !![…]` (SET-AF24B's
+  headline proof, pin `:158-175`).
+- **symptom**: the pin's `ext i j` / `fin_cases` / `simp` script for
+  `archComplexLiftAt hw !![1, 0; 0, 1] = 1` leaves goals of the shape
+  `Matrix.of !![1,0;0,1] 0 0 = 1` unsolved; `rw [Matrix.of_apply]` and `norm_num` both fail to make
+  progress, and the failure looks like a missing lemma rather than a term-shape difference.
+- **cause**: `Matrix m n α` is *syntactically* `m → n → α`, so `!![…]` (i.e. `Matrix.of ![![…]]`)
+  already has the matrix type, and `archComplexLiftAt`'s own `(Matrix.of e)` then wraps it a **second**
+  time: `Matrix.of (Matrix.of ![![…]])`. `simp`/`rw` elaborate at implicit transparency, where
+  `Matrix` does not unfold, so the two `of`s do not cancel and the entry lemma cannot apply.
+- **fix**: route the literal through the function form once — `fun i j => (!![…]) i j` — which is
+  definitionally the same term (eta) and leaves the entries `simp`-reachable; keep the `have` at the
+  frozen spelling so the downstream `hk0`/`hspan` arguments still see the pin's shape. Cost ~3 lines.
+  Verify with the zero-warning edit loop, then `check_port --force` (the *statement* is untouched, so
+  the checker must stay `ok`).
+- **seen**: 2026-11-07, SET-AF24B (`Adelic/ArchRotCoordinate.lean`); the same pin idiom appears in
+  the `su2Derivs`/`su2Strings` statements, where it survives because no proof simp's the entries.
+
+## FR-0150 [tooling] — a row named in another set's prose is not a row *on the shelf*: the blocks omit `needed ≥ 2`
+
+- **where**: cutting a set from the D–S shelf; SET-AF24's brief, whose row table took the block label
+  from SET-AF23 §5's prose instead of from the shelf JSON.
+- **symptom**: two of the four rows (`exists_su2Strings_of_finiteDimensional_…` 908,
+  `hasArchCharacterAtZero_one_of_…` 169) were written up as "ready" rows of the −1,077 silo that the
+  set would remove from the ready block. After landing, the ready block was **unchanged** at
+  72 / 24,200: those rows had never been in it.
+- **cause**: the shelf's two blocks are not exhaustive. `ready_rank` holds `needed == 1`, `leaves_rank`
+  holds graph leaves, and a row that is **neither** — one unported premise and at least one consumer,
+  i.e. `needed == 2` — appears in **neither** block. SET-AF23 §5 named the pair as the successors of
+  its own leaf, which is true and says nothing about block membership. `af-return.py` priced them
+  correctly (755 readies 908 + 169 = 1,077), and that is the instrument that finds them.
+- **rule**: a brief's row table takes each row's block from the JSON (`r in ready_rank.rows` /
+  `r in leaves_rank.rows` / **else "off-shelf"**), never from the prose of an earlier set nor from the
+  return column; the block accounting in the brief must then sum only what the blocks actually hold.
+  A row that is off-shelf is a *good* find (it is one edge above a leaf and cheap), but it must be
+  named as such — it does not reduce a block's figure and the forecast must not subtract it there.
+- **seen**: 2026-11-07, SET-AF24 (`build/shelf-af24.json` vs `shelf-af24-post.json`: the ready block
+  identical, the leaves −2 / −939, `needed` −4 nodes / −2,016 lines).
+
+## FR-0151 [pin] — two ways a pin *statement* cannot be transcribed verbatim in this port
+
+- **where**: scaffolding SET-AF27's first candidate, the Weyl intertwining pair
+  (`weylIntertwiningIntegrand_finiteAdeleSlice_integrable_of_re_gt_half` 1,349 and
+  `LocalIntertwining.integral_finiteAdeleRing_prod_mul_finprod_unramifiedWeylIntegrand_mul_tprod` 1,291).
+- **symptom 1 — a qualified name the port re-homed.** The 1,291 wrapper writes
+  `NumberField.AdelicBox.integralFiniteAdeles`. The port homes that definition in
+  `NumberField.AdelicLevel` (`NumberTheory/AdelicLevel/IdealBall.lean:159`); the `AdelicBox` namespace
+  does not carry the name, so the pin's text fails to elaborate with `Unknown constant
+  NumberField.AdelicBox.integralFiniteAdeles`. Respelling it is a *statement* change (the checker's text
+  hash sees the qualifier), so it cannot be a worker's silent adaptation.
+- **symptom 2 — an auto-bound binder.** The 1,349 wrapper's hypothesis is
+  `(hα : ∀ x, 0 < ((α x : ℝˣ) : ℝ))`: `x` is auto-bound (its type comes from `α`'s domain). The port
+  sets `autoImplicit false` project-wide, so the same text reports `failed to synthesize LE Type` /
+  `OfNat Type 0` — Lean has auto-bound `x` as a *type* variable. Writing `∀ x : (AdeleRing (𝓞 F) F)ˣ`
+  elaborates, but changes the statement text.
+- **cause**: the pin's own `set_option autoImplicit false` sits in each `S_` file and does **not** govern
+  the `Theorems/` wrapper's generated statement (the wrapper has its own, later, and the statement was
+  machine-generated from the solution's binders), and the pin's namespace layout (`AdelicBox` owning
+  `integralFiniteAdeles`) is not the port's.
+- **rule**: scaffold a set's statements *before* pricing the order, and treat either failure as a
+  **manager** decision with exactly two admissible outcomes: (a) restore the pin's spelling in the port
+  (an `abbrev` alias in the module that owns the namespace — a hub edit with its own cascade build), or
+  (b) record an `own:` row in `spec/decl_markers.tsv` with the reason, which stops the checker diffing
+  that declaration. Never respell a statement in the source and leave the wire silent, and never let a
+  worker make the choice. Both rows above are otherwise ready and cheap in net terms (1,072 net against
+  2,640 silo), so the pair is worth the manager pass.
+- **seen**: 2026-11-07, SET-AF27's scoping (the pair was dropped from the set and the `L²`-continuity
+  trio taken instead; this entry is what a future pass needs to pick it up).

@@ -33,6 +33,7 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_archDelAt_Fm_archDelAt_E_add_archDelBarAt_E_archDelBarAt_Fm_eq_of_archDerivAtComplex_iH_eq_smul.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_archKCasimirAtComplex_eq_smul_of_archDerivAtComplex_iH_eq_smul_of_compactRaise_eq_zero.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_hasArchCharacterAtZero_one_of_archDerivAtComplex_compact_eq_zero.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimirComplexAPI
@@ -1477,7 +1478,7 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 
 variable {F : Type} [Field F] [NumberField F] {w : InfinitePlace F} (hw : w.IsComplex)
 
-private theorem apply_mul_archFlowAtComplex_eq (φ : AdelicGL2 (𝓞 F) F → ℂ)
+theorem apply_mul_archFlowAtComplex_eq (φ : AdelicGL2 (𝓞 F) F → ℂ)
     (hφ : IsArchSmoothAtComplex hw φ) (d : ArchDirComplex)
     (hd : archDerivAtComplex hw d φ = 0) (g : AdelicGL2 (𝓞 F) F) (t : ℝ) :
     φ (g * archFlowAtComplex hw d t) = φ g := by

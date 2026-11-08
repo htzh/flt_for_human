@@ -597,6 +597,103 @@ multi-premise effect, again). With it, the archimedean cut projector is usable, 
 isotypic/`CuspidalConstituent` block is written against.
 
 
+The twenty-fourth **is landed** (2026-11-07): [automorphicForm/SET-AF24.md](automorphicForm/SET-AF24.md),
+the **`𝔰𝔩₂`-string decomposition at a complex place** — the `su(2)`/circle-weight block SET-AF23 §5
+named by hand, taken as four rows over two new modules. Three headlines (the three complex
+derivatives preserve an archimedean-smooth finite-dimensional `Y` and the flows `iH`/`rotR`/`rotS`
+differentiate it; `Y` has a basis of `𝔰𝔩₂` strings with circle weights; a vector killed by all three
+is of trivial archimedean character) and the coordinate-matrix engine for a rotation-stable span.
+4 rows / 2,016 silo / **1,314 net in 88 declaration groups**, of which **575 lines are one prelude
+the pin copies byte-identically into two files** (measured: the two 253-line blocks differ only in
+their namespace label) — so this set's dedup saving was the whole block, written once publicly at the
+pin's names. No definition gate (five `Def_` modules, 0 missing), no insertion, no legacy module; one
+promotion: `apply_mul_archFlowAtComplex_eq` was `private` in `ArchCasimirComplex.lean` while the pin
+states it publicly in two files, so it is public at the pin's name (**106 → 107 ok**, 12 s rebuild,
+dependent cascade 3 modules / 1,016 lines). Landed in one dispatch, two orders on disjoint files:
+`Adelic/Su2Strings.lean` (**1,207 lines, 81 ok / 0 / 0**) and `Adelic/ArchRotCoordinate.lean`
+(223 lines, 3 ok / 0 / 0), both silent and zero-warning, all four headlines on
+`[propext, Classical.choice, Quot.sound]`, `dedup --within` 0 and `move_dead` 0, two consumer zones
+at 0 errors. The re-read: `needed` **795 / 335,379 → 791 / 333,363** (−4 nodes / −2,016 lines, the
+line figure exact), literal 807 / 338,844 → 803 / 336,828, frontier 1,621 / 791,997 → 1,625 / 794,013,
+ready block **untouched at 72 / 24,200**, leaves 212 / 55,301 → 210 / 54,362, `AutomorphicForm`
+demand 304 / 135,084 → 300 / 133,068. Two carried lessons. **Two of the set's four rows were on
+neither block** — 908 and 169 sit one edge behind the leaf 755, so the shelf omits them and only
+`af-return.py` prices them; the brief's first forecast had priced 1,077 silo out of a ready block that
+never held it, and a row named in another set's prose is not a row on the shelf (FR-0150). And a set
+of *n* rows removes **n** nodes from `needed`, not n/2 — the line column was exact, the node column
+was not. The 458-line `exists_eq_sum_su2String_highestWeight` row that this set moves to two premises
+short is **not** the next set: its closure is 107 nodes / 29,103 silo (it drags the whole
+Siegel/LsXi/Petersson block), so it is a chain head, not a gate. Named next by the return column: the
+**cuspidal-lift carrier operator**, `CuspidalSpectrum.exists_isLift_rightConv` (199 silo, in-degree
+11, readies 4 rows / 1,055) — AF25.
+
+
+The twenty-fifth **is landed** (2026-11-07): [automorphicForm/SET-AF25.md](automorphicForm/SET-AF25.md),
+the **cuspidal lift of a convolution operator and its commutation** — the head of the column's return
+column after AF24, taken as the gate *and* its door: `CuspidalSpectrum.exists_isLift_rightConv` (199
+silo, in-degree 11) readies four rows / 1,055, and all four are in the set. The subject is one
+construction (the bounded lift of a function-level operator to the cuspidal carrier) and the four
+commutation statements that make it an operator of the level-`N` Hecke algebra, plus the `K`-finite
+companion (`IsCuspSubrep` of a closed cusp subrepresentation). 5 rows / 1,254 silo / **1,108 net in 19
+declaration groups**, one new module, no definition gate. Landed in one dispatch:
+`Adelic/Cusp/SpectrumLift.lean`, **1,278 lines, 19 ok / 0 / 0**, silent, zero warnings, all five
+headlines on `[propext, Classical.choice, Quot.sound]`, `dedup --within` 0 and `move_dead` 0, consumer
+at 0 errors. Its carried finding is a *composition* dividend: the coset-sum prelude's
+`cuspInvSubcarrier` is the compact-open-`U` twin of the landed `cuspLevelSubcarrier`, and its 237-line
+orthogonal-vanishing lemma has no port counterpart — so the level analogue still on the shelf
+(`apply_eq_zero_of_mem_orthogonal_cuspLevelSubcarrier_…`, 260) is now a specialisation of mathematics
+this set wrote in general. The re-read is **exact on all six forecast figures**: `needed`
+**791 / 333,363 → 786 / 332,109**, literal 803 / 336,828 → 798 / 335,574, frontier 1,625 / 794,013 →
+1,630 / 795,267, ready **72 / 24,200 → 71 / 24,001**, leaves unchanged at 210 / 54,362,
+`AutomorphicForm` demand 300 / 133,068 → 295 / 131,814, no rows readied (the door was taken with the
+gate). Named next and **scoped**: AF26 is the **LsXi/Petersson bound pair** (1,361 + 447, 1,808 silo /
+1,665 net), not the compact-operator block — that block's gateway needs seven unported premises, two of
+which are this pair, so the chain is AF26 → AF27.
+
+
+The twenty-sixth **is landed** (2026-11-07): [automorphicForm/SET-AF26.md](automorphicForm/SET-AF26.md),
+the **local `L²` bound of an `LsXi` function** — the pair
+`exists_forall_setLIntegral_nnnorm_sq_le_mul_setLIntegral_of_isLsXiFunction_of_isCompact_of_coversModCentre`
+(1,361) and its `…_of_isFundamentalDomain` sibling (447): the bound that turns the Siegel covering
+theorem into an `L²` estimate, and the ready half of the compact-operator chain. 2 rows / 1,808 silo /
+**1,665 net in 120 declaration groups**, both on the ready block, sharing **no** declaration — two
+independent transcribing jobs in one module (`Adelic/LsXiBound.lean`, **1,843 lines, 2 ok / 0 / 0**,
+101 + 27 private helpers, which is exactly the pin's own surface: its `S_` files are 92 + 9 private and
+25 private over one `solution` each). Silent, both axioms clean, consumer 0 errors; the one `dedup`
+cluster is the pin's headline-vs-engine split and `move_dead`'s 11 declarations are the pin's own text
+(no `--expose`). The re-read is exact on all six figures: `needed` **786 / 332,109 → 784 / 330,301**,
+literal 798 / 335,574 → 796 / 333,766, frontier 1,630 / 795,267 → 1,632 / 797,075, ready
+**71 / 24,001 → 69 / 22,193**, leaves unchanged, `AutomorphicForm` demand 295 / 131,814 → 293 / 130,006,
+no rows readied. Its §6 names AF27 as the `L²`-continuity trio.
+
+The twenty-seventh **is landed** (2026-11-07): [automorphicForm/SET-AF27.md](automorphicForm/SET-AF27.md),
+the **`L²`-continuity of right convolution** — the smallest set of the column and its most
+composition-heavy: 3 rows / 426 silo / **79 net in 7 declaration groups**, of which 297 of the 376
+declaration lines were already in the port. `Adelic/RightConvLpContinuity.lean` (459 lines, **6 ok /
+0 / 0**, silent, axioms clean, `dedup` 0, `move_dead` 0, consumer 0 errors) holds the Young/Hölder
+bound (pin 78, transcribed by the manager), the uniform `L²`-continuity of the convolution orbit
+(pin 209) and the Arzelà–Ascoli lemma behind its covering step (pin 139, generic). The set removes
+**three of the six** premises the compact-operator gateway
+`isCompactOperator_lift_rightConv_comp_cuspSubcarrier` (285) is missing — for 426 silo. One honest
+statement deviation: the pin's `eLpNorm_two_eq` is *false* at mathlib v4.34 (`eLpNorm` is `∞` off
+a.e.-strong measurability), so the port's copy is `private` and carries the measurability hypothesis,
+which keeps it out of the checker's diff. The re-read is exact on five of six rows — `needed`
+**784 / 330,301 → 781 / 329,875**, literal 796 / 333,766 → 793 / 333,340, frontier 1,632 / 797,075 →
+1,635 / 797,501, ready unchanged at 69 / 22,193, leaves 210 / 54,362 → 208 / 54,145 — and the sixth
+(`AutomorphicForm` demand) is off by one node because the generic row leaves the `MeasureTheory`
+namespace, not `AutomorphicForm.`'s: 293 / 130,006 → **291 / 129,719**, with `MeasureTheory`
+15 / 2,120 → 14 / 1,981.
+
+**The three sets together**: AF24's `𝔰𝔩₂`-string block (1,314 net), AF25's cuspidal lift (1,108 net)
+and AF26's LsXi bound (1,665 net) plus AF27's continuity trio (79 net) took `needed` from
+**795 / 335,379 to 781 / 329,875** (−14 nodes / −5,504 lines) over four new modules and one promotion,
+with every re-read exact on lines. **The largest remaining subject is the Weyl intertwining pair**
+(1,349 + 1,291, 2,640 silo but only 1,072 net); it could not be scaffolded verbatim because the pin
+qualifies `NumberField.AdelicBox.integralFiniteAdeles` (the port homes it in `AdelicLevel`) and one
+hypothesis uses an auto-bound binder that the project-wide `autoImplicit false` forbids — two
+one-line **manager** decisions recorded as FR-0151, which is where the next pass starts.
+
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /
