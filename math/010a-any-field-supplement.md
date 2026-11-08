@@ -22,7 +22,7 @@ $`\kappa(j(q))`$, its slot description, the degree and adjoin data). Only the re
 data is touched by the presence of an auxiliary field. So the local theorems can be
 stated over the field where the roots live (§2), the intrinsic part of the descent can
 be argued there without any base change (§3), and the relative part enters as one
-theorem — the slot description (T19) — plus the conclusion (§4). The $`\mathbb{Q}`$
+theorem — the slot description (2.1) — plus the conclusion (§4). The $`\mathbb{Q}`$
 statements are then a base change (§5), and the dictionary is where the only
 characteristic-sensitive step of the whole assembly sits — in the trace, and only for
 the field extension used to house the roots (§6).
@@ -56,27 +56,41 @@ identity in $`\mathbb{Z}((q))`$ and hence holds in every $`\kappa((q))`$.
 
 ## 2. The local theorems
 
-The following three are the $`\kappa`$-forms of the note's §3 and §4. Their proofs are the proofs
-of the note with the coefficient extension erased; each uses only the data of §1 and
-the hypothesis that the root of unity lies in $`\kappa`$.
+Throughout this section $`\kappa`$ is a field containing a primitive root of unity of
+the order each statement requires: a primitive $`M`$-th root for (2.1), a primitive
+$`(Mp)`$-th root for (2.2) and (2.3). The root is written $`\zeta`$ where a statement
+names it. The three statements below are the $`\kappa`$-forms of the note's §3 and §4;
+their proofs are the proofs of the note with the coefficient extension erased, and use
+only the data of §1.
 
-**(T19) Slot description.** Let $`\zeta \in \kappa`$ be a primitive $`M`$-th root of
+**(2.1) Slot description.** Let $`\zeta \in \kappa`$ be a primitive $`M`$-th root of
 unity and assume $`\mathrm{Pkg}(M)`$. Then
 
 $$\nu_M\bigl(\mathrm{minpoly}_{F_0}(j(q^M))\bigr)
   \\;=\\; \prod_{a \mid M}\\,\prod_{\substack{0 \le b < M/a \\\\ \gcd(\gcd(a,b),M/a)=1}}
   \bigl(Y - j(\zeta^{ab} q^{a^2})\bigr).$$
 
-**(T18) Prime non-membership.** Let $`p`$ be prime with $`p \nmid M`$, let
-$`\zeta \in \kappa`$ be a primitive $`(Mp)`$-th root, assume $`\mathrm{Pkg}(M)`$ and
-$`j(q^p) \notin F_0`$. Then $`j(q^p) \notin F_M`$.
+**(2.2) Prime non-membership.** Let $`p`$ be prime with $`p \nmid M`$, assume
+$`\mathrm{Pkg}(M)`$ and $`j(q^p) \notin F_0`$. Then $`j(q^p) \notin F_M`$.
 
-**(T15) Descent by one prime.** Let $`p`$ be prime, $`\zeta \in \kappa`$ a primitive
-$`(Mp)`$-th root, and assume $`\mathrm{Pkg}(M)`$. Then $`j(q^M) \in F_{Mp}`$.
+**(2.3) Descent by one prime.** Let $`p`$ be prime and assume $`\mathrm{Pkg}(M)`$. Then
+$`j(q^M) \in F_{Mp}`$.
 
-Two remarks on why one proof serves all characteristics. First, the splitting input of the
-note's §3 is a statement about $`\Phi_p`$ over a field containing a primitive $`p`$-th root:
-at a seed value $`j(u^p q^{pe})`$ the polynomial $`\Phi_p\bigl(j(u^p q^{pe}), Y\bigr)`$
+The root is a device of the proofs, and the three statements spend it differently.
+(2.1) names it: the slots are the values $`j(\zeta^{ab} q^{a^2})`$, so the statement is
+meaningless without it. (2.2) and (2.3) do not mention it, so neither needs the root in
+its statement; both proofs do, and may adjoin it. What separates them is which side of
+the implication pays for the base change. In (2.2) the *conclusion* is a non-membership,
+and that direction is free: a membership ascends by (5.1), so a non-membership descends
+by contrapositive. Its *hypothesis*, however, is a non-membership in the base field, and
+lifting it from the small field to the big one is the special case of (5.4) with
+$`F = F_0`$. In (2.3) the expensive side is the conclusion, which is a membership. So
+the two statements are not just negations of one another: (2.2) costs the faithfulness
+on its hypothesis, (2.3) on its conclusion.
+
+Two further remarks on why one proof serves all characteristics. First, the splitting
+input of the note's §3 is a statement about $`\Phi_p`$ over a field containing a
+primitive $`p`$-th root: at a seed value $`j(u^p q^{pe})`$ the polynomial $`\Phi_p\bigl(j(u^p q^{pe}), Y\bigr)`$
 factors over such a field as
 
 $$\prod_{0 \le b < p}\bigl(Y - j(u\,\zeta^b q^e)\bigr) \cdot
@@ -86,8 +100,8 @@ the $`p`$ twists and the extra conjugate. This is proved by writing $`\Phi_p`$ o
 the slot: polynomial arithmetic, with no separability hypothesis and no hypothesis on
 the characteristic. Second, the induction of the note's §3 and the
 unique-common-root argument of its §4 use only the tower law, the package, and the
-arithmetic of the indices $`a, b`$. So neither the statements nor the proofs of (T19),
-(T18), (T15) see the characteristic.
+arithmetic of the indices $`a, b`$. So neither the statements nor the proofs of (2.1),
+(2.2), (2.3) see the characteristic.
 
 ## 3. The sharing argument: which polynomial is enumerated
 
@@ -96,8 +110,9 @@ be monic, split over $`L`$ and with distinct roots, let $`B \in F[Y]`$, and let
 $`x_0 \in L`$ be the unique common root of $`A`$ and $`B`$; then $`x_0 \in F`$.* In the
 descent the two polynomials are
 
-$`A(Y) = \Phi_p\bigl(j(q^{Mp}), Y\bigr) \in F_{Mp}[Y]`$ and $`B`$ the transport to
-$`F_{Mp}`$ of $`\mathrm{minpoly}_{F_0}(j(q^M))`$, with common root
+$`A`$, the level-$`p`$ modular equation at the seed,
+$`A(Y) = \Phi_p\bigl(j(q^{Mp}), Y\bigr) \in F_{Mp}[Y]`$, and $`B`$, the base change to
+$`F_{Mp}`$ of $`\mathrm{minpoly}_{F_0}(j(q^M))`$; the common root is
 $`x_0 = j(q^M)`$. The principle is one line: the minimal polynomial of $`x_0`$ over
 $`F`$ divides both $`A`$ and $`B`$; if it had degree $`> 1`$, its other roots would be
 roots of $`A`$ and hence, $`A`$ splitting with distinct roots, would give a second
@@ -114,18 +129,18 @@ of $`A`$ by the modular relation (the seed): $`\Phi_p(j(q), j(q^p)) = 0`$, subst
 $`q \mapsto q^M`$ and symmetrized with $`\Phi_p(X,Y) = \Phi_p(Y,X)`$. It is a root
 of $`B`$ as the element whose minimal polynomial $`B`$ is. Uniqueness then needs exactly two facts about the roots of
 $`B`$: the extra conjugate is not a root, and the only root of $`B`$ among the twists
-is the untwisted one. Both are consequences of (T19) — the slot list of $`B`$ — and
+is the untwisted one. Both are consequences of (2.1) — the slot list of $`B`$ — and
 nothing more.
 
 **(b) $`B`$ enumerated.** $`B`$ is monic, and it splits with distinct roots — but only
-because (T19) identifies it with the slot product; its root at $`x_0`$ is the top slot,
-again (T19). $`\Phi_p`$ is then the witness: its root shape supplies the case split,
+because (2.1) identifies it with the slot product; its root at $`x_0`$ is the top slot,
+again (2.1). $`\Phi_p`$ is then the witness: its root shape supplies the case split,
 and each case is compared against the slot list.
 
-Both are correct proofs of the same statement, and they differ only in what (T19) has
+Both are correct proofs of the same statement, and they differ only in what (2.1) has
 to supply: in (a) two exclusion facts about two special positions; in (b) the complete
 root enumeration of $`B`$, including its splitting and squarefreeness. The root
-bookkeeping of $`B`$ is the only *relative* input to the sharing argument, and (T19) is
+bookkeeping of $`B`$ is the only *relative* input to the sharing argument, and (2.1) is
 its only source (next section). So (a) confines the relative input to two exclusions
 and keeps the sharing argument itself intrinsic, while (b) moves the whole relative
 input into the sharing argument.
@@ -144,13 +159,19 @@ With this vocabulary:
   $`\Phi_p`$ at a slot; the root shape of $`A`$; the coincidences among the slot values
   $`J_e(u)`$; the unique-common-root principle itself.
 - *relative to $`F_0`$*: the transported minimal polynomial $`B`$; its slot
-  description, i.e. (T19); the package $`\mathrm{Pkg}(M)`$; the conclusion
+  description, i.e. (2.1); the package $`\mathrm{Pkg}(M)`$; the conclusion
   $`j(q^M) \in F_{Mp}`$.
+
+A non-membership's *conclusion* base-changes for free: a membership ascends by (5.1),
+so a non-membership descends by contrapositive. But a non-membership's *hypothesis* is a
+non-membership in the base field, and lifting it from the small field to the big one
+costs the same faithfulness as descending a membership. So the cost sits on different
+sides of the two statements: on the hypothesis of (2.2), on the conclusion of (2.3).
 
 The asymmetry of §3 is now a statement about this classification: the enumerated data
 of $`A`$ is intrinsic, the enumerated data of $`B`$ is relative. The sharing argument
 is intrinsic; only the root bookkeeping of the minimal polynomial is relative. This is
-the precise sense in which the descent does not need a base change, while (T19) does.
+the precise sense in which the descent does not need a base change, while (2.1) does.
 
 The same asymmetry explains the strength of the two-field form of the note's §4. The
 statement "from the package over $`F_0`$, conclude the membership in the level field
@@ -221,33 +242,38 @@ automatic, the degree $`\varphi(Mp)`$ being non-zero in $`\mathbb{Q}`$.
 
 ## 6. Assembly: one proof, and its instances
 
-**Theorem.** *The statements (T19), (T18), (T15) hold over every field $`\kappa`$
-containing the stated root of unity, with a single proof that makes no distinction of
-characteristic.*
+**Theorem.** *The three local statements hold, with one proof and in every
+characteristic, over any field containing a primitive root of unity of the order the
+statement requires. The statements (2.2) and (2.3) do not mention the root; it is a
+device of their proofs.*
 
 **Corollary.** *Let $`\kappa/\kappa_0`$ be finite with $`[\kappa : \kappa_0]`$
-invertible in $`\kappa_0`$, and assume the local theorems at $`\kappa`$. Then the
-$`\kappa_0`$-statements follow by (5.1)–(5.4):
-the package transports by (5.1)–(5.2), the transported minimal polynomial by (5.3), and
-the conclusions by (5.4).*
+invertible in $`\kappa_0`$, and assume the local statements at $`\kappa`$. Then the
+$`\kappa_0`$-statements follow: the package by (5.1)–(5.2), the transported minimal
+polynomial by (5.3), and the two non-trivial transports by (5.4) — the membership
+conclusion of (2.3), and the base hypothesis of (2.2); the non-membership conclusion of
+(2.2) is free, by the ascent (5.1).*
 
 The two instances of the note are the two extremes:
 
-- $`\mathbb{Q}`$: apply (T19), (T18), (T15) at $`K = \mathbb{Q}(\zeta_{Mp})`$ and then
-  (5.1)–(5.4). For example (T15) at $`K`$ says $`j(q^M) \in K(j(q), j(q^{Mp}))`$; by
-  (5.1) this is $`K\cdot F_{Mp}`$, and (5.4) returns
+- $`\mathbb{Q}`$: apply (2.1), (2.2), (2.3) at $`K = \mathbb{Q}(\zeta_{Mp})`$.
+  (5.3) gives the $`\mathbb{Q}`$-form of (2.1) — the minimal polynomial over
+  $`\mathbb{Q}(j(q))`$ is the base change of the one over $`K\cdot\mathbb{Q}(j(q))`$
+  — and (5.4) lifts the base non-membership that (2.2) needs; its conclusion then comes
+  down for free. For (2.3), (2.3) at $`K`$ says
+  $`j(q^M) \in K(j(q), j(q^{Mp})) = K\cdot F_{Mp}`$ by (5.1), and (5.4) returns
   $`j(q^M) \in \mathbb{Q}(j(q), j(q^{Mp}))`$.
 - characteristic $`p`$ (or any field already containing the root): take
-  $`\kappa_0 = \kappa`$; the dictionary is the identity and the local theorems are
-  already the required statements.
+  $`\kappa_0 = \kappa`$; the dictionary is the identity and the local statements are
+  already the required ones.
 
 The strong induction of the note's §7 lives at the base field and is unchanged. Its
 inputs are the one-prime statements, each of which is now either a local theorem
 (char $`p`$) or a local theorem plus the dictionary ($`\mathbb{Q}`$). Concretely, for
-$`\mathbb{Q}`$ the induction consumes the descended (T15) for $`\mathrm{Gen}`$, the
-descended (T18) for the prime-power tower, and its degree step, the note's §6, which is
-already a statement over $`\mathbb{Q}`$; (T19) is not consumed directly but inside the
-proof of (T15). In particular the induction is never transported: only its one-prime
+$`\mathbb{Q}`$ the induction consumes the descended (2.3) for $`\mathrm{Gen}`$, the
+descended (2.2) for the prime-power tower, and its degree step, the note's §6, which is
+already a statement over $`\mathbb{Q}`$; (2.1) is not consumed directly but inside the
+proof of (2.3). In particular the induction is never transported: only its one-prime
 inputs are.
 
 ## 7. What this changes in the reading of the note's §4
@@ -259,13 +285,15 @@ different weight:
 
 1. the fields: (5.1), an adjoin-of-images computation;
 2. the minimal polynomial: (5.3), a degree plus divisibility argument;
-3. the conclusion: (5.4), faithfulness of the base change on the rational slice — the
-   one genuine addition, proved by the trace.
+3. the two transports that cost something: (5.4) for the membership conclusion of
+   (2.3) and for the base hypothesis of (2.2) — faithfulness of the base change on the
+   rational slice, the one genuine addition, proved by the trace. A non-membership
+   *conclusion* needs only the ascent (5.1) and is free.
 
 The A-side data of the descent (the modular relations, the prime splitting, the seed
 identities, the unique-common-root principle) needs none of them: it is intrinsic and
-transports along any field map. So the extension is spent exactly on the B side
-(the slot description of the transported minimal polynomial) and on the conclusion.
-That is the asymmetry of §§3–4, and it is why the descent can be argued without a
-coefficient extension at all: choose the modular equation as the enumerated polynomial,
-and the base change shrinks to the two root-exclusion facts that (T19) supplies.
+transports along any field map. So the extension is spent exactly on the B side (the
+slot description of the transported minimal polynomial) and on the two transports of
+item 3. That is the asymmetry of §§3–4, and it is why the descent can be argued without
+a coefficient extension at all: choose the modular equation as the enumerated polynomial,
+and the base change shrinks to the two root-exclusion facts that (2.1) supplies.
