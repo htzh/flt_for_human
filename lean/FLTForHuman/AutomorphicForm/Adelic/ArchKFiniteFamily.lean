@@ -203,18 +203,11 @@ private theorem translatesFinite_archRowIsometrySubgroup (w : InfinitePlace F) (
   obtain ⟨s, hs⟩ := hφ
   exact Exists.intro s fun k hk => hs k hk
 
--- The archimedean-component injectivity is the shared dictionary lemma of
--- `ArchComponentDictionary`; this private alias keeps the pin's local name.
-omit [NumberField F] in
-private theorem eq_of_forall_archComponent_eq {k k' : GL (Fin 2) (InfiniteAdeleRing F)}
-    (h : ∀ w : InfinitePlace F, archComponent F w k = archComponent F w k') : k = k' :=
-  ext_archComponent (F := F) h
-
 theorem adelicArchGLInclAt_mul_comm {v w : InfinitePlace F} (hvw : v ≠ w) (a : GL (Fin 2) v.Completion)
     (b : GL (Fin 2) w.Completion) :
     adelicArchGLInclAt F v a * adelicArchGLInclAt F w b = adelicArchGLInclAt F w b * adelicArchGLInclAt F v a := by
   have hcomm : archGLIncl F v a * archGLIncl F w b = archGLIncl F w b * archGLIncl F v a := by
-    refine eq_of_forall_archComponent_eq F fun u => ?_
+    refine ext_archComponent (F := F) fun u => ?_
     rw [map_mul, map_mul]
     by_cases huv : u = v
     · subst huv
@@ -262,7 +255,7 @@ private theorem translatesFinite_range_incl (φ : AdelicGL2 (𝓞 F) F → ℂ) 
     refine Finset.induction_on S ?_ ?_
     · refine hmono (Q := {1}) ?_ (Exists.intro {φ} fun k hk => ?_)
       · rintro g ⟨k, -, hk1, rfl⟩
-        have hk : k = 1 := eq_of_forall_archComponent_eq F fun v => by rw [hk1 v (by simp), map_one]
+        have hk : k = 1 := ext_archComponent (F := F) fun v => by rw [hk1 v (by simp), map_one]
         rw [hk, map_one]
         exact Set.mem_singleton 1
       · rw [Set.mem_singleton_iff] at hk
@@ -297,7 +290,7 @@ private theorem translatesFinite_range_incl (φ : AdelicGL2 (𝓞 F) F → ℂ) 
         simp only [archRowIsometrySubgroup, SetLike.mem_coe, Subgroup.mem_map] at ha
         obtain ⟨a₀, -, rfl⟩ := ha
         have hcomm : archGLIncl F w a₀ * k' = k' * archGLIncl F w a₀ := by
-          refine eq_of_forall_archComponent_eq F fun u => ?_
+          refine ext_archComponent (F := F) fun u => ?_
           rw [map_mul, map_mul]
           by_cases huw : u = w
           · subst huw

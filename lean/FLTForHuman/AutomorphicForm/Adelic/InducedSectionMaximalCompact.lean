@@ -46,6 +46,8 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_exists_apply_weylInv_mul_unipotentGL2_ne_zero_of_isInducedSection_of_isKfSmooth.lean   -- comparable copy
 -/
 import FLTForHuman.AutomorphicForm.Adelic.AdelicMaximalCompact
+import FLTForHuman.AutomorphicForm.Adelic.LevelCompactness
+import FLTForHuman.AutomorphicForm.Adelic.ArchComponentDictionary
 import FLTForHuman.AutomorphicForm.Adelic.ArchKFinite
 import FLTForHuman.AutomorphicForm.Adelic.ArchType
 import FLTForHuman.AutomorphicForm.Adelic.EtaFamily
@@ -72,35 +74,6 @@ section KStab
 
 variable {F : Type} [Field F] [NumberField F]
 
-omit [NumberField F] in
-private theorem glInf_ext {g h : GL (Fin 2) (InfiniteAdeleRing F)}
-    (hh : ∀ w : InfinitePlace F, archComponent F w g = archComponent F w h) : g = h := by
-  apply Matrix.GeneralLinearGroup.ext
-  intro i j
-  funext w
-  have := congrArg (fun m : GL (Fin 2) w.Completion =>
-    (m : Matrix (Fin 2) (Fin 2) w.Completion) i j) (hh w)
-  simpa [archComponent_apply] using this
-
-private theorem finEntry_eq {g h : AdelicGL2 (𝓞 F) F}
-    (h₂ : glFin (𝓞 F) F g = glFin (𝓞 F) F h) (i j : Fin 2) :
-    ((g : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) i j).2
-      = ((h : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) i j).2 := by
-  have := congrArg (fun m : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) =>
-    (m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F)) i j) h₂
-  simpa [glFin_apply] using this
-
-private theorem adelicGL2_ext' {g h : AdelicGL2 (𝓞 F) F}
-    (h₁ : glArch (𝓞 F) F g = glArch (𝓞 F) F h) (h₂ : glFin (𝓞 F) F g = glFin (𝓞 F) F h) :
-    g = h := by
-  apply Matrix.GeneralLinearGroup.ext
-  intro i j
-  apply Prod.ext
-  · have := congrArg (fun m : GL (Fin 2) (InfiniteAdeleRing F) =>
-      (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j) h₁
-    simpa [glArch_apply] using this
-  · exact finEntry_eq h₂ i j
-
 private theorem glFin_inclAt (w : InfinitePlace F) (r : GL (Fin 2) w.Completion) :
     glFin (𝓞 F) F (adelicArchGLInclAt F w r) = 1 := by
   rw [adelicArchGLInclAt, MonoidHom.comp_apply, glFin_adelicArchGLIncl]
@@ -119,9 +92,9 @@ private theorem archComponent_inclAt_of_ne {w w' : InfinitePlace F} (h : w' ≠ 
 private theorem commute_of_archComponent_eq_one (w : InfinitePlace F) {k : AdelicGL2 (𝓞 F) F}
     (hk : archComponent F w (glArch (𝓞 F) F k) = 1) (r : GL (Fin 2) w.Completion) :
     k * adelicArchGLInclAt F w r = adelicArchGLInclAt F w r * k := by
-  apply adelicGL2_ext'
+  apply eq_of_glArch_eq_of_glFin_eq F
   · rw [map_mul, map_mul]
-    apply glInf_ext
+    apply ext_archComponent
     intro w'
     rw [map_mul, map_mul]
     by_cases hw : w' = w
@@ -243,18 +216,6 @@ open IsDedekindDomain.HeightOneSpectrum
 
 variable (F : Type) [Field F] [NumberField F]
 
-private theorem gl_ext {g h : AdelicGL2 (𝓞 F) F} (h₁ : glArch (𝓞 F) F g = glArch (𝓞 F) F h)
-    (h₂ : ∀ v, finComponent (𝓞 F) F v (glFin (𝓞 F) F g) = finComponent (𝓞 F) F v (glFin (𝓞 F) F h)) :
-    g = h := by
-  apply Units.ext
-  ext i j
-  apply Prod.ext
-  · have := congrFun (congrFun (congrArg (fun m : GL (Fin 2) (InfiniteAdeleRing F) => (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F))) h₁) i) j
-    rwa [glArch_apply, glArch_apply] at this
-  · refine RestrictedProduct.ext _ _ fun v => ?_
-    have := congrFun (congrFun (congrArg (fun m : GL (Fin 2) (v.adicCompletion F) => (m : Matrix (Fin 2) (Fin 2) (v.adicCompletion F))) (h₂ v)) i) j
-    rwa [finComponent_apply, finComponent_apply, glFin_apply, glFin_apply] at this
-
 private theorem continuous_finComponent_glFin (v : HeightOneSpectrum (𝓞 F)) :
     Continuous fun g : AdelicGL2 (𝓞 F) F => finComponent (𝓞 F) F v (glFin (𝓞 F) F g) :=
   (continuous_finComponent (𝓞 F) F v).comp (continuous_glFin (𝓞 F) F)
@@ -300,7 +261,8 @@ private theorem exists_finset_fixing (φ₀ : AdelicGL2 (𝓞 F) F → ℂ) (hsm
     rw [Set.mem_iInter] at hall
     apply hk.2
     have : k = 1 := by
-      refine gl_ext F (by rw [map_one]; exact hk.1.2) fun v => ?_
+      refine eq_of_glArch_eq_of_glFin_eq F (by rw [map_one]; exact hk.1.2)
+        (glFin_ext F fun v => ?_)
       rw [map_one, map_one]
       exact hall {v} v (Finset.mem_singleton_self v)
     rw [this]; exact h1V

@@ -580,7 +580,7 @@ private theorem glArch_unipotentGL2_eq_one {K : Type} [Field K] [NumberField K]
 private theorem mul_comm_of_glArch_eq_one_of_glFin_eq_one {K : Type} [Field K] [NumberField K]
     {a b : AdelicGL2 (𝓞 K) K} (ha : glArch (𝓞 K) K a = 1) (hb : glFin (𝓞 K) K b = 1) :
     a * b = b * a :=
-  eq_of_glArch_eq_of_glFin_eq (by rw [map_mul, map_mul, ha, one_mul, mul_one])
+  eq_of_glArch_eq_of_glFin_eq K (by rw [map_mul, map_mul, ha, one_mul, mul_one])
     (by rw [map_mul, map_mul, hb, mul_one, one_mul])
 
 theorem whittakerCoefficient_diagOne_mul_mul_inv_finEmbed_eq_of_shell_surgery (K : Type) [Field K] [NumberField K]

@@ -6,7 +6,8 @@
   `O := levelOne N`, `hO` from `AdelicLevel.isOpen_levelOne`, and `hU` from
   `U = finEmbed '' finiteLevelOne N` (the finite lattice is compact, and `finEmbed` is
   continuous) together with the frame separation
-  `ProjectedHaar.eq_of_glArch_eq_of_glFin_eq`, the compact headline applies directly.
+  `AutomorphicForm.eq_of_glArch_eq_of_glFin_eq` (`Adelic/LevelCompactness.lean`), the compact
+  headline applies directly.
   This is the P0 scout's route (`lean/tmp/P-scout.lean`), not a transcription of the
   plain silo's `solution`.
 
@@ -55,7 +56,7 @@ theorem rightConv_rightConv_comm_of_isLevelSphericalOfType
       · intro hu
         obtain ⟨hu1, hu2⟩ := Subgroup.mem_inf.mp hu
         refine ⟨AdelicLevel.glFin (𝓞 F) F u, AdelicLevel.mem_levelOne_iff.mp hu1, ?_⟩
-        apply ProjectedHaar.eq_of_glArch_eq_of_glFin_eq F
+        apply AutomorphicForm.eq_of_glArch_eq_of_glFin_eq F
         · rw [AdelicDock.glArch_finEmbed]
           exact ((mem_finiteAdelicGL2Subgroup_iff F u).mp hu2).symm
         · exact AdelicDock.glFin_finEmbed (𝓞 F) F (AdelicLevel.glFin (𝓞 F) F u)

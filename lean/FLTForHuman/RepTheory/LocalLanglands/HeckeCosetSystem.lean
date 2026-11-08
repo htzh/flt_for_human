@@ -159,6 +159,38 @@ theorem heckeCosetSum_eq_of_isHeckeCosetSystem
 
 end CosetSystem
 
+/-- **Left `U`-multiplication permutes a double-coset transversal.**  If `reps` enumerates the
+right `U`-cosets of `U g U`, then multiplying the argument on the left by `u ∈ U` only permutes the
+sum `∑ i, φ (x * u * reps i)` — the pin's
+`Ws1.F3cH.sum_apply_mul_mul_reps_eq` (`:37`–`:62`), one home for the two `S_` files that re-prove it
+(`Cusp/SpectrumLift.lean` and `RightConvCosetSum.lean` both import it from here). -/
+theorem sum_apply_mul_mul_reps_eq {G : Type*} [Group G] (U : Subgroup G) (g : G) {n : ℕ}
+    (reps : Fin n → G)
+    (hreps : ∀ i, ∃ u ∈ U, ∃ u' ∈ U, reps i = u * g * u')
+    (hcov : ∀ x : G, (∃ u ∈ U, ∃ u' ∈ U, x = u * g * u') → ∃ i, ∃ u ∈ U, x = reps i * u)
+    (hinj : ∀ i j, (reps i)⁻¹ * reps j ∈ U → i = j)
+    (φ : G → ℂ) (hφU : ∀ x : G, ∀ u ∈ U, φ (x * u) = φ x) (x : G) {u : G} (hu : u ∈ U) :
+    ∑ i, φ (x * u * reps i) = ∑ i, φ (x * reps i) := by
+  have hmem : ∀ i, ∃ u₁ ∈ U, ∃ u' ∈ U, u * reps i = u₁ * g * u' := by
+    intro i
+    obtain ⟨u₁, hu₁, u', hu', hi⟩ := hreps i
+    exact ⟨u * u₁, mul_mem hu hu₁, u', hu', by rw [hi, ← mul_assoc, ← mul_assoc]⟩
+  choose σ w hw hσ using fun i => hcov (u * reps i) (hmem i)
+  have hσinj : Function.Injective σ := by
+    intro i j hij
+    apply hinj
+    have e1 : (reps i)⁻¹ * reps j = (u * reps i)⁻¹ * (u * reps j) := by group
+    rw [e1, hσ i, hσ j, hij]
+    have e2 : (reps (σ j) * w i)⁻¹ * (reps (σ j) * w j) = (w i)⁻¹ * w j := by group
+    rw [e2]
+    exact mul_mem (inv_mem (hw i)) (hw j)
+  have hσbij : Function.Bijective σ := Finite.injective_iff_bijective.mp hσinj
+  calc ∑ i, φ (x * u * reps i) = ∑ i, φ (x * reps (σ i)) := by
+        refine Finset.sum_congr rfl fun i _ => ?_
+        rw [mul_assoc, hσ i, ← mul_assoc, hφU _ _ (hw i)]
+    _ = ∑ i, φ (x * reps i) :=
+        Fintype.sum_bijective σ hσbij (fun i => φ (x * reps (σ i))) (fun j => φ (x * reps j)) fun _ => rfl
+
 section Volume
 
 variable {G : Type*} [Group G] [MeasurableSpace G] [MeasurableMul G]

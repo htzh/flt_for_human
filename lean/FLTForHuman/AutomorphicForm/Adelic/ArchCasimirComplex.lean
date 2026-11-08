@@ -36,6 +36,7 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_hasArchCharacterAtZero_one_of_archDerivAtComplex_compact_eq_zero.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
+import FLTForHuman.AutomorphicForm.Adelic.ArchComponentDictionary
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimirComplexAPI
 import Mathlib.Analysis.Calculus.FDeriv.Symmetric
 
@@ -1599,15 +1600,6 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 
 variable {F : Type} [Field F] [NumberField F]
 
--- The port's copy of `glArch_ext` lives in `ArchCasimir.lean` — in the *transcription* namespace
--- `ElemLR`, not at `AutomorphicForm.*` — so importing that whole engine to reach it buys less than
--- these five lines: re-stated here, `private`, from the pin's own statement (pin `:930`).
-omit [NumberField F] in
-private theorem glArch_ext {x y : GL (Fin 2) (InfiniteAdeleRing F)}
-    (h : ∀ w : InfinitePlace F, archComponent F w x = archComponent F w y) : x = y := by
-  refine Matrix.GeneralLinearGroup.ext fun i j => funext fun w => ?_
-  exact congrArg (fun g : GL (Fin 2) w.Completion => (g : Matrix (Fin 2) (Fin 2) w.Completion) i j) (h w)
-
 private theorem glArch_archComplexGLAt {w : InfinitePlace F} (hw : w.IsComplex) (m : GL (Fin 2) ℂ) :
     glArch (𝓞 F) F (archComplexGLAt hw m) =
       archGLIncl F w (glEquivOfRingEquiv (ringEquivComplexOfIsComplex hw).symm m) :=
@@ -1626,9 +1618,9 @@ private theorem archComplexGLAt_mul_comm_of_archComponent_eq_one {w : InfinitePl
     (m : GL (Fin 2) ℂ) {g : AdelicGL2 (𝓞 F) F}
     (hg : archComponent F w (glArch (𝓞 F) F g) = 1) :
     archComplexGLAt hw m * g = g * archComplexGLAt hw m := by
-  apply eq_of_glArch_eq_of_glFin_eq
+  apply eq_of_glArch_eq_of_glFin_eq F
   · rw [map_mul, map_mul]
-    apply glArch_ext
+    apply ext_archComponent
     intro w'
     rw [map_mul, map_mul]
     by_cases hw' : w' = w

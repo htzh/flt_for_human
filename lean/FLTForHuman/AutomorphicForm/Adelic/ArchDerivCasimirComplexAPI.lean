@@ -233,7 +233,7 @@ theorem archComplexGLAt_mul_comm_of_glArch_eq_one {w : InfinitePlace F} (hw : w.
     {k : AdelicGL2 (𝓞 F) F} (hk : AdelicLevel.glArch (𝓞 F) F k = 1) :
     archComplexGLAt hw m * k = k * archComplexGLAt hw m := by
   have hfin : AdelicLevel.glFin (𝓞 F) F (archComplexGLAt hw m) = 1 := glFin_adelicArchGLIncl F _
-  refine eq_of_glArch_eq_of_glFin_eq ?_ ?_
+  refine eq_of_glArch_eq_of_glFin_eq F ?_ ?_
   · rw [map_mul, map_mul, hk, mul_one, one_mul]
   · rw [map_mul, map_mul, hfin, mul_one, one_mul]
 

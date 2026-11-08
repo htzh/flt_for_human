@@ -117,6 +117,15 @@ theorem eq_of_glArch_eq_of_glFin_eq {x y : AdelicGL2 (𝓞 F) F}
       (m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F)) i j) h₂
   exact Prod.ext h₁' h₂'
 
+/-- The finite components jointly separate points of `GL₂(𝔸_F^fin)` — the `glFin`-shaped hypothesis
+of `gl_ext`.  The archimedean analogue is `AutomorphicForm.ext_archComponent`
+(`ArchComponentDictionary.lean`). -/
+theorem glFin_ext {x y : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)}
+    (h : ∀ u : HeightOneSpectrum (𝓞 F),
+      finComponent (𝓞 F) F u x = finComponent (𝓞 F) F u y) : x = y := by
+  refine Units.ext (AdelicDock.matrix_eq_of_forall_mapMatrix_finAdeleEval_eq (𝓞 F) F fun u => ?_)
+  exact congrArg Units.val (h u)
+
 /-- `levelOne ⊓ finiteAdelicGL2Subgroup` is the image of `finiteLevelOne` under `finEmbed`. -/
 theorem coe_levelOne_inf_finiteAdelicGL2Subgroup (N : Ideal (𝓞 F)) :
     ((levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F : Subgroup (AdelicGL2 (𝓞 F) F)) :

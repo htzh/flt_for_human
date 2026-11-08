@@ -1670,11 +1670,12 @@ theorem archUnitIdele_pow_eq_prod (a : (v : InfinitePlace F) → (v.Completion)�
   refine Finset.prod_congr rfl fun v _ => ?_
   rw [archCentralUnit_eq_archUnitIdele, ← map_pow, Pi.mulSingle_pow]
 
+/-- Wire restatement of `AutomorphicForm.centralScalar_mul_comm` (`AutomorphicForm/Adelic/Basic.lean`,
+the one home of the fact): the module's `spec-pin:` file names it here, so the name stays; the
+proof is one application. -/
 theorem centralScalar_mul_comm (z : (AdeleRing (𝓞 F) F)ˣ) (h : AdelicGL2 (𝓞 F) F) :
-    centralScalar (𝓞 F) F z * h = h * centralScalar (𝓞 F) F z := by
-  apply Units.ext
-  rw [Units.val_mul, Units.val_mul]
-  exact (Matrix.scalar_commute (z : AdeleRing (𝓞 F) F) (fun _ => Commute.all _ _) _).eq
+    centralScalar (𝓞 F) F z * h = h * centralScalar (𝓞 F) F z :=
+  AutomorphicForm.centralScalar_mul_comm z h
 
 theorem archDetNorm_centralScalar_mul' (v : InfinitePlace F) (w : (AdeleRing (𝓞 F) F)ˣ)
     (g : AdelicGL2 (𝓞 F) F) :

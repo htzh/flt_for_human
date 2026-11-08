@@ -18,7 +18,9 @@
 
   The pin's namespace `RightConvPreserve` is the subject name and is kept.
 
-  **Visibility follows the pin's**: a `private` prelude of fifteen helpers and the one public headline.
+  **Visibility follows the pin's**: a `private` prelude of fourteen helpers (the pin's fifteen minus
+  `eq_of_glArch_eq_of_glFin_eq`, which is the shared fact of `AutomorphicForm/Adelic/LevelCompactness.lean`
+  and is imported, not re-proved) and the one public headline.
 
   **Wiring.** `spec/check_port.py` owns the public declaration here: the wrapper and the `S_` file are the
   wire.
@@ -27,6 +29,7 @@
 -/
 import FLTForHuman.AutomorphicForm.Adelic.RightConvolution
 import FLTForHuman.AutomorphicForm.Adelic.ConstantTerm
+import FLTForHuman.AutomorphicForm.Adelic.LevelCompactness
 import FLTForHuman.AutomorphicForm.Adelic.SmoothAutomorphicFn
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.SmoothRealization
 import FLTForHuman.AutomorphicForm.Adelic.ProductionPinsGeneral
@@ -63,18 +66,9 @@ open scoped ProbabilityTheory
 
 variable {K : Type} [Field K] [NumberField K]
 
-private theorem eq_of_glArch_eq_of_glFin_eq {a b : AdelicGL2 (𝓞 K) K}
-    (h₁ : glArch (𝓞 K) K a = glArch (𝓞 K) K b) (h₂ : glFin (𝓞 K) K a = glFin (𝓞 K) K b) :
-    a = b := by
-  refine Matrix.GeneralLinearGroup.ext fun i j => Prod.ext ?_ ?_
-  · exact congrArg (fun m : GL (Fin 2) (InfiniteAdeleRing K) =>
-      (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing K)) i j) h₁
-  · exact congrArg (fun m : GL (Fin 2) (FiniteAdeleRing (𝓞 K) K) =>
-      (m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 K) K)) i j) h₂
-
 private theorem mul_comm_of_glFin_eq_one_of_glArch_eq_one {a y : AdelicGL2 (𝓞 K) K}
     (ha : glFin (𝓞 K) K a = 1) (hy : glArch (𝓞 K) K y = 1) : a * y = y * a :=
-  eq_of_glArch_eq_of_glFin_eq (by rw [map_mul, map_mul, hy, mul_one, one_mul])
+  eq_of_glArch_eq_of_glFin_eq K (by rw [map_mul, map_mul, hy, mul_one, one_mul])
     (by rw [map_mul, map_mul, ha, mul_one, one_mul])
 
 private theorem glArch_eq_one_of_mem {N : Ideal (𝓞 K)} {k : AdelicGL2 (𝓞 K) K}

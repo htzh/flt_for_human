@@ -37,6 +37,7 @@
 import FLTForHuman.AutomorphicForm.Adelic.ArchType
 import FLTForHuman.AutomorphicForm.Adelic.ArchWeightCharTransport
 import FLTForHuman.AutomorphicForm.Adelic.ConstantTerm
+import FLTForHuman.AutomorphicForm.Adelic.LevelCompactness
 import FLTForHuman.LanglandsTunnell.ArchParam
 
 set_option autoImplicit false
@@ -354,24 +355,11 @@ theorem IsArchSmoothAt.sub {w : InfinitePlace F} {hw : w.IsReal} {φ ψ : Adelic
   rw [sub_eq_add_neg]
   exact hφ.add hψ.neg
 
-theorem eq_of_glArch_eq_of_glFin_eq {x y : AdelicGL2 (𝓞 F) F}
-    (h₁ : AdelicLevel.glArch (𝓞 F) F x = AdelicLevel.glArch (𝓞 F) F y)
-    (h₂ : AdelicLevel.glFin (𝓞 F) F x = AdelicLevel.glFin (𝓞 F) F y) : x = y := by
-  apply Units.ext
-  apply Matrix.ext
-  intro i j
-  have h₁' := congrArg
-    (fun m : GL (Fin 2) (InfiniteAdeleRing F) => (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j) h₁
-  have h₂' := congrArg
-    (fun m : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F) =>
-      (m : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j) h₂
-  exact Prod.ext h₁' h₂'
-
 theorem archRealGLAt_mul_comm_of_glArch_eq_one {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2) ℝ)
     {k : AdelicGL2 (𝓞 F) F} (hk : AdelicLevel.glArch (𝓞 F) F k = 1) :
     archRealGLAt hw m * k = k * archRealGLAt hw m := by
   have hfin : AdelicLevel.glFin (𝓞 F) F (archRealGLAt hw m) = 1 := glFin_adelicArchGLIncl F _
-  refine eq_of_glArch_eq_of_glFin_eq ?_ ?_
+  refine eq_of_glArch_eq_of_glFin_eq F ?_ ?_
   · rw [map_mul, map_mul, hk, mul_one, one_mul]
   · rw [map_mul, map_mul, hfin, mul_one, one_mul]
 

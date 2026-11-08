@@ -788,6 +788,87 @@ cells (it subtracted the 1,072 *net* where the demand counts the 2,640 *silo*) a
 instance of AF24's arithmetic rule.
 
 
+The thirty-fourth **is landed** (2026-11-08): [automorphicForm/SET-AF34.md](automorphicForm/SET-AF34.md),
+the **genuine smooth cusp realization** — its central character (modulus and continuity), the level-one
+Hecke obstruction over an arbitrary number field, and the `‖det‖^t` twist. Four orders on four new
+modules plus one `Def_` port (`AutomorphicForm/Adelic/FnTwist.lean`, 14 ok), 5 nodes / 1,939 silo. Two
+measurements are the set's own. **First, a false ready row**: the general obstruction row read
+`needed = 1` while its pin proof cites `NumberField.denseRange_algebraMap_add_adeleSingleAt`, which the
+port did not hold — it held `RatAdele.denseRange_…`, the `K = ℚ` case at the *same last name*, so the
+name tier counted the general node as ported (FR-0156; `--unport` is the instrument, and the 333-line
+premise became the set's first order). **Second, the specialisation is derived**: the pair
+`not_exists_forall_apply_mul_heckeGen_eq_of_isGenuineCuspRealizationAt` (527) / `…_of_continuous` (513) is
+parallel in the pin (neither cites the other), and `productionPinsGeneral ℚ` unfolds *definitionally* to
+the general row's pins, so the `ℚ` headline is a three-line application and its 513-line `ℚ`-only
+argument is not transcribed (verified twice by probe before dispatch). The re-read: `needed`
+**763 / 319,019 → 759 / 317,413** and literal 775 / 322,484 → **771 / 320,878**, both exact; frontier
+1,653 / 808,357 → 1,657 / 809,963 and `NumberField` demand unchanged 99 / 34,198, because the instrument
+never counted the shadowed premise at all (§8.3); ready 60 / 13,988 → **59 / 13,881**, leaves
+204 / 52,711 → **203 / 52,512** (the central-character row is a *leaf*), `AutomorphicForm` demand
+273 / 118,863 → **269 / 117,257**. Rows readied: `LanglandsTunnell.satake_norm_lt_sqrt_absNorm_of_not_dvd_level_of_not_mem_exceptionalSet`
+(**1,187**) and `SmoothCuspRealizationAt.centralChar_eq_of_agreesAwayFromFinite` (113, leverage 1/16) — so
+the column's ready head is now the 1,043 induced-section/height row and that 1,187-line Satake bound.
+
+
+The thirty-fifth **is landed** (2026-11-08): [automorphicForm/SET-AF35.md](automorphicForm/SET-AF35.md),
+the **Satake bound at level one** — the chain SET-AF34 readied. Three rows / 1,780 silo in 1,798 written
+lines (the first set of the column whose written lines exceed its silo: the 1,187-line pin file is a genuine
+transcription, port 1,223 lines / 68 declarations / 5 ok). `Cusp/SatakeParameters.lean` produces the unitary
+input `‖b v‖ = 1` from a covariant self-pairing; `Cusp/SatakeBound.lean` forces both Satake roots strictly
+inside `√N` and gives `a² ≠ b·(N+2+N⁻¹)`; `Cusp/SatakeConsequence.lean` (126 lines) is the pin's assembly,
+producing that input from the Petersson pairing and reading the bound off the `‖det‖^t` twist, with the
+`t = (1-s)/2` `rpow` cancellation exactly as the pin's. No definition layer, no promotion, no migration.
+
+The thirty-sixth **is landed** (2026-11-08): [automorphicForm/SET-AF36.md](automorphicForm/SET-AF36.md),
+the **Whittaker-ODE engine** — the first cut the column made on the *leaves* shelf. Three premise-free
+`LanglandsTunnell` leaves / 1,955 silo in **1,358 written lines**: the general linear-dependence lemma at
+moderate growth (711 pin lines, transcribed **verbatim** — a `diff` against pin `:21–711` has exactly two
+hunks), its `(ν²).im = 0` companion *derived* (18 lines against a 643-line pin file), and the forced
+near-zero growth bound (601, five `convert` drifts only, no `rpow` rename). No `Definitions/` module at all:
+the pin files import mathlib only. **It readied two rows** (361 + 329 = 690 silo) — the best
+unblocking-per-line figure the column has recorded since SET 3's leaf tail.
+
+The thirty-seventh **is landed** (2026-11-08): [automorphicForm/SET-AF37.md](automorphicForm/SET-AF37.md),
+the **Weyl translate of an induced section, evaluated** — the value side of AF33's subject. Three rows /
+1,620 silo in 1,307 written lines with **464 declaration lines imported**: the bottom-row indicator row
+(1,043 pin lines / 82 declarations) writes only 46 of them, because 31 are hash-identical to the imported
+`InducedSectionFlat` prelude, 1 is its private `coe_mul`, and 4 are the homed `PlaceModulus.*`. The two
+evaluations (archimedean 360, finite-place 217) sit in one module above `IwasawaWeylUnipotent`. One `own:`
+row in `spec/decl_markers.tsv` (the pin's task-label-qualified `P6B.JE2aFlat.flatOne`).
+
+The thirty-eighth **is landed** (2026-11-08): [automorphicForm/SET-AF38.md](automorphicForm/SET-AF38.md),
+the **Γ₁ Hecke operators `U_ℓ` and `Diag_d`** — four rows / 1,158 silo in 1,084 written lines, including the
+shelf's highest-leverage row (`exists_degeneracy_gamma1_hasNebentypus`, 9/12 consumers). The surface gate
+did the set's real work: both modules landed at `2 ok` with their pin-public helpers `private`, and stripping
+`private` moved them to **34 ok** and **33 ok + 3 own** with no proof changed (FR-0160). It **readied two
+rows** (69 + 218), the second being the level-raising linear-independence statement. One definition-layer
+gap surfaced: `Def_FreyPackage_ModMCarrier_Rescale` is imported by the pin's file but is not in
+`--with-defs`'s statement closure, so two of its declarations are carried and marked `own:` (FR-0161).
+
+
+The thirty-ninth **is landed** (2026-11-08): [automorphicForm/SET-AF39.md](automorphicForm/SET-AF39.md),
+the **right-convolution engine at a level coset** — three rows / 825 silo in 791 written lines, with 6 of
+39A's 19 pin declarations *reused* from `LevelCompactness`/`TestFnInvariance` rather than re-declared (a
+second public `AutomorphicForm.sandwich` would break any module importing both). The set's honest note is
+that the port already held row C **generalized** (`SpectrumLift.cosetSum_rightConv_eq`, arbitrary `U ≤ K_f`):
+46 of row C's 101 proof lines re-prove that argument, and the recipe's FR-0041 check — grep for a
+*generalized* copy, not only for a statement twin — would have priced it before dispatch. Its three helper
+copies are 49 lines, of which 22 are packaging (element extensionality, the arch/fin commutation) and 26 the
+double-coset transversal argument.
+
+The fortieth **is landed** (2026-11-08): [automorphicForm/SET-AF40.md](automorphicForm/SET-AF40.md),
+the **idèle product-measure layer** — the definition-layer set SET-AF39 §1 deferred. It is three modules
+plus two declarations, because the pin's `Def_NumberField_IdeleProductMeasure` imports a chain
+(`Def_IsDedekindDomain_FiniteUnitIdelesOutside` → `Def_UnramifiedWhittaker_ZetaIntegrand`) that was also
+unported: **7 + 2 declarations of new modules, 2 added to `FiniteIdeles`, and 64 in
+`NumberField/IdeleProductMeasure.lean`** (694 lines, 42 ok + 1 own, 43/43 axioms clean), of which the
+manager wrote the twelve definitions and order AF40A the 53 bodies in 525 lines. The row it unblocks — the
+**Borel Haar disintegration** `∫⁻ b, F b ∂μB = c · ∫⁻x∫⁻u∫⁻t, F (n(x)·z(u)·diag(t))·‖t‖⁻¹` (429 silo) — is
+scaffolded checker-green and is order AF40B; before this layer it could not even be *stated*, which is the
+concrete answer to "run `--with-defs` once per set" (FR-0161: that gate closes over statement vocabulary,
+not over the pin's `Definitions/` import chain).
+
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

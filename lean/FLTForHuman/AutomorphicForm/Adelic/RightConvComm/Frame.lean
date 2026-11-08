@@ -27,6 +27,7 @@
 import FLTForHuman.NumberTheory.AdelicHaar.GeneralLinear
 import FLTForHuman.NumberTheory.AdelicDock.LocalEmbedding
 import FLTForHuman.AutomorphicForm.Adelic.Basic
+import FLTForHuman.AutomorphicForm.Adelic.LevelCompactness
 import FLTForHuman.AutomorphicForm.Adelic.ArchType
 import FLTForHuman.AutomorphicForm.Adelic.RightConvolution
 import FLTForHuman.AutomorphicForm.Adelic.SmoothAutomorphicFn
@@ -145,14 +146,6 @@ section Adelic
 
 variable (F : Type) [Field F] [NumberField F]
 
-theorem eq_of_glArch_eq_of_glFin_eq {x y : AdelicGL2 (𝓞 F) F}
-    (h₁ : AdelicLevel.glArch (𝓞 F) F x = AdelicLevel.glArch (𝓞 F) F y)
-    (h₂ : AdelicLevel.glFin (𝓞 F) F x = AdelicLevel.glFin (𝓞 F) F y) : x = y := by
-  apply Units.ext
-  apply AdelicDock.matrix_eq_of_mapMatrix_arch_fin_eq (𝓞 F) F
-  · exact congrArg Units.val h₁
-  · exact congrArg Units.val h₂
-
 def adelicFrame :
     Frame (AdelicGL2 (𝓞 F) F) (Matrix.GeneralLinearGroup (Fin 2) (InfiniteAdeleRing F))
       (Matrix.GeneralLinearGroup (Fin 2) (FiniteAdeleRing (𝓞 F) F)) where
@@ -178,20 +171,6 @@ theorem continuous_adelicFrame_ιf : Continuous (adelicFrame F).ιf := by
   refine ⟨?_, ?_⟩
   · exact (continuous_finMat F).comp Units.continuous_val
   · exact (continuous_finMat F).comp (Units.continuous_val.comp continuous_inv)
-
-/-- The finite adèlic embedding is continuous. The compact silo proves this inline in
-its `solution` (there is no pin declaration for it to promote against), so it lands
-here `private`; the public `continuous_adelicFrame_ιf` is definitionally the same
-statement and is what the specializations use. -/
-private theorem continuous_finEmbed : Continuous (AdelicDock.finEmbed (𝓞 F) F) := by
-  refine Units.continuous_iff.mpr ⟨continuous_matrix fun i j => ?_, continuous_matrix fun i j => ?_⟩
-  · show Continuous fun g : Matrix.GeneralLinearGroup (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F) =>
-      AdelicDock.finMat (𝓞 F) F g i j
-    exact continuous_const.prodMk (Units.continuous_val.matrix_elem i j)
-  · show Continuous fun g : Matrix.GeneralLinearGroup (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F) =>
-      AdelicDock.finMat (𝓞 F) F ((g⁻¹ : Matrix.GeneralLinearGroup (Fin 2)
-        (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) : Matrix _ _ _) i j
-    exact continuous_const.prodMk (Units.continuous_coe_inv.matrix_elem i j)
 
 theorem continuous_archMat :
     Continuous fun M : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F) =>

@@ -68,6 +68,8 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalConstituent_exists_forall_whittakerCoefficient_mul_eq_sum_mul_whittakerCoefficient_mul_diagOne_norm_infinitePlace_eq_one_of_isCuspConstituent.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.WhittakerCoefficient
+import FLTForHuman.AutomorphicForm.Adelic.LevelCompactness
+import FLTForHuman.AutomorphicForm.Adelic.ArchComponentDictionary
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimirComplex
 import FLTForHuman.AutomorphicForm.Adelic.ArchWeightCharTransport
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
@@ -189,14 +191,11 @@ open NumberField.TateGlobal NumberField.AdeleRing NumberField.InfinitePlace.Comp
 variable (K : Type) [Field K] [NumberField K]
 
 omit [NumberField K] in
+/-- Wire restatement of `AutomorphicForm.ext_archComponent`
+(`AutomorphicForm/Adelic/ArchComponentDictionary.lean`, the one home of the fact). -/
 theorem glInf_ext {a b : GL (Fin 2) (InfiniteAdeleRing K)}
-    (h : ∀ v : InfinitePlace K, archComponent K v a = archComponent K v b) : a = b := by
-  apply Units.ext
-  ext i j
-  funext v
-  have := congrFun (congrFun (congrArg (fun m : GL (Fin 2) (v.Completion) =>
-    (m : Matrix (Fin 2) (Fin 2) (v.Completion))) (h v)) i) j
-  rwa [archComponent_apply, archComponent_apply] at this
+    (h : ∀ v : InfinitePlace K, archComponent K v a = archComponent K v b) : a = b :=
+  ext_archComponent h
 
 theorem archComplexGLAt_mul_comm_of_archComponent_eq_one {w : InfinitePlace K} (hw : w.IsComplex) (m : GL (Fin 2) ℂ)
     {k : AdelicGL2 (𝓞 K) K} (hk : archComponent K w (glArch (𝓞 K) K k) = 1) :
@@ -204,7 +203,7 @@ theorem archComplexGLAt_mul_comm_of_archComponent_eq_one {w : InfinitePlace K} (
   have hfin : glFin (𝓞 K) K (archComplexGLAt hw m) = 1 := glFin_adelicArchGLIncl K _
   have harch : glArch (𝓞 K) K (archComplexGLAt hw m) =
       archGLIncl K w (glEquivOfRingEquiv (ringEquivComplexOfIsComplex hw).symm m) := glArch_adelicArchGLIncl K _
-  refine eq_of_glArch_eq_of_glFin_eq ?_ ?_
+  refine eq_of_glArch_eq_of_glFin_eq K ?_ ?_
   · rw [map_mul, map_mul, harch]
     refine glInf_ext K fun v => ?_
     rw [map_mul, map_mul]
@@ -401,7 +400,7 @@ theorem diagOne_archUnitHom_eq_archComplexGLAt {w : InfinitePlace K} (hw : w.IsC
   have harch : glArch (𝓞 K) K (archComplexGLAt hw m) =
       archGLIncl K w (glEquivOfRingEquiv (ringEquivComplexOfIsComplex hw).symm m) := glArch_adelicArchGLIncl K _
   have hsnd : (((archUnitHom w c : (AdeleRing (𝓞 K) K)ˣ)) : AdeleRing (𝓞 K) K).2 = 1 := by rw [archUnitHom_apply]; rfl
-  refine eq_of_glArch_eq_of_glFin_eq ?_ ?_
+  refine eq_of_glArch_eq_of_glFin_eq K ?_ ?_
   · rw [harch]
     refine glInf_ext K fun v => ?_
     by_cases hv : v = w
@@ -447,7 +446,7 @@ theorem centralScalar_iotaW_eq_archComplexGLAt {w : InfinitePlace K} (hw : w.IsC
     change (Matrix.scalar (Fin 2) ((iotaW hw t : (AdeleRing (𝓞 K) K)ˣ) : AdeleRing (𝓞 K) K)) i j = _
     rw [Matrix.scalar_apply]
     fin_cases i <;> fin_cases j <;> simp [Matrix.diagonal]
-  refine eq_of_glArch_eq_of_glFin_eq ?_ ?_
+  refine eq_of_glArch_eq_of_glFin_eq K ?_ ?_
   · rw [harch]
     refine glInf_ext K fun v => ?_
     ext i j
@@ -1274,15 +1273,14 @@ theorem archIdele_fst (t : ∀ w : InfinitePlace K, (w.Completion)ˣ) (w : Infin
 theorem archIdele_snd (t : ∀ w : InfinitePlace K, (w.Completion)ˣ) :
     ((archIdele K t : (AdeleRing (𝓞 K) K))).2 = 1 := rfl
 
+/-- Wire restatement of `AutomorphicForm.eq_of_glArch_eq_of_glFin_eq`
+(`AutomorphicForm/Adelic/LevelCompactness.lean`) in the archimedean-pointwise spelling this module's
+`spec-pin:` file states; the archimedean part is `glInf_ext`, a one-line restatement of
+`AutomorphicForm.ext_archComponent`, not a re-proof. -/
 theorem gl_ext {g h : AdelicGL2 (𝓞 K) K} (h₁ : glFin (𝓞 K) K g = glFin (𝓞 K) K h)
     (h₂ : ∀ w : InfinitePlace K, archComponent K w (glArch (𝓞 K) K g) = archComponent K w (glArch (𝓞 K) K h)) :
-    g = h := by
-  apply Units.ext
-  refine Matrix.ext fun i j => ?_
-  apply Prod.ext
-  · funext w
-    exact congrArg (fun m : GL (Fin 2) w.Completion => (m : Matrix (Fin 2) (Fin 2) w.Completion) i j) (h₂ w)
-  · exact congrArg (fun m : GL (Fin 2) (FiniteAdeleRing (𝓞 K) K) => (m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 K) K)) i j) h₁
+    g = h :=
+  eq_of_glArch_eq_of_glFin_eq K (AutomorphicForm.DCFN.glInf_ext K h₂) h₁
 
 theorem glFin_diagOne_archIdele (t : ∀ w : InfinitePlace K, (w.Completion)ˣ) :
     glFin (𝓞 K) K (diagOne (archIdele K t)) = 1 := by

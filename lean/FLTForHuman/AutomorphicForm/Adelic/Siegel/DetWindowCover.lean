@@ -66,11 +66,13 @@ theorem exists_norm_eq (v : InfinitePlace F) {r : ℝ} (hr : 0 ≤ r) :
       ← ringEquivComplexOfIsComplex_apply hv, RingEquiv.apply_symm_apply, Complex.norm_real,
       Real.norm_eq_abs, abs_of_nonneg hr]
 
-theorem centralScalar_mul_comm (z : (AdeleRing (𝓞 F) F)ˣ) (h : AdelicGL2 (𝓞 F) F) :
-    centralScalar (𝓞 F) F z * h = h * centralScalar (𝓞 F) F z := by
-  apply Units.ext
-  rw [Units.val_mul, Units.val_mul]
-  exact (Matrix.scalar_commute (z : AdeleRing (𝓞 F) F) (fun _ => Commute.all _ _) _).eq
+/-- Wire restatement of `AutomorphicForm.centralScalar_mul_comm`
+(`AutomorphicForm/Adelic/Basic.lean`, the one home of the fact).  This module's `spec-pin:` file
+names the fact, so it stays reachable in this module's wire; the proof is one application.  Primed
+because the canonical carries the plain name in `AutomorphicForm`. -/
+theorem centralScalar_mul_comm' (z : (AdeleRing (𝓞 F) F)ˣ) (h : AdelicGL2 (𝓞 F) F) :
+    centralScalar (𝓞 F) F z * h = h * centralScalar (𝓞 F) F z :=
+  AutomorphicForm.centralScalar_mul_comm z h
 
 theorem archDetNorm_mul (v : InfinitePlace F) (g x : AdelicGL2 (𝓞 F) F) :
     archDetNorm v (g * x) = archDetNorm v g * archDetNorm v x := by

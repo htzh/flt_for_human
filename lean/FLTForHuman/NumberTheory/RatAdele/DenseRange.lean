@@ -62,6 +62,7 @@
   spec-pin: Theorems/Thm_RatAdele_denseRange_algebraMap_add_adeleSingleAt.lean
 -/
 import FLTForHuman.LanglandsTunnell.StandardLocalConstantsAt
+import FLTForHuman.NumberTheory.NumberField.DenseRange
 import FLTForHuman.NumberTheory.AdelicBox
 import FLTForHuman.Topology.Algebra.RestrictedProduct.TopologicalSpace
 
@@ -77,23 +78,6 @@ open IsDedekindDomain NumberField
 
 namespace RatAdeleDensityAux
 
-private theorem exists_pow_lt_of_lt_one (x γ : WithZero (Multiplicative ℤ)) (hx : x < 1) (hγ : γ ≠ 0) :
-    ∃ n : ℕ, x ^ n < γ := by
-  rcases eq_or_ne x 0 with rfl | hx0
-  · exact ⟨1, by rw [pow_one]; exact zero_lt_iff.mpr hγ⟩
-  · have hl : WithZero.log x < 0 := by
-      have h := (WithZero.log_lt_log hx0 one_ne_zero).mpr hx
-      simpa using h
-    refine ⟨(WithZero.log γ).natAbs + 1, ?_⟩
-    rw [← WithZero.exp_log hγ]
-    apply WithZero.lt_exp_of_log_lt
-    rw [WithZero.log_pow, nsmul_eq_mul]
-    have hn : (0 : ℤ) ≤ (((WithZero.log γ).natAbs + 1 : ℕ) : ℤ) := by positivity
-    have h1 : (((WithZero.log γ).natAbs + 1 : ℕ) : ℤ) * WithZero.log x ≤
-        -(((WithZero.log γ).natAbs + 1 : ℕ) : ℤ) := by nlinarith
-    have h2 : -(((WithZero.log γ).natAbs + 1 : ℕ) : ℤ) < WithZero.log γ := by omega
-    exact h1.trans_lt h2
-
 private theorem exists_radius_of_mem_nhds (i : HeightOneSpectrum (RingOfIntegers ℚ)) (x : i.adicCompletion ℚ)
     (s : Set (i.adicCompletion ℚ)) (hs : s ∈ nhds x) :
     ∃ γ : WithZero (Multiplicative ℤ), γ ≠ 0 ∧ ∀ y : i.adicCompletion ℚ, Valued.v (y - x) < γ → y ∈ s := by
@@ -106,7 +90,7 @@ private theorem exists_pow_intValuation_lt (i : HeightOneSpectrum (RingOfInteger
     (hγ : γ ≠ 0) : ∃ a : RingOfIntegers ℚ, a ≠ 0 ∧ i.intValuation a < γ := by
   obtain ⟨π, hπ, hπ0⟩ := Submodule.exists_mem_ne_zero_of_ne_bot i.ne_bot
   have hlt : i.intValuation π < 1 := (i.intValuation_lt_one_iff_mem π).mpr hπ
-  obtain ⟨n, hn⟩ := exists_pow_lt_of_lt_one _ γ hlt hγ
+  obtain ⟨n, hn⟩ := NumberFieldDenseRangeAux.exists_pow_lt_of_lt_one _ γ hlt hγ
   exact ⟨π ^ n, pow_ne_zero n hπ0, by rw [map_pow]; exact hn⟩
 
 private theorem exists_ne_zero_forall_intValuation_lt (T : Finset (HeightOneSpectrum (RingOfIntegers ℚ)))

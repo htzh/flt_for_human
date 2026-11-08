@@ -56,7 +56,7 @@ theorem rightConv_rightConv_comm_of_isLevelSphericalOfType_principal
         obtain ⟨hu1, hu2⟩ := Subgroup.mem_inf.mp hu
         refine ⟨AdelicLevel.glFin (𝓞 F) F u,
           (TestFnPrincipalLevel.mem_principalLevel_iff_glFin (F := F) (N := N) u).mp hu1, ?_⟩
-        apply ProjectedHaar.eq_of_glArch_eq_of_glFin_eq F
+        apply AutomorphicForm.eq_of_glArch_eq_of_glFin_eq F
         · rw [AdelicDock.glArch_finEmbed]
           exact ((mem_finiteAdelicGL2Subgroup_iff F u).mp hu2).symm
         · exact AdelicDock.glFin_finEmbed (𝓞 F) F (AdelicLevel.glFin (𝓞 F) F u)

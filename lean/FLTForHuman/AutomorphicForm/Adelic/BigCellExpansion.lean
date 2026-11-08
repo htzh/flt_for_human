@@ -65,6 +65,7 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_bigCell_eq_sum_pureTensor_of_flat_family.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.InducedSectionFlat
+import FLTForHuman.AutomorphicForm.Adelic.LevelCompactness
 import FLTForHuman.AutomorphicForm.Adelic.ArchKFiniteFamilyTheorems
 import FLTForHuman.AutomorphicForm.Adelic.ArchCompactOrbit
 import FLTForHuman.AutomorphicForm.Adelic.ProductionPinsGeneral
@@ -3619,18 +3620,9 @@ open BigCellExpansion.RealPlaces
 variable {F : Type} [Field F] [NumberField F]
 
 
-private theorem eq_of_glArch_eq_of_glFin_eq {g h : AdelicGL2 (𝓞 F) F}
-    (h₁ : glArch (𝓞 F) F g = glArch (𝓞 F) F h) (h₂ : glFin (𝓞 F) F g = glFin (𝓞 F) F h) : g = h := by
-  ext i j
-  refine Prod.ext ?_ ?_
-  · exact congrArg (fun k : GL (Fin 2) (InfiniteAdeleRing F) =>
-      (k : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j) h₁
-  · exact congrArg (fun k : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) =>
-      (k : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F)) i j) h₂
-
 private theorem mul_comm_of_glFin_eq_one_of_glArch_eq_one {g u : AdelicGL2 (𝓞 F) F}
     (hg : glFin (𝓞 F) F g = 1) (hu : glArch (𝓞 F) F u = 1) : g * u = u * g :=
-  eq_of_glArch_eq_of_glFin_eq (by rw [map_mul, map_mul, hu, mul_one, one_mul])
+  eq_of_glArch_eq_of_glFin_eq F (by rw [map_mul, map_mul, hu, mul_one, one_mul])
     (by rw [map_mul, map_mul, hg, mul_one, one_mul])
 
 private theorem glFin_eq_one_of_mem_archRowIsometrySubgroup {w : InfinitePlace F} {g : AdelicGL2 (𝓞 F) F}

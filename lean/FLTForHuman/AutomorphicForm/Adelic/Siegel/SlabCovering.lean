@@ -83,13 +83,6 @@ private theorem archDetNorm_mul (w : InfinitePlace F) (g h : AdelicGL2 (𝓞 F) 
 
 variable {F}
 
-private theorem centralScalar_mul_comm (z : (AdeleRing (𝓞 F) F)ˣ) (g : AdelicGL2 (𝓞 F) F) :
-    centralScalar (𝓞 F) F z * g = g * centralScalar (𝓞 F) F z := by
-  have hz : centralScalar (𝓞 F) F z ∈ Subgroup.center (GL (Fin 2) (AdeleRing (𝓞 F) F)) := by
-    rw [NumberField.AdelicCentre.center_eq_range_scalar]
-    exact ⟨z, rfl⟩
-  exact (Subgroup.mem_center_iff.mp hz g).symm
-
 private theorem archDetNorm_centralScalar (v : InfinitePlace F) (w : (AdeleRing (𝓞 F) F)ˣ) :
     archDetNorm v (centralScalar (𝓞 F) F w)
       = ‖(w : AdeleRing (𝓞 F) F).1 v‖ * ‖(w : AdeleRing (𝓞 F) F).1 v‖ := by

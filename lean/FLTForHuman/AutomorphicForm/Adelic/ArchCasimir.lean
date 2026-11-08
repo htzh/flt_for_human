@@ -83,6 +83,7 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_apply_mul_archRealGLAt_eq_of_archDerivAt_E_eq_zero_of_archDerivAt_Fm_eq_zero.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimir
+import FLTForHuman.AutomorphicForm.Adelic.ArchComponentDictionary
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
 -- `D2_symm` (mixed partials commute through the chart) is `ContDiffAt.isSymmSndFDerivAt`,
 -- which the pin reached through its whole-library import; it is not in the closure of the two
@@ -710,10 +711,12 @@ open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 variable {F : Type} [Field F] [NumberField F]
 
 omit [NumberField F] in
+/-- Wire restatement of `AutomorphicForm.ext_archComponent`
+(`AutomorphicForm/Adelic/ArchComponentDictionary.lean`, the one home of the fact): this module's
+`spec-pin:` file names it here, so the name stays; the proof is one application. -/
 theorem glArch_ext {x y : GL (Fin 2) (InfiniteAdeleRing F)}
-    (h : ∀ w : InfinitePlace F, archComponent F w x = archComponent F w y) : x = y := by
-  refine Matrix.GeneralLinearGroup.ext fun i j => funext fun w => ?_
-  exact congrArg (fun g : GL (Fin 2) w.Completion => (g : Matrix (Fin 2) (Fin 2) w.Completion) i j) (h w)
+    (h : ∀ w : InfinitePlace F, archComponent F w x = archComponent F w y) : x = y :=
+  ext_archComponent h
 
 theorem glArch_archRealGLAt {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
     glArch (𝓞 F) F (archRealGLAt hw m) = archGLIncl F w (glEquivOfRingEquiv (ringEquivRealOfIsReal hw).symm m) :=
@@ -735,7 +738,7 @@ theorem glFin_archRealGLAt {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2)
 theorem archRealGLAt_mul_comm_of_archComponent_eq_one {w : InfinitePlace F} (hw : w.IsReal) (m : GL (Fin 2) ℝ)
     {g : AdelicGL2 (𝓞 F) F} (hg : archComponent F w (glArch (𝓞 F) F g) = 1) :
     archRealGLAt hw m * g = g * archRealGLAt hw m := by
-  apply eq_of_glArch_eq_of_glFin_eq
+  apply eq_of_glArch_eq_of_glFin_eq F
   · rw [map_mul, map_mul]
     apply glArch_ext
     intro w'

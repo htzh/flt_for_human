@@ -68,6 +68,18 @@ noncomputable def infiniteUnitsComponent (w : InfinitePlace K) : (AdeleRing R K)
   Units.map ((Pi.evalRingHom (fun w : InfinitePlace K => w.Completion) w).comp
     (RingHom.fst (InfiniteAdeleRing K) (IsDedekindDomain.FiniteAdeleRing R K))).toMonoidHom
 
+noncomputable def finiteUnitsComponent (v : IsDedekindDomain.HeightOneSpectrum R) :
+    (AdeleRing R K)ˣ →* (v.adicCompletion K)ˣ :=
+  (Units.map (RestrictedProduct.evalRingHom
+    (fun v : IsDedekindDomain.HeightOneSpectrum R => v.adicCompletion K) v).toMonoidHom).comp
+    (finitePartUnits R K)
+
+@[simp]
+theorem val_finiteUnitsComponent (v : IsDedekindDomain.HeightOneSpectrum R) (x : (AdeleRing R K)ˣ) :
+    ((finiteUnitsComponent R K v x : (v.adicCompletion K)ˣ) : v.adicCompletion K) =
+      (x : AdeleRing R K).2 v :=
+  rfl
+
 @[simp]
 theorem val_infiniteUnitsComponent (w : InfinitePlace K) (x : (AdeleRing R K)ˣ) :
     ((infiniteUnitsComponent R K w x : (w.Completion)ˣ) : w.Completion) = (x : AdeleRing R K).1 w :=

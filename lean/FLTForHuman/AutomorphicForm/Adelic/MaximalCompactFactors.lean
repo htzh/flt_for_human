@@ -60,6 +60,8 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_isCompact_rowIsometrySubgroup_detOne.lean   -- comparable copy
 -/
 import FLTForHuman.AutomorphicForm.Adelic.AdelicMaximalCompact
+import FLTForHuman.AutomorphicForm.Adelic.LevelCompactness
+import FLTForHuman.AutomorphicForm.Adelic.ArchComponentDictionary
 import FLTForHuman.AutomorphicForm.Adelic.ArchWeightChar
 import FLTForHuman.NumberTheory.AdelicDock.LocalEmbedding
 
@@ -269,24 +271,8 @@ section ArchPlace
 variable (F : Type) [Field F] [NumberField F] (w : InfinitePlace F)
 
 theorem gl_ext {g h : AdelicGL2 (𝓞 F) F} (h₁ : glArch (𝓞 F) F g = glArch (𝓞 F) F h)
-    (h₂ : glFin (𝓞 F) F g = glFin (𝓞 F) F h) : g = h := by
-  apply Units.ext
-  ext i j
-  apply Prod.ext
-  · have := congrFun (congrFun (congrArg (fun m : GL (Fin 2) (InfiniteAdeleRing F) =>
-      (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F))) h₁) i) j
-    rwa [glArch_apply, glArch_apply] at this
-  · have := congrFun (congrFun (congrArg (fun m : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) =>
-      (m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F))) h₂) i) j
-    rwa [glFin_apply, glFin_apply] at this
-
-omit [NumberField F] in
-private theorem glArch_ext {g h : GL (Fin 2) (InfiniteAdeleRing F)}
-    (H : ∀ w' : InfinitePlace F, archComponent F w' g = archComponent F w' h) : g = h := by
-  refine Units.ext (Matrix.ext fun i j => funext fun w' => ?_)
-  have := congrFun (congrFun (congrArg (fun m : GL (Fin 2) w'.Completion =>
-    (m : Matrix (Fin 2) (Fin 2) w'.Completion)) (H w')) i) j
-  rwa [archComponent_apply, archComponent_apply] at this
+    (h₂ : glFin (𝓞 F) F g = glFin (𝓞 F) F h) : g = h :=
+  eq_of_glArch_eq_of_glFin_eq F h₁ h₂
 
 variable (k : AdelicGL2 (𝓞 F) F)
 
@@ -308,7 +294,7 @@ private theorem archComponent_kOne_of_ne {w' : InfinitePlace F} (hw : w' ≠ w) 
     archComponent_archGLIncl_of_ne _ hw]
 
 private theorem kOne_comm : kOne F w k * k = k * kOne F w k := by
-  refine gl_ext F (glArch_ext F fun w' => ?_) ?_
+  refine gl_ext F (ext_archComponent fun w' => ?_) ?_
   · simp only [map_mul]
     rcases eq_or_ne w' w with rfl | hw
     · rw [archComponent_kOne_self]

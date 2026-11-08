@@ -12,6 +12,7 @@
 -/
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.Analysis.Complex.Basic
 
 set_option autoImplicit false
@@ -36,6 +37,16 @@ def centralScalar : (AdeleRing R K)ˣ →* AdelicGL2 R K :=
 
 def chiDet (χ : (AdeleRing R K)ˣ →* ℂˣ) : AdelicGL2 R K → ℂ :=
   fun g => ((χ (Matrix.GeneralLinearGroup.det g) : ℂˣ) : ℂ)
+
+/-- A central scalar commutes with every element of `GL₂(𝔸_K)`.  This is the one home of the fact
+(`centralScalar` is a scalar matrix, hence central); the Siegel and cusp modules that use it import
+it from here rather than re-proving it. -/
+theorem centralScalar_mul_comm {R K : Type*} [CommRing R] [IsDedekindDomain R] [Field K]
+    [Algebra R K] [IsFractionRing R K] (z : (AdeleRing R K)ˣ) (g : AdelicGL2 R K) :
+    centralScalar R K z * g = g * centralScalar R K z := by
+  have hz : centralScalar R K z ∈ Subgroup.center (AdelicGL2 R K) :=
+    Matrix.GeneralLinearGroup.mem_center_iff_val_mem_range_scalar.mpr ⟨z, rfl⟩
+  exact ((Subgroup.mem_center_iff.mp hz) g).symm
 
 end AutomorphicForm
 

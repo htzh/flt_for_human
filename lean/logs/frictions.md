@@ -3381,3 +3381,106 @@ round promotes what generalizes.
   take the same lock in shared mode (`flock -s`), which `lake` does not do itself.
 - **seen**: 2026-11-07, SET-AF33B (transient, self-resolving; the agent re-ran after the sibling's build
   finished and every gate line in its report is post-hoc clean).
+
+## FR-0156 [tooling] — the *last-name* shadow is not only a port-side hazard: `RatAdele.denseRange_…` covers `NumberField.denseRange_…`
+
+- **where**: scoping a set off the D–S shelf (`frontier.py --ds --ready`, recipe §0: "run `--unport` and
+  read the shelf twice").
+- **symptom**: a ready row with `premises_unported = 0` whose pin proof cites a theorem the port does not
+  hold. SET-AF34's general obstruction row
+  (`…not_exists_forall_apply_mul_heckeGen_eq_of_isGenuineCuspRealizationAt`, 527) cites
+  `NumberField.denseRange_algebraMap_add_adeleSingleAt` at pin `:525`; the port holds only
+  `RatAdele.denseRange_algebraMap_add_adeleSingleAt` — the `K = ℚ` case, **same last name**. The name
+  tier reads the general node as ported, so the row looks ready and both `--selfcheck` and
+  `check_port` are silent (the former checks the source tier's coverage, the latter statement-diffs the
+  modules that exist).
+- **cause**: readiness is a *name* test over the port index, and the pin's general theorem and its
+  rational specialisation share a last name exactly when the port has migrated the special one first.
+  The recipe's FR-0047 shadows were the reverse direction (a port declaration at a *specialised*
+  statement covering the general node); this is the same collision with the pin's own two names.
+- **fix / rule**: the instrument is `--unport <the general name>` on the same read. If the row leaves
+  `ready_rank` and that name enters `leaves_rank`, the row was a false ready and its premise is the
+  set's first order. Quote the corrected `needed` (here 763 / 319,019 → **764 / 319,352**) next to the
+  instrument's, and re-take the read after the premise lands — the shadow then resolves itself.
+- **seen**: 2026-11-08, SET-AF34 §0.2.
+
+## FR-0157 [tooling] — a `sorry`-bodied scaffold at the wrapper's name makes the frontier price the set as landed
+
+- **where**: the manager's scaffolding step (new modules, statements with `sorry` bodies, wires) taken
+  *before* dispatch, then a mid-wave shelf read.
+- **symptom**: right after scaffolding four modules and landing only one of them, `frontier.py --ds
+  --ready` reports `needed` **759 / 317,413** — all five of the set's nodes gone — and the ready block
+  drops the four rows and promotes the two rows that *depend* on them (113 and 1,187 silo). Nothing had
+  been proved yet.
+- **cause**: the ported test is the name tier. A scaffold that declares `Theorems/Thm_…`'s headline at
+  the wrapper's name *is* the node; `frontier.py` reads declarations, not proofs, and `check_port`
+  compares statements, so neither instrument can see a `sorry`.
+- **fix / rule**: the baseline read must be taken **before** the scaffolds exist (it is the pre-scaffold
+  read plus arithmetic that the landing record quotes), and the post-landing re-read only after every
+  scaffold is sorry-free. The gate that certifies a scaffold has become a proof is
+  `#print axioms` without `sorryAx` — not `check_port`, which is green at both ends. A scaffold's
+  `1 ok` is a *statement* certificate and must never be quoted as a landing figure.
+- **seen**: 2026-11-08, SET-AF34 §0.3 (the mid-wave read is recorded there as the counter-example).
+
+## FR-0158 [verification] — `#print axioms` reads the *olean*, so the axiom gate is only meaningful after the module's own build
+
+- **where**: the per-order axiom gate on a module that was scaffolded with `sorry` bodies and then filled
+  (SET-AF34, the `ℚ` row of `Cusp/LevelOneObstruction.lean`).
+- **symptom**: the module is `sorry`-free and `check_port` reads `3 ok / 0 mismatch / 0 missing`, the edit
+  loop (`lake env lean <file>`) is silent, and yet `#print axioms` on the headline reports `sorryAx`.
+- **cause**: `#print axioms` is a `lean` run on a *probe file* that **imports** the module, so it reads
+  `.lake/build/lib/lean/.../<Module>.olean` — which still holds the scaffold's `sorry` bodies. The edit
+  loop does not write oleans, and `check_port` never elaborates the proofs. FR-0033 is the general case
+  ("a `Replayed` line is not evidence that its `.olean` exists"); this is the same file/olean split with
+  the direction reversed: the *source* is newer than the olean and nothing says so.
+- **fix / rule**: run `flock .lake/flt_build.lock timeout 110 lake build <Module>` **before** the axiom
+  gate, and re-run the gate if the module was edited after its last build. A `sorryAx` in a module whose
+  source has no `sorry` is a stale-olean report, not a proof bug: check the build log's timestamp before
+  hunting for a hidden `sorry`. The gate order is build → axioms, never the reverse.
+- **seen**: 2026-11-08, SET-AF34 order C (the module landed green and the axiom line was clean once the
+  module build had run).
+
+## FR-0160 [process] — the surface gate's default is *promote*, and an order that says "keep private" caps the checked surface
+
+- **where**: the per-order surface gate (recipe §5) in a wave of four sets; SET-AF38A.
+- **symptom**: three modules of the same wave read `check_port` at **2 ok** (two headlines) after landing,
+  one at **45 ok**, one at **5 ok** — the same instruction ("run the surface gate, promote what the
+  checker accepts") produced three different checked surfaces, because two orders added "the pin states
+  these helpers `private`, so keep them private" and one did not.
+- **cause**: the surface gate's `ok` count is the *only* instrument that measures how much of the pin's
+  mathematics the port has actually transcribed, and it can only see public declarations. A helper the pin
+  states publicly but the port keeps `private` is invisible to it; a helper the pin states `private` is
+  invisible either way. So "match the pin's visibility" is the right rule *only* for pin-`private`
+  helpers — for pin-public ones it silently shrinks the checked surface, and a later reader cannot tell a
+  2-ok module from a 34-ok module.
+- **fix / rule**: the default is **pin-public ⇒ public** (promote; that is what the gate is for) and
+  **pin-`private` ⇒ `private` unless a landed consumer needs it**. Measured on SET-AF38A: stripping
+  `private` from the 32 pin-public helpers moved the module from `2 ok` to **`34 ok, 0 mismatch,
+  0 missing, 0 own`**, no proof changed, zero warnings — the checked surface of that module went up by a
+  factor of 17 for one edit. Two declarations stay outside the tier and both are legitimate: a restated
+  helper the checker still matches (`exists_cocycle` — it lands `ok`), and a port-side extraction the pin
+  does not have (`slash_eq_smul_changeLevel`, `missing` if public, so `private`).
+- **seen**: 2026-11-08, SET-AF38A (the other three modules of the wave: 35A and 35B are pin-`private` and
+  stay private, 37A is 81/82-public and was promoted).
+
+## FR-0161 [tooling] — `--with-defs` closes over *statement* vocabulary, so an unported `Def_` module can still block a proof
+
+- **where**: the definition-gate check of the scoping recipe (§0: "`--with-defs` adds the pin
+  `Definitions/Def_*.lean` closure … worth running once per set").
+- **symptom**: the check returns a short list of `Def_` modules, all ported, and the set reads gate-free —
+  then the proof needs a lemma that lives in a `Def_` module **not** on that list. SET-AF38's degeneracy
+  lift needed `diagMatInt` and `diagMatInt_map_eq`, both stated in
+  `Definitions/Def_FreyPackage_ModMCarrier_Rescale.lean`, which the pin's `S_` file imports and the port
+  does **not** have (no `FreyPackage.ModMCarrier` anywhere). Two declarations of it had to be carried into
+  the module and marked `own:`; the advise closure never mentioned the module.
+- **cause**: `--with-defs` walks the definitions that appear in the targets' **statements**. A `Def_`
+  module imported by the pin file for its *lemmas* — the `exists_cocycle_rescale`/`diagMatInt*` family here
+  — is not in that closure, and the readiness test cannot see it either (a `Definitions/` module is not a
+  graph node). The gate is therefore a *statement* gate, exactly as `needed = 1` is a premise claim.
+- **fix / rule**: run the statement-closure check **and** the raw import check: for every
+  `import Definitions.Def_*` line of the target `S_` files, ask whether the port has the module (the
+  `port_advise` header prints the target files; a two-line grep of the pin file's imports against the port
+  tree catches it). Treat a missing module as a deferral candidate, not as a gap to improvise around: the
+  two carried declarations are recorded `own:` this time, but a larger one is a definition-layer set.
+- **seen**: 2026-11-08, SET-AF38 (the degeneracy lift); the same class as the `idelicHaar` deferral of
+  SET-AF39 §1, where the missing module *was* vocabulary.
