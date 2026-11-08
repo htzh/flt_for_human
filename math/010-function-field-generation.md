@@ -29,6 +29,12 @@ the modular equation $`\Phi_p`$; after that everything is field theory and a str
 induction on $`N`$. We isolate that input in §3 and then follow the two halves of the
 induction, *generation* (§4–§5) and *degree* (§6), to the assembly in §7.
 
+A supplement, [010a](010a-any-field-supplement.md), records the any-field form of
+§3–§4: the two local arguments are field-theoretic and characteristic-free, the
+statements over $`\mathbb{Q}`$ are recovered from a cyclotomic field by a small
+base-change dictionary, and the supplement records which side of the descent's
+two-polynomial argument carries that base change.
+
 Line-number citations point at `anthropics/fermats-last-theorem@aa2d8b3`. Where the
 prose and the Lean differ, the Lean is right.
 
