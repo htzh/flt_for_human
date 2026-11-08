@@ -472,6 +472,15 @@ importable, so order A wrote its own copies as planned (§2).
   at 63 silo and 11/73 leverage, a natural AF19 or AF20 opener).
 - **The 4 withheld rows / 831 remain** the prunable complex-analytic subject (the `Pic0`/`place`
   rows and the two ModularCurve Tate-module rows); they are not this column's work.
+- **It does not promote `ideleNorm_one'`/`ideleNorm_inv'`** — decided at this set's review, after order A
+  reported three private copies (this set's, `RightTranslateAdjoint.lean`'s and
+  `Siegel/SlabCovering.lean`'s). The pin keeps both **`private`** in every `S_` file that uses them, so
+  the copies are the pin's own prelude duplication transcribed faithfully, not port-side drift; a Lean
+  `private` declaration cannot be imported, so sharing them means promoting them to public API — which
+  the pin does not have, and which playbook §5 reserves for real mathematics rather than two one-line
+  consequences of `ideleNorm_mul`. Recorded as a decision, not deferred: if a fourth copy appears or a
+  public consumer needs them, promote next to `ideleNorm_mul` in `TateGlobal/Defs.lean` (~21 lines
+  promoted, three modules' private helpers deleted, three module builds, no statement changes).
 - **No `Def_` gate, no migration, no legacy module edited**; four new modules, one edited (`Countability.lean`,
   which was touched for §3.1 and is now wired and green) and one (`RightConvRegularity.lean`) edited
   for §3.2.

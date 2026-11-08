@@ -18,14 +18,32 @@
   two files share the private `norm_one_apply_pow_mult`; it is written once here. The pin's
   `attribute [-instance]`/`attribute [-simp]` scaffolding is not transcribed.
 
+  Two more values of the norm, both at trivial finite part: `ideleNorm` of an idèle whose second
+  component is `1` is the archimedean product (`ideleNorm_eq_prod_norm_infinitePlace_pow_mult_of_snd_eq_one`),
+  and every positive real is the norm of such an idèle (`exists_ideleNorm_eq_and_snd_eq_one`) — the
+  normalisation the `diagOne` family of Whittaker-coefficient rows needs.
+
+  The pin's two `diagOne` matrix facts are homed here too (`map_diagOne`, `det_diagOne`): a ring
+  map commutes with `diagOne`, and `diagOne a` has determinant `a`. They are the helpers of the
+  first headline's pin file; that file's own proof reaches the statement through the determinant
+  formula of the idèle norm, which lives on this repo's `AutomorphicForm` side — the direction the
+  `NumberField` tree may not import — so the headline below is proved directly instead, by the
+  finite-`finprod` collapse. The two facts are kept because the pin states them and the
+  `diagOne` family consumes them.
+
   spec-pin: Theorems/Thm_NumberField_TateGlobal_ideleNorm_eq_one_of_fst_eq_one_of_finitePartUnits_mem_unitIdeles.lean
   spec-pin: P2M/Sol/S_NumberField_TateGlobal_ideleNorm_eq_one_of_fst_eq_one_of_finitePartUnits_mem_unitIdeles.lean   -- comparable copy
   spec-pin: Theorems/Thm_NumberField_TateGlobal_ideleNorm_uniformizerIdele.lean
   spec-pin: P2M/Sol/S_NumberField_TateGlobal_ideleNorm_uniformizerIdele.lean   -- comparable copy
+  spec-pin: Theorems/Thm_NumberField_TateGlobal_ideleNorm_eq_prod_norm_infinitePlace_pow_mult_of_snd_eq_one.lean
+  spec-pin: P2M/Sol/S_NumberField_TateGlobal_ideleNorm_eq_prod_norm_infinitePlace_pow_mult_of_snd_eq_one.lean
+  spec-pin: Theorems/Thm_NumberField_TateGlobal_exists_ideleNorm_eq_and_snd_eq_one.lean
+  spec-pin: P2M/Sol/S_NumberField_TateGlobal_exists_ideleNorm_eq_and_snd_eq_one.lean
 -/
 import FLTForHuman.NumberTheory.NumberField.FiniteIdeles
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.Defs
 import FLTForHuman.NumberTheory.AdelicModulus
+import FLTForHuman.NumberTheory.AdelicLevel.HeckeGen
 
 set_option autoImplicit false
 
@@ -94,5 +112,114 @@ theorem ideleNorm_uniformizerIdele (F : Type) [Field F] [NumberField F]
     Finset.prod_eq_one (fun w _ => norm_one_apply_pow_mult F w), one_mul,
     finprod_eq_single _ v (fun w hw => by simp only [hne w hw, norm_one]), hself,
     norm_coe_uniformizerUnit]
+
+/-- A ring map commutes with the diagonal embedding of the units. -/
+theorem map_diagOne {A B : Type*} [CommRing A] [CommRing B] (f : A →+* B) (a : Aˣ) :
+    Matrix.GeneralLinearGroup.map f (diagOne a) = diagOne (Units.map f.toMonoidHom a) := by
+  ext i j
+  change f ((diagOne a : Matrix (Fin 2) (Fin 2) A) i j)
+    = (diagOne (Units.map f.toMonoidHom a) : Matrix (Fin 2) (Fin 2) B) i j
+  rw [diagOne_coe_apply, diagOne_coe_apply]
+  fin_cases i <;> fin_cases j <;> simp
+
+/-- The determinant of a diagonal matrix with entry `a` and `1` is `a`. -/
+theorem det_diagOne {A : Type*} [CommRing A] (a : Aˣ) :
+    Matrix.GeneralLinearGroup.det (diagOne a) = a := by
+  apply Units.ext
+  change ((diagOne a : GL (Fin 2) A) : Matrix (Fin 2) (Fin 2) A).det = (a : A)
+  rw [Matrix.det_fin_two]
+  simp [diagOne_coe_apply]
+
+/-- At trivial finite part the idèle norm is the archimedean product. -/
+theorem ideleNorm_eq_prod_norm_infinitePlace_pow_mult_of_snd_eq_one
+    (K : Type) [Field K] [NumberField K]
+    (a : (AdeleRing (𝓞 K) K)ˣ) (ha : ((a : AdeleRing (𝓞 K) K)).2 = 1) :
+    NumberField.TateGlobal.ideleNorm K a =
+      ∏ w : InfinitePlace K, ‖((a : AdeleRing (𝓞 K) K)).1 w‖ ^ w.mult := by
+  unfold ideleNorm
+  rw [NumberField.AdeleRing.distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm, ha]
+  have hfin : ∏ᶠ v : HeightOneSpectrum (𝓞 K), ‖(1 : FiniteAdeleRing (𝓞 K) K) v‖ = 1 :=
+    finprod_eq_one_of_forall_eq_one (fun v => by
+      rw [show (1 : FiniteAdeleRing (𝓞 K) K) v = 1 from rfl, norm_one])
+  rw [hfin, mul_one]
+
+/-- The idèle `(t, 1)` with the prescribed archimedean unit components and trivial finite part. -/
+private noncomputable def archIdele (K : Type) [Field K] [NumberField K]
+    (t : ∀ w : InfinitePlace K, (w.Completion)ˣ) : (AdeleRing (𝓞 K) K)ˣ where
+  val := ((fun w => ((t w : (w.Completion)ˣ) : w.Completion)), 1)
+  inv := ((fun w => (((t w)⁻¹ : (w.Completion)ˣ) : w.Completion)), 1)
+  val_inv := by
+    refine Prod.ext ?_ ?_
+    · funext w
+      change ((t w : (w.Completion)ˣ) : w.Completion)
+          * (((t w)⁻¹ : (w.Completion)ˣ) : w.Completion) = 1
+      exact Units.mul_inv _
+    · change (1 : FiniteAdeleRing (𝓞 K) K) * 1 = 1
+      exact one_mul 1
+  inv_val := by
+    refine Prod.ext ?_ ?_
+    · funext w
+      change (((t w)⁻¹ : (w.Completion)ˣ) : w.Completion)
+          * ((t w : (w.Completion)ˣ) : w.Completion) = 1
+      exact Units.inv_mul _
+    · change (1 : FiniteAdeleRing (𝓞 K) K) * 1 = 1
+      exact one_mul 1
+
+private theorem archIdele_fst (K : Type) [Field K] [NumberField K]
+    (t : ∀ w : InfinitePlace K, (w.Completion)ˣ) (w : InfinitePlace K) :
+    ((archIdele K t : (AdeleRing (𝓞 K) K))).1 w = t w := rfl
+
+private theorem archIdele_snd (K : Type) [Field K] [NumberField K]
+    (t : ∀ w : InfinitePlace K, (w.Completion)ˣ) :
+    ((archIdele K t : (AdeleRing (𝓞 K) K))).2 = 1 := rfl
+
+private theorem exists_arch_norm_eq (K : Type) [Field K] [NumberField K]
+    (r : ℝ) (hr : 0 < r) :
+    ∃ t : ∀ w : InfinitePlace K, (w.Completion)ˣ,
+      ∀ w, ‖((t w : (w.Completion)ˣ) : w.Completion)‖ = r := by
+  have key : ∀ w : InfinitePlace K, ∃ u : (w.Completion)ˣ, ‖(u : w.Completion)‖ = r := by
+    intro w
+    by_cases hw : w.IsReal
+    · let e := InfinitePlace.Completion.isometryEquivRealOfIsReal hw
+      have hnorm : ‖e.symm r‖ = r := by
+        have h1 : ‖e.symm r‖ = dist (e.symm r) (e.symm 0) := by
+          rw [show e.symm 0 = 0
+            from map_zero (InfinitePlace.Completion.ringEquivRealOfIsReal hw).symm,
+            dist_zero_right]
+        rw [h1, e.symm.dist_eq, Real.dist_eq, sub_zero, abs_of_pos hr]
+      have hne : e.symm r ≠ 0 := fun h => by rw [h, norm_zero] at hnorm; exact hr.ne' hnorm.symm
+      exact ⟨Units.mk0 _ hne, hnorm⟩
+    · have hw' : w.IsComplex := InfinitePlace.not_isReal_iff_isComplex.mp hw
+      let e := InfinitePlace.Completion.isometryEquivComplexOfIsComplex hw'
+      have hnorm : ‖e.symm (r : ℂ)‖ = r := by
+        have h1 : ‖e.symm (r : ℂ)‖ = dist (e.symm r) (e.symm 0) := by
+          rw [show e.symm 0 = 0
+            from map_zero (InfinitePlace.Completion.ringEquivComplexOfIsComplex hw').symm,
+            dist_zero_right]
+        rw [h1, e.symm.dist_eq, dist_zero_right, Complex.norm_real, Real.norm_eq_abs,
+          abs_of_pos hr]
+      have hne : e.symm (r : ℂ) ≠ 0 := fun h => by
+        rw [h, norm_zero] at hnorm; exact hr.ne' hnorm.symm
+      exact ⟨Units.mk0 _ hne, hnorm⟩
+  choose t ht using key
+  exact ⟨t, ht⟩
+
+/-- Every positive real is the norm of an idèle with trivial finite part. -/
+theorem exists_ideleNorm_eq_and_snd_eq_one
+    (K : Type) [Field K] [NumberField K] (r : ℝ) (hr : 0 < r) :
+    ∃ z : (AdeleRing (𝓞 K) K)ˣ, ((z : AdeleRing (𝓞 K) K)).2 = 1 ∧ ideleNorm K z = r := by
+  classical
+  set d : ℕ := Module.finrank ℚ K with hd
+  have hdpos : 0 < d := Module.finrank_pos
+  have hdpos' : 0 < (d : ℝ) := by exact_mod_cast hdpos
+  set ρ : ℝ := r ^ (1 / (d : ℝ)) with hρ
+  have hρpos : 0 < ρ := Real.rpow_pos_of_pos hr _
+  obtain ⟨t, ht⟩ := exists_arch_norm_eq K ρ hρpos
+  refine ⟨archIdele K t, archIdele_snd K t, ?_⟩
+  rw [ideleNorm_eq_prod_norm_infinitePlace_pow_mult_of_snd_eq_one K _
+    (archIdele_snd K t)]
+  simp_rw [archIdele_fst, ht]
+  rw [Finset.prod_pow_eq_pow_sum, InfinitePlace.sum_mult_eq, ← hd, hρ, ← Real.rpow_natCast,
+    ← Real.rpow_mul hr.le, one_div_mul_cancel hdpos'.ne', Real.rpow_one]
 
 end NumberField.TateGlobal

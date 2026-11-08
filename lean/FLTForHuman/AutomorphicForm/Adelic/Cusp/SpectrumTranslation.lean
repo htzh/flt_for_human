@@ -318,10 +318,8 @@ theorem rightTranslate_mem_cuspMemberSubmodule
   have hmemb' : IsAutomorphicFnAt F (fdPins F Φ₀) ξ (rightTranslate F y φ) :=
     (isAutomorphicFnAt_fdPins_iff F Φ₀ ξ _).mpr ⟨hLs', hL2'⟩
 
-  have hcusp' : @IsCuspidalFn _ (fdPins F Φ₀).nS _ _ (fdPins F Φ₀).ν unipotentGL2 (rightTranslate F y φ) := by
-    intro g
-    have h := hcusp (g * y)
-    simpa only [constantTerm, constantTermIntegrand, rightTranslate_apply, mul_assoc] using h
+  have hcusp' : @IsCuspidalFn _ (fdPins F Φ₀).nS _ _ (fdPins F Φ₀).ν unipotentGL2 (rightTranslate F y φ) :=
+    @IsCuspidalFn.rightTranslate _ (fdPins F Φ₀).nS _ _ _ _ _ hcusp y
 
   have hKf' : IsKfSmooth F (rightTranslate F y φ) := by
     set K : Subgroup (AdelicGL2 (𝓞 F) F) := finiteAdelicGL2Subgroup F with hK

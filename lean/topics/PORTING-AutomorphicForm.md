@@ -501,6 +501,102 @@ and `AdelicTraceFin`) for the analytic and trace rows. Named next: the **local C
 (`gl2Complex_whittaker_system_…` 695 / 650 in 52 declarations, `gl2Real_whittaker_ode_…` 347 / 315 in 10
 — 1,042 silo / 965 net), the *local* side of the same object, solved with explicit special functions.
 
+The twentieth **is landed** (2026-11-07): [automorphicForm/SET-AF20.md](automorphicForm/SET-AF20.md),
+the **rational unipotent Haar measures** — the block `SET-AF4 §9` measured and `SET-AF5 §7` call 7
+deferred to "SET-AF6", which six sets then walked past because its read owed a price on the
+`RationalCentreUnipotentQuotient` definition gate. That gate is four pin `Def_` role modules /
+19 declarations / **no proofs**, and paying it is the set's manager layer:
+`MeasureTheory/HaarQuotient.lean` (3 ok — a mathlib supplement, generic over an arbitrary group, with
+the negative recorded: mathlib has only the fundamental-domain quotient measure) and
+`AutomorphicForm/Adelic/UnipotentQuotient.lean` (16 ok — the pin's three chained `Def_` modules, one
+module because they are one subject). The five rows are **5 / 1,154 silo / 990 net in 95 declarations**,
+and **four of the five were never on the shelf**: they are one edge behind the `NumberField` leaf
+`finite_setOf_algebraMap_mem_of_isCompact` — the recipe's SET-10 shape. The leaf is also the shelf's
+best buy by return (**123 silo → 2,113**, the whole point of reading leaves), and it is what makes
+the set a cut at all: SET-AF19 §8 had named the 3,248-silo `diagOne` family as its successor, and
+measuring that family's return gives **zero** (FR-0144). Three orders over three new modules, no
+insertion, no legacy module: `NumberTheory/AdelicDiscreteness.lean` (7 ok), `…/RationalUnipotentClosed.lean`
+(17 ok) and `…/RationalUnipotentHaar.lean` (62 ok / 8 own — the pin's eight `scoped instance`s are
+public theorems, and the corpus cannot index a `scoped instance`, so they are `own:` rows in
+`decl_markers.tsv`). Landed in one dispatch: 1,068 source lines / 94 declarations, every module
+silent and zero-warning, all five headlines on `[propext, Classical.choice, Quot.sound]`, `dedup` 1
+cluster (the pin's own `_impl` ≡ headline) and 0 dead, three consumer zones at 0 errors. The re-read
+is exact: `needed` **818 / 341,853 → 813 / 340,699**, the AF shelf **32 / 13,111 → 34 / 14,193** with
+the two forecast rows readied (635 + 447), and the `AutomorphicForm` demand 322 / 140,337 →
+318 / 139,306. Named next, priced while the orders ran: the **box-sheet fundamental-domain pair +
+the quotient identity** (`isFundamentalDomain_boxSheet_rational{Torus,Centre}Unipotent` 440 + 340,
+`integral_rationalTorusUnipotentQuotient_tsum_units_eq_integral_rationalCentreUnipotentQuotient` 366)
+— 3 rows / 1,146 silo / **931 net in 78 declaration groups**, of which 71 lines are already in the
+port because this set's module supplies them, i.e. a composition set with one promotion
+(`countable_numberField`).
+
+
+The twenty-first **is landed** (2026-11-07):
+[automorphicForm/SET-AF21.md](automorphicForm/SET-AF21.md), the **rational unipotent quotient
+measures** — the continuation SET-AF20 §9 forecast, one level deeper into the same block: the
+**box sheets** (the box read inside each subgroup, as a fundamental domain for the image of the
+Borel), the **Haar-quotient integral calculus** (`∫_S f = ∫_q ∫_T f (· * q.out)` for `Γ ≤ H`, in
+both `ℝ≥0∞` and `ℂ` forms), and the **comparison identity** that identifies the torus-unipotent
+quotient integral with the centre-unipotent one after summing over `Kˣ`. Eight rows / 2,352 silo, of
+which only two were shelf leaves — the other six were one to three edges behind them, found by the
+gateway query. **1,342 net in 101 declarations**, and 739 of the 1,160 AF declaration lines were
+already in the port: this is the column's most composition-heavy set since AF8/AF9, composed of the
+module AF20 had just written (`ratCentralHom`, `sheet`, `sheet_entries`, `exists_eq`, …). Four
+orders over two new modules and one insertion, no definition gate, no legacy module, no promotion:
+`MeasureTheory/IsFundamentalDomainCosets.lean` (216 lines, 6 ok — a mathlib supplement with the
+negative recorded), `AutomorphicForm/Adelic/RationalUnipotentBoxSheet.lean` (720, 28 ok),
+`MeasureTheory/HaarQuotient.lean` (100 → 955, 5 ok — the supplement module AF20 created, gaining its
+44-declaration private engine and two headlines) and
+`…/RationalUnipotentQuotientIntegral.lean` (317, 13 ok). Landed in one dispatch: every module silent
+and zero-warning, all eight headlines on `[propext, Classical.choice, Quot.sound]`, `dedup` 0 and
+`move_dead` 0 on all four, four consumer zones at 0 errors. The re-read is exact: `needed`
+**813 / 340,699 → 805 / 338,347**, the frontier 1,603 / 786,677 → 1,611 / 789,029, the `HaarQuotient`
+demand 2,245 → 1,323, and **no row readied** (as forecast: the next block up needs four more rows).
+Named next: the **arch-approximation gate leaves** — seven premise-free rows / 591 silo / **476 net
+in 20 declarations** that ready ≈4,653 silo (`exists_isRightEquivariant_comp_subtype_eq_of_injective`
+70 → 1,445, `isIdeleClassChar_and_continuous_of_isLsXiFunction_of_continuous` 71 → 1,361,
+`isFactorizableTestFn_sum_mul_comp_mul_mul` 98 → 1,131, and the `IsKfSmooth`/lift string). That is
+the column's cheapest readiness event and AF22.
+
+
+The twenty-second **is landed** (2026-11-07): [automorphicForm/SET-AF22.md](automorphicForm/SET-AF22.md),
+the **archimedean approximation's cheap gates** — a *portfolio* set, chosen on the recipe's §1 return
+measure rather than on subject: six premise-free rows / 392 silo / **201 net in 19 declarations** that
+ready **4,438 silo** (1,445 + 1,361 + 1,131 + 260 + 133 + 108). Three new modules, no insertion, no
+`Def_` gate: `Adelic/TestFnInvariance.lean` (243 lines, 10 ok — the factorizable-test-function algebra
+and the generic right-equivariant extension lemma), `Adelic/LevelCompactness.lean` (149, 6 ok — smooth
+vectors have a finite orbit under a compact, and `levelOne ⊓ finiteAdelicGL2Subgroup` is compact) and
+`Adelic/LsXiCharacter.lean` (105, 3 ok — the character of a continuous non-vanishing `LsXi` function is
+trivial on the principal idèles and continuous). Landed in one dispatch: every module silent and
+zero-warning, six headlines on `[propext, Classical.choice, Quot.sound]`, `dedup` 0 and `move_dead` 0,
+three consumer zones at 0 errors. The re-read is exact: `needed` **805 / 338,347 → 799 / 337,955**, the
+ready shelf **62 / 20,332 → 70 / 24,770** with **the eight rows these gates were taken for** — the
+1,175 archimedean approximation identity, the 1,131 cut projector, the 1,361 LsXi bound, and their five
+companions — and the `AutomorphicForm` demand 314 / 138,052 → 308 / 137,660. Its two carried findings
+are checker-side: the statement hash is syntactic in a binder's *name*, in a section variable vs an
+inline binder, and in a *qualified* name (FR-0145), and `open scoped Classical` is load-bearing in the
+`ContDiff` elaboration of the entry space. Named next and **landed the same day**: SET-AF23, the
+archimedean cut projector's two headlines plus the two membership lemmas they consume (4 rows / 2,576
+silo / 1,342 net, 45 % of it already in the port).
+
+
+The twenty-third **is landed** (2026-11-07): [automorphicForm/SET-AF23.md](automorphicForm/SET-AF23.md),
+the **archimedean cut projector and the archimedean approximation** — the two rows SET-AF22's gate
+leaves were readied *for*, taken together with the two membership lemmas they consume so that the
+column does not pay for gates and leave the door shut. 4 rows / 2,576 silo / **1,342 net**, of which
+1,148 declaration lines were already in the port: `Adelic/ArchApproximation.lean`, 1,229 lines and 49
+declarations, checker **7 ok / 0 / 0**, axioms clean, silent, `dedup` 0, `move_dead` 1 (a helper dead
+in the pin too, kept for parity), consumer 0 errors. The set is the best evidence yet for the
+composition pricing: **only ~1,090 of its 2,576 silo lines were new** — row 3's 1,175 pin lines were
+~90 % `RepTheory/ConvolutionLimit.lean`'s `dconvWith` engine plus `ArchApproxIdentity/ArchInfra.lean`'s
+row-isometry topology, and row 4 was assembled from `ArchCompactOrbit`/`ArchCutProjector`/
+`ArchDualCut`/`ArchCutSpan`. The re-read is exact: `needed` **799 / 337,955 → 795 / 335,379**, frontier
+1,617 / 789,421 → 1,621 / 791,997, and the ready shelf **70 / 24,770 → 72 / 24,200** — the four taken
+rows left and **six** successors entered, one more than the per-row return column predicted (FR-0106's
+multi-premise effect, again). With it, the archimedean cut projector is usable, which is what the
+isotypic/`CuspidalConstituent` block is written against.
+
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

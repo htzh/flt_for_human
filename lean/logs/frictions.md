@@ -3047,3 +3047,126 @@ round promotes what generalizes.
   (`run_in_background` + `job_output`), so a lock wait cannot eat the foreground turn; (c) never
   attribute a proof failure to either symptom — both are I/O-level and self-healing.
 - **seen**: 2026-11-07, SET-AF18 orders A, B and C (each hit at least one; no rework).
+
+## FR-0142 [drift] [faithfulness] — a mathlib change can make a *pin statement* false, not merely unprovable
+
+- **where**: SET-AF19 order A, 2026-11-07. The pin's prelude lemma `eLpNorm_two_pow_two`
+  (`S_…CuspidalSpectrum_integral_smul_apply_toCuspSubcarrier_eq_toCuspSubcarrier_integral_mul_apply_mul_of_isCompact.lean:76`)
+  states `eLpNorm (φ ^ 2) 1 ν`-style identities with **no measurability hypothesis**.
+- **symptom**: at mathlib v4.34 the identity is *false*, and a faithful transcription does not fail to
+  prove — it fails to typecheck in a way that looks like a missing lemma. v4.34 defines
+  `MemLp f p μ := eLpNorm f p μ < ∞` (`LpSeminorm/Defs.lean:152`) with `AEStronglyMeasurable` no
+  longer a conjunct, and `eLpNorm = ⊤` off the a.e. strongly measurable functions (`Defs.lean:96–101`),
+  so for a non-a.e.-strongly-measurable `φ` the two sides cannot be equal.
+- **cause**: the port's rule "adapt proofs, never statements" presupposes the pin's statements *hold*
+  on the port's mathlib. A drift that changes a definition's *meaning* (here `MemLp`'s) can invert a
+  statement, and no amount of proof search recovers it.
+- **rule**: when a "the pin's statement" resists proof at a shape that suggests a missing hypothesis,
+  ask whether a v4.34 def change has moved under it before concluding the transcription is wrong —
+  the `MemLp`/`eLpNorm` case is now a row in [TOPIC-mathlib-drift.md](../topics/TOPIC-mathlib-drift.md).
+  The cure is the hypothesis that every pin use discharges, plus an `own:` marker row with the reason;
+  never an `axiom`, and never a silent weakening of a *headline* (a prelude helper is the case this can
+  legitimately happen to).
+- **seen**: 2026-11-07, SET-AF19 order A (one declaration; the two headlines it feeds are unaffected).
+
+## FR-0143 [scoping] [imports] — a pin proof's route can be unavailable on the port's side of the import boundary
+
+- **where**: SET-AF19 order C, 2026-11-07. The pin proves
+  `NumberField.TateGlobal.ideleNorm_eq_prod_norm_infinitePlace_pow_mult_of_snd_eq_one` through
+  `ideleNorm_det_eq_prod_archDetNorm_pow_mult` applied to `diagOne a`. In the port that lemma lives in
+  `AutomorphicForm/Adelic/IdeleNormDetGlue.lean`, and `NumberField/TateGlobal/Defs.lean`'s header fixes
+  the rule that the `NumberField` tree does **not** import `AutomorphicForm`.
+- **symptom**: none at scoping time — the row was ready (its single premise was ported), its statement
+  elaborated, and the checker read it `ok`. The wall appears only when the worker opens the pin proof
+  and finds its main ingredient on the wrong side of the boundary.
+- **cause**: readiness is computed on the *graph* (the pin's `S_` import edges), and the pin's own
+  boundary between `NumberField` and `AutomorphicForm` is not the port's.
+- **rule**: when scoping a row in a low-level area (`NumberField`, `Topology`, the `Defs` tier), check
+  that the pin proof's *named engine* has a home on the same side of the boundary before pricing the
+  row as a transcription. If it does not, the row is still portable — the statement is — but by a
+  different route, and the brief should say so rather than promise a transcription. Here the
+  finite-`finprod` collapse (`distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm` +
+  `finprod_eq_one_of_forall_eq_one`) proves the same statement in 12 lines.
+- **seen**: 2026-11-07, SET-AF19 order C (route changed, statement and gates unaffected).
+
+## FR-0144 [scoping] — a set's "next subject" named on silo is not a measurement of what it opens
+
+- **where**: SET-AF20's scoping, 2026-11-07. SET-AF19 §8 closed with "AF's ready shelf is now 32
+  rows / 13,111 silo, of which AF20's subject is the `diagOne` family, 3,248" — a *silo* ranking of
+  the four `diagOne` rows (`…whittakerCoefficient_diagOne…` 913, `…isArchTestFactor_nonneg…` 905, the
+  two `CuspidalConstituent…diagOne…` 716 / 714).
+- **symptom**: none — the four rows are ready, their premises are ported, and the recommendation
+  reads as a decision. It is not: the recipe (§1, §7) chooses on *what the landing buys*, and that
+  number is not in the shelf row.
+- **measurement**: the return of a row — the silo of the in-cone rows whose every unported premise is
+  that row — is 0, 0, 0, 0 for the four `diagOne` rows. Their consumers are four 400–1,400-line rows
+  that each still need two to six further premises. On the same shelf, `123 silo` of
+  `NumberField.AdeleRing.finite_setOf_algebraMap_mem_of_isCompact` returns **2,113**, and
+  `70 silo` of `exists_isRightEquivariant_comp_subtype_eq_of_injective` returns **1,445**.
+- **cause**: `frontier.py` ranks by `silo` (the row's own size) and reports `leverage` (fan-in), but
+  neither is readiness *return*: a row with fan-in 1 whose single consumer is one premise short is
+  worth everything, a row with fan-in 4 whose consumers each need six more rows is worth nothing.
+  The tool does not compute the second-order readiness.
+- **rule**: before a brief names a set, compute the return of its rows (the one-liner is
+  `tools/deps/build/af20-return3.py`; it walks `cited_by ∩ cone \\ F` and checks each consumer's
+  remaining unported premises) and quote it beside the silo. A "next subject" paragraph inherited
+  from the previous set is a hypothesis, not a measurement — re-measure it, and expect it to be
+  wrong about half the time when it was chosen on size.
+- **seen**: 2026-11-07, SET-AF20 scoping (the cut changed from the inherited `diagOne` family to the
+  leaf this note takes).
+
+## FR-0145 [tooling] [faithfulness] — two statement-fidelity traps a scoping session hits before any proof
+
+- **where**: SET-AF21's scaffolding, 2026-11-07. Writing the eight frozen statements of the set into
+  four skeletons.
+- **symptom 1 — a docstring can close its own block comment.** A header line reading
+  `the rational (centre-/torus-)unipotent subgroups` contains `-/`, which **terminates** the
+  `/- … -/` comment: the rest of the header is parsed as Lean, and the error points at line 2
+  column 42 (`unexpected identifier; expected command`) with an `import` complaint at the end of the
+  header. Nothing in the message mentions the comment.
+- **symptom 2 — a qualified name in a statement is part of the hash.** The pin's two
+  `HaarQuotient.*` wrappers state their conclusions outside the namespace, so they write
+  `∂(HaarQuotient.measure μ H μH)`; writing `measure μ H μH` inside the same namespace elaborates to
+  the same term but the checker reads `MISMATCH` (the diff is text-anchored after normalisation of
+  binders, not of *qualified names*). The fix is to transcribe the wrapper's spelling, not the
+  namespace-local one.
+- **cause**: the checker's statement hash is a *text* function, and the port's convention is "the
+  wrapper's text"; the docstring case is pure Lean lexing.
+- **rule**: when scaffolding, (a) never write a hyphen immediately before a slash in a `/- … -/`
+  header (`centre-/torus-`, `and-/or-`, `pre-/post-` are the natural ways to do it by accident), and
+  (b) when a statement mentions a declaration from its own namespace, write it **qualified exactly
+  as the wrapper does** — a `MISMATCH` whose port and pin texts look identical on the printed
+  prefix is usually this, so print the full row rather than the head.
+- **symptom 3 — an explicit binder name is not normalised, unlike its *kind*.** The pin's
+  `hle : Γ₂ ≤ Γ₁` is unused in one headline (at the pin too), so the port wanted Lean's `_hle`
+  idiom to keep the module warning-free without `set_option`. `check_port` reports **MISMATCH**:
+  the checker normalises section variables vs inline binders, but not the *name* of an explicit
+  binder. So an unused hypothesis must be **referenced** in the proof (one proof-neutral `have`
+  line) rather than renamed — and that is what the landed module does, with the reason in a
+  comment.
+- **seen**: 2026-11-07, SET-AF21 scaffolding (two headers, two statements; both caught by
+  `lake env lean` / `check_port --force` before dispatch), and its order A (the `_hle` attempt,
+  measured on the landed module and reverted).
+
+## FR-0146 [drift] — a mathlib deprecation can name a replacement that is not in the library
+
+- **where**: SET-AF22's three orders and SET-AF21's orders A/C/D, 2026-11-07. The pin uses
+  `Measurable.ennreal_tsum` / `AEMeasurable.ennreal_tsum` at four sites
+  (`S_…isIdeleClassChar…:40-76`, `S_HaarQuotient_…lint…:143`, `S_…isFundamentalDomain_iUnion_inv_smul…:86`,
+  `S_…boxSheet…`).
+- **symptom**: at mathlib `v4.34.0` both names are *deprecated* (`since := "2026-04-30"`) and the
+  message points at `Measurable.tsum` / `AEMeasurable.tsum` in
+  `Mathlib/MeasureTheory/Constructions/Polish/Basic.lean` — **which does not exist in this checkout**
+  (`rg "theorem Measurable\.tsum|lemma Measurable\.tsum|theorem AEMeasurable\.tsum"` over both files
+  returns nothing, and there is no deprecation alias either). So the warning steers to a dead end,
+  and `set_option linter.deprecated false` is not available to the port.
+- **cause**: a `to_additive`-generated lemma (`AEMeasurable.tprod`'s additive image) was named in
+  the deprecation before it was added/kept, or was removed afterwards — either way the port cannot
+  take the suggested route and cannot silence the warning.
+- **rule**: when a pin lemma is deprecated, check that its named replacement *exists* before
+  planning around it; if it does not, re-derive the deprecated lemma's own short proof inline
+  (`ENNReal.tsum_eq_iSup_sum` + `Measurable.iSup` + `Finset.measurable_fun_sum`, or `ae_lt_top'`)
+  with a comment naming the missing lemma. Three orders did this independently in one dispatch, which
+  is the sign that the workaround belongs in a shared supplement rather than in each module — the
+  candidate home is the next `MeasureTheory/` supplement this column writes.
+- **seen**: 2026-11-07, SET-AF21 orders A/C/D and SET-AF22 (same lemma, four sites).
