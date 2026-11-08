@@ -8,10 +8,19 @@ themselves are field-theoretic and characteristic-free; the only thing special t
 $`\mathbb{Q}`$ is the bookkeeping of *where the primitive root of unity lives*. This
 supplement separates the two. It states the local theorems over an arbitrary field
 $`\kappa`$ that already contains the required root, shows that the $`\mathbb{Q}`$
-statements are recovered by a base-change dictionary, and records the asymmetry that
-decides which side of the two-polynomial argument carries the base change.
+statements are recovered either *directly*, by keeping the ambient field in the
+statements themselves (§4), or, from the one-field forms, by a base-change dictionary
+(§5), and records the asymmetry that decides which side of the two-polynomial argument
+carries the base change. The dictionary is optional: the two-field forms need none of
+it, so nothing in §5 is needed to state or prove the note's $`\mathbb{Q}`$ theorems
+(§6).
 
-Everything here is mathematics; the dictionary's only new lemma is (5.4). The global
+Everything here is mathematics. Of the dictionary's four facts, (5.1) and (5.3) are
+bookkeeping, and (5.2) and (5.4) are two forms — the degree form and the intersection
+form — of one lemma: the linear disjointness of the coefficient field and the level
+function field over the base coefficient field, proved by comparing coefficients. That
+lemma is easy, but it is a lemma and not a formality; the trace proof of (5.4) in §5.4 is
+kept because it exhibits the mechanism. The global
 strong induction of the note's §7 is not touched — it is an induction over a base
 field, and the any-field theorems enter it as its one-prime steps.
 
@@ -130,7 +139,11 @@ $`q \mapsto q^M`$ and symmetrized with $`\Phi_p(X,Y) = \Phi_p(Y,X)`$. It is a ro
 of $`B`$ as the element whose minimal polynomial $`B`$ is. Uniqueness then needs exactly two facts about the roots of
 $`B`$: the extra conjugate is not a root, and the only root of $`B`$ among the twists
 is the untwisted one. Both are consequences of (2.1) — the slot list of $`B`$ — and
-nothing more.
+nothing more. What (a) makes intrinsic is the *enumeration*: monic, degree $`p+1`$,
+splitting, distinct roots, and the case split. What it does not is the two exclusions:
+each compares an element of $`L`$ with the conjugates of $`x_0`$ over $`F_0`$, and the
+only source of that comparison is the slot description of $`B`$. So (a) is *less*
+relative than (b); it is not intrinsic.
 
 **(b) $`B`$ enumerated.** $`B`$ is monic, and it splits with distinct roots — but only
 because (2.1) identifies it with the slot product; its root at $`x_0`$ is the top slot,
@@ -144,6 +157,13 @@ bookkeeping of $`B`$ is the only *relative* input to the sharing argument, and (
 its only source (next section). So (a) confines the relative input to two exclusions
 and keeps the sharing argument itself intrinsic, while (b) moves the whole relative
 input into the sharing argument.
+
+Neither choice removes it. $`B`$ is a polynomial over $`F_0`$ whose roots are read in
+$`L`$, so some statement about those roots is always needed, and such a statement is
+always relative; what the choice moves is only the *size* of that statement. The two
+choices are therefore about how much of (2.1) the sharing argument consumes, not about
+whether the argument is two-field. (Where the two-field-ness actually sits is the
+remark in §4.)
 
 ## 4. Intrinsic and relative statements
 
@@ -171,7 +191,28 @@ sides of the two statements: on the hypothesis of (2.2), on the conclusion of (2
 The asymmetry of §3 is now a statement about this classification: the enumerated data
 of $`A`$ is intrinsic, the enumerated data of $`B`$ is relative. The sharing argument
 is intrinsic; only the root bookkeeping of the minimal polynomial is relative. This is
-the precise sense in which the descent does not need a base change, while (2.1) does.
+the precise sense in which the descent needs no *dictionary*, while (2.1) does — but the
+distinction is between the dictionary and the relative input, not between one and two
+fields: §3's choice moves the relative input, and moves it only in size.
+
+**Remark (where the two-field-ness lives).** Three things can be relative, and they are
+independent; only the third differs between the statements.
+
+| | hypothesis | the witness $`B`$ | conclusion |
+|---|---|---|---|
+| (2.1) | the package over $`F_0`$ | the equality $`B`$ = slot product | a polynomial identity read in $`L`$ |
+| (2.2) | a non-membership over $`F_0`$ | two exclusions in (a), the root list in (b) | descends for free |
+| (2.3) | the package over $`F_0`$ | two exclusions in (a), the root list in (b) | returns through the range of the nome map |
+
+The *hypothesis* is relative in all three, because it is a statement about the
+$`j`$-series over $`\kappa`$, hence over $`F_0`$. The *witness* is relative in all three
+as well, for the reason just given. The *conclusion* is where they part: a
+non-membership descends for free, a membership does not, so (2.3) is the one statement
+whose *result* is relative. Hence none of (2.1), (2.2), (2.3) is a one-field theorem, and
+no choice in the two-polynomial argument makes one of them one: what (a) buys is that the
+sharing argument — the enumeration, the case split, the unique-common-root step — is
+intrinsic, and that the relative input is two facts rather than a complete root
+description.
 
 The same asymmetry explains the strength of the two-field form of the note's §4. The
 statement "from the package over $`F_0`$, conclude the membership in the level field
@@ -197,14 +238,43 @@ map of fields, so the images generate the corresponding field over $`\kappa`$; t
 argument applies to the divisor fields $`\bar F_d`$. Consequently the generation clause
 of the package transports.
 
-**(5.2) Degrees.** $`[\kappa\cdot F_d : \kappa\cdot F_0] = [F_d : F_0]`$. Choose an
-$`F_0`$-basis $`v_1, \dots, v_{\psi(d)}`$ of $`F_d`$; it is a family of
-$`\kappa_0`$-linearly independent series. A $`\kappa`$-linear relation among their
-coefficient extensions, read coefficientwise against a $`\kappa_0`$-basis of $`\kappa`$,
-yields $`\kappa_0`$-linear relations among the $`v_i`$; hence the extended family is
-$`\kappa`$-linearly independent and spans the compositum over $`\kappa\cdot F_0`$. So
-the degrees agree, and the degree clause of the package transports. Neither (5.1) nor
-(5.2) needs any hypothesis on $`\kappa/\kappa_0`$.
+**(5.2) Degrees.** $`[\kappa\cdot F_d : \kappa\cdot F_0] = [F_d : F_0]`$. This is the
+statement that the level function field is *regular* over $`\kappa_0`$, and it is the one
+fact of the four that is not bookkeeping. Its input is the linear disjointness of the
+coefficient field and the level field over $`\kappa_0`$: if $`b_1, \dots, b_n \in \kappa`$
+are $`\kappa_0`$-linearly independent and $`y_1, \dots, y_n \in F_d`$ satisfy
+$`\sum_i b_i y_i = 0`$, then all $`y_i = 0`$.
+
+*Proof.* Each $`y_i`$ lies in $`\kappa_0((q))`$, so its coefficient $`(y_i)_k`$ at $`k`$
+lies in $`\kappa_0`$; comparing the coefficient at $`k`$ of the relation gives
+$`\sum_i (y_i)_k\, b_i = 0`$ with all $`(y_i)_k \in \kappa_0`$, so $`(y_i)_k = 0`$ for
+every $`k`$ by $`\kappa_0`$-independence of the $`b_i`$, and $`y_i = 0`$. No separability,
+no Galois, no finiteness: only that the coefficients of the $`y_i`$ lie in
+$`\kappa_0`$. $`\square`$
+
+Linear disjointness gives $`[\kappa\cdot F_d : F_d] = [\kappa : \kappa_0]`$ and
+$`[\kappa\cdot F_0 : F_0] = [\kappa : \kappa_0]`$ — a $`\kappa_0`$-basis of $`\kappa`$
+stays independent over the function field — and the tower law over
+$`F_0 \subseteq F_d \subseteq \kappa\cdot F_0 \subseteq \kappa\cdot F_d`$, applied
+twice, gives $`[\kappa\cdot F_d : F_0] = [\kappa : \kappa_0]\,[F_d : F_0]`$ on the one
+hand and $`[\kappa\cdot F_d : F_0] = [\kappa\cdot F_d : \kappa\cdot F_0]\,[\kappa :
+\kappa_0]`$ on the other; cancelling the finite non-zero $`[\kappa : \kappa_0]`$ gives
+the identity.
+
+Two points of care. First, the identity is *not* $`[\kappa\cdot F_d : \kappa] = [F_d :
+\kappa]`$: both sides are infinite, a level field having transcendence degree two over
+the coefficient field. The degrees are taken over the base function field $`F_0`$ on both
+sides, and that is why the tower has to pass through $`F_0`$. Second, "an $`F_0`$-basis of
+$`F_d`$ is $`\kappa_0`$-linearly independent, hence stays independent after extending
+scalars to $`\kappa`$" is *not* the right intermediate statement, and the inference is
+false: independence is not preserved when the coefficient field is enlarged to a field
+containing the family — $`\{1, \sqrt{1+q}\}`$ in $`\kappa((q))`$ is
+$`\mathbb{Q}`$-independent, and $`\mathbb{Q}((q))`$ contains it. What survives extension
+is the independence of the *coefficients* from the function field, which is the linear
+disjointness above; the $`\kappa\cdot F_0`$-independence then comes from the tower law.
+
+So the degree clause of the package transports, and neither (5.1) nor (5.2) needs a
+hypothesis on $`\kappa/\kappa_0`$.
 
 **(5.3) Minimal polynomials.** The coefficient extension of
 $`\mathrm{minpoly}_{F_0}(j(q^M))`$ is $`\mathrm{minpoly}_{\kappa\cdot F_0}(j(q^M))`$.
@@ -236,9 +306,27 @@ $`\kappa_0`$, $`x \in F`$. $`\square`$
 Fact (5.4) is the mathematical content of the note's phrase "strips the coefficient
 extension". It is not a consequence of (5.1)–(5.3): it is a faithfulness statement,
 equivalently the linear disjointness of $`\kappa`$ and $`\kappa_0((q))`$ over
-$`\kappa_0`$ inside $`\kappa((q))`$. It is also the only place in the whole assembly
-where a hypothesis on the extension enters, and for $`\mathbb{Q} \subset K`$ it is
+$`\kappa_0`$ inside $`\kappa((q))`$. In the trace form it is the only place in the whole
+assembly where a hypothesis on the extension enters; for $`\mathbb{Q} \subset K`$ it is
 automatic, the degree $`\varphi(Mp)`$ being non-zero in $`\mathbb{Q}`$.
+
+**Remark (the trace is avoidable, and the dictionary has one input).** The same
+coefficient separation that proves (5.2) proves (5.4), with no hypothesis on
+$`\kappa/\kappa_0`$ at all. Choose a $`\kappa_0`$-basis of $`\kappa`$ containing
+$`1`$ — possible by extending $`\{1\}`$ — and let $`z \in \kappa\cdot F \cap
+\kappa_0((q))`$, say $`z = \sum_i c_i f_i`$ with $`c_i \in \kappa`$ and $`f_i \in F`$.
+Write each $`c_i = \sum_j b_j c_{ij}`$ in the basis, with $`c_{ij} \in \kappa_0`$, and
+put $`w_j = \sum_i c_{ij} f_i \in F \subseteq \kappa_0((q))`$; then $`z = \sum_j b_j
+w_j`$ with every $`(w_j)_k \in \kappa_0`$, while also $`z_k \in \kappa_0`$. Comparing
+the coefficient at $`k`$ in the basis and using that $`1`$ is one of the $`b_j`$ gives
+$`z_k`$ as the $`1`$-coefficient and $`(w_j)_k = 0`$ for the others, so $`z = w_1 \in
+F`$. No finiteness, no invertibility of the degree, no trace.
+
+So the dictionary has **one** input — the linear disjointness of $`\kappa`$ and
+$`\kappa_0((q))`$ over $`\kappa_0`$ — and (5.2) and (5.4) are its two forms: the degree
+form and the intersection form. The trace proof above is the shorter route in the finite
+case and is kept because it exhibits the mechanism; the coefficient route is the general
+one.
 
 ## 6. Assembly: one proof, and its instances
 
@@ -247,14 +335,30 @@ characteristic, over any field containing a primitive root of unity of the order
 statement requires. The statements (2.2) and (2.3) do not mention the root; it is a
 device of their proofs.*
 
-**Corollary.** *Let $`\kappa/\kappa_0`$ be finite with $`[\kappa : \kappa_0]`$
-invertible in $`\kappa_0`$, and assume the local statements at $`\kappa`$. Then the
+**Corollary.** *Assume the local statements at $`\kappa`$, for any extension
+$`\kappa/\kappa_0`$ (the trace form of (5.4) asks for the degree to be finite and
+invertible; the coefficient form, §5.4's remark, asks for nothing). Then the
 $`\kappa_0`$-statements follow: the package by (5.1)–(5.2), the transported minimal
 polynomial by (5.3), and the two non-trivial transports by (5.4) — the membership
 conclusion of (2.3), and the base hypothesis of (2.2); the non-membership conclusion of
-(2.2) is free, by the ascent (5.1).*
+(2.2) is free, by the ascent (5.1).* The two-field forms of (2.2) and (2.3) use none of
+the dictionary: their conclusions are already relative, and the ambient field only hosts
+the roots.
 
-The two instances of the note are the two extremes:
+**The dictionary is optional.** The $`\mathbb{Q}`$ statements admit two routes.
+(i) *Directly*: apply the two-field forms of (2.1)–(2.3) at $`\kappa = \mathbb{Q}`$ with
+the ambient field $`L = K((q))`$ and the hypotheses kept relative to
+$`F_0 \subset \mathbb{Q}((q))`$. No part of §5 is used — not (5.2), not (5.3), not
+(5.4); the only base-change content is the field identity of (5.1), an adjoin
+computation. This is the route §4 recommends, because those forms are stronger than the
+one-field ones. (ii) *Via the dictionary*: apply the one-field forms at $`K`$ and
+transport back with (5.1)–(5.4). That is what one must do if the statements are to be
+stated at a single field; it is where (5.2), the degree form of linear disjointness, and
+(5.4), its intersection form, are spent. The two routes prove the same theorems: the
+dictionary exists to serve a one-field formulation, not because the $`\mathbb{Q}`$
+statements need it.
+
+The two instances of the note, under route (ii), are the two extremes:
 
 - $`\mathbb{Q}`$: apply (2.1), (2.2), (2.3) at $`K = \mathbb{Q}(\zeta_{Mp})`$.
   (5.3) gives the $`\mathbb{Q}`$-form of (2.1) — the minimal polynomial over
@@ -270,8 +374,9 @@ The two instances of the note are the two extremes:
 The strong induction of the note's §7 lives at the base field and is unchanged. Its
 inputs are the one-prime statements, each of which is now either a local theorem
 (char $`p`$) or a local theorem plus the dictionary ($`\mathbb{Q}`$). Concretely, for
-$`\mathbb{Q}`$ the induction consumes the descended (2.3) for $`\mathrm{Gen}`$, the
-descended (2.2) for the prime-power tower, and its degree step, the note's §6, which is
+$`\mathbb{Q}`$ the induction consumes (2.3) for $`\mathrm{Gen}`$ and (2.2) for the
+prime-power tower — in the two-field forms directly (route (i)), or in the descended
+one-field forms via (5.4) (route (ii)) — and its degree step, the note's §6, which is
 already a statement over $`\mathbb{Q}`$; (2.1) is not consumed directly but inside the
 proof of (2.3). In particular the induction is never transported: only its one-prime
 inputs are.
@@ -287,13 +392,17 @@ different weight:
 2. the minimal polynomial: (5.3), a degree plus divisibility argument;
 3. the two transports that cost something: (5.4) for the membership conclusion of
    (2.3) and for the base hypothesis of (2.2) — faithfulness of the base change on the
-   rational slice, the one genuine addition, proved by the trace. A non-membership
-   *conclusion* needs only the ascent (5.1) and is free.
+   rational slice, the one genuine addition, proved by the trace in §5.4 (or by the same
+   coefficient separation, §5.4's remark). A non-membership *conclusion* needs only the
+   ascent (5.1) and is free.
 
 The A-side data of the descent (the modular relations, the prime splitting, the seed
 identities, the unique-common-root principle) needs none of them: it is intrinsic and
-transports along any field map. So the extension is spent exactly on the B side (the
-slot description of the transported minimal polynomial) and on the two transports of
-item 3. That is the asymmetry of §§3–4, and it is why the descent can be argued without
-a coefficient extension at all: choose the modular equation as the enumerated polynomial,
-and the base change shrinks to the two root-exclusion facts that (2.1) supplies.
+transports along any field map. So the dictionary is spent exactly on the two transports
+of item 3, and the *relative input* on the slot description of the transported minimal
+polynomial — of which (a) consumes only the two exclusions. That is the asymmetry of
+§§3–4, and it is why the descent can be argued without the dictionary: choose the modular
+equation as the enumerated polynomial, and what remains of the base change is the two
+root-exclusion facts that (2.1) supplies. What does not disappear is those facts: they
+compare elements of $`L`$ with conjugates over $`F_0`$, so (2.3) stays a two-field
+statement even in its strongest form.

@@ -1,9 +1,13 @@
 # TOPIC — T19 as one any-field theory
 
-Status: **planned**; written 2026-11-06, revised the same day after review (see §0). Owner:
+Status: **planned**; written 2026-11-06, revised the same day after review (see §0), and revised
+again on 2026-11-08 for the carrier fold — **§11 supersedes the carrier *parameter* used in §0.2,
+§2, §3, §5 and §9.3**; those sections are kept as the record of the built state. Owner:
 whoever picks up the FFG refactor next.
-Companions: `TOPIC-ffg-refactor.md` § *The T19 `C`-layer island is on the shelf* (the record of
-the shelving and the do-not-re-port rule), `Reserve/README.md` § *The CL4 island*.
+Companions: `TOPIC-ffg-refactor.md` (the plan of record for the fold and the prime step: where this
+note and it disagree, its §1–§12 are normative), `TOPIC-ffg-refactor.md` § *The T19 `C`-layer island
+is on the shelf* (the record of the shelving and the do-not-re-port rule), `Reserve/README.md`
+§ *The CL4 island*.
 
 The goal is one proof of T19 — the slot product, its non-membership corollary, and the level-degree
 package they run on — parameterized by the coefficient field, with the `ℚ` and the arbitrary-field
@@ -761,6 +765,9 @@ statement's hypotheses are only tested when something consumes it in a proof.
 The premises are true for the instance and spent in the proof, so they are not decoration — but the
 *carrier itself* is a separate question: whether to keep it, and with it the two premises everywhere,
 or to state the theory at one coefficient field and let each instance transport, is §9.3.
+**Decided 2026-11-08 (§11): the *parameter* is folded** — and note what that does to this section's
+two premises: they are real, but for a coefficient extension they are theorems
+(`coeffMap_qExpand` and `coeffMap_jqModC`), so they are no longer hypotheses of anything.
 
 ### 6.1h What the first consumer asked the theory to change
 
@@ -1091,7 +1098,16 @@ of the module (`eFull`, the socket, `fullC`) is `CharP/`.
    remaining unique content is the socket degree half (`PrimePowerStepAnyField`'s `eFull` tower and
    `package_of_socket`); its `MffCMulPrime` is a delegation and its `SlotProductAnyField` headlines
    are duplicated by `CharP/` (the two `dedup` clusters left in the region).
-3. **Whether the carrier should be folded away — deferred, and not urgent.** Both seamed theorems
+3. ~~**Whether the carrier should be folded away — deferred, and not urgent.**~~ **Taken up
+   2026-11-08, but only as §11.1 states it:** the carrier *parameter* is folded (the two fields stay
+   as types), while the one-field theory that this item prices is **not** taken — its price is the
+   package at the carrier, the base non-membership at the carrier, and the faithful descent of the
+   conclusion, and none of the three is paid. What *was* established is the lemma the item names
+   first, the linear disjointness of the coefficient field and the level function field; §11.4
+   records it, marks it as not needed by any statement the port cites, and it is what the optional
+   one-field collapse would consume.
+
+   The analysis the decision was made on: both seamed theorems
    take a carrier `ε : κ((q)) → κ'((q))` with `hε`/`hεq` (§6.1g), because the slots are read where a
    primitive `(M*p)`-th root exists while the conclusion is over `κ`. The `C` instance is
    `ε = RingHom.id` (both premises `rfl`); the `ℚ` instance is `coeffEmb` into the `(M*p)`-th
@@ -1156,3 +1172,205 @@ identifiers are `baseField`, `levelSeries`, `levelField`, `slotValue`, `PkgAt`, 
 * **The mathematics**, by reading: the headline's hypothesis is the level package and nothing else;
   no hypothesis is unspent; the per-layer inputs of §8 (the prime degree, the base non-membership)
   are hypotheses of the non-membership, not hypotheses of the slot product.
+
+---
+
+## 11. Revision 2026-11-08: the carrier is a section variable, not a parameter
+
+**Status: planned.** The plan of record is [`TOPIC-ffg-refactor.md`](TOPIC-ffg-refactor.md) §1–§12;
+this section states the same revision in this note's vocabulary and records which of the note's
+earlier decisions it replaces. It changes no mathematics: the same theorems, with the two
+coefficient fields passed as *types* instead of through a carrier *argument*.
+
+### 11.1 What the fold changes, and what it does not
+
+§0.1–§0.7 built the master at two coefficient fields `κ`, `κ'` joined by a carrier
+`ε : LaurentSeries κ →+* LaurentSeries κ'`, with two premises (`hε : ε jg = jqModC κ'` and
+`hεq : ∀ N, ε (qExpand κ N x) = qExpand κ' N (ε x)`). That was the right generalization of the pin's
+`ℚ` statements, and the two instances do instantiate it (`Rat`: `coeffEmb` into the `(M*p)`-th
+cyclotomic field; `CharP`: the identity). What it cost is measurable in the built tree: the carrier
+sits in **48** signature positions of the four `Generic/` modules and `hεq` in **54**.
+
+The carrier does three jobs, and only the third is removable:
+
+1. **Naming the field where the roots live** — content: `ℚ` has no root of unity.
+2. **Carrying the source minimal polynomial into that field** — content, and the reason the
+   *package hypothesis can stay a fact about the `j`-series over `κ`*. This is the relative half of
+   the theory (supplement §4), and it is what the pin's `ℚ` statements do.
+3. **Relating the two fields' names** — `hεq` (commutation with the nome) and `hε` (the carried
+   series is the carrier's `j`-series). For a coefficient extension these are *theorems*:
+   `coeffMap_qExpand` and `coeffMap_jqModC`. Type adaptation.
+
+Both instances' carriers are coefficient extensions, so the fold is: declare `[Algebra κ κ']`, take
+`σ := coeffMap (algebraMap κ κ')`, and delete the parameter. Jobs 1 and 2 then live in the *types* —
+`baseField jg`, `levelSeries jg d`, `PkgAt jg` on the source side; `slotValue (σ jg)`,
+`slotPolynomial (σ jg)`, `TS κ'` on the target side — with `nomeMap` the single bridge.
+
+**Not removed, deliberately: the source-side package hypothesis.** There is an equivalence worth
+stating once: *the carrier in the slot product is what keeps `PkgAt` on the source side.* The pushed
+headline takes `minpoly (baseField jg) (levelSeries jg m)` and *maps* it, so its degree is `ψ(M)` by
+`Monic.natDegree_map` from the source package. A statement of the same content with the minimal
+polynomial taken over the carrier would have to hypothesis the package *there*, which `ℚ` cannot
+supply — that is §11.4's dictionary, and it is not needed.
+
+### 11.2 Where the two fields appear after the fold
+
+| statement | shape | its content |
+|---|---|---|
+| `nomeMap`, `pushedMinpolyAt` | source minpoly, target slots | the relative half: the minimal polynomial is over the base field of `κ`, its roots are in `κ'` |
+| `slotValue`, `slotPolynomial`, `TS`, the `Φ_p` lemmas | one field (`κ'`) | the slots live where the root lives |
+| `SlotProductAt`, the induction | one `Prop`, hypothesis `PkgAt jg` on the **source** side; no `ε`, no `hεq` | the package is a fact about the `j`-series over `κ` |
+| `levelSeries_mem_levelField_mul_prime` | two fields in the **conclusion** | a membership in a field of `κ`, proved by reading roots in `κ'`; irreducible (§11.5) |
+| `prime_notMem_levelField` | one field, at a field with the root | a *non*-membership's conclusion descends for free, using only the adjoin identity of (5.1) (§11.6) |
+| `Generic/LevelPackage` | one field | it never had a carrier |
+
+This is §0.8's rule ("one theorem, one statement") applied to the carrier rather than to the
+package: there is no second spelling of `hεq` and no carrier argument to pass.
+
+### 11.3 The carrier is a coefficient extension
+
+The declared variables are `[Algebra κ κ']` with `σ := coeffMap (algebraMap κ κ')` — not an
+arbitrary ring hom. Both instances are of that shape, so nothing is lost; and `hεq` becomes the
+theorem `coeffMap_qExpand` (leaving the signature and all 54 call sites) and `hε` becomes
+`coeffMap_jqModC`.
+
+### 11.4 The dictionary: proved, and not on the critical path
+
+`(5.2)` — adjoining the coefficient field does not change the level field's relative degree — is the
+dictionary's one non-formal fact, and it is proved and shelved as
+`Reserve/ModularCurve/FunctionFieldGeneration/BaseChange.lean` (exit 0 in ~19 s, no `sorry`, no
+warnings, axioms `[propext, Classical.choice, Quot.sound]`): `finrank_levelField_coeffMap` (with
+`[FiniteDimensional κ κ']`, which is essential to that route) plus its `degreeAt` corollary
+`degreeAt_coeffMap : degreeAt (σ jg) d ↔ degreeAt jg d`.
+
+The route is this note's §9.3 estimate realised: a `κ`-basis of `κ'` stays independent over the level
+field (coefficient separation, `HahnSeries.coeff`), then
+`LinearDisjoint.adjoin_rank_eq_rank_left_of_isAlgebraic` at `d` and at `1`, two tower laws, and
+cancellation of `[κ' : κ]`. The measured traps are in
+[`TOPIC-ffg-refactor.md`](TOPIC-ffg-refactor.md) §6.2 — chiefly that `baseField (σ jg)` is a
+**`κ'`-based** intermediate field (so the identifications must go through `Subfield`s), and that
+`Module.finrank ↥A ↥B` is unavailable for two `κ`-based fields (so the tower runs on `relfinrank`).
+
+**But it is not needed — by the fold, or by anything else the port cites.** §9.3's third item priced
+the one-field theory at "the package at `M`, the base non-membership, and the descent of the
+conclusion". None of the three is bought: the package stays the *source* package (§11.1), the base
+non-membership is evaluated at one field (§11.6), and the descent of the conclusion is exactly what
+the surviving two-field membership buys — the range of `levelNomeMap` instead of the faithfulness
+`(5.4)`. Walk the `ℚ` layer's three statements: the pinned slot-product headline is the pushed
+headline at `(jg := jq, κ' := K)`; the prime step returns through the range of the nome map; the
+non-membership is the `K`-side theorem plus the *free* descent, whose only base-change content is the
+adjoin identity of (5.1). So nothing the port cites needs (5.2) (or (5.3), or (5.4)) — the dictionary
+is the price of a one-field *formulation*, and the port does not want that formulation. The
+supplement says the same in its §6 ("the dictionary is optional").
+
+What the dictionary is good for is the *optional* collapse: with (5.2) and the minimal-polynomial
+transport (5.3), the pushed form becomes a genuinely one-field theorem at `κ'` and the pinned `ℚ`
+statement becomes literally that theorem as a base change. That is a follow-up, not this wave; see
+[`TOPIC-ffg-refactor.md`](TOPIC-ffg-refactor.md) §6.3.
+
+### 11.5 The prime step: the B-side stays by default, the A-side is the option
+
+The prime step's statement is the one place where the two fields are in the *conclusion*: a
+membership in a field of `LaurentSeries κ`, argued by reading roots in `κ'`. **That is not a
+weakness to be removed:** the one-field form (`levelSeries (σ jg) M ∈ levelField (σ jg) (M*p)`, which
+the same argument gives at `κ = K`) does **not** imply it — returning from a membership in the
+`K`-level field to one in the `ℚ`-level field is the faithful descent `(5.4)`, which the port neither
+has nor wants. So the statement keeps both fields, and its conclusion returns through the range of
+`levelNomeMap`.
+
+What is *optional* is the proof, and it is the §2.2/§3(b) question:
+
+* **Default (today's proof, minus the carrier).** `exists_transported_minpoly` enumerates `B`, the
+  pushed minimal polynomial with its slot list (from the slot product at the carrier);
+  `exists_phiAtSeed_roots` supplies `A = Φ_p`'s root shape as the case split; `huniq` compares the
+  two shapes by `TS_injective` plus the index arithmetic. It needs the package (`PkgAt jg M`) and
+  `PrimeStep` keeps importing the slot product. In the fold it loses only `hε`/`hεq` and the two
+  helpers that related the fields (`map_levelSeries`, the `hεq`-threading).
+* **Option (the supplement's §3(a)).** Enumerate `A = Φ_p` instead; `B` becomes a witness, and
+  uniqueness is the two root-exclusion facts. The proof is not new: it is the any-field peeling in
+  `Reserve/ModularCurve/FunctionFieldGeneration/PrimePowerStepAnyField.lean` —
+  `jqNModC_mem_of_div_primes`, `jqNModC_mem_of_div_prime_of_mul_prime` (two `Φ_p`'s, **no minimal
+  polynomial**), built into the divisor induction by `jqNModC_mem_adjoin_top_insert`,
+  `fullC_succ_eq_adjoin_insert_divSet`, `fullC_mul_prime_eq_adjoin_insert_image`; uniqueness is
+  `TS_injective` plus level arithmetic (`unique_common_root_two_prime_slots`,
+  `unique_common_root_of_prime_step_and_mul_prime_slot`), and the root shapes are the any-field ones
+  already public in `PhiGenSplitsAnyField.lean`. Ported with the target field being the statement's
+  own (`F := levelField jg (M * p)`, strong induction over `d ∣ M * p`), it concludes the statement
+  directly and **drops `PkgAt`**, which also removes `hall_pkgAt` from `Descent.lean`.
+
+Why the option is not part of the fold: the ε complaint is answered by the section-variable shape
+(§11.1–§11.3) without it; the B-side proof carries no `hεq` once the carrier is a coefficient
+extension; and the A-side changes both a statement (`PkgAt` leaves) and a proof (the descent stops
+importing the slot product), i.e. two things a reader must re-verify, for no reduction in the ε
+surface. Take it when someone wants the package-free membership or the pin's node structure — and
+note that the shelf's `fullC`-induction targets the divisor adjoin, while the statement's target is
+the level field, so the induction's target is the statement's field, not `fullC`.
+
+One consequence worth recording either way: **the generation clause of the package has a proof in
+the tree**, at one field, in that same peeling with the divisor-adjoin target. Promoting it so that
+`PkgAt` shrinks to its degree clause is *not* this wave (§6.1's layer rule says the theory may state
+what it cannot yet prove; the promotion belongs with the char-`p` resumption), but the peeling must
+not be re-derived a third time.
+
+### 11.6 The prime non-membership at one field
+
+The statement becomes `levelSeries jg p ∉ levelField jg M` at `κ` with `ζ : κˣ`, `PkgAt jg M` and the
+base non-membership — the `C` layer's own shape, and the form `CharP/Nonmembership.lean` already
+delegates to with `ε = id`. Its proof is unchanged in content; the slot multiset is §2's pushed
+headline read at `κ`, and the pull-back at the end is one injectivity instead of two carrier
+premises.
+
+The `ℚ` instance evaluates it at `κ = K = ` the `(M*p)`-th cyclotomic field:
+
+* its hypothesis, `jqNModC K p ∉ adjoin K {jqModC K}`, is
+  `ModularCurve.jqNModC_prime_not_mem_adjoin_of_charZero` (`ModularCurve/Degree/PrimeNonAdjoin.lean`,
+  unconditional in characteristic zero) — *not* a lift of the `ℚ` fact;
+* its conclusion returns to `ℚ` by the *free* direction of §4 of the supplement: a membership
+  ascends under `coeffEmb`, so the non-membership descends. No `(5.4)`, no trace;
+* the field identification it needs is `K · modularFunctionFieldFull M = modularFunctionFieldFullC K M`,
+  an adjoin-image identity.
+
+`Reserve` is not imported: the `Degree/PrimeNonAdjoin` fact it needs is already live, and nothing on
+the shelf is used in place (`FLTForHuman` must never import `Reserve`).
+
+### 11.7 What this supersedes, section by section
+
+| section | status |
+|---|---|
+| §0.1–§0.7 | stand, read with the two fields as *types* (§11.2) rather than through a carrier argument; §0.3's slot value is `slotValue (σ jg) ζ a b` |
+| §0.8, §0.9 | stand, unchanged |
+| §2 (the master statement) | **superseded by §11.2**: no `κ'`, no `ε`, no `hεq` in the signature; the source package hypothesis stays, and the minpoly stays on the source side |
+| §3 (`SlotProductAt`) | **superseded**: one `Prop`, premise `jg = jqModC κ` and `IsPrimitiveRoot ζ M` and `PkgAt jg M` |
+| §4 (`PkgAt`) | stands: `PkgAt` is unchanged, and §11.5 records that its generation clause has a proof |
+| §5 (the two instantiations) | **partly superseded**: the `ℚ` instance is the pushed headline at `(jg := jq, κ' := K)` — *not* a base change (§11.4 is the base-change route, and it is optional); `sv` becomes the one-field slot value and `sv_eq_pin` records the pin's inline body |
+| §6.1 (the arrangement) | stands; a `Generic/BaseChange.lean` is a *follow-up* module (§11.4), not part of the fold |
+| §6.1b–§6.1h (the waves, the interfaces, the audit, the water tests) | the record of the built state; §6.1c–§6.1d's interface decisions stand, the carrier-parameter signatures they describe do not |
+| §6.1g (the carrier premises) | **superseded in part**: the premises are real, but they are theorems about `coeffMap` (`coeffMap_qExpand`, `coeffMap_jqModC`), so they are not hypotheses of anything |
+| §7 (traps) | stands: the `Fact`/`NeZero` chain, the `p ^ k * M` orientation, `subst`'s direction, the checker's parsed names — all still paid. Add the two from the (5.2) probe if the dictionary is ever promoted ([`TOPIC-ffg-refactor.md`](TOPIC-ffg-refactor.md) §6.2) |
+| §8 (per-layer) | stands |
+| §9.3 (the fold) | **taken up, with its third price item *not* bought**: see the banner there and §11.1/§11.4 |
+| §10 (checks) | stands, and the fold adds: `grep -rn "hεq"` over `FunctionFieldGeneration/` must be empty; `ε : LaurentSeries` must not occur |
+
+### 11.8 Order of work
+
+0. ~~The linear-disjointness lemma first.~~ **Not on the critical path**: it is established and
+   shelved (`Reserve/ModularCurve/FunctionFieldGeneration/BaseChange.lean`, §11.4), and the fold does
+   not consume it. Banked, not scheduled.
+1. The fold: declare `[Algebra κ κ']`/`σ`, move the slot side to `κ'`, keep the pushed objects,
+   delete `hε`/`hεq`; the flat `Rat`/`CharP`/`Descent`/`Nonmembership` call sites move with them.
+   `PrimeStep` moves in the same change and keeps its present proof (§11.5, default).
+2. (Optional, only with a reason on the record) the A-side prime step: port the peeling, drop
+   `PkgAt` from the membership, delete the slot-list clause of `exists_transported_minpoly` and the
+   `huniq` that consumed it.
+3. Bookkeeping: the compile-time probe re-pointed, the presentation re-rendered if a quoted line
+   moved, the notes updated. The refactor is measured by its consumers, not by the statement
+   checker or the unwired register (`porting-playbook.md`, top matter).
+
+### 11.9 What is *not* part of the fold
+
+`PkgAt` keeps both clauses; `Tight`/`Gen`/`Hall` keep their names and are not rewritten; the
+`PkgAt`-vs-`Hall` bridge (`hall_pkgAt`, `gen_iff_levelField`, `pkg_pkgAt`) is untouched; the
+prime-power tower (`Nonmembership.lean`), `DegreeStep`, `Generation` and the capstone are
+untouched; `Defs/` is unchanged; the base-change dictionary is *shelved* (§11.4), not written into
+the theory, and (5.3) is not written; and no pinned statement's text changes (`sv`'s *body* changes; its type does not, and its pin text is the theorem
+`sv_eq_pin`).
