@@ -1,7 +1,8 @@
 /-
   The slot product over an arbitrary field: the `C` layer's instance of the generic headline.
 
-  At `κ = κ' = K`, `ε = RingHom.id` and `jg = jqModC K`, the theory's objects read: the base field
+  At `κ = κ' = K` (the identity algebra, so `σ = RingHom.id`) and `jg = jqModC K`, the theory's
+  objects read: the base field
   is `K⟮jqModC K⟯`, the level series is `jqNModC K M`, the nome map is
   `(qExpand K M) ∘ algebraMap` (the identity carrier drops out), and the package is the pin's
   `Pkg K M`, converted by `pkg_pkgAt`.
@@ -13,7 +14,7 @@
     value. Its proof is the theory's headline plus `prod_slotValues`; no step of the induction is
     re-proved here.
   * `pushedMinpoly_anyField` — `pushedMinpoly` at this instance *is* the inline composite the pin
-    writes, proved by `rfl`, so the naming is a transcription and not a change of statement. Its
+    writes, so the naming is a transcription and not a change of statement. Its
     consumer is the delegation above, and it is the counterpart of the `ℚ` layer's
     `pushedMinpoly_rat`.
 
@@ -35,23 +36,25 @@ open scoped IntermediateField
 
 namespace ModularCurve
 
-/-- **The named object is the inline composite**: `pushedMinpoly` at `ε = RingHom.id` and
-`jg = jqModC K` is the minimal polynomial of `jqNModC K M` over `K⟮jqModC K⟯`, read in
-`LaurentSeries K` along `(qExpand K M) ∘ algebraMap`. -/
+/-- **The named object is the inline composite**: `pushedMinpoly` at `κ = κ' = K` (so
+`σ = RingHom.id`) and `jg = jqModC K` is the minimal polynomial of `jqNModC K M` over
+`K⟮jqModC K⟯`, read in `LaurentSeries K` along `(qExpand K M) ∘ algebraMap`. The identity algebra
+collapses by `coeffMap_id_ringHom`. -/
 theorem pushedMinpoly_anyField {K : Type*} [Field K] (M : ℕ) [NeZero M] :
-    pushedMinpoly (RingHom.id (LaurentSeries K)) (jqModC K) M
+    pushedMinpoly (κ' := K) (jqModC K) M
       = (minpoly (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
           (jqNModC K M)).map
           ((qExpand K M).comp
             (algebraMap (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
-              (LaurentSeries K))) :=
+              (LaurentSeries K))) := by
+  unfold pushedMinpoly nomeMap
+  rw [show algebraMap K K = RingHom.id K from rfl, coeffMap_id_ringHom, RingHom.id_comp]
   rfl
 
 /-- **The slot product over an arbitrary field**: the mapped minimal polynomial of `jqNModC K M` is
 the product of `(X - C (if a = 0 then 0 else …))` over the slots. The pin's wrapper verbatim —
 explicit `hall` conjunction, explicit `if`-form slot value — delegated to the theory's
-`pushedMinpoly_eq_slotPolynomial` at `(ε := RingHom.id) (jg := jqModC K)`, whose two carrier
-premises hold by `rfl`. -/
+`pushedMinpoly_eq_slotPolynomial` at `(jg := jqModC K)`, whose source condition holds by `rfl`. -/
 theorem minpoly_jqNModC_map_eq_prod_slots {K : Type*} [Field K]
     (M : ℕ) [NeZero M] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M)
     (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
@@ -68,10 +71,13 @@ theorem minpoly_jqNModC_map_eq_prod_slots {K : Type*} [Field K]
           (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
           (Polynomial.X - Polynomial.C (if h : a = 0 then 0 else
             letI : NeZero a := ⟨h⟩
-            qExpand K (a * a) (qTwist (ζ ^ (b * a)) (jqModC K)))) :=
-  (pushedMinpoly_anyField M).symm.trans <|
-    (pushedMinpoly_eq_slotPolynomial (RingHom.id (LaurentSeries K)) (jqModC K) rfl
-      (fun _ _ _ => rfl) M hζ (pkg_pkgAt M hall)).trans <|
-      prod_slotValues M (fun a b => slotValue (RingHom.id (LaurentSeries K)) (jqModC K) ζ a b)
+            qExpand K (a * a) (qTwist (ζ ^ (b * a)) (jqModC K)))) := by
+  refine (pushedMinpoly_anyField M).symm.trans ?_
+  rw [pushedMinpoly_eq_slotPolynomial (κ' := K) (jqModC K) M rfl hζ (pkg_pkgAt M hall)]
+  have hσ : coeffMap (algebraMap K K) (jqModC K) = jqModC K := by
+    rw [show algebraMap K K = RingHom.id K from rfl, coeffMap_id_ringHom]
+    rfl
+  rw [hσ]
+  exact prod_slotValues M (fun a b => slotValue (jqModC K) ζ a b)
 
 end ModularCurve

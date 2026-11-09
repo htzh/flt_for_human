@@ -158,6 +158,15 @@ its only source (next section). So (a) confines the relative input to two exclus
 and keeps the sharing argument itself intrinsic, while (b) moves the whole relative
 input into the sharing argument.
 
+One asymmetry in that size is not a matter of taste. The splitting in (b) is not a
+field-theoretic freebie: $`L = \kappa((q))`$ is **not** a splitting field of $`B`$ — for
+instance $`q`$ has no square root in it, the valuation of a square being even — so "$`B`$
+splits" is itself part of what (2.1) has to supply. In (a) the enumerated polynomial is
+$`\Phi_p`$, which factorises over any field containing a primitive $`p`$-th root, and
+$`B`$ is never required to split at all. So (a) does not merely need fewer facts about
+$`B`$; it needs *no splitting of $`B`$*, and that is the precise reason its relative input
+is two exclusions rather than an equality.
+
 Neither choice removes it. $`B`$ is a polynomial over $`F_0`$ whose roots are read in
 $`L`$, so some statement about those roots is always needed, and such a statement is
 always relative; what the choice moves is only the *size* of that statement. The two
@@ -218,8 +227,12 @@ The same asymmetry explains the strength of the two-field form of the note's §4
 statement "from the package over $`F_0`$, conclude the membership in the level field
 over $`F_0`$, while the roots are read in an ambient field $`L`$" is stronger than its
 special case $`L = \kappa((q))`$: it takes the relative hypothesis and returns the
-relative conclusion, with the ambient field only a device for the roots. The
-$`\mathbb{Q}`$ theorem of the note is an instance of the stronger form, with
+relative conclusion, with the ambient field only a device for the roots. Precisely:
+the two-field form implies the one-field form by pushing along the coefficient
+extension (5.1), while the converse needs (5.4). So the two-field form is the one-field
+form with the faithful descent internalized — and, by §5.4's remark, with no hypothesis
+on the extension, whereas (5.4) in its trace form asks for the degree to be finite and
+invertible. The $`\mathbb{Q}`$ theorem of the note is an instance of the stronger form, with
 $`\kappa = \mathbb{Q}`$ and $`L = K((q))`$; the char-$`p`$ statements are instances of
 the weaker form with $`L = \kappa((q))`$.
 

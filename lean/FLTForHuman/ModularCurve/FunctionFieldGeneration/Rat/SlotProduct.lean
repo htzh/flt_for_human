@@ -1,7 +1,7 @@
 /-
   The `ℚ` instance of the slot product.
 
-  The theory's headline specializes at `κ = ℚ`, `κ' = K`, `ε = coeffEmb K`, `jg = jq`: the base
+  The theory's headline specializes at `κ = ℚ`, `κ' = K`, `jg = jq` (so `σ = coeffEmb K`): the base
   field is `ℚ⟮jq⟯`, the level series is `jqN M`, the nome map is
   `(coeffEmb K ∘ qExpand ℚ M) ∘ ℚ⟮jq⟯ ↪ ℚ((q))`, and the package is `Hall M`.
 
@@ -24,12 +24,12 @@
   `ℚ` copy of it, and no copy of the `ℚ` `SlotProductAt` either — the surface names the theorem, the
   theory names the induction.
 
-  Everything is data and instantiation: the carrier, the generator, and the package-spelling
-  conversion (`hall_pkgAt`). Nothing `ℚ`-specific leaks upward — the theory's hypotheses are met
-  definitionally, which is the check that the abstraction is honest.
+  Everything is data and instantiation: the coefficient extension (a section variable now), the
+  generator, and the package-spelling conversion (`hall_pkgAt`). Nothing `ℚ`-specific leaks upward —
+  the theory's hypotheses are met definitionally, which is the check that the abstraction is honest.
 
-  Both proofs are one-line instantiations; the two carrier premises come from `coeffEmb_jq` and
-  `coeffEmb_qExpand`.
+  Both proofs are one-line instantiations; the source condition `jg = jqModC κ` holds at `κ = ℚ`
+  by `rfl` (`jqModC ℚ = jq`).
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Rat.LevelPackage
@@ -46,7 +46,7 @@ namespace ModularCurve
 /-- **The named `ℚ` object is the inline composite**: `pushedMinpoly` at the `ℚ` instance is the
 minimal polynomial of `jqN M` over `ℚ⟮jq⟯` read along `(coeffEmb K).comp (qExpand ℚ M)`. -/
 theorem pushedMinpoly_rat {K : Type*} [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M] :
-    pushedMinpoly (coeffEmb K) jq M
+    pushedMinpoly (κ' := K) jq M
       = (minpoly ℚ⟮jq⟯ (jqN M)).map
           (((coeffEmb K).comp (qExpand ℚ M)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) :=
   rfl
@@ -57,7 +57,7 @@ minimal polynomial of `jqN m` over `ℚ⟮jq⟯`, read along the level-`N` nome
 this is the same transcription for the two-level object the level step holds. -/
 theorem pushedMinpolyAt_rat {K : Type*} [Field K] [Algebra ℚ K] (m : ℕ) [NeZero m] (N : ℕ)
     [NeZero N] :
-    pushedMinpolyAt (coeffEmb K) jq m N
+    pushedMinpolyAt (κ' := K) jq m N
       = (minpoly ℚ⟮jq⟯ (jqN m)).map
           (((coeffEmb K).comp (qExpand ℚ N)).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ))) :=
   rfl
@@ -66,8 +66,7 @@ theorem pushedMinpolyAt_rat {K : Type*} [Field K] [Algebra ℚ K] (m : ℕ) [NeZ
 polynomial of `jqN M` is the slot polynomial. -/
 theorem minpoly_eq_prod_slotValues {K : Type*} [Field K] [Algebra ℚ K] (M : ℕ) [NeZero M]
     (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M) (hM : Hall M) :
-    pushedMinpoly (coeffEmb K) jq M = slotPolynomial (coeffEmb K) jq M ζ :=
-  pushedMinpoly_eq_slotPolynomial (coeffEmb K) jq (coeffEmb_jq K)
-    (fun N _ x => coeffEmb_qExpand K N x) M hζ (hall_pkgAt M hM)
+    pushedMinpoly (κ' := K) jq M = slotPolynomial (coeffEmb K jq) M ζ :=
+  pushedMinpoly_eq_slotPolynomial (κ' := K) jq M rfl hζ (hall_pkgAt M hM)
 
 end ModularCurve

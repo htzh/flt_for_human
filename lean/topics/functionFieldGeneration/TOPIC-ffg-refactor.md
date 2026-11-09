@@ -1,6 +1,8 @@
 # Topic: the FFG layer — the carrier as a section variable, and the A-side descent
 
-**Status: planned (2026-11-08).** This file is the plan for the FFG layer's current correction. It
+**Status: landed (2026-11-08).** This file is the plan for the FFG layer's current correction, and
+its §13 records what was actually built (the plan's own §5 was corrected on the way: the prime
+non-membership stays two-field, for a reason §6.1 already gave). It
 supersedes the earlier dated wave record of this path; that record, and the capstone refactor it
 describes, are in git history, in [`../CASE-hall-all.md`](../CASE-hall-all.md) (the reusable case
 study) and in [`PORTING-FFG.md`](../PORTING-FFG.md) (the porting record). The any-field layer's own
@@ -152,6 +154,38 @@ Both instances are of that shape (`Rat`: `Algebra ℚ K`, since `coeffEmb K = co
 `CharP`: `Algebra K K`, the identity), so this loses nothing, and it makes `hεq` a theorem
 (`coeffMap_qExpand`) and `hε` a theorem (`coeffMap_jqModC`).
 
+**What this does and does not remove from the API.** A section variable is sugar for a binder, so
+the pair *is* in the telescope of every declaration that uses it — `{κ} {κ'} [Field κ] [Field κ']
+[Algebra κ κ']`, implicit and instance-implicit, never an explicit argument. What disappears is the
+carrier as an *argument* and `hεq` as a *premise*; `hε` becomes `hjg : jg = jqModC κ` on the source.
+The telescopes are mixed on purpose: the slot objects (`slotValue`, `slotPolynomial`, `TS`) mention
+only the one field, because the slots need only the field with the root; the bridge (`nomeMap`,
+`pushedMinpolyAt`) and the theorems mention both, because the minimal polynomial is over the source
+base field. No call site names any of them — `κ` comes from `jg : LaurentSeries κ`, `κ'` from
+`ζ : κ'ˣ` and from the goal, `[Algebra κ κ']` from instance search — so a call reads `f jq rfl …`
+where today it reads
+`f (coeffEmb K) jq (coeffEmb_jq K) (fun N _ x => coeffEmb_qExpand K N x) …`.
+
+**What the coefficient map is still needed for.** The pair alone would be ill-posed: two series
+rings with no relation cannot even state "the minimal polynomial over the source base field, read
+where the roots live". The map earns its place in exactly four facts, and none of them is a
+hypothesis:
+
+| fact | how it appears today | content | after the fold |
+|---|---|---|---|
+| `coeffMap` is a ring hom | the `ε` binder, 48 positions | extension acts coefficientwise | the canonical map of `[Algebra κ κ']` |
+| commutes with the nome | **54** `hεq` sites | the nome moves exponents, the extension moves coefficients | `coeffMap_qExpand` |
+| fixes the `j`-series | **36** `hε` sites | `j(q)` has integral coefficients | `coeffMap_jqModC` (plus `jg = jqModC κ`) |
+| is injective | **4** `RingHom.injective ε` sites | a field hom is injective: monic and degree survive the push, and the rational slice embeds faithfully | `coeffMap_injective` |
+
+Everything else in the theory is one-field: the package and the tower law on the source side, the
+slot values, `TS` and the `Φ_p` root shapes on the target side. And the map is used in only two
+directions: *forward*, to push series and polynomials (everywhere in the statements), and
+*backward*, in four places, to pull a membership in the range back to the source field and an
+equation at the carrier back to the source. The backward direction is exactly where the two-field
+form is stronger than the base-changed one: the conclusion returns along an injective map, not along
+a trace.
+
 **What is *not* in this shape.** There is no `Generic/BaseChange.lean`, and **no base-change degree
 lemma is needed at all** — not on the critical path, not anywhere else (§6.1). What the port does use
 of the supplement's §5 dictionary is (5.1)'s adjoin identities, and those it already writes inline
@@ -245,14 +279,17 @@ theorem prime_notMem_levelField {κ : Type*} [Field κ] (jg : LaurentSeries κ)
 
 Its proof is unchanged in content: the `ψ(M)`-slot multiset of the pushed minimal polynomial, the
 `Φ_p` dichotomy at the conjugate, `mem_range_of_eval_eq_const`, and the pull-back to the base field.
-The `ℚ` instance evaluates it at `κ = K`:
 
-* its hypothesis, `jqNModC K p ∉ adjoin K {jqModC K}`, is
-  `ModularCurve.jqNModC_prime_not_mem_adjoin_of_charZero`
-  (`ModularCurve/Degree/PrimeNonAdjoin.lean`, unconditional in characteristic zero) — not a lift of
-  the `ℚ` fact;
-* its conclusion returns to `ℚ` by the *free* direction (supplement §4): a membership ascends under
-  `coeffEmb`, so the non-membership descends. No faithfulness/trace lemma.
+**Correction (landed): it stays two-field.** As an *evaluation* the one-field form is what the `C`
+layer wants, and that is what it gets. As the `ℚ` layer's route it does not close: the `ℚ` layer holds
+`Hall M`, i.e. `PkgAt jq M`, but the `K`-side theorem needs `PkgAt (jqModC K) M`, and the missing
+clause is exactly the level-degree clause at the carrier — transportable only by the banked
+dictionary's `(5.2)` (§6.2), which §6.1 rules out. This is §6.1's own principle ("the carrier in the
+slot product is what keeps the package on the source side") applied to the non-membership; the plan's
+first version overlooked it. So the theorem keeps the source condition `jg = jqModC κ` and the
+package at the source `jg`, with both fields as a section variable; `ℚ` is
+`(κ := ℚ) (κ' := K)` with `coeffEmb` and `hjg := rfl`, and `C` is `(κ := κ' := K)` with `hjg := rfl`.
+The free descent of a non-membership (supplement §4) is then not spent at all, which is simpler.
 
 This is where the supplement's §4 asymmetry is spent: a non-membership's conclusion base-changes
 for free. That is why the non-membership may be stated at one field and the membership may not.
@@ -418,6 +455,17 @@ Why it is optional rather than part of this wave:
   way, and the B-side proof carries no `hεq` once the carrier is a coefficient extension;
 * it changes a *statement* (`PkgAt` leaves) and a *proof* (the descent stops importing the slot
   product), i.e. two things a reader must re-verify, for no reduction in the ε surface;
+* there is a second, independent reason for it, which the plan did not have at first: the
+  unique-common-root principle needs a **split** polynomial, and `LaurentSeries κ'` is not a
+  splitting field of `B` — `q` has no square root there, since squares have even valuation — so the
+  B-side must obtain `B`'s splitting from (2.1) itself, exactly the equality it is trying to use.
+  The A-side needs no splitting of `B` (`Φ_p` factorises over any field with a primitive `p`-th root,
+  and `B` is a witness); that is why its relative input is two exclusions rather than an equality;
+* one hazard this makes explicit: `minpoly` is total with junk value `0` off the integral locus, so
+  `pushedMinpoly`/`pushedMinpolyAt` are *junk* unless the package's degree clause holds. Every
+  statement that compares them must carry `degreeAt` — which `PkgAt` does — and the base-change
+  transport is safe only because it is `Monic.natDegree_map` on a nonzero source minpoly
+  (injectivity of `σ`), never a comparison of two possibly-zero polynomials;
 * if it is taken, order the peel first and drop the hypothesis only when the induction compiles;
   and note that the shelf's `fullC`-induction targets the divisor adjoin, while the statement's
   target is the level field, so the induction's target is the statement's field, not `fullC`.
@@ -546,6 +594,26 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 
 ## 11. Risks, and the decisions behind the plan
 
+* **Decision taken: §3 as written, the section variable (row 2 below).** Measured on the four
+  `Generic/` modules (58 declarations, hand-classified by whether the *type* mentions both series
+  rings):
+
+  | design | generic two-field declarations | what it costs |
+  |---|---|---|
+  | today (ε parameter) | 48 + 54 `hεq` | — |
+  | §3 as written (section variable) | **30 of 58** (`SlotProduct` 22: the pushed objects, the induction and the two seamed statements; `PrimeStep` 6; `PrimeNonmembership` 2; `SlotValue` 0) | nothing; each of the 30 is *lighter* than today (0 explicit args, 1 premise instead of 3 args and 2 premises) |
+  | certificate (abstract the pushed polynomial) | ~8–12 | statements become conditional on a `B`-bundle — the pattern §7.3/§17 withdrew twice |
+  | one-field theory + the banked dictionary (§6.2/§6.3) | **~7** (the dictionary's transport lemmas + the membership) | the theory loses `[Algebra κ κ']` entirely; the `ℚ` headline and `ℚ` non-membership get their package from `PkgAt jg M → PkgAt (jqModC K) M` (§6.2 (5.1)+(5.2), proved), so the `ℚ` route rests on the dictionary rather than on `Hall` directly |
+
+  The user picked row 2 (30 being the plan's hand count), and the build lands at **34 of 58**:
+  `SlotProduct` 24 (the plan said 22 — `coeffMap_jqModC'` is a new named bridge, and
+  `pushedMinpolyAt_self` survives), `PrimeStep` 6 (as measured), `PrimeNonmembership` 4 (the
+  plan said 2: the one-field statement was withdrawn, §5, so its seamed helpers stay two-field),
+  `SlotValue` 0. The extra rows are §3's shape, not a design change: every declaration that reads
+  the source minimal polynomial in the carrier is two-field by content, and the one-field rows are
+  the slot side plus the two `seed_eval_zero` facts.
+  On the readability criterion the last row wins and is now affordable; on "the `ℚ` route should not
+  rest on a base-change lemma" the second row wins. §6.3 describes row 4's promotion path.
 * **The carrier parameter goes; the two fields stay in the types.** This is the decision this file
   corrects. The alternative — a literally one-field theory with the package hypothesis at the
   carrier — is available (§6.2/§6.3) and is *not* taken: it moves the hypothesis off the source
@@ -577,23 +645,68 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 
 ## 12. Definition of done
 
-- [ ] `grep -rn "hεq"` over `FunctionFieldGeneration/` is empty.
-- [ ] `ε : LaurentSeries` does not occur; the two fields occur only as types, with
-      `[Algebra κ κ']` as a section variable in `Generic/SlotValue`, `Generic/SlotProduct`,
-      `Generic/PrimeStep`.
-- [ ] `Generic/SlotValue` and the slot half of `Generic/SlotProduct` are stated at one field;
-      `nomeMap` and `pushedMinpolyAt` are the only two-field definitions.
-- [ ] `prime_notMem_levelField` is stated at one field; the `ℚ` and `C` instances are its two
-      evaluations.
-- [ ] `levelSeries_mem_levelField_mul_prime` keeps both fields in its conclusion and, by default,
-      its `PkgAt` hypothesis (the B-side proof); if §7.3 is taken, it carries no `PkgAt` and its
-      proof contains no `minpoly`. Either way it has no `ε`, `hε`, `hεq`.
-- [ ] No `Generic/BaseChange.lean` in this wave, and no base-change degree lemma anywhere: nothing
+- [x] `grep -rn "hεq"` over `FunctionFieldGeneration/` is empty.
+- [x] `ε : LaurentSeries` does not occur (not in `FLTForHuman/` either); the two fields occur only
+      as types, with `[Algebra κ κ']` a section variable in `Generic/SlotProduct`,
+      `Generic/PrimeStep` and `Generic/PrimeNonmembership`. `Generic/SlotValue` needs no second
+      field at all, so it carries no such variable.
+- [x] `Generic/SlotValue` and the slot half of `Generic/SlotProduct` are stated at one field;
+      `nomeMap` and `pushedMinpolyAt` are the only two-field definitions (`pushedMinpoly` is the
+      diagonal of `pushedMinpolyAt` and is stated with it).
+- [ ] `prime_notMem_levelField` stays **two-field** with the source condition `jg = jqModC κ` — the
+      one-field form was withdrawn on landing (§5). The `C` instance is `(κ := κ' := K)`, the `ℚ`
+      instance `(κ := ℚ) (κ' := K)` (both `hjg := rfl`).
+- [x] `levelSeries_mem_levelField_mul_prime` keeps both fields in its conclusion and its `PkgAt`
+      hypothesis (the B-side proof); it carries no `ε`, `hε`, `hεq`, only `hjg`.
+- [x] No `Generic/BaseChange.lean` in this wave, and no base-change degree lemma anywhere: nothing
       the port cites needs one (§6.1). The dictionary is banked, not needed, in
       `Reserve/ModularCurve/FunctionFieldGeneration/BaseChange.lean`, with its traps and placement
       (§6.2).
-- [ ] Every module builds silently; the pinned statements' `check_port` counts are unchanged; the
+- [x] Every module builds silently; the pinned statements' `check_port` counts are unchanged; the
       probe elaborates; `#print axioms` on the `ℚ` headlines is
       `[propext, Classical.choice, Quot.sound]`.
-- [ ] The §9 consumer list elaborates with its call sites unchanged, and
+- [x] The §9 consumer list elaborates with its call sites unchanged, and
       `TOPIC-t19-any-field.md` §11 agrees with this file.
+
+---
+
+## 13. Landed record (2026-11-08)
+
+**Shape.** `ε : LaurentSeries κ →+* LaurentSeries κ'` is gone from the whole tree (0 occurrences of
+`ε : LaurentSeries` in `FLTForHuman/` and `Reserve/`), and `hεq` from `FunctionFieldGeneration/`
+(0 occurrences). The carrier is `σ := coeffMap (algebraMap κ κ')`, a `local notation` in each
+two-field module, over a section variable `[Algebra κ κ']`. The two source facts became theorems
+`coeffMap_qExpand` / `coeffMap_jqModC`, and the j-series condition `jg = jqModC κ` is the one premise
+threaded through (at `κ = ℚ` and at the `C` layer it is `rfl`).
+
+**What moved, module by module.**
+
+| module | declarations | two-field | what changed |
+|---|---|---|---|
+| `Generic/SlotValue.lean` | 8 | 0 | `slotValue` at one field; the premise is `hjg : jg = jqModC κ` |
+| `Generic/SlotProduct.lean` | 32 | 24 | `nomeMap`/`pushedMinpoly`/`pushedMinpolyAt` take `jg` only; `slotPolynomial` at one field; `map_levelSeries` deleted (the source relation is now `seed_eval_zero` at one field, from `phiAtSeed_jqNModC_eval` at `κ`); `coeffMap_jqModC'` added, the one named bridge from `hjg` to `σ jg = jqModC κ'` |
+| `Generic/PrimeStep.lean` | 14 | 6 | `levelNomeMap` at `jg` only; `hιS`-style steps are `coeffMap_qExpand` + `qExpand_qExpand` |
+| `Generic/PrimeNonmembership.lean` | 4 | 4 | as §5 corrected; `hιS` is proved inside `map_mem_fieldRange` instead of being a hypothesis |
+| `Rat/SlotProduct.lean` | 3 | — | the two `rfl` transcriptions keep their names and lose the carrier (`pushedMinpoly (κ' := K) jq M`); the headline passes `hjg := rfl` |
+| `CharP/SlotProduct.lean` | 2 | — | the identity algebra is collapsed by the new `coeffMap_id_ringHom` (`Defs/Laurent.lean`) |
+| `CharP/Nonmembership.lean` | 1 | — | `prime_notMem_levelField (κ' := K) (jqModC K) rfl …` |
+| flat `SlotProduct.lean` | — | — | `sv K ζ a b = slotValue (coeffEmb K jq) ζ a b` (still the pin's `if` body); `sv_eq_TS`/`sv_inj`/`sv_inj_slot` at `hjg := coeffEmb_jq`; `map_qExpand_minpoly_eq` at `(κ' := K)` |
+| `Descent.lean`, `Nonmembership.lean` | — | — | one call site each, `(κ' := CyclotomicField (M * p) ℚ)` / `(κ' := K)`, `hjg := rfl` |
+| `spec/GenericProbe.lean` | — | — | re-pointed: `κ = κ' = ZMod 5`, no carrier arguments |
+
+**Gates run.**
+
+| gate | result |
+|---|---|
+| `lake build` of the four `Generic/` modules, the five `ℚ`/`C` modules, `Descent`, `Capstone` | green, 0 warnings |
+| the §9 consumer cone (`TwoPrimeSeparation`, `ModularPolynomialExistence`, `ModularPolynomialUniquenessIrreducible`, `Degree/Relfinrank`, `ModularPolynomialLeadingCoeff`, `X1/FunctionFieldInclusion`, `HeckeCommuteBar`, `FieldTheory/AdjoinTower`) | green |
+| `Reserve.ModularCurve.FunctionFieldGeneration.SlotProductAnyField` | green (it uses only `SlotValues`, not the carrier API) |
+| `lake env lean spec/GenericProbe.lean` | green |
+| `check_port --force` on the flat `SlotProduct` | 7 ok / 0 mismatch / 0 missing / 1 own — unchanged |
+| `check_port --changed` | 12009 ok, 0 mismatch; the one new public declaration (`coeffMap_id_ringHom`) is registered `own:` in `decl_markers.tsv` |
+| `#print axioms` on `jqN_div_mem_modularFunctionField`, `functionFieldGeneration`, `jqN_prime_not_mem_full`, `minpoly_jqN_map_eq_prod_slots` | `[propext, Classical.choice, Quot.sound]` |
+| `grep hεq`, `grep "ε : LaurentSeries"`, `grep sorry` | empty / empty / empty |
+
+**Not done, deliberately.** Wave 2 (§7.3, the A-side prime step) is not taken — no reason was
+recorded for it. `presentation/capstone.json` is untouched: `Capstone` did not change, and the
+`line` fields it carries are already the *pin's* line numbers, not this tree's.

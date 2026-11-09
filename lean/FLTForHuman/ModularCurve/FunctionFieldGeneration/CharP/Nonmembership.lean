@@ -8,9 +8,9 @@
   level series at the divisors of `M`; `mem_levelField_of_mem_divisorAdjoin` is the one step between
   them, and it spends the package's generation clause.
 
-  So the delegation is: discharge the theory's two carrier premises (`rfl` here, since the carrier is
-  the identity and `jg` is `jqModC K`), convert `Pkg` to `PkgAt` (`pkg_pkgAt`), take the package's
-  generation clause at `M`, and apply the generic theorem. The two per-layer inputs are exactly the
+  So the delegation is: discharge the theory's source condition (`rfl` here, since `jg` is
+  `jqModC K` and the two fields coincide), convert `Pkg` to `PkgAt` (`pkg_pkgAt`), take the
+  package's generation clause at `M`, and apply the generic theorem. The two per-layer inputs are exactly the
   pin's: the package conjunction and `hbase`. In particular no `degreeAt (jqModC K) p` is needed —
   the theory does not ask for one.
 
@@ -51,7 +51,7 @@ theorem jqNModC_prime_not_mem_fullC {K : Type*} [Field K] (M : ℕ) [NeZero M]
   intro hmem
   have h : PkgAt (jqModC K) M := pkg_pkgAt M hall
   obtain ⟨-, hgen⟩ := h M dvd_rfl
-  exact prime_notMem_levelField (RingHom.id (LaurentSeries K)) (jqModC K) rfl (fun _ _ _ => rfl)
-    hζ hpM h hbase (mem_levelField_of_mem_divisorAdjoin hgen hmem)
+  exact prime_notMem_levelField (κ' := K) (jqModC K) rfl hζ hpM h hbase
+    (mem_levelField_of_mem_divisorAdjoin hgen hmem)
 
 end ModularCurve

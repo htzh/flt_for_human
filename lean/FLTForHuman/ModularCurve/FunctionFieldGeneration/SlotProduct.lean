@@ -33,7 +33,7 @@
     `FunctionFieldGeneration/Rat/SlotProduct.lean` (`minpoly_eq_prod_slotValues`,
     `pushedMinpoly_rat`, `pushedMinpolyAt_rat`): base field `ℚ⟮jq⟯`, level series `jqN M`,
     carrier `coeffEmb K`. What stays here is the pin's *spelling* of that content, delegated:
-    `sv` is `slotValue (coeffEmb K) jq`, so the pin's `if`-form is `sv`'s own body (pinned
+    `sv` is `slotValue (coeffEmb K jq)`, so the pin's `if`-form is `sv`'s own body (pinned
     by `slotValue_def`); `sv_eq_TS`, `sv_inj` and `sv_inj_slot` are the theory's
     `slotValue_eq_TS`, `slotValue_inj` and `slotValue_inj_slot` at that carrier;
     `map_qExpand_minpoly_eq` is the theory's slot-free level step
@@ -126,11 +126,11 @@ variable {K : Type*} [Field K] [Algebra ℚ K]
 /-- The slot value `sv K ζ a b = qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq))`,
 with `sv K ζ 0 b = 0` so the `if`-form matches the pin's wrapper. -/
 def sv (K : Type*) [Field K] [Algebra ℚ K] (ζ : Kˣ) (a b : ℕ) : LaurentSeries K :=
-  slotValue (coeffEmb K) jq ζ a b
+  slotValue (coeffEmb K jq) ζ a b
 
 theorem sv_eq_TS (ζ : Kˣ) (a b : ℕ) [NeZero a] :
     sv K ζ a b = TS K (a * a) (ζ ^ (b * a)) := by
-  exact slotValue_eq_TS (coeffEmb K) jq ζ a b (coeffEmb_jq K)
+  exact slotValue_eq_TS (coeffEmb K jq) ζ a b (coeffEmb_jq K)
 
 omit [Algebra ℚ K] in
 theorem TS_congr' {e e' : ℕ} [NeZero e] [NeZero e'] {u u' : Kˣ} (he : e = e')
@@ -144,7 +144,7 @@ application. -/
 theorem sv_inj {M : ℕ} {ζ : Kˣ} (hζ : IsPrimitiveRoot (ζ : K) M)
     {a b a' b' : ℕ} (ha0 : a ≠ 0) (ha0' : a' ≠ 0) (hb : b * a < M) (hb' : b' * a' < M)
     (h : sv K ζ a b = sv K ζ a' b') : a = a' ∧ b = b' :=
-  slotValue_inj (coeffEmb K) jq (coeffEmb_jq K) hζ ha0 ha0' hb hb' h
+  slotValue_inj (coeffEmb K jq) (coeffEmb_jq K) hζ ha0 ha0' hb hb' h
 
 /-- A member of the two-generator field `ℚ(jq, jqN M)` lies in `ℚ⟮jq⟯⟮jqN M⟯`: the
 scalars-extended adjoin collapses to the simple extension by `jqN M`. -/
@@ -188,19 +188,18 @@ theorem map_qExpand_minpoly_eq {M' : ℕ} [NeZero M'] (k : ℕ) [NeZero k] {N : 
   subst hN
   have h1 : (minpoly ℚ⟮jq⟯ (jqN M')).map
       (((coeffEmb K).comp (qExpand ℚ (k * M'))).comp (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))
-      = (pushedMinpoly (coeffEmb K) jq M').map (qExpand K k) := by
+      = (pushedMinpoly (κ' := K) jq M').map (qExpand K k) := by
     rw [← pushedMinpolyAt_rat M' (k * M')]
-    rw [pushedMinpolyAt_map_qExpand (coeffEmb K) jq
-      (fun N _ x => coeffEmb_qExpand K N x) (m := M') (k := k), pushedMinpolyAt_self]
+    rw [pushedMinpolyAt_map_qExpand (κ' := K) jq (m := M') (k := k), pushedMinpolyAt_self]
   rw [h1, pushedMinpoly_rat M', hid]
   show (∏ a ∈ M'.divisors, ∏ b ∈ (Finset.range (M' / a)).filter
       (fun b => Nat.gcd (Nat.gcd a b) (M' / a) = 1),
-      (Polynomial.X - Polynomial.C (slotValue (coeffEmb K) jq ζ' a b))).map (qExpand K k)
+      (Polynomial.X - Polynomial.C (slotValue (coeffEmb K jq) ζ' a b))).map (qExpand K k)
     = ∏ a ∈ M'.divisors, ∏ b ∈ (Finset.range (M' / a)).filter
       (fun b => Nat.gcd (Nat.gcd a b) (M' / a) = 1),
       (Polynomial.X - Polynomial.C (qExpand K k (sv K ζ' a b)))
-  rw [← slotPolynomial_eq_prod (coeffEmb K) jq M' ζ']
-  exact map_slotPolynomial (coeffEmb K) jq M' ζ' (qExpand K k)
+  rw [← slotPolynomial_eq_prod (coeffEmb K jq) M' ζ']
+  exact map_slotPolynomial (coeffEmb K jq) M' ζ' (qExpand K k)
 
 /-! ## The slot multiset
 
@@ -219,7 +218,7 @@ theorem sv_inj_slot {M : ℕ} {ζ : Kˣ} (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K)
     (hM0 : M ≠ 0) {a b a' b' : ℕ} (haM : a ∣ M) (haM' : a' ∣ M)
     (hb : b < M / a) (hb' : b' < M / a') (h : sv K ζ a b = sv K ζ a' b') :
     a = a' ∧ b = b' := by
-  exact slotValue_inj_slot (coeffEmb K) jq (coeffEmb_jq K) hζ hM0 haM haM' hb hb' h
+  exact slotValue_inj_slot (coeffEmb K jq) (coeffEmb_jq K) hζ hM0 haM haM' hb hb' h
 
 /-- **The slot product**: the mapped minimal polynomial of `jqN M` is the product
 of `(X - C (sv K ζ a b))` over the slots. Verbatim from

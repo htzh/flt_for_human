@@ -1177,10 +1177,13 @@ identifiers are `baseField`, `levelSeries`, `levelField`, `slotValue`, `PkgAt`, 
 
 ## 11. Revision 2026-11-08: the carrier is a section variable, not a parameter
 
-**Status: planned.** The plan of record is [`TOPIC-ffg-refactor.md`](TOPIC-ffg-refactor.md) §1–§12;
+**Status: landed (2026-11-08); the measured record is
+[`TOPIC-ffg-refactor.md`](TOPIC-ffg-refactor.md) §13.** The plan of record is that file's §1–§12;
 this section states the same revision in this note's vocabulary and records which of the note's
 earlier decisions it replaces. It changes no mathematics: the same theorems, with the two
-coefficient fields passed as *types* instead of through a carrier *argument*.
+coefficient fields passed as *types* instead of through a carrier *argument*. One part of it was
+corrected on landing — the prime non-membership stays two-field (§11.6 below — the correction is
+recorded there and in §13).
 
 ### 11.1 What the fold changes, and what it does not
 
@@ -1221,7 +1224,7 @@ supply — that is §11.4's dictionary, and it is not needed.
 | `slotValue`, `slotPolynomial`, `TS`, the `Φ_p` lemmas | one field (`κ'`) | the slots live where the root lives |
 | `SlotProductAt`, the induction | one `Prop`, hypothesis `PkgAt jg` on the **source** side; no `ε`, no `hεq` | the package is a fact about the `j`-series over `κ` |
 | `levelSeries_mem_levelField_mul_prime` | two fields in the **conclusion** | a membership in a field of `κ`, proved by reading roots in `κ'`; irreducible (§11.5) |
-| `prime_notMem_levelField` | one field, at a field with the root | a *non*-membership's conclusion descends for free, using only the adjoin identity of (5.1) (§11.6) |
+| `prime_notMem_levelField` | two fields, package at the **source** (like the slot product) | the conclusion is over `κ`, the conjugate classification is in `κ'`; a one-field statement would move `PkgAt` to the carrier, which `ℚ` cannot supply (§11.6) |
 | `Generic/LevelPackage` | one field | it never had a carrier |
 
 This is §0.8's rule ("one theorem, one statement") applied to the carrier rather than to the
@@ -1312,26 +1315,35 @@ the tree**, at one field, in that same peeling with the divisor-adjoin target. P
 what it cannot yet prove; the promotion belongs with the char-`p` resumption), but the peeling must
 not be re-derived a third time.
 
-### 11.6 The prime non-membership at one field
+### 11.6 The prime non-membership: two fields, as landed
 
-The statement becomes `levelSeries jg p ∉ levelField jg M` at `κ` with `ζ : κˣ`, `PkgAt jg M` and the
-base non-membership — the `C` layer's own shape, and the form `CharP/Nonmembership.lean` already
-delegates to with `ε = id`. Its proof is unchanged in content; the slot multiset is §2's pushed
-headline read at `κ`, and the pull-back at the end is one injectivity instead of two carrier
-premises.
-
-The `ℚ` instance evaluates it at `κ = K = ` the `(M*p)`-th cyclotomic field:
+**Correction (landed). This one does *not* go to one field.** The plan stated it at `κ` with `ζ : κˣ`,
+`PkgAt jg M` and the base non-membership, and proposed `ℚ` evaluate it at `κ = K`:
 
 * its hypothesis, `jqNModC K p ∉ adjoin K {jqModC K}`, is
-  `ModularCurve.jqNModC_prime_not_mem_adjoin_of_charZero` (`ModularCurve/Degree/PrimeNonAdjoin.lean`,
-  unconditional in characteristic zero) — *not* a lift of the `ℚ` fact;
-* its conclusion returns to `ℚ` by the *free* direction of §4 of the supplement: a membership
-  ascends under `coeffEmb`, so the non-membership descends. No `(5.4)`, no trace;
-* the field identification it needs is `K · modularFunctionFieldFull M = modularFunctionFieldFullC K M`,
-  an adjoin-image identity.
+  `ModularCurve.jqNModC_prime_not_mem_adjoin_of_charZero`, unconditional in characteristic zero;
+* its conclusion would then return to `ℚ` by the *free* direction of the supplement's §4.
 
-`Reserve` is not imported: the `Degree/PrimeNonAdjoin` fact it needs is already live, and nothing on
-the shelf is used in place (`FLTForHuman` must never import `Reserve`).
+That evaluation cannot be reached. The `K`-side theorem needs `PkgAt (jqModC K) M`, while the `ℚ`
+layer holds `Hall M`, i.e. `PkgAt jq M`; the missing clause is the **level-degree clause at the
+carrier**, and transporting it is exactly `(5.2)` of §11.4 — the banked dictionary, which §11.4
+correctly rules out. (The generation clause does transport by an adjoin-image argument; the degree
+clause does not.) This is the same principle as §11.1's — *the package stays on the source side* —
+which the plan applied to the slot product and not to the non-membership.
+
+So the statement keeps both fields (`[Algebra κ κ']`, source condition `jg = jqModC κ`, package
+`PkgAt jg M` at the source), and both instances are evaluations instead:
+
+| | `κ` | `κ'` | `hjg` |
+|---|---|---|---|
+| `ℚ` | `ℚ` | `CyclotomicField (M * p) ℚ` | `rfl` |
+| `C` | `K` | `K` | `rfl` |
+
+The free descent of a non-membership is therefore not spent, and `Nonmembership.lean` keeps its
+current route (the base non-membership at `ℚ` is `jqN_prime_not_mem_base`).
+
+`Reserve` is not imported, and `Degree/PrimeNonAdjoin` is not needed either — the plan's objection
+to the `ℚ` route disappears with the one-field form it was paying for.
 
 ### 11.7 What this supersedes, section by section
 

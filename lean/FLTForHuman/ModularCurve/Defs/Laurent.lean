@@ -201,6 +201,12 @@ theorem coeffMap_id (x : LaurentSeries R) : coeffMap (RingHom.id R) x = x := by
   ext k
   simp
 
+/-- `coeffMap` of the identity is the identity, at the level of ring homs: the `x`-free form of
+`coeffMap_id`. Needed to collapse a coefficient extension along the identity algebra
+(`algebraMap K K = RingHom.id K`) to `RingHom.id (LaurentSeries K)`. -/
+theorem coeffMap_id_ringHom : coeffMap (RingHom.id R) = RingHom.id (LaurentSeries R) :=
+  RingHom.ext coeffMap_id
+
 theorem coeffMap_congr {f g : R →+* S} (h : f = g) (x : LaurentSeries R) :
     coeffMap f x = coeffMap g x := by
   subst h; rfl

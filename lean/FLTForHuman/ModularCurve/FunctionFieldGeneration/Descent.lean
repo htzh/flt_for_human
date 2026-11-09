@@ -10,13 +10,13 @@
   former proof after it was refactored into two producers and named index arithmetic. Nothing of
   it is re-proved here.
 
-  ## The carrier is chosen here, and only here
+  ## The second field is chosen here, and only here
 
-  The theory's prime step leaves the carrier `κ'` free, because at `ℚ` the slots cannot be read in
-  `ℚ` itself: they need a primitive `(M * p)`-th root. So this layer supplies
-  `CyclotomicField (M * p) ℚ` with `cycUnit (M * p)` and the two carrier premises `coeffEmb_jq`
-  and `coeffEmb_qExpand`; `Tight M` is the first projection of `Hall M`, spent inside the generic
-  certificate. No statement here carries a type parameter and no call site writes `(K := …)`.
+  The theory's prime step leaves the second field `κ'` free, because at `ℚ` the slots cannot be read
+  in `ℚ` itself: they need a primitive `(M * p)`-th root. So this layer supplies
+  `CyclotomicField (M * p) ℚ` with `cycUnit (M * p)` as the section variable's instantiation (the
+  coefficient extension `coeffEmb` is then `σ`); `Tight M` is the first projection of `Hall M`, spent
+  inside the generic certificate. No statement here carries a type parameter.
 
   ## What is left in this module
 
@@ -28,8 +28,8 @@
   ## Layers, in dependency order
 
   * `jqN_div_mem_modularFunctionField`: the descent, a delegation to the theory's prime step
-    (`Generic/PrimeStep.lean`) at the `ℚ` instance, whose carrier is `CyclotomicField (M * p) ℚ`
-    and whose two carrier premises are `coeffEmb_jq` and `coeffEmb_qExpand`. The conversion
+    (`Generic/PrimeStep.lean`) at the `ℚ` instance, whose second field is
+    `CyclotomicField (M * p) ℚ`. The conversion
     between the theory's `levelField` and the named `modularFunctionField` is the only `ℚ`-side
     content in it;
   * `exists_mul_prime_lt_of_dvd_of_ne`: the arithmetic of the one-prime reduction below.
@@ -83,8 +83,8 @@ namespace ModularCurve
 
 The comparison itself — the two polynomials, their root descriptions, and the case split that
 leaves one common root — is `Generic/PrimeStep.lean`'s `levelSeries_mem_levelField_mul_prime`. What
-the `ℚ` layer supplies is the carrier the general statement leaves free: `CyclotomicField (M * p) ℚ`
-with `cycUnit (M * p)`, and the two carrier premises `coeffEmb_jq` / `coeffEmb_qExpand`. What it
+the `ℚ` layer supplies is the second field the general statement leaves free: `CyclotomicField (M * p) ℚ`
+with `cycUnit (M * p)`, i.e. the instantiation of `[Algebra ℚ κ']` at `coeffEmb`. What it
 keeps is the conversion between the theory's `levelField` and the named `modularFunctionField`: the
 two adjoins differ only in how the pair `{jq, jq(q ^ N)}` is written. -/
 
@@ -97,9 +97,7 @@ theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
   have hp0 : p ≠ 0 := hp.out.ne_zero
   have : NeZero (M * p) := ⟨Nat.mul_ne_zero hM0 hp0⟩
   have hmem : levelSeries jq M ∈ levelField jq (M * p) :=
-    levelSeries_mem_levelField_mul_prime (coeffEmb (CyclotomicField (M * p) ℚ)) jq
-      (coeffEmb_jq (CyclotomicField (M * p) ℚ))
-      (fun N _ x => coeffEmb_qExpand (CyclotomicField (M * p) ℚ) N x)
+    levelSeries_mem_levelField_mul_prime (κ' := CyclotomicField (M * p) ℚ) jq rfl
       (M := M) (p := p) (ζ := cycUnit (M * p)) (hζ := cycUnit_spec (M * p))
       (hall_pkgAt M hallM)
   have hpair : ({jq} ∪ {qExpand ℚ (M * p) jq} : Set (LaurentSeries ℚ))

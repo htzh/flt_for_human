@@ -46,7 +46,7 @@
   The `M`-arbitrary non-membership is a delegation to
   `Generic/PrimeNonmembership.lean`'s `prime_notMem_levelField`: the pin proves the `ℚ` and the
   general argument twice, and the port proves the general one once. What stays here is the `ℚ`-only
-  half — the cyclotomic carrier and `jqN_prime_not_mem_base` — plus the tower below, which is
+  half — the cyclotomic second field and `jqN_prime_not_mem_base` — plus the tower below, which is
   `ℚ`-modular-equation mathematics with no general counterpart. `jqN_prime_not_mem_full` still
   spends only `Hall M`'s generation clause and `mem_adjoin_jqN_of_mem_mff`.
   The pin's `set_option maxHeartbeats 3200000 in` are omitted — below the port's global
@@ -55,7 +55,7 @@
   ## Assumptions
 
   *Non-membership at a prime:* `Generic/PrimeNonmembership`; `Defs/Cyclotomic`'s
-  `cycUnit`/`cycUnit_spec`; `coeffEmb_jq`, `coeffEmb_qExpand`, `hall_pkgAt`; T16's
+  `cycUnit`/`cycUnit_spec`; `hall_pkgAt`; T16's
   `finrank_adjoin_jqN_eq_of_prime` (through `jqN_prime_not_mem_base`); the `ℚ` layer's
   `mem_adjoin_jqN_of_mem_mff` and `modularFunctionFieldFull`.
 
@@ -110,10 +110,10 @@ variable {K : Type*} [Field K] [Algebra ℚ K]
 /-! ## The non-membership at a prime
 
 `j(q ^ p) ∉ F_M^full` for `p ∤ M`, from `Hall M`. This is the `ℚ` instance of the general theorem
-`prime_notMem_levelField` (`Generic/PrimeNonmembership.lean`): the carrier is manufactured here, as
-the cyclotomic field of order `M * p` with `ζ = cycUnit (M * p)`, because the general statement is
-over an arbitrary carrier field `κ'`; the base non-membership `jqN_prime_not_mem_base` is its
-`hbase`, and `coeffEmb_jq` / `coeffEmb_qExpand` are its two carrier premises. The slot argument
+`prime_notMem_levelField` (`Generic/PrimeNonmembership.lean`): the second coefficient field is
+manufactured here, as the cyclotomic field of order `M * p` with `ζ = cycUnit (M * p)`, because the
+general statement does not fix it; the base non-membership `jqN_prime_not_mem_base` is its `hbase`,
+and `jg = jqModC κ` holds at `κ = ℚ` by `rfl`. The slot argument
 itself — the `ψ(M)` slot roots, the constancy of `g` on them, the `Φ_p`-classification of the
 conjugate — is not re-proved here. -/
 
@@ -140,7 +140,7 @@ private theorem jqN_prime_not_mem_base (r : ℕ) [hr : Fact (Nat.Prime r)] :
   omega
 
 /-- **Prime non-membership in the adjoin**: for `p ∤ M` and `Hall M`, `jqN p` is not in
-`ℚ⟮jq⟯⟮jqN M⟯`. The general theorem at the `ℚ` instance; `K` is the cyclotomic carrier the general
+`ℚ⟮jq⟯⟮jqN M⟯`. The general theorem at the `ℚ` instance; `K` is the second field the general
 statement does not fix. -/
 private theorem jqN_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
     (hpM : ¬ p ∣ M) (hallM : Hall M) :
@@ -151,8 +151,8 @@ private theorem jqN_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ) [hp : Fa
   haveI : NeZero (M * p) := ⟨Nat.mul_ne_zero hM0 hp0⟩
   set K := CyclotomicField (M * p) ℚ
   have hζ : IsPrimitiveRoot ((cycUnit (M * p) : Kˣ) : K) (M * p) := cycUnit_spec (M * p)
-  exact prime_notMem_levelField (coeffEmb K) jq (coeffEmb_jq K)
-    (fun N _ x => coeffEmb_qExpand K N x) hζ hpM (hall_pkgAt M hallM) (jqN_prime_not_mem_base p)
+  exact prime_notMem_levelField (κ' := K) jq rfl hζ hpM (hall_pkgAt M hallM)
+    (jqN_prime_not_mem_base p)
 
 end NonMem0
 
