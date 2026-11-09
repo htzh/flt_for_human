@@ -38,6 +38,11 @@
   * the twist branch dies on the `q ^ (-M)` coefficient, which a `qExpand κ' p`-value cannot carry
     when `p ∤ M` (`qExpand_coeff_of_not_dvd` against `TS_coeff_neg`).
 
+  The `Φ_p` datum those last two read is the one object taken from the `ℚ` layer
+  (`ModularPolynomialProperties.exists_phiIrreducible_evalSymm`, imported directly below rather than
+  left to `Generic/SlotProduct`'s cone): the `obtain` keeps the datum and discards its other two
+  components, exactly as in `Generic/PrimeStep.lean`.
+
   So the level-`p` package is never needed: there is no `degreeAt jg p` hypothesis, and no `PkgAt jg
   p` derivation. Both per-layer inputs are spent — the package at `M` gives the slot count and the
   generation, the base non-membership is the final contradiction.
@@ -50,6 +55,7 @@
   | any field | `K` | `K` | `RingHom.id` | `jqModC K` | the caller's root | `rfl` |
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
+import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.FieldTheory.CommonRoot
 
 set_option autoImplicit false

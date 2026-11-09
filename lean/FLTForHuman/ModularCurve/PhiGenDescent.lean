@@ -41,6 +41,7 @@
   spec-pin: Theorems/Thm_ModularCurve_PhiGen_exists_phiGenDescends.lean
 -/
 import FLTForHuman.ModularCurve.Defs.PhiGen
+import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.FieldTheory.Galois.Basic
 
@@ -85,13 +86,9 @@ section TwistRoot
 
 variable {K : Type*} [Field K] {ℓ : ℕ} {ζ : Kˣ}
 
-private theorem zeta_pow_card_eq_one (hζ : IsPrimitiveRoot (ζ : K) ℓ) : ζ ^ ℓ = 1 := by
-  refine Units.ext ?_
-  rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
-
 private theorem zeta_pow_mod (hζ : IsPrimitiveRoot (ζ : K) ℓ) (n : ℕ) :
     ζ ^ (n % ℓ) = ζ ^ n :=
-  (pow_eq_pow_mod n (zeta_pow_card_eq_one hζ)).symm
+  (pow_eq_pow_mod n (units_pow_eq_one_of_isPrimitiveRoot hζ)).symm
 
 end TwistRoot
 
@@ -104,7 +101,8 @@ private theorem qTwist_conj_zero (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     (hconj0 : conj 0 = qExpand K (ℓ * ℓ) J) : qTwist ζ (conj 0) = conj 0 := by
   rw [hconj0, qTwist_qExpand]
   congr 1
-  rw [zpow_natCast, pow_mul, zeta_pow_card_eq_one hζ, one_pow, qTwist_one_apply]
+  rw [zpow_natCast, pow_mul, units_pow_eq_one_of_isPrimitiveRoot hζ, one_pow,
+    qTwist_one_apply]
 
 private theorem qTwist_conj_succ (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     (hconjS : ∀ b : Fin ℓ, conj b.succ = qTwist (ζ ^ (b : ℕ)) J) (b : Fin ℓ) :

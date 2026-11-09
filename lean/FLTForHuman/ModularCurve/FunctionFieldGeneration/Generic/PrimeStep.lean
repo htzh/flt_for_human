@@ -17,6 +17,14 @@
   primitive `(M * p)`-th root there. `ℚ` manufactures `κ'` as the cyclotomic field; the `C` layer
   is handed one by its own statement. The only source condition is `jg = jqModC κ`.
 
+  The `Φ_p` datum is the one object the comparison takes from the `ℚ` layer
+  (`ModularPolynomialProperties.exists_phiIrreducible_evalSymm`, imported directly below instead of
+  left to `Generic/SlotProduct`'s cone). The `obtain` at the top of `exists_phiAtSeed_roots` keeps
+  the datum and discards the other two components: neither is idle (irreducibility is what supplies
+  the minimal polynomial's degree, hence the datum's uniqueness that
+  `isRoot_prime_at_slot_iff_of_isPrimitiveRoot`'s proof reads, and the symmetry is spent by the slot
+  product's induction), but nothing in this file reads them.
+
   ## The argument
 
   Two polynomials over `F := levelField jg (M * p)`, read in `κ'` at the level-`(M * p)` nome:
@@ -35,6 +43,7 @@
   (`mem_of_mem_range_levelNome`).
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
+import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.FieldTheory.CommonRoot
 
 set_option autoImplicit false

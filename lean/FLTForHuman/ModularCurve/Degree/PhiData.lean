@@ -524,14 +524,6 @@ private theorem evalAtJ_eq_eval₂RingHom_intCast_jq :
   · exact Subsingleton.elim _ _
   · rw [evalAtJ_X, Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X]
 
-private theorem qExpand_comp_evalAtJ_eq_eval₂RingHom (m : ℕ) [NeZero m] :
-    (qExpand ℚ m).comp evalAtJ
-      = Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries ℚ)) (jqN m) := by
-  refine Polynomial.ringHom_ext' ?_ ?_
-  · exact Subsingleton.elim _ _
-  · rw [RingHom.comp_apply, evalAtJ_X, Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X]
-    rfl
-
 namespace ModularPolynomialData
 
 private theorem eval₂_biResultant_eq_zero {m n : ℕ} [NeZero m]
@@ -558,7 +550,7 @@ private theorem eval₂_biResultant_eq_zero {m n : ℕ} [NeZero m]
     show data'.Φ.eval₂
         (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries ℚ)) (jqN m))
         (jqN (m * n)) = 0
-    rw [← qExpand_comp_evalAtJ_eq_eval₂RingHom]
+    rw [← qExpand_comp_evalAtJ]
     exact data'.eval₂_qExpand_eq_zero m
 
 end ModularPolynomialData

@@ -140,6 +140,12 @@ theorem coeff_jq_neg_one : jq.coeff (-1 : ℤ) = 1 := by
   have h := coeff_jq_pow_self 1
   simpa using h
 
+/-- The `q⁻¹` coefficient of the embedded `j`-series is `1`: the coefficient extension
+does not move the pole. -/
+theorem coeff_coeffEmb_jq_neg_one {K : Type*} [Field K] [Algebra ℚ K] :
+    (coeffEmb K jq).coeff (-1 : ℤ) = 1 := by
+  rw [coeffEmb_coeff, coeff_jq_neg_one, map_one]
+
 theorem coeff_jq_of_lt {k : ℤ} (hk : k < -1) : jq.coeff k = 0 := by
   have h := coeff_jq_pow_of_lt (n := 1) (m := k) (by simpa using hk)
   simpa using h
@@ -222,6 +228,15 @@ theorem evalAtJ_eq_aeval_map (Q : Polynomial ℤ) :
   have hcomp : (algebraMap ℚ (LaurentSeries ℚ)).comp (Int.castRingHom ℚ)
       = algebraMap ℤ (LaurentSeries ℚ) := Subsingleton.elim _ _
   rw [Polynomial.aeval_def, Polynomial.eval₂_map, hcomp]
+  rfl
+
+/-- `qExpand ℚ N` after `evalAtJ` is evaluation at `j(q ^ N)`, as ring homs
+`ℤ[X] → LaurentSeries ℚ`: the nome substitution only moves the exponent. -/
+theorem qExpand_comp_evalAtJ (N : ℕ) [NeZero N] :
+    (qExpand ℚ N).comp evalAtJ
+      = Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries ℚ)) (jqN N) := by
+  refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
+  rw [RingHom.comp_apply, evalAtJ_X, Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X]
   rfl
 
 end NamedInputs

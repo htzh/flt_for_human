@@ -72,6 +72,7 @@
 -/
 import FLTForHuman.ModularCurve.JqCoeffPositivity
 import FLTForHuman.ModularCurve.PhiGenDescendsStructure
+import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import Mathlib.Algebra.Polynomial.Roots
 import Mathlib.Algebra.Polynomial.Bivariate
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
@@ -124,15 +125,6 @@ theorem evalAtJGen_injective :
   rw [← algebraMap_comp_evalAtJGen, RingHom.comp_apply, RingHom.comp_apply, hab]
 
 namespace PhiGen
-
-section CoeffEmbJq
-
-variable (K : Type*) [Field K] [Algebra ℚ K]
-
-private theorem coeff_coeffEmb_jq_neg_one : (coeffEmb K jq).coeff (-1 : ℤ) = 1 := by
-  rw [coeffEmb_coeff, coeff_jq_neg_one, map_one]
-
-end CoeffEmbJq
 
 /-! ## The conjugates are distinct -/
 
@@ -251,14 +243,10 @@ variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Pri
 
 omit [Algebra ℚ K] hℓ in
 
-private theorem zeta_pow_eq_one (hζ : IsPrimitiveRoot (ζ : K) ℓ) : ζ ^ ℓ = 1 :=
-  Units.ext (by rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one])
-
-omit [Algebra ℚ K] hℓ in
-
 private theorem zeta_pow_zpow_eq_one (hζ : IsPrimitiveRoot (ζ : K) ℓ) (b : ℕ) :
     (ζ ^ b) ^ ((ℓ : ℕ) : ℤ) = (1 : Kˣ) := by
-  rw [zpow_natCast, ← pow_mul, mul_comm, pow_mul, zeta_pow_eq_one ℓ ζ hζ, one_pow]
+  rw [zpow_natCast, ← pow_mul, mul_comm, pow_mul, units_pow_eq_one_of_isPrimitiveRoot hζ,
+    one_pow]
 
 variable {P : Polynomial ℚ}
 

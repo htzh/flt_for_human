@@ -57,15 +57,19 @@ fermat_last_theorem`). Nothing in the current tree reaches it — the port's fro
 nodes above `_of_socket`, and the `ℚ` `hall_all` route supplies the degree facts — so it sat as a
 consumerless prelude that duplicated the whole `ℚ` slot product.
 
-**Not a re-port target.** When the char-`p` route resumes, `git mv` these four files back (imports
+**Not a re-port target.** When the char-`p` route resumes, `git mv` these files back (imports
 and `spec-pin:` wires travel) instead of porting the pin's `S_` files a second time: `Reserve` is a
 shelf and `FLTForHuman` must never import it. The live half of
 `Degree/FinrankAdjoinJqNModC.lean` (the Tate `c₄`/`c₆`/`j` in terms of `jqModC`, cited by
 `TateSlots/ToricPointDictionary.lean`) stayed in `FLTForHuman`.
 
+**Already moved back (2026-11-08).** `MffCMulPrime.lean` is now
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/CharP/PrimeStep.lean`, renamed to the C layer's
+role name (it mirrors `Generic/PrimeStep.lean`, the module it delegates to) and re-imported by
+`PrimePowerStepAnyField` at the new path. The remaining shelf is the socket degree half.
+
 | module | what it is |
 |---|---|
 | `ModularCurve/FunctionFieldGeneration/SlotProductAnyField.lean` | the `C`-layer slot product and non-membership (the pin's two `S_` files, ported once); keeps its `spec-pin:` wire |
-| `ModularCurve/FunctionFieldGeneration/MffCMulPrime.lean` | `j(q^M)` lies in the level-`M * p` modular function field, over an arbitrary field |
 | `ModularCurve/FunctionFieldGeneration/PrimePowerStepAnyField.lean` | the socket's `Pkg` package and the relative-degree steps (`package_of_socket`) |
 | `ModularCurve/Degree/FinrankAdjoinJqNModCDead.lean` | the dead half of `Degree/FinrankAdjoinJqNModC`: the `Transport`/coefficient-map block and the two degree headlines; unwired, so built but not statement-checked |

@@ -4525,7 +4525,9 @@ PORT_FILES = [
     # `mem_primCosetReps`, `PeriodPair.jLattice_ofTau` and S-3's headline. Appended
     # last so no earlier last-name match can flip.
     "FLTForHuman/Algebra/SpecialLinearGroupSmith.lean",
-    "FLTForHuman/ModularCurve/ModularPolynomialE4Cube.lean",
+    # (removed) `FLTForHuman/ModularCurve/ModularPolynomialE4Cube.lean` — now wired by its own
+    # `spec-pin:` lines (the three `Theorems/` wrappers and their three `S_` files, which carry
+    # the pin-public helper surface); `spec/check_port.py` owns it, so it is no longer listed here.
     # --- SC: row S's terminal set (`topics/velu/WORKORDER-SC-capstone.md`). The two
     # leaves first, then the capstone (appended last, as the work order requires).
     # Public surface: the `variableChange` leaf's headline, the field-embedding leaf's
@@ -4791,7 +4793,8 @@ PORT_FILES = [
     # (`ModularCurve.fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j`); the pin silo's other six
     # declarations are `S_`-local and re-derived `private`, so the checker sees exactly one new
     # declaration. Appended last.
-    "FLTForHuman/ModularCurve/ModularPolynomialFibreTwo.lean",
+    # (removed) `FLTForHuman/ModularCurve/ModularPolynomialFibreTwo.lean` — wired by its own
+    # `spec-pin:` lines and checked by `spec/check_port.py`, so it is no longer listed here.
     # --- WORKORDER-A (`topics/modularCurve/WORKORDER-A-levelN-field.md`): the
     # level-`N` function field of `X(N)`. `Prelude.lean` is the one home of the
     # shared blocks (written once, public, at the pin's names and statements);

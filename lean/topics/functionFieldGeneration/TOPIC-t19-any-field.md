@@ -306,8 +306,10 @@ made when this lands — not a reason to keep a second statement alive now.
 
 The second instance is `CharP/` (§6.1b): its slot-product half and its prime non-membership are both
 in the tree as delegations to this theory — the pinned any-field headlines, statement-checked
-against their wrappers — and its prime step, `MffCMulPrime`'s `jqNModC_mem_modularFunctionFieldC_mul_prime`,
-is now the `ℚ` descent's own theorem generalized (`Generic/PrimeStep.lean`, wave 6). What has no
+against their wrappers — and its prime step, `jqNModC_mem_modularFunctionFieldC_mul_prime`, is now
+the `ℚ` descent's own theorem generalized (`Generic/PrimeStep.lean`, wave 6). That prime step is back
+in the tree as `CharP/PrimeStep.lean` (moved out of the shelf 2026-11-08; the name mirrors
+`Generic/PrimeStep.lean`), so all four C-layer modules now sit together. What has no
 replacement on either side is the *socket*: `PrimePowerStepAnyField`'s `eFull` device, the
 prime-power tower and `package_of_socket` are transcribed rather than re-derived (§6.1, §8.1).
 
@@ -379,13 +381,13 @@ three ways:
 | part | fate |
 |---|---|
 | the slot product and prime non-membership (`SlotProductAnyField`'s core) | **superseded** by the master plus an instance; deletable the day `CharP/` exists |
-| `MffCMulPrime` (the `C` prime step) | **superseded** (wave 6): the theorem is the `ℚ` descent's, generalized in `Generic/PrimeStep.lean`; the module is a 68-line delegation and its `S_` engine is retired |
+| `MffCMulPrime` (the `C` prime step) | **restored** (2026-11-08) as `CharP/PrimeStep.lean`: the pin's C-layer headline, a 68-line delegation to the general theorem (`Generic/PrimeStep.lean`); its `S_` engine stays retired |
 | the socket degree half — `PrimePowerStepAnyField` (the `eFull` device, the prime-power tower, `package_of_socket`) | **future-needed, no replacement**: the `eFull` device runs the step with an arbitrary bound and the package is *conditional* there, so it is a different theorem proved by a different argument (§8.1) |
 | about eight field-generic declarations (`relfinrank_adjoin_insert*`, `jqNModC_injective`, `qTwist_jqModC_eq_TS`, `mem_adjoin_of_mem`, `phiAtSeed_map_algebraMap`, `natDegree_minpoly_le_of_phiAtSeed_root`) | **misplaced, not dead**: they belong in `Generic/` or `Defs/`, and the `ℚ` side has no twin of the first three |
 
 The consumer test also shows how much of the D-S route exists *only* on the shelf:
-`finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` is nowhere else, `package_of_socket` and
-`MffCMulPrime`'s headline only there — and the two nodes above them
+`finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` is nowhere else, `package_of_socket` only there
+— and the two nodes above them
 (`modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos`,
 `exists_jZeroGoodReductionSpecialization_doorPredicates`) are absent from the tree entirely: that is
 the unported tail, not shelf material.

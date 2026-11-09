@@ -1,5 +1,6 @@
 /-
-  Layer JQ2 — `j(q ^ M)` lies in the level-`M * p` field, over an arbitrary field.
+  The `C` layer's prime step (workorder JQ2) — `j(q ^ M)` lies in the level-`M * p` field, over an
+  arbitrary field.
 
   The node `ModularCurve.jqNModC_mem_modularFunctionFieldC_mul_prime`: for `F` the level-`M * p`
   field `K⟮j(q), j(q ^ (M * p))⟯`, show `j(q ^ M) ∈ F`. This is the `C`-layer twin of the `ℚ`
@@ -11,9 +12,9 @@
   of `j(q ^ M)` over `F`, their root descriptions, and the case split that leaves a single common
   root — is `Generic/PrimeStep.lean`'s `levelSeries_mem_levelField_mul_prime`, ported from the `ℚ`
   proof (`FunctionFieldGeneration/Descent.lean`) after that proof was refactored into two producers
-  and named index arithmetic. The `C` instance supplies the carrier it already has: `K` itself with
-  the caller's root `ζ`, so the two carrier premises are `rfl`. What stays here is the conversion
-  between the theory's `levelField` and the pin's named `modularFunctionFieldC`.
+  and named index arithmetic. The `C` instance reads the theory at `K` itself (`κ = κ' = K`, the
+  identity coefficient extension), so its one source condition is `rfl`; what stays here is the
+  conversion between the theory's `levelField` and the pin's named `modularFunctionFieldC`.
 
   Consequently the pin's `S_` engine `jqNModC_mem_mffC_mul_prime_of_prod` — the same comparison
   written inline, taking the slot product as a hypothesis — is **not** carried: its content is the
@@ -37,9 +38,9 @@ open scoped IntermediateField
 
 namespace ModularCurve
 
-/-- **The `C` prime step**: `j(q ^ M)` lies in the level-`M * p` field. The general theorem at the
-identity carrier — both its carrier premises are `rfl` — with the absolute-to-relative step
-supplied by `coe_adjoin_baseField`. The pin's wrapper statement verbatim. -/
+/-- **The `C` prime step**: `j(q ^ M)` lies in the level-`M * p` field. The general theorem read at
+`K` itself (identity coefficient extension, so the source condition is `rfl`), with the
+absolute-to-relative step supplied by `coe_adjoin_baseField`. The pin's wrapper statement verbatim. -/
 theorem jqNModC_mem_modularFunctionFieldC_mul_prime {K : Type*} [Field K]
     (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) (M * p))
     (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
@@ -50,8 +51,8 @@ theorem jqNModC_mem_modularFunctionFieldC_mul_prime {K : Type*} [Field K]
             {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'}) :
     jqNModC K M ∈ modularFunctionFieldC K (M * p) := by
   have hmem : levelSeries (jqModC K) M ∈ levelField (jqModC K) (M * p) :=
-    levelSeries_mem_levelField_mul_prime (RingHom.id (LaurentSeries K)) (jqModC K) rfl
-      (fun _ _ _ => rfl) (M := M) (p := p) (ζ := ζ) (hζ := hζ) (pkg_pkgAt M hall)
+    levelSeries_mem_levelField_mul_prime (jqModC K) rfl
+      (M := M) (p := p) (ζ := ζ) (hζ := hζ) (pkg_pkgAt M hall)
   have hpair : ({jqModC K} ∪ {qExpand K (M * p) (jqModC K)} : Set (LaurentSeries K))
       = {jqModC K, qExpand K (M * p) (jqModC K)} := by
     ext x

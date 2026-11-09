@@ -41,6 +41,13 @@
   `upperTriangularGL`/`val_upperTriangularGL`/`val_heckeDiagMatrix`,
   `jqModC_eq_qExpansion_E4_cube_div_discriminant`, `primCosetReps`/`mem_primCosetReps`,
   `PeriodPair.jLattice_ofTau` and S-3's `exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic`.
+
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_smul_eq_zero.lean
+  spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_smul_eq_zero.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_coset_eq_zero.lean
+  spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_coset_eq_zero.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eval_jLattice_eq_zero_of_isAddCyclic.lean
+  spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_jLattice_eq_zero_of_isAddCyclic.lean
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialAssembly
 import FLTForHuman.ModularCurve.ModularPolynomialIrreducible

@@ -152,7 +152,7 @@ import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Degree.JqCyclotomicConjugates
-import Reserve.ModularCurve.FunctionFieldGeneration.MffCMulPrime
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.CharP.PrimeStep
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.CharP.Nonmembership
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.PhiGenSplitsAnyField

@@ -101,8 +101,7 @@
   and `coeffMap_injective`; `Defs/JqCoeff.lean` has `coeffEmb_jq` (the pin's
   `ksplit_coeffEmb_jq`); `Defs/Twist.lean` has `coeffMap_qTwist` and
   `qTwistEquiv`; `X0/FunctionFieldFull.lean` has `coeff_jqModC_of_lt` (pin 44–47);
-  `Degree/JqCyclotomicConjugates.lean` has `units_pow_eq_one_of_isPrimitiveRoot`
-  (pin 189–190).
+  `Defs/Cyclotomic.lean` has `units_pow_eq_one_of_isPrimitiveRoot` (pin 189–190).
 
   Four of the pin's prelude bridges are **not written anywhere in the port yet at
   these statements**, and are not this module's: `jqModC_eq_TS` (pin 105),
@@ -183,11 +182,6 @@ private def iota : cyclRing ℤ p →+* CyclotomicField p ℚ :=
     ((cycUnit p : (CyclotomicField p ℚ)ˣ) : CyclotomicField p ℚ) (by
       rw [Polynomial.eval₂_eq_eval_map, Polynomial.map_cyclotomic_int]
       exact Polynomial.IsRoot.eq_zero ((cycUnit_spec p).isRoot_cyclotomic hp.out.pos))
-
-private theorem iota_root :
-    iota p (AdjoinRoot.root (Polynomial.cyclotomic p ℤ))
-      = ((cycUnit p : (CyclotomicField p ℚ)ˣ) : CyclotomicField p ℚ) :=
-  AdjoinRoot.lift_root _
 
 private theorem iota_units_zeta :
     Units.map (iota p).toMonoidHom (cyclZeta ℤ p) = cycUnit p :=
@@ -282,10 +276,6 @@ private def zetaLift (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) :
   AdjoinRoot.lift (Int.castRingHom K) (ζ : K) (by
     rw [Polynomial.eval₂_eq_eval_map, Polynomial.map_cyclotomic_int]
     exact Polynomial.IsRoot.eq_zero (hζ.isRoot_cyclotomic hp.out.pos))
-
-private theorem zetaLift_root (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) :
-    zetaLift p ζ hζ (AdjoinRoot.root (Polynomial.cyclotomic p ℤ)) = ζ :=
-  AdjoinRoot.lift_root _
 
 private theorem zetaLift_units_zeta (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) :
     Units.map (zetaLift p ζ hζ).toMonoidHom (cyclZeta ℤ p) = ζ :=

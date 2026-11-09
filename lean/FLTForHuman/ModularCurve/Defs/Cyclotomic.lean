@@ -73,6 +73,13 @@ theorem isPrimitiveRoot_pow_div {N : ℕ} [NeZero N] {ζ : Kˣ} (hζ : IsPrimiti
   have h := hζ.pow (Nat.pos_of_ne_zero (NeZero.ne N)) (Nat.div_mul_cancel hpN).symm
   rwa [← Units.val_pow_eq_pow_val] at h
 
+/-- A unit of `K` that is a primitive `N`-th root has `N`-th power `1`, read in the unit
+group: the value form is `IsPrimitiveRoot.pow_eq_one`, and the rewrites downstream want the
+unit form. -/
+theorem units_pow_eq_one_of_isPrimitiveRoot {N : ℕ} {ζ : Kˣ} (hζ : IsPrimitiveRoot (ζ : K) N) :
+    ζ ^ N = 1 :=
+  Units.ext (by rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one])
+
 end ModularCurve
 
 end

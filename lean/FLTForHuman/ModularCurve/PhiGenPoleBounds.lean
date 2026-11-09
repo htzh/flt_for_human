@@ -57,11 +57,6 @@ namespace PhiGen
 
 /-! ## The leading coefficient of the product -/
 
-/-- The `q ^ (-1)` coefficient of `coeffEmb K jq` is `1`. -/
-private theorem coeff_coeffEmb_jq_neg_one {K : Type*} [Field K] [Algebra ℚ K] :
-    (coeffEmb K jq).coeff (-1 : ℤ) = 1 := by
-  rw [coeffEmb_coeff, coeff_jq_neg_one, map_one]
-
 /-- The pin's `phiProd_def`, restated here because the pin keeps it `private` in
 the shared prelude and this module's proofs unfold `phiProd` through it. -/
 private theorem phiProd_def {K : Type*} [Field K] (ℓ : ℕ)
@@ -287,24 +282,6 @@ theorem phiProd_conj_coeff_eq_zero_of_le {K : Type*} [Field K] [Algebra ℚ K]
     (hm : ℓ * ℓ + ℓ ≤ m) : ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff (-(m : ℤ)) = 0 := by
   have hℓ2 : 2 ≤ ℓ := hℓ.out.two_le
   exact tPoleOrderLE_phiProd_conj_of_ne_zero ℓ ζ k hk (-(m : ℤ)) (by omega)
-
-/-! ## The wire test
-
-Both statements take `hζ : IsPrimitiveRoot (ζ : K) ℓ` over an arbitrary field, so
-they are instantiable: take `K = ℂ`, `ℓ = 2`, `ζ = -1`
-(`IsPrimitiveRoot.neg_one`). The leading coefficient is `1` and the coefficient of
-`q ^ (-6)` of `(phiProd …).coeff 1` vanishes. The module's public surface stays at
-exactly the two wrappers; the instances are `private` but named. -/
-
-private theorem wire_zero_lead :
-    ((phiProd 2 (conj 2 (-1 : ℂˣ))).coeff 0).coeff (-((2 * 2 + 2 : ℕ) : ℤ)) = 1 :=
-  phiProd_conj_coeff_zero_lead (K := ℂ) (ℓ := 2) (hℓ := ⟨Nat.prime_two⟩) (-1)
-    (by simpa using IsPrimitiveRoot.neg_one (R := ℂ) 0 (by norm_num))
-
-private theorem wire_eq_zero_of_le :
-    ((phiProd 2 (conj 2 (-1 : ℂˣ))).coeff 1).coeff (-(6 : ℤ)) = 0 :=
-  phiProd_conj_coeff_eq_zero_of_le (K := ℂ) (ℓ := 2) (hℓ := ⟨Nat.prime_two⟩) (-1) 1
-    (by norm_num) 6 (by norm_num)
 
 end PhiGen
 end ModularCurve

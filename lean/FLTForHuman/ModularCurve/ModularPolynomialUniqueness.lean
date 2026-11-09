@@ -92,7 +92,14 @@ private theorem natDegree_toAdjoin (data : ModularPolynomialData N) :
 
 /-- Every datum at a prime has `toAdjoin` equal to the minimal polynomial of
 `j(q ^ p)`: it is monic, it annihilates `j(q ^ p)`, and its degree is the
-minimal one, `p + 1`. -/
+minimal one, `p + 1`.
+
+The `p + 1` is not read off the datum. `natDegree_toAdjoin` plus divisibility give
+`(minpoly …).natDegree ≤ ψ(p)` — the datum is a monic annihilator, so the minimal polynomial
+divides it — while `eq_of_monic_of_dvd_of_natDegree_le` wants the *reverse* inequality,
+`ψ(p) ≤ (minpoly …).natDegree`. That one is `finrank_adjoin_jqN_eq_of_prime`, i.e. the
+irreducibility of the datum's `Φ`, and it is the whole reason this theorem (and
+`eq_of_prime` on it) is char 0 rather than bookkeeping. -/
 private theorem toAdjoin_eq_minpoly (p : ℕ) [hp : Fact p.Prime] (data : ModularPolynomialData p) :
     data.toAdjoin = minpoly ℚ⟮jq⟯ (jqN p) := by
   have hint : IsIntegral ℚ⟮jq⟯ (jqN p) :=

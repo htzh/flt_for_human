@@ -12,9 +12,11 @@ Six facts about the datum `data : ModularPolynomialData N`, which is a monic `Φ
 * `phiIrreducible_all` — the datum is irreducible, since `toAdjoin` is a minimal
   polynomial;
 * `phiIrreducible_of_prime`, `ModularPolynomialData.evalSymm_of_prime` — at a prime `p`,
-  irreducible and symmetric: `exists_phiIrreducible_evalSymm` (resp.
-  `exists_modularPolynomialData_evalSymm`) produces such a datum, and the prime-level
-  uniqueness `eq_of_prime` identifies the caller's with it;
+  irreducible and symmetric. Symmetry is the pin's route: `exists_modularPolynomialData_evalSymm`
+  produces such a datum, and the prime-level uniqueness `eq_of_prime` identifies the caller's
+  with it. Irreducibility is `phiIrreducible_all` at `p` (a prime is a level); the pin proves it
+  from `exists_phiIrreducible_evalSymm` and `eq_of_prime` instead, the same statement read
+  through the datum's existence;
 * `ModularPolynomialData.dvd_resultant_of_mul` — the datum at `ℓ * M` divides the
   resultant of the data at `ℓ` and at `M`;
 * `ModularPolynomialData.natDegree_coeff_le`, and the pin's stronger
@@ -24,6 +26,13 @@ Six facts about the datum `data : ModularPolynomialData N`, which is a monic `Φ
 `toAdjoin_eq_minpoly_all` is the engine and is public: it is what the uniqueness, the
 irreducibility and `ModularPolynomialLeadingCoeff`'s leading-coefficient computation all
 read. It needs `aeval_jqN_toAdjoin` and `finrank_adjoin_jqN_eq_dedekindPsi`, both imported.
+
+The capstone is not a convenience. `natDegree_toAdjoin` and divisibility give only
+`(minpoly …).natDegree ≤ ψ(N)` (the datum is a monic annihilator, so the minimal polynomial
+divides it), while `eq_of_monic_of_dvd_of_natDegree_le` needs the reverse inequality — and
+that is exactly `finrank_adjoin_jqN_eq_dedekindPsi`. So the general uniqueness must sit above
+`FunctionFieldGeneration/Capstone`, and it cannot be made char-free by spending the datum's
+own `natDegree_eq` field.
 
 After FLT's `S_ModularCurve_ModularPolynomialData_eq_all.lean`,
 `S_ModularCurve_phiIrreducible_of_prime.lean`,
@@ -113,13 +122,6 @@ theorem evalSymm_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)] (data : ModularPol
 
 end ModularPolynomialData
 
-/-- At a prime `p` the datum is irreducible. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_phiIrreducible_of_prime.lean`. -/
-theorem phiIrreducible_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)]
-    (data : ModularPolynomialData p) : PhiIrreducible data := by
-  obtain ⟨d₀, h, -⟩ := exists_phiIrreducible_evalSymm p
-  rwa [ModularPolynomialData.eq_of_prime p data d₀]
-
 /-- At every level `N` the datum is irreducible: `toAdjoin` is the minimal polynomial
 of `j(q ^ N)`, and a minimal polynomial is irreducible. Verbatim from
 `Theorems/Thm_ModularCurve_phiIrreducible_all.lean`. -/
@@ -132,6 +134,16 @@ theorem phiIrreducible_all (N : ℕ) [NeZero N] (data : ModularPolynomialData N)
   rw [toAdjoin_eq_minpoly_all N data]
   exact minpoly.irreducible hint
 
+/-- At a prime `p` the datum is irreducible. Verbatim from the pin wrapper
+`Theorems/Thm_ModularCurve_phiIrreducible_of_prime.lean`.
+
+A prime is a level, so this is `phiIrreducible_all` at `p` (`NeZero p` from `Fact p.Prime`).
+The pin instead derives it from `exists_phiIrreducible_evalSymm` and the prime-level
+uniqueness `eq_of_prime` — the same statement read through the datum's existence. -/
+theorem phiIrreducible_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)]
+    (data : ModularPolynomialData p) : PhiIrreducible data :=
+  phiIrreducible_all p data
+
 /-! ## The resultant at a composite level
 
 `dvd_resultant_of_mul`: the datum at `ℓ * M` divides the resultant of the data at `ℓ` and
@@ -139,17 +151,6 @@ theorem phiIrreducible_all (N : ℕ) [NeZero N] (data : ModularPolynomialData N)
 and `Ξ X = jqN (ℓ * M)` — of the resultant identity, read over the algebraic closure as a
 product over the roots of the level-`ℓ` factor, whose common root with the level-`M` factor
 is `jqN ℓ`. -/
-
-/-- `(qExpand ℚ ℓ) ∘ evalAtJ` is evaluation at `j(q ^ ℓ)`, as ring homs
-`ℤ[X] → LaurentSeries ℚ`: the two computation lemmas of the pin's `Ξ` are read off
-it. `Degree/PhiData.lean` keeps the same statement `private`, and a `private`
-declaration cannot be imported, so the home states the form it uses. -/
-private theorem qExpand_comp_evalAtJ (ℓ : ℕ) [NeZero ℓ] :
-    (qExpand ℚ ℓ).comp evalAtJ
-      = Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries ℚ)) (jqN ℓ) := by
-  refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
-  rw [RingHom.comp_apply, evalAtJ_X, Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X]
-  rfl
 
 namespace ModularPolynomialData
 

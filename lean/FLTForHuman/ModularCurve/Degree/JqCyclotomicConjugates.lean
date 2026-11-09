@@ -105,6 +105,7 @@ import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Defs.KatzLevelPCusps
+import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Degree.PhiData
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
@@ -247,11 +248,6 @@ end Forcing
 section Transfer
 
 variable {K : Type*} [Field K]
-
-/-- A unit of `K` that is a primitive `N`-th root has `ζ ^ N = 1`. -/
-theorem units_pow_eq_one_of_isPrimitiveRoot {N : ℕ} {ζ : Kˣ}
-    (hζ : IsPrimitiveRoot (ζ : K) N) : ζ ^ N = 1 :=
-  Units.ext (by rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one])
 
 /-- `qTwist` fixes the constants. -/
 theorem qTwist_algebraMap (v : Kˣ) (c : K) :
