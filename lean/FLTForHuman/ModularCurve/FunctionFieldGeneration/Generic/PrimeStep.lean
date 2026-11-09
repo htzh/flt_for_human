@@ -24,8 +24,8 @@
   * `A`, the level-`p` equation `Φ_p` seeded at the base `j`-series: its roots are the conjugate
     and the `p` twists (`exists_phiAtSeed_roots`);
   * `B`, the transported minimal polynomial of the level-`M` series: monic, split, squarefree,
-    with `x₀ = σ (qExpand κ (M * p) (levelSeries jg M))` as a root and every root a slot value
-    (`exists_transported_minpoly`, which is where the package is spent).
+    with `x₀` as a root and every root a slot value (`exists_transported_minpoly`, which is
+    where the package is spent).
 
   A common root is therefore a slot value that is also a root of `A`; the comparison rules out
   the conjugate's index (`slotLevel_ne_conjLevel`), and the twists reduce to `(M, 0)` with unit
@@ -42,11 +42,7 @@ set_option autoImplicit false
 noncomputable section
 
 open Polynomial HahnSeries IntermediateField
-open scoped IntermediateField
-
--- The tower instances: `Algebra (levelField jg N) (LaurentSeries κ)` is what `levelNomeMap`
--- reads its scalars through, and it is an instance of the adjoin-adjoin tower.
-open scoped IntermediateField.algebraAdjoinAdjoin
+open scoped IntermediateField IntermediateField.algebraAdjoinAdjoin
 
 namespace ModularCurve
 
@@ -80,12 +76,34 @@ private abbrev twistLevel (M p : ℕ) : ℕ := (M * p) * M
 root raised to the `p`. -/
 private abbrev slotUnit (ζ : κ'ˣ) (p : ℕ) : κ'ˣ := ζ ^ p
 
+/-- **The source condition at the working field**: `jg`'s own `j`-series condition pushes along
+the coefficient extension, so every read in `κ'` may take `σ jg` to be the working field's
+`j`-series. -/
+private theorem coeffMap_jqModC' {jg : LaurentSeries κ} (hjg : jg = jqModC κ) :
+    σ jg = jqModC κ' := by
+  rw [hjg, coeffMap_jqModC]
+
+/-- The element whose membership in `levelField jg (M * p)` is the theorem: the `j`-series at
+the level `M`, read at the level-`(M * p)` nome. -/
+private abbrev x₀ (jg : LaurentSeries κ) (M p : ℕ) [NeZero M] [NeZero p] : LaurentSeries κ' :=
+  (coeffMap (algebraMap κ κ') : LaurentSeries κ →+* LaurentSeries κ')
+    (qExpand κ (M * p) (levelSeries jg M))
+
 /-- The slot root is primitive of order `M`. -/
 private theorem isPrimitiveRoot_slotUnit {M p : ℕ} [NeZero M] [NeZero p]
     {ζ : κ'ˣ} (hζ : IsPrimitiveRoot (ζ : κ') (M * p)) :
     IsPrimitiveRoot ((slotUnit ζ p : κ'ˣ) : κ') M := by
   have h := isPrimitiveRoot_pow_div hζ (dvd_mul_right M p)
   rwa [show M * p / M = p from Nat.mul_div_cancel_left p (NeZero.pos M)] at h
+
+/-- **The other `p`-root**: `ζ ^ M` is primitive of order `p`, `ζ` having order `M * p`. The two
+roots the comparison reads the level-`p` equation at are this one and `slotUnit`; the level's own
+arithmetic is `isPrimitiveRoot_pow_div` plus a division cancellation. -/
+private theorem isPrimitiveRoot_pow_mul {M p : ℕ} [NeZero M] [NeZero p]
+    {ζ : κ'ˣ} (hζ : IsPrimitiveRoot (ζ : κ') (M * p)) :
+    IsPrimitiveRoot ((ζ ^ M : κ'ˣ) : κ') p := by
+  have h := isPrimitiveRoot_pow_div hζ (dvd_mul_left p M)
+  rwa [show M * p / p = M from Nat.mul_div_cancel M (NeZero.pos p)] at h
 
 /-- No divisor of `M` is the conjugate's slot index. -/
 private theorem slotLevel_ne_conjLevel {M p a : ℕ} [NeZero M] [hp : Fact (Nat.Prime p)]
@@ -130,6 +148,16 @@ private theorem eq_zero_of_pow_eq_one {M p b : ℕ} [NeZero M] [hp : Fact (Nat.P
   · exact h0
   · exact absurd h0 (NeZero.ne M)
 
+/-- **Reading a level series at a higher nome**: `j(q ^ m)`, read at the level `k`, is the
+untwisted `(k * m)`-th twist `TS κ' (k * m) 1` — the nome only moves the exponent and the extension
+only moves the coefficients. This is what makes both the seed of the level-`p` equation (`k = m`)
+and `x₀` (`m = M`, `k = M * p`) `TS` values, so neither consumer recomputes it. -/
+private theorem levelSeries_nome_eq_TS (jg : LaurentSeries κ) (hjg : jg = jqModC κ)
+    {m k : ℕ} [NeZero m] [NeZero k] :
+    σ (qExpand κ k (levelSeries jg m)) = TS κ' (k * m) 1 := by
+  rw [levelSeries, qExpand_qExpand m k jg, coeffMap_qExpand (algebraMap κ κ') (k * m) jg,
+    coeffMap_jqModC' hjg, qExpand_jqModC_eq_TS]
+
 /-- **The level-`p` equation at the seed**: over `levelField jg (M * p)` there is a monic `A`
 whose roots, read at the level-`(M * p)` nome, are the conjugate `j(q ^ (conjLevel M p))` and
 the `p` twists `j(ζ ^ (b * M) q ^ (twistLevel M p))`. -/
@@ -142,21 +170,17 @@ private theorem exists_phiAtSeed_roots (jg : LaurentSeries κ) (hjg : jg = jqMod
           y = TS κ' (conjLevel M p) 1 ∨
             ∃ b < p, y = TS κ' (twistLevel M p) (ζ ^ (b * M)) := by
   obtain ⟨data, -, -⟩ := exists_phiIrreducible_evalSymm p
-  have hζp : IsPrimitiveRoot ((ζ ^ M : κ'ˣ) : κ') p := by
-    have h1 := isPrimitiveRoot_pow_div hζ (dvd_mul_left p M)
-    rwa [show M * p / p = M from Nat.mul_div_cancel M (NeZero.pos p)] at h1
+  have hζp := isPrimitiveRoot_pow_mul hζ
   have hmem : levelSeries jg (M * p) ∈ levelField jg (M * p) :=
     IntermediateField.subset_adjoin (baseField jg) _ rfl
   refine ⟨phiAtSeed data ⟨levelSeries jg (M * p), hmem⟩, phiAtSeed_monic data _, ?_⟩
   intro y
   have hx : levelNomeMap (κ' := κ') jg (M * p) ⟨levelSeries jg (M * p), hmem⟩
-      = qExpand κ' (p * (M * p * M)) (qTwist ((1 : κ'ˣ) ^ p) (jqModC κ')) := by
-    show σ (qExpand κ (M * p) (qExpand κ (M * p) jg))
-      = qExpand κ' (p * (M * p * M)) (qTwist ((1 : κ'ˣ) ^ p) (jqModC κ'))
-    rw [qExpand_qExpand (M * p) (M * p) jg,
-      coeffMap_qExpand (algebraMap κ κ') ((M * p) * (M * p)) jg, hjg, coeffMap_jqModC,
-      one_pow, qTwist_one_apply]
-    exact qExpand_congr (by ring) _
+      = TS κ' (p * (M * p * M)) ((1 : κ'ˣ) ^ p) := by
+    show σ (qExpand κ (M * p) (levelSeries jg (M * p)))
+      = TS κ' (p * (M * p * M)) ((1 : κ'ˣ) ^ p)
+    rw [one_pow, levelSeries_nome_eq_TS jg hjg (m := M * p) (k := M * p)]
+    exact TS_congr (e := (M * p) * (M * p)) (e' := p * (M * p * M)) (by ring) 1
   rw [Polynomial.eval₂_eq_eval_map, phiAtSeed_map, hx]
   refine (isRoot_prime_at_slot_iff_of_isPrimitiveRoot p (ζ ^ M) hζp data (M * p * M) 1 y).trans ?_
   simp only [TS, conjLevel, twistLevel, one_pow, qTwist_one_apply, one_mul]
@@ -174,6 +198,28 @@ private theorem nomeMap_mul_comm (jg : LaurentSeries κ)
     = σ (qExpand κ (p * M) (algebraMap (baseField jg) (LaurentSeries κ) x))
   rw [qExpand_congr (M := M * p) (K := p * M) (Nat.mul_comm M p)]
 
+/-- **A root of the slot product, read as a `TS` value**: the slot product writes its factors
+as `qExpand κ' p (slotValue (σ jg) (ζ ^ p) a b)`, because `slotValue` is total in `a`; at a slot
+index `a ≠ 0` the same value is the `TS` value of the corresponding twist. This is the only place
+the two spellings meet, and it is what lets the comparison run in the `TS` vocabulary that
+`TS_injective` reads. -/
+private theorem qExpand_slotValue_eq_TS (jg : LaurentSeries κ) (hjg : jg = jqModC κ)
+    {ζ : κ'ˣ} (p a b : ℕ) [NeZero p] [NeZero a] :
+    qExpand κ' p (slotValue (σ jg) (ζ ^ p) a b)
+      = TS κ' (slotLevel p a) (slotUnit ζ p ^ (b * a)) := by
+  rw [slotValue_eq_TS (σ jg) (ζ ^ p) a b (coeffMap_jqModC' hjg), qExpand_TS p (a * a)]
+
+/-- **`x₀` is a root of the pushed minimal polynomial**: the level-`M` series satisfies its minimal
+polynomial over the base field, and `x₀` is that same series read through the nome map the
+polynomial is pushed along — so pushing and evaluating at `x₀` is `minpoly.aeval` followed by
+`g 0 = 0`. -/
+private theorem x₀_isRoot (jg : LaurentSeries κ) {M p : ℕ} [NeZero M] [NeZero p] :
+    ((minpoly (baseField jg) (levelSeries jg M)).map (nomeMap (κ' := κ') jg (M * p))).IsRoot
+      (x₀ jg M p) := by
+  have hx : x₀ jg M p = ((σ).comp (qExpand κ (M * p))) (levelSeries jg M) := rfl
+  rw [Polynomial.IsRoot, Polynomial.eval_map, nomeMap, ← Polynomial.eval₂_map, hx,
+    Polynomial.eval₂_hom, Polynomial.eval_map, ← Polynomial.aeval_def, minpoly.aeval, map_zero]
+
 /-- **The certificate**: the transported minimal polynomial of the level-`M` series, read at the
 level-`(M * p)` nome — monic, split, squarefree, with `x₀` a root, and every root a slot value.
 The package at `M` is spent here, for the degree and for the slot product. -/
@@ -183,13 +229,12 @@ private theorem exists_transported_minpoly (jg : LaurentSeries κ) (hjg : jg = j
     ∃ B : Polynomial (levelField jg (M * p)),
       B.Monic ∧ (B.map (levelNomeMap (κ' := κ') jg (M * p))).Splits ∧
         (B.map (levelNomeMap (κ' := κ') jg (M * p))).roots.Nodup ∧
-        B.eval₂ (levelNomeMap (κ' := κ') jg (M * p))
-          (σ (qExpand κ (M * p) (levelSeries jg M))) = 0 ∧
+        B.eval₂ (levelNomeMap (κ' := κ') jg (M * p)) (x₀ jg M p) = 0 ∧
         ∀ y : LaurentSeries κ', B.eval₂ (levelNomeMap (κ' := κ') jg (M * p)) y = 0 →
           ∃ (a : ℕ) (_ : NeZero a), a ∣ M ∧ ∃ b : ℕ, b < M / a ∧
-            y = qExpand κ' p (slotValue (σ jg) (ζ ^ p) a b) := by
+            y = TS κ' (slotLevel p a) (slotUnit ζ p ^ (b * a)) := by
   classical
-  have hσ : σ jg = jqModC κ' := by rw [hjg, coeffMap_jqModC]
+  have hσ : σ jg = jqModC κ' := coeffMap_jqModC' hjg
   have hα : IsIntegral (baseField jg) (levelSeries jg M) :=
     isIntegral_levelSeries jg M (h M dvd_rfl).1
   have hζM : IsPrimitiveRoot ((ζ ^ p : κ'ˣ) : κ') M :=
@@ -213,12 +258,22 @@ private theorem exists_transported_minpoly (jg : LaurentSeries κ) (hjg : jg = j
       = ∏ a ∈ M.divisors, ∏ b ∈ (Finset.range (M / a)).filter
           (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
           (Polynomial.X - Polynomial.C (qExpand κ' p (slotValue (σ jg) (ζ ^ p) a b))) := by
-    rw [hBdef, Polynomial.map_map, hcomp, nomeMap_mul_comm jg (M := M) (p := p)]
-    rw [show (minpoly (baseField jg) (levelSeries jg M)).map (nomeMap jg (p * M))
-        = pushedMinpolyAt jg M (p * M) from rfl,
-      pushedMinpolyAt_map_qExpand jg (m := M) (k := p), pushedMinpolyAt_self,
-      pushedMinpoly_eq_slotPolynomial jg M hjg hζM h,
-      map_slotPolynomial (σ jg) M (ζ ^ p) (qExpand κ' p)]
+    have hspine : B.map (levelNomeMap (κ' := κ') jg (M * p))
+        = (slotPolynomial (σ jg) M (ζ ^ p)).map (qExpand κ' p) := by
+      calc B.map (levelNomeMap (κ' := κ') jg (M * p))
+          = pushedMinpolyAt (κ' := κ') jg M (M * p) := by
+            show B.map (levelNomeMap (κ' := κ') jg (M * p))
+              = (minpoly (baseField jg) (levelSeries jg M)).map (nomeMap (κ' := κ') jg (M * p))
+            rw [hBdef, Polynomial.map_map, hcomp]
+        _ = pushedMinpolyAt (κ' := κ') jg M (p * M) := by
+            rw [pushedMinpolyAt, pushedMinpolyAt, nomeMap_mul_comm jg (M := M) (p := p)]
+        _ = (pushedMinpolyAt (κ' := κ') jg M M).map (qExpand κ' p) := by
+            rw [← pushedMinpolyAt_map_qExpand jg (m := M) (k := p)]
+        _ = (pushedMinpoly (κ' := κ') jg M).map (qExpand κ' p) := by
+            rw [pushedMinpolyAt_self]
+        _ = (slotPolynomial (σ jg) M (ζ ^ p)).map (qExpand κ' p) := by
+            rw [pushedMinpoly_eq_slotPolynomial jg M hjg hζM h]
+    rw [hspine, map_slotPolynomial (σ jg) M (ζ ^ p) (qExpand κ' p)]
   refine ⟨B, hBmonic, ?_, ?_, ?_, ?_⟩
   · rw [hprod]
     exact Polynomial.Splits.prod fun _ _ =>
@@ -231,29 +286,19 @@ private theorem exists_transported_minpoly (jg : LaurentSeries κ) (hjg : jg = j
         (Finset.mem_range.mp (Finset.mem_filter.mp hb).1)
         (Finset.mem_range.mp (Finset.mem_filter.mp hb').1)
         (RingHom.injective (qExpand κ' p) hcon)
-  · rw [hBdef, Polynomial.eval₂_map, hcomp]
-    show (minpoly (baseField jg) (levelSeries jg M)).eval₂ (nomeMap jg (M * p))
-      (σ (qExpand κ (M * p) (levelSeries jg M))) = 0
-    rw [show nomeMap jg (M * p)
-        = ((σ).comp (qExpand κ (M * p))).comp (algebraMap (baseField jg) (LaurentSeries κ)) from rfl,
-      ← Polynomial.eval₂_map]
-    show Polynomial.eval₂ ((σ).comp (qExpand κ (M * p)))
-      (σ (qExpand κ (M * p) (levelSeries jg M)))
-      ((minpoly (baseField jg) (levelSeries jg M)).map
-        (algebraMap (baseField jg) (LaurentSeries κ))) = 0
-    rw [show σ (qExpand κ (M * p) (levelSeries jg M))
-        = ((σ).comp (qExpand κ (M * p))) (levelSeries jg M) from rfl,
-      Polynomial.eval₂_hom, Polynomial.eval_map, ← Polynomial.aeval_def, minpoly.aeval, map_zero]
+  · rw [hBdef, Polynomial.eval₂_map, hcomp, Polynomial.eval₂_eq_eval_map]
+    exact x₀_isRoot jg
   · intro y hy
     have hne : B.map (levelNomeMap (κ' := κ') jg (M * p)) ≠ 0 := (hBmonic.map _).ne_zero
     have hroots : y ∈ (B.map (levelNomeMap (κ' := κ') jg (M * p))).roots :=
       (Polynomial.mem_roots hne).mpr (by rwa [Polynomial.eval₂_eq_eval_map] at hy)
     rw [hprod, ← prod_slotValues M (fun a b => qExpand κ' p (slotValue (σ jg) (ζ ^ p) a b)),
       roots_multiset_prod_X_sub_C] at hroots
-    obtain ⟨a, b, ha, hb, rfl⟩ := mem_slotValues.mp hroots
+    obtain ⟨a, b, ha, hb, h⟩ := mem_slotValues.mp hroots
     have ha0 : a ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors ha)
+    have : NeZero a := ⟨ha0⟩
     exact ⟨a, ⟨ha0⟩, Nat.dvd_of_mem_divisors ha, b,
-      Finset.mem_range.mp (Finset.mem_filter.mp hb).1, rfl⟩
+      Finset.mem_range.mp (Finset.mem_filter.mp hb).1, by rw [h, qExpand_slotValue_eq_TS jg hjg]⟩
 
 /-- **Undoing the nome reading**: a level-`N` series whose `σ`-image at the level-`N` nome lies in
 the range of the level nome map is in `levelField jg N`. -/
@@ -278,40 +323,27 @@ theorem levelSeries_mem_levelField_mul_prime (jg : LaurentSeries κ)
     {M p : ℕ} [NeZero M] [NeZero p] [hp : Fact (Nat.Prime p)]
     {ζ : κ'ˣ} (hζ : IsPrimitiveRoot (ζ : κ') (M * p)) (h : PkgAt jg M) :
     levelSeries jg M ∈ levelField jg (M * p) := by
-  have hσ : σ jg = jqModC κ' := by rw [hjg, coeffMap_jqModC]
   obtain ⟨A, -, hA⟩ := exists_phiAtSeed_roots jg hjg (M := M) (p := p) (ζ := ζ) hζ
-  have hx0 : σ (qExpand κ (M * p) (levelSeries jg M)) = TS κ' (twistLevel M p) 1 := by
-    rw [TS, qTwist_one_apply]
-    show σ (qExpand κ (M * p) (qExpand κ M jg)) = qExpand κ' ((M * p) * M) (jqModC κ')
-    rw [qExpand_qExpand M (M * p) jg,
-      coeffMap_qExpand (algebraMap κ κ') ((M * p) * M) jg, hjg, coeffMap_jqModC]
-  have hxA : A.eval₂ (levelNomeMap (κ' := κ') jg (M * p))
-      (σ (qExpand κ (M * p) (levelSeries jg M))) = 0 :=
-    (hA (σ (qExpand κ (M * p) (levelSeries jg M)))).mpr
-      (Or.inr ⟨0, hp.out.pos, by rw [zero_mul, pow_zero]; exact hx0⟩)
+  have hxA : A.eval₂ (levelNomeMap (κ' := κ') jg (M * p)) (x₀ jg M p) = 0 :=
+    (hA (x₀ jg M p)).mpr (Or.inr ⟨0, hp.out.pos, by
+      simpa using levelSeries_nome_eq_TS jg hjg (m := M) (k := M * p)⟩)
   obtain ⟨B, hBmonic, hBs, hBnd, hxB, hB⟩ :=
     exists_transported_minpoly jg hjg (M := M) (p := p) (ζ := ζ) hζ h
   let : Algebra (levelField jg (M * p)) (LaurentSeries κ') :=
     (levelNomeMap (κ' := κ') jg (M * p)).toAlgebra
   have huniq : ∀ y : LaurentSeries κ', Polynomial.aeval y A = 0 → Polynomial.aeval y B = 0 →
-      y = σ (qExpand κ (M * p) (levelSeries jg M)) := by
+      y = x₀ jg M p := by
     intro y hyA hyB
-    obtain ⟨a, ha0, haM, b', hb', hyB'⟩ := hB y hyB
+    obtain ⟨a, _, haM, b', hb', hyB⟩ := hB y hyB
     rcases (hA y).mp hyA with hyA | ⟨b, hb, hyA⟩
-    · rw [hyA] at hyB'
-      have hcon : TS κ' (conjLevel M p) 1
-          = TS κ' (slotLevel p a) (slotUnit ζ p ^ (b' * a)) := by
-        rw [hyB', slotValue_eq_TS (σ jg) (ζ ^ p) a b' hσ, qExpand_TS p (a * a)]
-      exact absurd (TS_injective hcon).1 (slotLevel_ne_conjLevel haM)
-    · rw [hyA] at hyB'
-      have hcon : TS κ' (twistLevel M p) (ζ ^ (b * M))
-          = TS κ' (slotLevel p a) (slotUnit ζ p ^ (b' * a)) := by
-        rw [hyB', slotValue_eq_TS (σ jg) (ζ ^ p) a b' hσ, qExpand_TS p (a * a)]
-      obtain ⟨he, hu⟩ := TS_injective hcon
+    · rw [hyA] at hyB
+      exact absurd (TS_injective hyB).1 (slotLevel_ne_conjLevel haM)
+    · rw [hyA] at hyB
+      obtain ⟨he, hu⟩ := TS_injective hyB
       have hb0 : b = 0 :=
         eq_zero_of_pow_eq_one hζ hb (by rw [hu, slotUnit_eq_one_of_twistLevel hb' he])
-      rw [hb0] at hyA
-      rw [hyA, zero_mul, pow_zero, hx0]
+      subst b
+      simpa [levelSeries_nome_eq_TS jg hjg (m := M) (k := M * p)] using hyA
   exact mem_of_mem_range_levelNome jg
     (Polynomial.mem_range_of_unique_common_root B A hBmonic.ne_zero hBs hBnd _
       hxB hxA fun y hyB hyA => huniq y hyA hyB)

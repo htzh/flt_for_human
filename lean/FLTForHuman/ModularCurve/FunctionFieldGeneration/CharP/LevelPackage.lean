@@ -42,10 +42,6 @@ theorem modularFunctionFieldC_iff_generatedAt (d : ℕ) [NeZero d] :
     modularFunctionFieldC K d = IntermediateField.adjoin K
         {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'}
       ↔ generatedAt (jqModC K) d := by
-  have hpair : ({jqModC K, jqNModC K d} : Set (LaurentSeries K))
-      = {jqModC K} ∪ {jqNModC K d} := by
-    ext x
-    simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_union]
   have hS : ({x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'),
         d' ∣ d ∧ x = levelSeries (jqModC K) d'})
       = {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'),
@@ -58,7 +54,7 @@ theorem modularFunctionFieldC_iff_generatedAt (d : ℕ) [NeZero d] :
     refine Set.singleton_subset_iff.mpr ⟨1, inferInstance, one_dvd d, ?_⟩
     exact (jqNModC_one K).symm
   unfold modularFunctionFieldC generatedAt
-  rw [hpair, hS, hfull]
+  rw [← Set.singleton_union, hS, hfull]
   exact Iff.rfl
 
 /-- **`Pkg` is `PkgAt`**: the pin's inline package at the `C` base field is the general package at

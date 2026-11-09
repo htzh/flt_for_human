@@ -65,11 +65,6 @@ import Mathlib.NumberTheory.Cyclotomic.PrimitiveRoots
 import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
 
 set_option autoImplicit false
--- The pin's proofs install `IsCyclotomicExtension`/`IsGalois`/`FiniteDimensional`
--- instances with `haveI`; the style linter prefers `have`, but the instances are
--- consumed by instance search and `haveI` is the faithful spelling (T12's
--- `ModularPolynomialProperties` disables the same linter locally).
-set_option linter.style.haveILetI false
 
 noncomputable section
 
@@ -130,19 +125,17 @@ private theorem splits_of_prime_cyclotomicField (p : ℕ) [hp : Fact p.Prime]
     (data : ModularPolynomialData p) :
     data.Φ.map (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ) =
       phiProd p (conj p (cycUnit p)) := by
-  haveI : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
-  haveI hcyc : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
+  have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
+  have hcyc : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
     CyclotomicField.isCyclotomicExtension p ℚ
-  haveI : IsGalois ℚ (CyclotomicField p ℚ) :=
+  have : IsGalois ℚ (CyclotomicField p ℚ) :=
     IsCyclotomicExtension.isGalois {p} ℚ (CyclotomicField p ℚ)
-  haveI : FiniteDimensional ℚ (CyclotomicField p ℚ) :=
-    IsCyclotomicExtension.finiteDimensional {p} ℚ (CyclotomicField p ℚ)
   have hζ := cycUnit_spec p
   obtain ⟨c, hc⟩ := exists_phiGenDescends p (cycUnit p) hζ
-  have hint : ∀ k, IntCoeffs (c k) := fun k => hc.intCoeffs (cycUnit_pow p) k
+  have hIntCoeffs : ∀ k, IntCoeffs (c k) := fun k => hc.intCoeffs (cycUnit_pow p) k
   have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
     fun k => mem_adjoin_jq_of_phiGenDescends p (cycUnit p) hζ c hc k
-  obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hc hint hmem
+  obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hc hIntCoeffs hmem
   rw [ModularPolynomialData.eq_of_prime p data data₀]
   exact splits_of_coeff_evalAtJ_eq (cycUnit p) hc data₀ hdata₀
 
@@ -152,8 +145,8 @@ theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fa
     (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (data : ModularPolynomialData p) :
     data.Φ.map (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ) = phiProd p (conj p ζ) := by
 
-  haveI : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
-  haveI : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
+  have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
+  have : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
     CyclotomicField.isCyclotomicExtension p ℚ
   have hζ₀ := cycUnit_spec p
   have hirr := Polynomial.cyclotomic.irreducible_rat hp.out.pos
@@ -164,13 +157,20 @@ theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fa
   have hσu : Units.map (σ : CyclotomicField p ℚ →+* K).toMonoidHom (cycUnit p) = ζ :=
     Units.ext (by rw [Units.coe_map]; exact hσ)
 
+  have hmap : (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ)
+      = (coeffMap (σ : CyclotomicField p ℚ →+* K)).comp
+          (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ) := by
+    refine Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_
+    simp only [RingHom.comp_apply, evalAtJ_X]
+    rw [coeffMap_coeffEmb_algHom]
   have h := congrArg (Polynomial.map (coeffMap (σ : CyclotomicField p ℚ →+* K)))
     (splits_of_prime_cyclotomicField p data)
   rw [map_coeffMap_phiProd, hσu, Polynomial.map_map] at h
-  convert h using 2
-  refine Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_
-  simp only [RingHom.comp_apply, evalAtJ_X]
-  rw [coeffMap_coeffEmb_algHom]
+  calc data.Φ.map (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ)
+      = data.Φ.map ((coeffMap (σ : CyclotomicField p ℚ →+* K)).comp
+          (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ)) := by
+        rw [hmap]
+    _ = phiProd p (conj p ζ) := h
 
 /-! ## The splitting at a general slot
 
@@ -192,7 +192,7 @@ theorem splits_prime_at_slot {K : Type*} [Field K] [Algebra ℚ K] (N : ℕ) [Ne
 
   have hζp : IsPrimitiveRoot ((ζ ^ (N / p) : Kˣ) : K) p :=
     isPrimitiveRoot_pow_div hζ hpN
-  have h0 := splits_of_prime p (ζ ^ (N / p)) hζp data
+  have hsplits := splits_of_prime p (ζ ^ (N / p)) hζp data
 
   have hhom : Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
       (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq)))
@@ -216,18 +216,31 @@ theorem splits_prime_at_slot {K : Type*} [Field K] [Algebra ℚ K] (N : ℕ) [Ne
       Nat.cast_one, zpow_one, ← pow_mul, Nat.mul_comm (N / p) (b : ℕ), coeffEmb_jq]
     exact TS_congr (mul_one e) (u * ζ ^ ((b : ℕ) * (N / p)))
 
-  rw [hhom, ← Polynomial.map_map, h0,
-    show phiProd p (conj p (ζ ^ (N / p)))
-        = ∏ i : Fin (p + 1), (Polynomial.X - Polynomial.C (conj p (ζ ^ (N / p)) i)) from rfl,
-    Polynomial.map_prod]
-  simp only [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C]
-  simp only [Fin.prod_univ_succ]
-  congr 1
-  · rw [h₀]
-  · rw [Finset.prod_range
-      (fun b => Polynomial.X - Polynomial.C (qExpand K e
-        (qTwist (u * ζ ^ (b * (N / p))) (coeffEmb K jq))))]
-    exact Finset.prod_congr rfl fun i _ => by rw [h₁ i]
+  have hmain : data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
+        (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq))))
+      = (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u)) := by
+    calc data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
+          (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq))))
+        = (data.Φ.map (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ)).map
+            ((qExpand K e).comp (qTwist u)) := by
+          rw [hhom, ← Polynomial.map_map]
+      _ = (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u)) := by
+          rw [hsplits]
+  have hpush : (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u))
+      = (Polynomial.X - Polynomial.C (qExpand K (p * (p * e))
+          (qTwist (u ^ (p * p)) (coeffEmb K jq))))
+        * ∏ b ∈ Finset.range p,
+            (Polynomial.X - Polynomial.C (qExpand K e
+              (qTwist (u * ζ ^ (b * (N / p))) (coeffEmb K jq)))) := by
+    rw [phiProd, Polynomial.map_prod, Fin.prod_univ_succ]
+    simp only [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C]
+    congr 1
+    · rw [h₀]
+    · rw [Finset.prod_range
+        (fun b => Polynomial.X - Polynomial.C (qExpand K e
+          (qTwist (u * ζ ^ (b * (N / p))) (coeffEmb K jq))))]
+      exact Finset.prod_congr rfl fun i _ => by rw [h₁ i]
+  rw [hmain, hpush]
 
 end PhiGen
 end ModularCurve

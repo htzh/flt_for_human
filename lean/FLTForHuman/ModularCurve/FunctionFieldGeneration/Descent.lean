@@ -20,18 +20,19 @@
 
   ## What is left in this module
 
-  The conversion between the theory's `levelField` (a field over `baseField`, i.e. `ℚ⟮jq⟯`) and the
-  named `modularFunctionField` — the two adjoins differ only in how the pair `{jq, jq(q ^ N)}` is
-  written, which is `coe_adjoin_baseField` plus a set identity — and the `Gen` reduction below,
-  which is `ℚ`-only mathematics.
+  The one-prime reduction of `Gen` below, which is `ℚ`-only mathematics. The conversion between the
+  theory's `levelField` (a field over `baseField`, i.e. `ℚ⟮jq⟯`) and the named
+  `modularFunctionField` — the two adjoins differ only in how the pair `{jq, jq(q ^ N)}` is written
+  — is not here: it is `Rat/LevelPackage.lean`'s `coe_levelField_eq_modularFunctionField`, so the
+  descent below is one rewrite away from the theory's statement.
 
   ## Layers, in dependency order
 
   * `jqN_div_mem_modularFunctionField`: the descent, a delegation to the theory's prime step
     (`Generic/PrimeStep.lean`) at the `ℚ` instance, whose second field is
-    `CyclotomicField (M * p) ℚ`. The conversion
-    between the theory's `levelField` and the named `modularFunctionField` is the only `ℚ`-side
-    content in it;
+    `CyclotomicField (M * p) ℚ`. It carries no `ℚ`-side content of its own: the returned membership
+    is transferred from the theory's `levelField` by `Rat/LevelPackage.lean`'s
+    `mem_modularFunctionField_iff`;
   * `exists_mul_prime_lt_of_dvd_of_ne`: the arithmetic of the one-prime reduction below.
 
   The module's second subject is the one-prime reduction of `Gen`, in the same `Hall` form:
@@ -84,34 +85,22 @@ namespace ModularCurve
 The comparison itself — the two polynomials, their root descriptions, and the case split that
 leaves one common root — is `Generic/PrimeStep.lean`'s `levelSeries_mem_levelField_mul_prime`. What
 the `ℚ` layer supplies is the second field the general statement leaves free: `CyclotomicField (M * p) ℚ`
-with `cycUnit (M * p)`, i.e. the instantiation of `[Algebra ℚ κ']` at `coeffEmb`. What it
-keeps is the conversion between the theory's `levelField` and the named `modularFunctionField`: the
-two adjoins differ only in how the pair `{jq, jq(q ^ N)}` is written. -/
+with `cycUnit (M * p)`, i.e. the instantiation of `[Algebra ℚ κ']` at `coeffEmb`; what it adds is
+the transfer from the theory's `levelField` to the named `modularFunctionField`, which is
+`Rat/LevelPackage.lean`'s `mem_modularFunctionField_iff` — the two adjoins differ only in how the
+pair `{jq, jq(q ^ N)}` is written, and that is stated once there. -/
 
 /-- **Descent by one prime**: under `Hall M` and `p` prime, `j(q ^ M)` lies in
-`ℚ(j(q), j(q ^ (M * p)))`. -/
+`ℚ(j(q), j(q ^ (M * p)))`. The statement is the theory's `levelField` membership read in the named
+field, so the proof is the delegation plus one membership transfer. -/
 theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
     [hp : Fact (Nat.Prime p)] (hallM : Hall M) :
     jqN M ∈ modularFunctionField (M * p) := by
-  have hM0 : M ≠ 0 := NeZero.ne M
-  have hp0 : p ≠ 0 := hp.out.ne_zero
-  have : NeZero (M * p) := ⟨Nat.mul_ne_zero hM0 hp0⟩
-  have hmem : levelSeries jq M ∈ levelField jq (M * p) :=
-    levelSeries_mem_levelField_mul_prime (κ' := CyclotomicField (M * p) ℚ) jq rfl
+  have : NeZero (M * p) := ⟨Nat.mul_ne_zero (NeZero.ne M) hp.out.ne_zero⟩
+  exact (mem_modularFunctionField_iff (M * p) (jqN M)).mp
+    (levelSeries_mem_levelField_mul_prime (κ' := CyclotomicField (M * p) ℚ) jq rfl
       (M := M) (p := p) (ζ := cycUnit (M * p)) (hζ := cycUnit_spec (M * p))
-      (hall_pkgAt M hallM)
-  have hpair : ({jq} ∪ {qExpand ℚ (M * p) jq} : Set (LaurentSeries ℚ))
-      = {jq, qExpand ℚ (M * p) jq} := by
-    ext x
-    simp only [Set.mem_union, Set.mem_singleton_iff, Set.mem_insert_iff]
-  have hset : ((levelField jq (M * p) : Set (LaurentSeries ℚ)))
-      = (modularFunctionField (M * p) : Set (LaurentSeries ℚ)) := by
-    rw [coe_adjoin_baseField, modularFunctionField]
-    simp only [levelSeries]
-    rw [hpair]
-  show levelSeries jq M ∈ (modularFunctionField (M * p) : Set (LaurentSeries ℚ))
-  rw [← hset]
-  exact hmem
+      (hall_pkgAt M hallM))
 
 /-! ## The one-prime reduction -/
 

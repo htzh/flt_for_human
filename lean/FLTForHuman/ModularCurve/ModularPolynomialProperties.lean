@@ -136,40 +136,47 @@ end PhiGen
 
 /-! ## Existence of an irreducible symmetric datum -/
 
-set_option linter.style.haveILetI false in
-/-- There is an irreducible symmetric modular polynomial datum at every prime
-`ℓ`. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_exists_phiIrreducible_evalSymm.lean`. -/
-theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
-    ∃ data : ModularPolynomialData ℓ, PhiIrreducible data ∧ EvalSymm data.Φ := by
-
-  haveI : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
-  haveI hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
-    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
-  haveI : FiniteDimensional ℚ (CyclotomicField ℓ ℚ) :=
-    IsCyclotomicExtension.finiteDimensional {ℓ} ℚ (CyclotomicField ℓ ℚ)
-  haveI : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
-    IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
+/-- **The root the descent is run at**: `ℚ(ζ_ℓ)`'s primitive `ℓ`-th root (mathlib's), as a unit with
+`ζ ^ ℓ = 1`. Naming it keeps the choice of where the descent happens — which is all the cyclotomic
+setup amounts to — out of the existence proof, which then reads as the chain it is. -/
+private theorem exists_primitiveRoot_cyclotomic (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
+    [hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ)] :
+    ∃ ζ : (CyclotomicField ℓ ℚ)ˣ,
+      IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ ∧ ζ ^ ℓ = 1 := by
   obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
     (Set.mem_singleton ℓ) hℓ.out.ne_zero
   have hzu : IsUnit z := hz.isUnit hℓ.out.ne_zero
   have hζ : IsPrimitiveRoot ((hzu.unit : (CyclotomicField ℓ ℚ)ˣ) : CyclotomicField ℓ ℚ) ℓ := by
     rw [hzu.unit_spec]
     exact hz
-  have hζ1 : hzu.unit ^ ℓ = 1 := by
-    refine Units.ext ?_
-    rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
+  refine ⟨hzu.unit, hζ, ?_⟩
+  refine Units.ext ?_
+  rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
 
-  obtain ⟨c, hc⟩ := PhiGen.exists_phiGenDescends ℓ hzu.unit hζ
-
-  have hint : ∀ k, PhiGen.IntCoeffs (c k) := fun k => hc.intCoeffs hζ1 k
+/-- **There is an irreducible symmetric modular polynomial datum at every prime `ℓ`**: run the
+descent at the cyclotomic field's primitive root, read off the coefficients' integrality (T9) and
+their membership in the `j`-line (T8), assemble the datum (T11), and conclude irreducibility from
+the splitting (`phiIrreducible_of_splits`) and symmetry from the coefficient family
+(`evalSymm_of_coeff_evalAtJ_eq`). The statement is the pin wrapper's
+`Theorems/Thm_ModularCurve_exists_phiIrreducible_evalSymm.lean`; the setup it needs from the field —
+cyclotomic, hence finite and Galois — is the three instances below, and the root is
+`exists_primitiveRoot_cyclotomic`. -/
+theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
+    ∃ data : ModularPolynomialData ℓ, PhiIrreducible data ∧ EvalSymm data.Φ := by
+  have : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
+  have hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
+    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
+  have : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
+    IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
+  obtain ⟨ζ, hζ, hζ1⟩ := exists_primitiveRoot_cyclotomic ℓ
+  obtain ⟨c, hc⟩ := PhiGen.exists_phiGenDescends ℓ ζ hζ
+  have hIntCoeffs : ∀ k, PhiGen.IntCoeffs (c k) := fun k => hc.intCoeffs hζ1 k
   have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
-    fun k => PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ hzu.unit hζ c hc k
-
-  obtain ⟨data, hcoeff⟩ := PhiGen.exists_modularPolynomialData_coeff_eq hc hint hmem
+    fun k => PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hc k
+  obtain ⟨data, hcoeff⟩ := PhiGen.exists_modularPolynomialData_coeff_eq hc hIntCoeffs hmem
   exact ⟨data,
-    PhiGen.phiIrreducible_of_splits ℓ hzu.unit hζ data
-      (PhiGen.splits_of_coeff_evalAtJ_eq hzu.unit hc data hcoeff),
+    PhiGen.phiIrreducible_of_splits ℓ ζ hζ data
+      (PhiGen.splits_of_coeff_evalAtJ_eq ζ hc data hcoeff),
     PhiGen.evalSymm_of_coeff_evalAtJ_eq hζ hc data hcoeff⟩
 
 end ModularCurve

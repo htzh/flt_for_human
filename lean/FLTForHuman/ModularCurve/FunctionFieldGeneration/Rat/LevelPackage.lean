@@ -18,6 +18,11 @@
 
   Both proofs are term-level rewrites around the definitions: the `Tight` half needs no bridge at all
   (definitional), and the `Gen` half is `extendScalars_adjoin` twice.
+
+  The module also carries the field-name conversion: `coe_levelField_eq_modularFunctionField` (and its
+  membership form) identifies the theory's `levelField jq N` with the named `modularFunctionField N`,
+  so that a consumer of the prime step converts its conclusion with a single rewrite instead of
+  re-deriving the pair `{jq, jqN N}` at the call site.
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.LevelPackage
 import FLTForHuman.ModularCurve.Defs.Fields
@@ -39,16 +44,13 @@ The two sides here differ only in how the adjoined sets are written — `{jq, jq
 because `1 ∣ d`. No base change is needed, which is the point of stating `generatedAt` absolutely. -/
 theorem gen_iff_levelField (d : ℕ) [NeZero d] :
     Gen d ↔ generatedAt jq d := by
-  have hpair : ({jq, qExpand ℚ d jq} : Set (LaurentSeries ℚ)) = {jq} ∪ {qExpand ℚ d jq} := by
-    ext x
-    simp [or_comm]
   have hS : ({x : LaurentSeries ℚ | ∃ (d' : ℕ) (_ : NeZero d'),
       d' ∣ d ∧ x = levelSeries jq d'} : Set (LaurentSeries ℚ)) = divisorExpansions d := rfl
   have hfull : ({jq} ∪ divisorExpansions d : Set (LaurentSeries ℚ)) = divisorExpansions d :=
     Set.union_eq_right.mpr (Set.singleton_subset_iff.mpr
       ⟨1, inferInstance, one_dvd d, by rw [qExpand_one_apply]⟩)
   unfold Gen generatedAt
-  rw [modularFunctionField, modularFunctionFieldFull, hS, hpair, hfull]
+  rw [modularFunctionField, modularFunctionFieldFull, hS, ← Set.singleton_union, hfull]
   exact Iff.rfl
 
 /-- **`Hall` is `PkgAt`**: the `ℚ` package is the general package at `jg = jq`. The `Tight` half is
@@ -56,5 +58,23 @@ theorem gen_iff_levelField (d : ℕ) [NeZero d] :
 `gen_iff_levelField`. -/
 theorem hall_pkgAt (N : ℕ) : Hall N → PkgAt jq N :=
   fun h d hd _ => ⟨(h d hd).1, (gen_iff_levelField d).mp (h d hd).2⟩
+
+/-- **The theory's level field is the named `ℚ` field**: `levelField jq N` and `modularFunctionField N`
+are the same set. The two adjoins differ only in how the pair `{jq, jqN N}` is written — the theory
+sits over `baseField jq` and unions the j-series in, the named field adjoins the pair at once — so
+this is `coe_adjoin_baseField` followed by the set identity. Stated on carrier sets, so it rewrites
+under `∈` as well as under `=`; a consumer of the prime step converts with this one lemma instead of
+re-deriving the two adjoins. -/
+theorem coe_levelField_eq_modularFunctionField (N : ℕ) [NeZero N] :
+    (levelField jq N : Set (LaurentSeries ℚ))
+      = (modularFunctionField N : Set (LaurentSeries ℚ)) := by
+  rw [coe_adjoin_baseField, modularFunctionField, Set.singleton_union]
+  rfl
+
+/-- The membership form of `coe_levelField_eq_modularFunctionField`, which is the shape a consumer of
+the prime step holds. -/
+theorem mem_modularFunctionField_iff (N : ℕ) [NeZero N] (x : LaurentSeries ℚ) :
+    x ∈ levelField jq N ↔ x ∈ modularFunctionField N :=
+  Set.ext_iff.mp (coe_levelField_eq_modularFunctionField N) x
 
 end ModularCurve

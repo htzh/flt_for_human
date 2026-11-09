@@ -30,7 +30,8 @@
   `qExpand`, `qExpand_coeff_mul`, `qExpand_coeff_of_not_dvd`, `qExpand_qExpand`,
   `coeffMap`, `coeffMap_coeff`, `coeffEmb`, `coeffEmb_coeff`, `coeffMap_coeffEmb`,
   `coeffMap_qExpand` are the port's `Defs/Laurent`; `qTwist`, `qTwist_coeff`,
-  `qTwist_one_apply`, `qTwist_qTwist`, `qTwist_qExpand` the port's `Defs/Twist`;
+  `qTwist_one_apply`, `qTwist_qTwist`, `qTwist_qExpand`, `coeffMap_qTwist` the port's
+  `Defs/Twist`;
   `jq`, `jqN` the port's `Defs/Jq`; `conj`, `conj_zero`, `conj_succ`, `phiProd`,
   `PhiGenDescends` the port's `Defs/PhiGen`. `IsGalois`/`FiniteDimensional` and
   `IsPrimitiveRoot` are mathlib's.
@@ -116,13 +117,6 @@ private theorem qTwist_conj_succ (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     exact Nat.mod_eq_of_lt hℓ.out.one_lt
   rw [Fin.val_add, h1, zeta_pow_mod hζ ((b : ℕ) + 1), pow_succ, mul_comm ζ (ζ ^ (b : ℕ))]
 
-private theorem qTwist_phiProd_coeff (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    (hconj0 : conj 0 = qExpand K (ℓ * ℓ) J)
-    (hconjS : ∀ b : Fin ℓ, conj b.succ = qTwist (ζ ^ (b : ℕ)) J) (k : ℕ) :
-    qTwist ζ ((phiProd ℓ conj).coeff k) = (phiProd ℓ conj).coeff k :=
-  map_phiProd_coeff_of_perm (qTwist ζ) (Equiv.addRight (1 : Fin ℓ))
-    (qTwist_conj_zero hζ hconj0) (qTwist_conj_succ hζ hconjS) k
-
 end TwistConj
 
 section SupportCollapse
@@ -183,72 +177,6 @@ private theorem mem_range_qExpand_of_qTwist_eq {ζ : Kˣ} (hζ : IsPrimitiveRoot
 
 end Contract
 
-section RangeDescent
-
-variable {K : Type*} [Field K]
-
-private theorem phiProd_coeff_mem_range_qExpand (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
-    (J : LaurentSeries K) (conj : Fin (ℓ + 1) → LaurentSeries K)
-    (hζ : IsPrimitiveRoot (ζ : K) ℓ) (hconj0 : conj 0 = qExpand K (ℓ * ℓ) J)
-    (hconjS : ∀ b : Fin ℓ, conj b.succ = qTwist (ζ ^ (b : ℕ)) J) (k : ℕ) :
-    (phiProd ℓ conj).coeff k ∈ Set.range (qExpand K ℓ) :=
-  mem_range_qExpand_of_qTwist_eq hζ (qTwist_phiProd_coeff hζ hconj0 hconjS k)
-
-end RangeDescent
-
-/-! `coeffMap_qTwist` was this module's `private` copy; T16 promoted the
-canonical copy to `Defs/Twist.lean` (public), which this module imports
-transitively through `Defs/PhiGen`, so the twin is gone and the call sites below
-resolve to the public lemma. -/
-
-section GaloisCoeff
-
-variable {K : Type*} [Field K]
-
-private theorem coeffMap_phiProd_coeff (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
-    (J : LaurentSeries K) (conj : Fin (ℓ + 1) → LaurentSeries K) (σ : K →+* K)
-    (hσJ : coeffMap σ J = J) (e : Fin ℓ ≃ Fin ℓ)
-    (hσζ : ∀ b : Fin ℓ, σ ((ζ : K) ^ (b : ℕ)) = (ζ : K) ^ ((e b : Fin ℓ) : ℕ))
-    (hconj0 : conj 0 = qExpand K (ℓ * ℓ) J)
-    (hconjS : ∀ b : Fin ℓ, conj b.succ = qTwist (ζ ^ (b : ℕ)) J) (k : ℕ) :
-    coeffMap σ ((phiProd ℓ conj).coeff k) = (phiProd ℓ conj).coeff k := by
-  refine map_phiProd_coeff_of_perm (coeffMap σ) e ?_ ?_ k
-  · rw [hconj0, coeffMap_qExpand, hσJ]
-  · intro b
-    rw [hconjS b, hconjS (e b),
-      coeffMap_qTwist σ (ζ ^ (b : ℕ)) (ζ ^ ((e b : Fin ℓ) : ℕ))
-        (by rw [Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val, hσζ b]),
-      hσJ]
-
-end GaloisCoeff
-
-section FixedField
-
-variable {K : Type*} [Field K] [Algebra ℚ K]
-
-private theorem mem_range_coeffEmb_of_forall_coeffMap_eq
-    (hfix : ∀ c : K, (∀ σ : K ≃ₐ[ℚ] K, σ c = c) → ∃ r : ℚ, algebraMap ℚ K r = c)
-    {f : LaurentSeries K} (hf : ∀ σ : K ≃ₐ[ℚ] K, coeffMap (σ : K →+* K) f = f) :
-    f ∈ Set.range (coeffEmb K) := by
-
-  have hcoeff : ∀ m : ℤ, ∃ r : ℚ, algebraMap ℚ K r = f.coeff m := fun m =>
-    hfix (f.coeff m) fun σ => by
-      have hcongr := congrArg (fun g => HahnSeries.coeff g m) (hf σ)
-      simpa using hcongr
-  choose r hr using hcoeff
-
-  refine ⟨⟨r, ?_⟩, ?_⟩
-  ·
-
-    refine f.isPWO_support'.mono fun m hm => ?_
-    simp only [Function.mem_support] at hm ⊢
-    intro h
-    exact hm (FaithfulSMul.algebraMap_injective ℚ K (by rw [hr m, h, map_zero]))
-  · ext m
-    exact hr m
-
-end FixedField
-
 section GaloisPerm
 
 variable {K : Type*} [Field K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)] {ζ : Kˣ}
@@ -278,6 +206,53 @@ private theorem exists_galoisPerm (hζ : IsPrimitiveRoot (ζ : K) ℓ) (σ : K �
 
 end GaloisPerm
 
+section GaloisConj
+
+variable {K : Type*} [Field K] [Algebra ℚ K]
+
+/-- **A Galois automorphism fixes the conjugate at infinity**: `conj 0` is a plain `q`-expansion of
+the coefficient field (`conj_zero`), so any `σ` that fixes `coeffEmb K jq` and commutes with
+`qExpand` fixes it. No permutation of the finite cusps enters — this is the `h0` hypothesis of
+`map_phiProd_coeff_of_perm`, and it holds for every `σ` and every `ℓ`, `ζ` alike. -/
+private theorem coeffMap_conj_zero (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (σ : K ≃ₐ[ℚ] K) :
+    coeffMap (σ : K →+* K) (conj ℓ ζ 0) = conj ℓ ζ 0 := by
+  calc coeffMap (σ : K →+* K) (conj ℓ ζ 0)
+      = coeffMap (σ : K →+* K) (qExpand K (ℓ * ℓ) (coeffEmb K jq)) := by
+        rw [conj_zero ℓ ζ]
+    _ = qExpand K (ℓ * ℓ) (coeffMap (σ : K →+* K) (coeffEmb K jq)) := by
+        rw [coeffMap_qExpand]
+    _ = qExpand K (ℓ * ℓ) (coeffEmb K jq) := by
+        rw [coeffMap_coeffEmb σ jq]
+    _ = conj ℓ ζ 0 := by
+        rw [← conj_zero ℓ ζ]
+
+end GaloisConj
+
+section FixedField
+
+variable {K : Type*} [Field K] [Algebra ℚ K]
+
+private theorem mem_range_coeffEmb_of_forall_coeffMap_eq [IsGalois ℚ K] [FiniteDimensional ℚ K]
+    {f : LaurentSeries K} (hf : ∀ σ : K ≃ₐ[ℚ] K, coeffMap (σ : K →+* K) f = f) :
+    f ∈ Set.range (coeffEmb K) := by
+  have hfix : ∀ c : K, (∀ σ : K ≃ₐ[ℚ] K, σ c = c) → ∃ r : ℚ, algebraMap ℚ K r = c :=
+    fun c hc => (IsGalois.mem_range_algebraMap_iff_fixed c).mpr hc
+  have hcoeff : ∀ m : ℤ, ∃ r : ℚ, algebraMap ℚ K r = f.coeff m := fun m =>
+    hfix (f.coeff m) fun σ => by
+      have hcongr := congrArg (fun g => HahnSeries.coeff g m) (hf σ)
+      simpa using hcongr
+  choose r hr using hcoeff
+
+  refine ⟨⟨r, ?_⟩, ?_⟩
+  · refine f.isPWO_support'.mono fun m hm => ?_
+    simp only [Function.mem_support] at hm ⊢
+    intro h
+    exact hm (FaithfulSMul.algebraMap_injective ℚ K (by rw [hr m, h, map_zero]))
+  · ext m
+    exact hr m
+
+end FixedField
+
 section Descent
 
 variable {K : Type*} [Field K] [Algebra ℚ K]
@@ -299,28 +274,38 @@ private theorem mem_range_coeffEmb_qExpand_of_mem_inter {ℓ : ℕ} [hℓ : Fact
 
 end Descent
 
-/-- The coefficients of `phiProd ℓ (conj ℓ ζ)` descend to `ℚ((q))`: there is a
-family `c` with `PhiGenDescends ℓ ζ c`. Verbatim from the pin wrapper
+/-- **The coefficients of `phiProd ℓ (conj ℓ ζ)` descend to `ℚ((q))`**: each one is a `q ^ ℓ`
+expansion (its support collapses onto multiples of `ℓ`) **and** rational (it is Galois-fixed), so it
+lies in the intersection of those two ranges, which is the image of `coeffEmb K ∘ qExpand ℚ ℓ`
+(`mem_range_coeffEmb_qExpand_of_mem_inter`); the descent is the choice of the preimage per
+coefficient. The statement is the pin wrapper's
 `Theorems/Thm_ModularCurve_PhiGen_exists_phiGenDescends.lean`. -/
 theorem exists_phiGenDescends {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
     [IsGalois ℚ K] [FiniteDimensional ℚ K] (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
     ∃ c : ℕ → LaurentSeries ℚ, PhiGenDescends ℓ ζ c := by
-
   have hmem : ∀ k : ℕ, ∃ g : LaurentSeries ℚ,
-      (phiProd ℓ (conj ℓ ζ)).coeff k = coeffEmb K (ModularCurve.qExpand ℚ ℓ g) := by
+      (phiProd ℓ (conj ℓ ζ)).coeff k = coeffEmb K (qExpand ℚ ℓ g) := by
     intro k
     refine mem_range_coeffEmb_qExpand_of_mem_inter ?_ ?_
-    ·
-      exact phiProd_coeff_mem_range_qExpand ℓ ζ (coeffEmb K jq) (conj ℓ ζ)
-        hζ (conj_zero ℓ ζ) (conj_succ ℓ ζ) k
-    ·
-      refine mem_range_coeffEmb_of_forall_coeffMap_eq
-        (fun x hx => (IsGalois.mem_range_algebraMap_iff_fixed x).mpr hx) ?_
-      intro σ
+    · refine mem_range_qExpand_of_qTwist_eq hζ ?_
+      exact map_phiProd_coeff_of_perm (qTwist ζ) (Equiv.addRight (1 : Fin ℓ))
+        (qTwist_conj_zero hζ (conj_zero ℓ ζ)) (qTwist_conj_succ hζ (conj_succ ℓ ζ)) k
+    · refine mem_range_coeffEmb_of_forall_coeffMap_eq fun σ => ?_
       obtain ⟨e, he⟩ := exists_galoisPerm hζ (σ : K →+* K)
-      exact coeffMap_phiProd_coeff ℓ ζ (coeffEmb K jq) (conj ℓ ζ) (σ : K →+* K)
-        (coeffMap_coeffEmb σ jq) e he (conj_zero ℓ ζ) (conj_succ ℓ ζ) k
+      refine map_phiProd_coeff_of_perm (coeffMap (σ : K →+* K)) e
+        (coeffMap_conj_zero ℓ ζ σ) ?_ k
+      intro b
+      calc coeffMap (σ : K →+* K) (conj ℓ ζ b.succ)
+          = coeffMap (σ : K →+* K) (qTwist (ζ ^ (b : ℕ)) (coeffEmb K jq)) := by
+            rw [conj_succ ℓ ζ b]
+        _ = qTwist (ζ ^ ((e b : Fin ℓ) : ℕ)) (coeffMap (σ : K →+* K) (coeffEmb K jq)) := by
+            rw [coeffMap_qTwist (σ : K →+* K) (ζ ^ (b : ℕ)) (ζ ^ ((e b : Fin ℓ) : ℕ))
+                (by rw [Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val, he b])]
+        _ = qTwist (ζ ^ ((e b : Fin ℓ) : ℕ)) (coeffEmb K jq) := by
+            rw [coeffMap_coeffEmb σ jq]
+        _ = conj ℓ ζ (e b).succ := by
+            rw [← conj_succ ℓ ζ (e b)]
   choose c hc using hmem
   exact ⟨c, hc⟩
 

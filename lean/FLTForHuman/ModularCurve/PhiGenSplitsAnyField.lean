@@ -264,8 +264,16 @@ private theorem integral (data : ModularPolynomialData p) :
         (map_jqModC (iota p))
   apply Polynomial.map_injective (coeffMap (iota p))
     (ModularCurve.coeffMap_injective (iota_injective p))
-  rw [phiAtSeed_map, hseedO, hmapProd, ← hLK]
-  exact hK
+  have hmain : (phiAtSeed data (qExpand (cyclRing ℤ p) p (jqModC (cyclRing ℤ p)))).map
+        (coeffMap (iota p)) = phiProd p (conj p (cycUnit p)) := by
+    calc (phiAtSeed data (qExpand (cyclRing ℤ p) p (jqModC (cyclRing ℤ p)))).map
+            (coeffMap (iota p))
+        = phiAtSeed data (qExpand (CyclotomicField p ℚ) p (jqModC (CyclotomicField p ℚ))) := by
+          rw [phiAtSeed_map, hseedO]
+      _ = data.Φ.map (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ) :=
+          hLK.symm
+      _ = phiProd p (conj p (cycUnit p)) := hK
+  exact hmain.trans hmapProd.symm
 
 /-- The push-forward: the integral identity transported along the chosen primitive
 root `ζ` of an arbitrary field. -/
@@ -315,13 +323,21 @@ theorem phiAtSeed_qExpand_prime_eq (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p)
       map_pow, zetaLift_units_zeta]
     exact congrArg (fun z => Polynomial.X - Polynomial.C (qTwist (ζ ^ (b : ℕ)) z))
       (map_jqModC (zetaLift p ζ hζ))
-  rw [phiAtSeed_map, hseed, Polynomial.map_mul, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C,
-    hspread, ← Polynomial.coe_mapRingHom, map_prod, Finset.prod_congr rfl fun b _ => hfac b] at h
-  have hr : (∏ b : Fin p, (Polynomial.X - Polynomial.C (qTwist (ζ ^ (b : ℕ)) (jqModC K))))
-      = ∏ b ∈ Finset.range p, (Polynomial.X - Polynomial.C (qTwist (ζ ^ b) (jqModC K))) :=
-    Fin.prod_univ_eq_prod_range (fun b => Polynomial.X - Polynomial.C (qTwist (ζ ^ b) (jqModC K))) p
-  rw [hr] at h
-  exact h
+  calc phiAtSeed data (qExpand K p (jqModC K))
+      = (phiAtSeed data (qExpand (cyclRing ℤ p) p (jqModC (cyclRing ℤ p)))).map
+          (coeffMap (zetaLift p ζ hζ)) := by
+        rw [phiAtSeed_map, hseed]
+    _ = ((Polynomial.X - Polynomial.C (qExpand (cyclRing ℤ p) (p * p)
+            (jqModC (cyclRing ℤ p))))
+          * ∏ b : Fin p, (Polynomial.X - Polynomial.C (qTwist ((cyclZeta ℤ p) ^ (b : ℕ))
+              (jqModC (cyclRing ℤ p))))).map (coeffMap (zetaLift p ζ hζ)) := h
+    _ = (Polynomial.X - Polynomial.C (qExpand K (p * p) (jqModC K)))
+        * ∏ b ∈ Finset.range p,
+            (Polynomial.X - Polynomial.C (qTwist (ζ ^ b) (jqModC K))) := by
+        rw [Polynomial.map_mul, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, hspread,
+          ← Polynomial.coe_mapRingHom, map_prod, Finset.prod_congr rfl fun b _ => hfac b,
+          Fin.prod_univ_eq_prod_range
+            (fun b => Polynomial.X - Polynomial.C (qTwist (ζ ^ b) (jqModC K)))]
 
 /-- The splitting at a general slot over an arbitrary field: push the level-`p`
 identity through `qExpand K e ∘ qTwist u`. -/
@@ -344,10 +360,21 @@ theorem phiAtSeed_slot_prime_eq (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (d
     intro b _
     rw [Polynomial.coe_mapRingHom, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, hf,
       RingHom.comp_apply, qTwist_qTwist]
-  have h := congrArg (Polynomial.map f) (phiAtSeed_qExpand_prime_eq p ζ hζ data)
-  rw [phiAtSeed_map, hseed, Polynomial.map_mul, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C,
-    hspread, ← Polynomial.coe_mapRingHom, map_prod, Finset.prod_congr rfl hfac] at h
-  exact h
+  calc phiAtSeed data (qExpand K (p * e) (qTwist (u ^ p) (jqModC K)))
+      = phiAtSeed data (f (qExpand K p (jqModC K))) := by
+        rw [hseed]
+    _ = (phiAtSeed data (qExpand K p (jqModC K))).map f :=
+        (phiAtSeed_map data (qExpand K p (jqModC K)) f).symm
+    _ = ((Polynomial.X - Polynomial.C (qExpand K (p * p) (jqModC K)))
+          * ∏ b ∈ Finset.range p,
+              (Polynomial.X - Polynomial.C (qTwist (ζ ^ b) (jqModC K)))).map f :=
+        congrArg (Polynomial.map f) (phiAtSeed_qExpand_prime_eq p ζ hζ data)
+    _ = (Polynomial.X - Polynomial.C (qExpand K (p * (p * e))
+          (qTwist (u ^ (p * p)) (jqModC K))))
+        * ∏ b ∈ Finset.range p,
+            (Polynomial.X - Polynomial.C (qExpand K e (qTwist (u * ζ ^ b) (jqModC K)))) := by
+        rw [Polynomial.map_mul, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, hspread,
+          ← Polynomial.coe_mapRingHom, map_prod, Finset.prod_congr rfl hfac]
 
 end Engine
 
