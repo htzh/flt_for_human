@@ -380,26 +380,28 @@ three ways:
 
 | part | fate |
 |---|---|
-| the slot product and prime non-membership (`SlotProductAnyField`'s core) | **superseded** by the master plus an instance; deletable the day `CharP/` exists |
+| the slot product and prime non-membership (`SlotProductAnyField`'s core) | **deleted** (2026-11-08): both headlines are live in `CharP/SlotProduct.lean` and `CharP/Nonmembership.lean`, wired to the same pin files and statement-checked; only the retired inline `C`-layer induction went with it |
 | `MffCMulPrime` (the `C` prime step) | **restored** (2026-11-08) as `CharP/PrimeStep.lean`: the pin's C-layer headline, a 68-line delegation to the general theorem (`Generic/PrimeStep.lean`); its `S_` engine stays retired |
-| the socket degree half — `PrimePowerStepAnyField` (the `eFull` device, the prime-power tower, `package_of_socket`) | **future-needed, no replacement**: the `eFull` device runs the step with an arbitrary bound and the package is *conditional* there, so it is a different theorem proved by a different argument (§8.1) |
-| about eight field-generic declarations (`relfinrank_adjoin_insert*`, `jqNModC_injective`, `qTwist_jqModC_eq_TS`, `mem_adjoin_of_mem`, `phiAtSeed_map_algebraMap`, `natDegree_minpoly_le_of_phiAtSeed_root`) | **misplaced, not dead**: they belong in `Generic/` or `Defs/`, and the `ℚ` side has no twin of the first three |
+| the socket degree half — `PrimePowerStepAnyField` (the `eFull` device, the prime-power tower, `package_of_socket`) | **restored** (2026-11-08) as `CharP/PrimePowerStep.lean`, with its degree half at `Degree/FinrankAdjoinJqNModC.lean`; no replacement was found for it — the `eFull` device runs the step with an arbitrary bound and the package is *conditional* there, so it is a different theorem proved by a different argument (§8.1) |
+| about eight field-generic declarations (`relfinrank_adjoin_insert*`, `jqNModC_injective`, `qTwist_jqModC_eq_TS`, `mem_adjoin_of_mem`, `phiAtSeed_map_algebraMap`, `natDegree_minpoly_le_of_phiAtSeed_root`) | **misplaced, not dead**: they travel with `CharP/PrimePowerStep.lean` for now, and their proper home is `Generic/` or `Defs/`; the `ℚ` side has no twin of the first three |
 
-The consumer test also shows how much of the D-S route exists *only* on the shelf:
-`finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` is nowhere else, `package_of_socket` only there
-— and the two nodes above them
+The consumer test also showed how much of the D-S route existed *only* on the shelf:
+`finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` was nowhere else, `package_of_socket` only there —
+both are back in the tree now, and the two nodes above them
 (`modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos`,
-`exists_jZeroGoodReductionSpecialization_doorPredicates`) are absent from the tree entirely: that is
+`exists_jZeroGoodReductionSpecialization_doorPredicates`) are absent from it entirely: that is
 the unported tail, not shelf material.
 
-So the deferral is right, for a reason other than inertness: **the shelf is the source and the
-inventory for `CharP/`, not dead code.** "Written fresh" (§5) therefore means fresh as *modules* and
-free of compat debt; the degree half is transcribed, not re-derived. What it costs while it stays is
-one build target and a forward coupling to `SlotProduct`'s API (it borrows `TS_congr'` and
-`card_slotFilter_eq_dedekindPsi`, both of which the plan leaves alone — an inference from its header,
-not a check). What deleting it now would cost is the only copy of the char-`p` degree proof. The
-`C`-suffixed shadow block goes with it when it goes (it existed only because Lean refuses a
-`private` declaration whose public name is imported).
+The CL4 island closed on 2026-11-08: `Reserve/README.md` records the disposition of each of its
+files. The eight misplaced declarations above are the one piece of debt the move did not settle.
+
+So the deferral was right, for a reason other than inertness: **the shelf was the source and the
+inventory for `CharP/`, not dead code.** "Written fresh" (§5) therefore meant fresh as *modules* and
+free of compat debt; the degree half was transcribed, not re-derived. With the island closed
+(2026-11-08) the one build target and the forward coupling to `SlotProduct`'s API (it borrows
+`TS_congr'` and `card_slotFilter_eq_dedekindPsi`) are ordinary in-tree dependencies. The
+`C`-suffixed shadow block went with it (it existed only because Lean refuses a `private`
+declaration whose public name is imported).
 
 That removes the `C`-suffixed shadow block (it existed only because Lean refuses a `private`
 declaration whose public name is imported) and leaves the second instance unverifiable — so it is

@@ -41,7 +41,7 @@
 -/
 
 import FLTForHuman.AlgebraicCurve.Differential.Hurwitz
-import FLTForHuman.ModularCurve.Degree.FinrankAdjoinJqNModC
+import FLTForHuman.ModularCurve.Degree.TateInvariants
 import FLTForHuman.AlgebraicCurve.Differential.Coefficient
 import FLTForHuman.AlgebraicCurve.Genus.RatFunc
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
@@ -218,7 +218,7 @@ example : genusFF ℂ (RatFunc ℂ) = 0 :=
 
 /-! ## Zone `[socket]` — the `C`-layer assembly and its transport, at `K = ℚ`
 
-`FunctionFieldGeneration/PrimePowerStepAnyField.lean` carries the socket assembly
+`FunctionFieldGeneration/CharP/PrimePowerStep.lean` carries the socket assembly
 `package_of_socket` (its prime-step parameter `hKG1` filled by JQ2's
 `jqNModC_mem_modularFunctionFieldC_mul_prime`), and
 `Degree/FinrankAdjoinJqNModC.lean` the descent's two headlines. Every example below

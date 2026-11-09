@@ -113,8 +113,9 @@ import FLTForHuman.ModularForms.WeightOne.IntegralWeightOneForm
 import FLTForHuman.ModularCurve.Frobenius.QExpModL
 -- The `C` layer over an arbitrary field: the slot product, the non-membership and the
 -- prime-power step (Zone X).
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProductAnyField
-import FLTForHuman.ModularCurve.FunctionFieldGeneration.PrimePowerStepAnyField
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.CharP.SlotProduct
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.CharP.Nonmembership
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.CharP.PrimePowerStep
 -- The modular Galois layer: the `Pic0` action, the diamond operator and the torsion
 -- representation (Zone Y).
 import FLTForHuman.ModularCurve.Defs.ArithmeticGalois
@@ -1026,10 +1027,10 @@ theory over an arbitrary `[Field K]`, with `jqModC`/`jqNModC` in place of `jq`/`
 
 Three modules carry it, all three `needed 0` in `frontier.py --ds`:
 
-* `FunctionFieldGeneration/SlotProductAnyField.lean` — the arbitrary-field twin of Zone Q's
+* `FunctionFieldGeneration/CharP/SlotProduct.lean` (with `CharP/Nonmembership.lean`) — the arbitrary-field twin of Zone Q's
   `SlotProduct`: `minpoly_jqNModC_map_eq_prod_slots` (the pin's `rval_aux`, the slot list) and
   `jqNModC_prime_not_mem_fullC` (the non-membership of `jqNModC K p` in the level-`M` field);
-* `FunctionFieldGeneration/PrimePowerStepAnyField.lean` — the arbitrary-field twin of T16's
+* `FunctionFieldGeneration/CharP/PrimePowerStep.lean` — the arbitrary-field twin of T16's
   `DegreeStep.relfinrank_full_eq_mul`: the prime-power step of the tower `fullC K (M * p ^ a)`,
   with the `eFull` vocabulary (`eFull`, `eFull_eq_map`, `eFull_le_fullC`, …) that the next
   `C`-layer node, `package_of_socket`, imports;

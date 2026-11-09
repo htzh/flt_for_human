@@ -439,8 +439,8 @@ does not mathematically need. That is the design question of §2.2, and §7.3 is
 If we also want the descent to stop enumerating `B`, the supplement's §3(a) applies: `A = Φ_p` is
 the enumerated polynomial (monic, split, distinct roots, root shape — all intrinsic), `B` is a
 witness, and uniqueness is the two root-exclusion facts instead of a slot comparison. The proof is
-already written on the shelf and needs a port, not a design:
-`Reserve/ModularCurve/FunctionFieldGeneration/PrimePowerStepAnyField.lean`'s
+already in the tree, not a design (written on the shelf, moved back 2026-11-08):
+`FunctionFieldGeneration/CharP/PrimePowerStep.lean`'s
 `jqNModC_mem_of_div_primes`, `…_of_div_prime_of_mul_prime` and the divisor induction
 (`jqNModC_mem_adjoin_top_insert`, `fullC_succ_eq_adjoin_insert_divSet`,
 `fullC_mul_prime_eq_adjoin_insert_image`): two `Φ_p`'s, no minimal polynomial, uniqueness by
@@ -516,7 +516,7 @@ Two adaptations this costs:
   and it stays conditional, as today.
 
 The three `CharP` modules then get shorter without changing their statements, and the A-side option
-of §7.3 is any-field too: the shelf's `PrimePowerStepAnyField` is precisely that proof at a general
+of §7.3 is any-field too: `CharP/PrimePowerStep` is precisely that proof at a general
 field. One caveat, unchanged from today: if the characteristic equals the prime in play there is no
 primitive root of that order, so the `Φ_p` step's hypotheses are unsatisfiable — vacuous, not wrong.
 

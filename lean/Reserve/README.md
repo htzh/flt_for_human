@@ -48,28 +48,26 @@ belongs in the bin instead — is [porting-playbook.md](../porting-playbook.md)
   decision:
   [`studies/eichler-shimura-scout.md`](../../studies/eichler-shimura-scout.md) §1.3.
 
-## The CL4 island (shelved 2026-11-06)
+## The CL4 island (shelved 2026-11-06, closed 2026-11-08)
 
 The `C`-layer twin of the `ℚ` slot product and the socket-route degree formula it feeds
 (`package_of_socket`, the pin's prelude of the char-`p` route: `→
 modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos → … → mazurStepThree… →
-fermat_last_theorem`). Nothing in the current tree reaches it — the port's frontier stops three
+fermat_last_theorem`). Nothing in the tree reached it — the port's frontier stops three
 nodes above `_of_socket`, and the `ℚ` `hall_all` route supplies the degree facts — so it sat as a
 consumerless prelude that duplicated the whole `ℚ` slot product.
 
-**Not a re-port target.** When the char-`p` route resumes, `git mv` these files back (imports
-and `spec-pin:` wires travel) instead of porting the pin's `S_` files a second time: `Reserve` is a
-shelf and `FLTForHuman` must never import it. The live half of
-`Degree/FinrankAdjoinJqNModC.lean` (the Tate `c₄`/`c₆`/`j` in terms of `jqModC`, cited by
-`TateSlots/ToricPointDictionary.lean`) stayed in `FLTForHuman`.
+**Not a re-port target.** On resumption the files went back by `git mv` (imports and `spec-pin:`
+wires travelled) instead of the pin's `S_` files being ported a second time: `Reserve` is a shelf
+and `FLTForHuman` must never import it.
 
-**Already moved back (2026-11-08).** `MffCMulPrime.lean` is now
-`FLTForHuman/ModularCurve/FunctionFieldGeneration/CharP/PrimeStep.lean`, renamed to the C layer's
-role name (it mirrors `Generic/PrimeStep.lean`, the module it delegates to) and re-imported by
-`PrimePowerStepAnyField` at the new path. The remaining shelf is the socket degree half.
+**Disposition (2026-11-08).**
 
-| module | what it is |
+| shelf file | fate |
 |---|---|
-| `ModularCurve/FunctionFieldGeneration/SlotProductAnyField.lean` | the `C`-layer slot product and non-membership (the pin's two `S_` files, ported once); keeps its `spec-pin:` wire |
-| `ModularCurve/FunctionFieldGeneration/PrimePowerStepAnyField.lean` | the socket's `Pkg` package and the relative-degree steps (`package_of_socket`) |
-| `ModularCurve/Degree/FinrankAdjoinJqNModCDead.lean` | the dead half of `Degree/FinrankAdjoinJqNModC`: the `Transport`/coefficient-map block and the two degree headlines; unwired, so built but not statement-checked |
+| `ModularCurve/FunctionFieldGeneration/MffCMulPrime.lean` | → `FLTForHuman/…/FunctionFieldGeneration/CharP/PrimeStep.lean` (renamed to the C layer's role name; mirrors `Generic/PrimeStep.lean`) |
+| `ModularCurve/FunctionFieldGeneration/PrimePowerStepAnyField.lean` | → `FLTForHuman/…/FunctionFieldGeneration/CharP/PrimePowerStep.lean` (the socket's `Pkg` package and the prime-power degree step) |
+| `ModularCurve/Degree/FinrankAdjoinJqNModCDead.lean` | → `FLTForHuman/…/Degree/FinrankAdjoinJqNModC.lean` (the socket-route degree development; the pin's `finrank_adjoin_jqNModC` family). The Tate `c₄`/`c₆`/`j` half that held that name moved to `Degree/TateInvariants.lean`, so the name now matches its content. Wired by the four `spec-pin:` lines it now carries |
+| `ModularCurve/FunctionFieldGeneration/SlotProductAnyField.lean` | **deleted**: both of its public headlines (`minpoly_jqNModC_map_eq_prod_slots`, `jqNModC_prime_not_mem_fullC`) are live in `CharP/SlotProduct.lean` and `CharP/Nonmembership.lean`, wired to the same pin files and statement-checked; everything else in it was the retired inline `C`-layer induction |
+
+The CL4 island is therefore empty. Nothing on this shelf needs to be re-ported.

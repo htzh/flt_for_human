@@ -85,7 +85,7 @@
   spec-pin: P2M/Sol/S_ModularCurve_c4_mul_toricPoint_fst_div_c6_mem_qExpFunctionFieldC_gamma1.lean
 -/
 import FLTForHuman.ModularCurve.TateSlots.Invariants
-import FLTForHuman.ModularCurve.Degree.FinrankAdjoinJqNModC
+import FLTForHuman.ModularCurve.Degree.TateInvariants
 import FLTForHuman.ModularCurve.Defs.TateFormal
 import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularCurve.X1.Defs

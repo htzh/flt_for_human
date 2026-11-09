@@ -158,10 +158,10 @@ question "is the row ready?" — a row whose statement names `siegelFun` is not 
 
 **Two in-flight orders to close.** `WORKORDER-JQ2` (`jqNModC_mem_modularFunctionFieldC_mul_prime`)
 and `WORKORDER-CL4` (`package_of_socket`, its two tails, `map_intCast_pow_char_eq_qExpand`, …) are
-marked *open* in their files, but their declarations are in the tree
-(`ModularCurve/FunctionFieldGeneration/{CharP/PrimeStep,PrimePowerStepAnyField}.lean`,
-`ModularCurve/Defs/QExpandCharP.lean`). They are not on this shelf; the bookkeeping should close
-their records before the next wave re-reads the shelf.
+marked *open* in their files; their declarations are in the tree
+(`ModularCurve/FunctionFieldGeneration/CharP/{PrimeStep,PrimePowerStep}.lean`,
+`ModularCurve/Degree/FinrankAdjoinJqNModC.lean`, `ModularCurve/Defs/QExpandCharP.lean`). They are not
+on this shelf; the bookkeeping should close their records before the next wave re-reads the shelf.
 
 ## 0.3 The pricing
 
