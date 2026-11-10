@@ -48,10 +48,15 @@
 
   spec-pin: P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean
   spec-pin: P2M/Sol/S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean
+  spec-pin: P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket.lean
+  spec-pin: P2M/Sol/S_ModularCurve_package_of_socket.lean
 -/
 import Mathlib.Algebra.Polynomial.Roots
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
+import Mathlib.FieldTheory.Minpoly.Field
+import Mathlib.Algebra.Polynomial.Div
+import Mathlib.FieldTheory.Relrank
 import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.Defs.PhiGen
@@ -241,6 +246,116 @@ theorem phiAtSeed_jqN_eval_down (q : ℕ) [NeZero q] (data : ModularPolynomialDa
     (phiAtSeed data (jqN (M * q))).eval (jqN M) = 0 := by
   rw [← phiAtSeed_eval_symm data hs]; exact phiAtSeed_jqN_eval q data M
 
+
+/-! ## The `Φ_p`-root bounds over an arbitrary field
+
+`phiAtSeed data x` is monic of degree `ψ(p)`, so a root `t` of it is integral over an
+intermediate field `F` and `minpoly F t` has degree at most `ψ(p)`; a root already in `F`
+drops the bound by one. Uniform in `F`. -/
+
+section PhiRootBounds
+
+variable {F : IntermediateField K (LaurentSeries K)} {p : ℕ} [NeZero p]
+
+omit [Algebra ℚ K] in
+/-- `phiAtSeed` commutes with the inclusion of an intermediate field. -/
+theorem phiAtSeed_map_algebraMap (data : ModularPolynomialData p) {s : LaurentSeries K} (hs : s ∈ F) :
+    (phiAtSeed data (⟨s, hs⟩ : F)).map (algebraMap F (LaurentSeries K)) = phiAtSeed data s := by
+  rw [phiAtSeed_map]; rfl
+
+omit [Algebra ℚ K] in
+/-- A root of `phiAtSeed` in the field, read in `F`, is an `aeval`-root of the pushed polynomial. -/
+theorem aeval_phiAtSeed_eq_zero (data : ModularPolynomialData p) {s : LaurentSeries K} (hs : s ∈ F)
+    {t : LaurentSeries K} (ht : (phiAtSeed data s).eval t = 0) :
+    Polynomial.aeval t (phiAtSeed data (⟨s, hs⟩ : F)) = 0 := by
+  rw [← Polynomial.eval_map_algebraMap, phiAtSeed_map_algebraMap]
+  exact ht
+
+omit [Algebra ℚ K] in
+/-- The `ψ(p)` bound: a root of `Φ_p` at the seed has `minpoly`-degree at most `ψ(p)`. -/
+theorem natDegree_minpoly_le_dedekindPsi_of_phiAtSeed_root (data : ModularPolynomialData p)
+    {s : LaurentSeries K} (hs : s ∈ F) {t : LaurentSeries K}
+    (ht : (phiAtSeed data s).eval t = 0) :
+    (minpoly F t).natDegree ≤ dedekindPsi p := by
+  have h := minpoly.degree_le_of_ne_zero F t (phiAtSeed_monic data (⟨s, hs⟩ : F)).ne_zero
+    (aeval_phiAtSeed_eq_zero data hs ht)
+  have h2 := Polynomial.natDegree_le_natDegree h
+  rwa [phiAtSeed_natDegree] at h2
+
+omit [Algebra ℚ K] in
+/-- The `ψ(p) - 1` bound: if `Φ_p` at the seed has a root `r ∈ F` and `t ≠ r`, then
+`deg minpoly_F t ≤ ψ(p) - 1` — `(X - r)` divides `Φ_p` and `t` cannot be a root of `(X - r)`
+as well. -/
+theorem natDegree_minpoly_le_of_phiAtSeed_root_of_root_mem (data : ModularPolynomialData p)
+    {s : LaurentSeries K} (hs : s ∈ F) {r : LaurentSeries K} (hr : r ∈ F)
+    (hrroot : (phiAtSeed data s).eval r = 0) {t : LaurentSeries K}
+    (ht : (phiAtSeed data s).eval t = 0) (htr : t ≠ r) :
+    (minpoly F t).natDegree ≤ dedekindPsi p - 1 := by
+  set P : Polynomial F := phiAtSeed data (⟨s, hs⟩ : F) with hPdef
+  set rF : F := ⟨r, hr⟩ with hrF
+  have hPr : P.IsRoot rF := by
+    rw [Polynomial.IsRoot.def]
+    apply (algebraMap F (LaurentSeries K)).injective
+    rw [map_zero, ← Polynomial.eval₂_at_apply, ← Polynomial.eval_map, hPdef, phiAtSeed_map_algebraMap]
+    exact hrroot
+  set Q : Polynomial F := P /ₘ (Polynomial.X - Polynomial.C rF) with hQdef
+  have hPQ : (Polynomial.X - Polynomial.C rF) * Q = P :=
+    Polynomial.mul_divByMonic_eq_iff_isRoot.mpr hPr
+  have hQne : Q ≠ 0 := by
+    intro h0
+    have hP0 : P ≠ 0 := (phiAtSeed_monic data (⟨s, hs⟩ : F)).ne_zero
+    rw [← hPQ, h0, mul_zero] at hP0
+    exact hP0 rfl
+  have hQdeg : Q.natDegree = dedekindPsi p - 1 := by
+    rw [hQdef, Polynomial.natDegree_divByMonic _ (Polynomial.monic_X_sub_C rF),
+      Polynomial.natDegree_X_sub_C, hPdef, phiAtSeed_natDegree]
+  have htP : Polynomial.aeval t P = 0 := aeval_phiAtSeed_eq_zero data hs ht
+  have htQ : Polynomial.aeval t Q = 0 := by
+    rw [← hPQ, map_mul, map_sub, Polynomial.aeval_X, Polynomial.aeval_C] at htP
+    rcases mul_eq_zero.mp htP with h1 | h1
+    · exfalso
+      exact htr (sub_eq_zero.mp h1)
+    · exact h1
+  have h := Polynomial.natDegree_le_natDegree (minpoly.degree_le_of_ne_zero F t hQne htQ)
+  rwa [hQdeg] at h
+
+end PhiRootBounds
+
+/-! ## Insertion algebra
+
+The relative degree of an adjoin tower after inserting one generator: `IntermediateField`
+bookkeeping that the `C`-layer degree files share with the slot API above.
+
+-/
+
+section InsertionAlgebra
+
+omit [Algebra ℚ K] in
+/-- An element of `E` lies in any further adjoin over `E`. -/
+theorem mem_adjoin_of_mem {E : IntermediateField K (LaurentSeries K)} {x : LaurentSeries K}
+    (hx : x ∈ E) (T : Set (LaurentSeries K)) : x ∈ IntermediateField.adjoin E T :=
+  (IntermediateField.adjoin E T).algebraMap_mem ⟨x, hx⟩
+
+omit [Algebra ℚ K] in
+/-- Inserting one generator: the relative degree of `K⟮insert α T⟯` over `K⟮T⟯`
+is the degree of `K⟮T⟯⟮α⟯` over `K⟮T⟯`. -/
+theorem relfinrank_adjoin_insert (T : Set (LaurentSeries K)) (α : LaurentSeries K) :
+    IntermediateField.relfinrank (IntermediateField.adjoin K T) (IntermediateField.adjoin K (insert α T))
+      = Module.finrank (IntermediateField.adjoin K T)
+          (IntermediateField.adjoin (IntermediateField.adjoin K T) ({α} : Set (LaurentSeries K))) := by
+  have h : IntermediateField.adjoin K T ≤ IntermediateField.adjoin K (insert α T) :=
+    IntermediateField.adjoin.mono _ _ _ (Set.subset_insert α T)
+  have hEq : IntermediateField.adjoin (IntermediateField.adjoin K T) (insert α T)
+      = IntermediateField.adjoin (IntermediateField.adjoin K T) ({α} : Set (LaurentSeries K)) := by
+    refine le_antisymm ?_ ?_
+    · rw [IntermediateField.adjoin_le_iff]
+      rintro x (rfl | hxT)
+      · exact IntermediateField.subset_adjoin _ _ rfl
+      · exact mem_adjoin_of_mem (IntermediateField.subset_adjoin K T hxT) _
+    · exact IntermediateField.adjoin.mono _ _ _ (Set.singleton_subset_iff.mpr (Set.mem_insert α T))
+  rw [IntermediateField.relfinrank_eq_finrank_of_le h, IntermediateField.extendScalars_adjoin h, hEq]
+
+end InsertionAlgebra
 
 end ModularCurve
 

@@ -383,7 +383,7 @@ three ways:
 | the slot product and prime non-membership (`SlotProductAnyField`'s core) | **deleted** (2026-11-08): both headlines are live in `CharP/SlotProduct.lean` and `CharP/Nonmembership.lean`, wired to the same pin files and statement-checked; only the retired inline `C`-layer induction went with it |
 | `MffCMulPrime` (the `C` prime step) | **restored** (2026-11-08) as `CharP/PrimeStep.lean`: the pin's C-layer headline, a 68-line delegation to the general theorem (`Generic/PrimeStep.lean`); its `S_` engine stays retired |
 | the socket degree half — `PrimePowerStepAnyField` (the `eFull` device, the prime-power tower, `package_of_socket`) | **restored** (2026-11-08) as `CharP/PrimePowerStep.lean`, with its degree half at `Degree/FinrankAdjoinJqNModC.lean`; no replacement was found for it — the `eFull` device runs the step with an arbitrary bound and the package is *conditional* there, so it is a different theorem proved by a different argument (§8.1) |
-| about eight field-generic declarations (`relfinrank_adjoin_insert*`, `jqNModC_injective`, `qTwist_jqModC_eq_TS`, `mem_adjoin_of_mem`, `phiAtSeed_map_algebraMap`, `natDegree_minpoly_le_of_phiAtSeed_root`) | **misplaced, not dead**: they travel with `CharP/PrimePowerStep.lean` for now, and their proper home is `Generic/` or `Defs/`; the `ℚ` side has no twin of the first three |
+| about eight field-generic declarations (`relfinrank_adjoin_insert*`, `jqNModC_injective`, `qTwist_jqModC_eq_TS`, `mem_adjoin_of_mem`, `phiAtSeed_map_algebraMap`, `natDegree_minpoly_le_of_phiAtSeed_root`) | **paid (2026-11-08)**: the six content-bearing and base-case ones (the insertion identity, the `phiAtSeed` map/`aeval` bridges and the two `minpoly`-degree bounds) are in `Defs/PhiAtSlot.lean`, statement-checked against the two `C`-layer `S_` files they come from; the adapter wrappers stay in `CharP/PrimePowerStep.lean` with their only consumer |
 
 The consumer test also showed how much of the D-S route existed *only* on the shelf:
 `finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` was nowhere else, `package_of_socket` only there —
@@ -393,7 +393,8 @@ both are back in the tree now, and the two nodes above them
 the unported tail, not shelf material.
 
 The CL4 island closed on 2026-11-08: `Reserve/README.md` records the disposition of each of its
-files. The eight misplaced declarations above are the one piece of debt the move did not settle.
+files, and the misplaced-declaration debt is settled — the six went to `Defs/PhiAtSlot.lean`,
+the adapters stayed where the degree proof reads them.
 
 So the deferral was right, for a reason other than inertness: **the shelf was the source and the
 inventory for `CharP/`, not dead code.** "Written fresh" (§5) therefore meant fresh as *modules* and

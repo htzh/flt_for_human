@@ -292,31 +292,9 @@ theorem eFull_le_fullC (n : ℕ) [NeZero n] (L : ℕ) : eFull K n L ≤ fullC K 
 
 /-! ## 2. Insertion algebra
 
-Inserting one generator into an adjoin tower, and reading the relative degree as
-the degree of a minimal polynomial. `IntermediateField` bookkeeping only. -/
-
-/-- An element of `E` lies in any further adjoin over `E`. -/
-theorem mem_adjoin_of_mem {E : IntermediateField K (LaurentSeries K)} {x : LaurentSeries K}
-    (hx : x ∈ E) (T : Set (LaurentSeries K)) : x ∈ IntermediateField.adjoin E T :=
-  (IntermediateField.adjoin E T).algebraMap_mem ⟨x, hx⟩
-
-/-- Inserting one generator: the relative degree of `K⟮insert α T⟯` over `K⟮T⟯`
-is the degree of `K⟮T⟯⟮α⟯` over `K⟮T⟯`. -/
-theorem relfinrank_adjoin_insert (T : Set (LaurentSeries K)) (α : LaurentSeries K) :
-    IntermediateField.relfinrank (IntermediateField.adjoin K T) (IntermediateField.adjoin K (insert α T))
-      = Module.finrank (IntermediateField.adjoin K T)
-          (IntermediateField.adjoin (IntermediateField.adjoin K T) ({α} : Set (LaurentSeries K))) := by
-  have h : IntermediateField.adjoin K T ≤ IntermediateField.adjoin K (insert α T) :=
-    IntermediateField.adjoin.mono _ _ _ (Set.subset_insert α T)
-  have hEq : IntermediateField.adjoin (IntermediateField.adjoin K T) (insert α T)
-      = IntermediateField.adjoin (IntermediateField.adjoin K T) ({α} : Set (LaurentSeries K)) := by
-    refine le_antisymm ?_ ?_
-    · rw [IntermediateField.adjoin_le_iff]
-      rintro x (rfl | hxT)
-      · exact IntermediateField.subset_adjoin _ _ rfl
-      · exact mem_adjoin_of_mem (IntermediateField.subset_adjoin K T hxT) _
-    · exact IntermediateField.adjoin.mono _ _ _ (Set.singleton_subset_iff.mpr (Set.mem_insert α T))
-  rw [IntermediateField.relfinrank_eq_finrank_of_le h, IntermediateField.extendScalars_adjoin h, hEq]
+The relative degree after inserting one generator, read as the degree of a minimal
+polynomial, and its `fullC`/`eFull` instances. `IntermediateField` bookkeeping only; the
+insertion identity itself is the generic layer's degree bookkeeping. -/
 
 /-- The same, read as the degree of the minimal polynomial. -/
 theorem relfinrank_adjoin_insert_eq_natDegree (T : Set (LaurentSeries K)) {α : LaurentSeries K}
@@ -342,74 +320,19 @@ theorem relfinrank_eFull_insert_eq_natDegree (n : ℕ) [NeZero n] (L : ℕ) {α 
 
 /-! ## 3. Integrality of `jqModC K`
 
-`phiAtSeed data x` is monic of degree `ψ(p)`, so any root `t` of it is integral
-over the base field and has `deg minpoly ≤ ψ(p)`; if `Φ_p` already has another
-root `r` in the base field, dividing out `(X - r)` drops the bound to `ψ(p) - 1`.
-This section is uniform in the intermediate field `F`. -/
+`phiAtSeed data x` is monic of degree `ψ(p)`, so any root `t` of it is integral over the
+base field. The two `minpoly`-degree bounds it gives (with `ψ(p) - 1` when `Φ_p` already has
+another root in `F`) live with the `phiAtSeed` API in the definition layer; what stays here is
+the integrality the degree step reads. -/
 
 section packetBounds
 
 variable {F : IntermediateField K (LaurentSeries K)} {p : ℕ} [NeZero p]
 
-theorem phiAtSeed_map_algebraMap (data : ModularPolynomialData p) {s : LaurentSeries K} (hs : s ∈ F) :
-    (phiAtSeed data (⟨s, hs⟩ : F)).map (algebraMap F (LaurentSeries K)) = phiAtSeed data s := by
-  rw [phiAtSeed_map]; rfl
-
-theorem aeval_phiAtSeed_eq_zero (data : ModularPolynomialData p) {s : LaurentSeries K} (hs : s ∈ F)
-    {t : LaurentSeries K} (ht : (phiAtSeed data s).eval t = 0) :
-    Polynomial.aeval t (phiAtSeed data (⟨s, hs⟩ : F)) = 0 := by
-  rw [← Polynomial.eval_map_algebraMap, phiAtSeed_map_algebraMap]
-  exact ht
-
 theorem isIntegral_of_phiAtSeed_root (data : ModularPolynomialData p) {s : LaurentSeries K} (hs : s ∈ F)
     {t : LaurentSeries K} (ht : (phiAtSeed data s).eval t = 0) : IsIntegral F t :=
   ⟨phiAtSeed data (⟨s, hs⟩ : F), phiAtSeed_monic data _, by
     rw [← Polynomial.aeval_def]; exact aeval_phiAtSeed_eq_zero data hs ht⟩
-
-theorem natDegree_minpoly_le_dedekindPsi_of_phiAtSeed_root (data : ModularPolynomialData p)
-    {s : LaurentSeries K} (hs : s ∈ F) {t : LaurentSeries K}
-    (ht : (phiAtSeed data s).eval t = 0) :
-    (minpoly F t).natDegree ≤ dedekindPsi p := by
-  have h := minpoly.degree_le_of_ne_zero F t (phiAtSeed_monic data (⟨s, hs⟩ : F)).ne_zero
-    (aeval_phiAtSeed_eq_zero data hs ht)
-  have h2 := Polynomial.natDegree_le_natDegree h
-  rwa [phiAtSeed_natDegree] at h2
-
-/-- The `ψ(p) - 1` bound: if `Φ_p` at the seed has a root `r ∈ F` and `t ≠ r`, then
-`deg minpoly_F t ≤ ψ(p) - 1` — `(X - r)` divides `Φ_p` and `t` cannot be a root of
-`(X - r)` as well. -/
-theorem natDegree_minpoly_le_of_phiAtSeed_root_of_root_mem (data : ModularPolynomialData p)
-    {s : LaurentSeries K} (hs : s ∈ F) {r : LaurentSeries K} (hr : r ∈ F)
-    (hrroot : (phiAtSeed data s).eval r = 0) {t : LaurentSeries K}
-    (ht : (phiAtSeed data s).eval t = 0) (htr : t ≠ r) :
-    (minpoly F t).natDegree ≤ dedekindPsi p - 1 := by
-  set P : Polynomial F := phiAtSeed data (⟨s, hs⟩ : F) with hPdef
-  set rF : F := ⟨r, hr⟩ with hrF
-  have hPr : P.IsRoot rF := by
-    rw [Polynomial.IsRoot.def]
-    apply (algebraMap F (LaurentSeries K)).injective
-    rw [map_zero, ← Polynomial.eval₂_at_apply, ← Polynomial.eval_map, hPdef, phiAtSeed_map_algebraMap]
-    exact hrroot
-  set Q : Polynomial F := P /ₘ (Polynomial.X - Polynomial.C rF) with hQdef
-  have hPQ : (Polynomial.X - Polynomial.C rF) * Q = P :=
-    Polynomial.mul_divByMonic_eq_iff_isRoot.mpr hPr
-  have hQne : Q ≠ 0 := by
-    intro h0
-    have hP0 : P ≠ 0 := (phiAtSeed_monic data (⟨s, hs⟩ : F)).ne_zero
-    rw [← hPQ, h0, mul_zero] at hP0
-    exact hP0 rfl
-  have hQdeg : Q.natDegree = dedekindPsi p - 1 := by
-    rw [hQdef, Polynomial.natDegree_divByMonic _ (Polynomial.monic_X_sub_C rF),
-      Polynomial.natDegree_X_sub_C, hPdef, phiAtSeed_natDegree]
-  have htP : Polynomial.aeval t P = 0 := aeval_phiAtSeed_eq_zero data hs ht
-  have htQ : Polynomial.aeval t Q = 0 := by
-    rw [← hPQ, map_mul, map_sub, Polynomial.aeval_X, Polynomial.aeval_C] at htP
-    rcases mul_eq_zero.mp htP with h1 | h1
-    · exfalso
-      exact htr (sub_eq_zero.mp h1)
-    · exact h1
-  have h := Polynomial.natDegree_le_natDegree (minpoly.degree_le_of_ne_zero F t hQne htQ)
-  rwa [hQdeg] at h
 
 end packetBounds
 

@@ -144,13 +144,6 @@ private def zetaUnit (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (e : ℕ) :
     ⟨((u⁻¹ : Kˣ) : K), mem_integralClosure_of_pow_eq_one hℓ.out.ne_zero hinv⟩
     (by ext; simp)
 
-omit [Algebra ℚ K] in
-private theorem coeffMap_zetaUnit (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (e : ℕ) :
-    Units.map (algebraMap (integralClosure ℤ K) K).toMonoidHom (zetaUnit ζ hζ1 e)
-      = ζ ^ e := by
-  ext
-  simp [zetaUnit]
-
 /-- The `𝒪`-lift of `jq`. -/
 private def jqO : LaurentSeries (integralClosure ℤ K) :=
   coeffMap (algebraMap ℤ (integralClosure ℤ K)) jqZ
@@ -165,46 +158,46 @@ private def conjO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (i : Fin (ℓ + 1)) :
   qExpand (integralClosure ℤ K) (cosetA ℓ i * cosetA ℓ i)
     (qTwist (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i)) jqO)
 
-private theorem coeffMap_conjO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (i : Fin (ℓ + 1)) :
-    coeffMap (algebraMap (integralClosure ℤ K) K) (conjO ζ hζ1 i) = conj ℓ ζ i := by
-  rw [conjO, coeffMap_qExpand,
-    coeffMap_qTwist (algebraMap (integralClosure ℤ K) K)
-      (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i))
-      (Units.map (algebraMap (integralClosure ℤ K) K).toMonoidHom
-        (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i))) rfl,
-    coeffMap_jqO, coeffMap_zetaUnit]
-  unfold conj cosetSubst
-  rw [RingHom.comp_apply]
-
 /-- The `𝒪`-lift of the product `∏_i (Y - conj i)`. `phiProd` is stated for a
 field, so the lift is the bare product over the (non-field) integral closure. -/
 private def phiProdO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) :
     Polynomial (LaurentSeries (integralClosure ℤ K)) :=
   ∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (conjO ζ hζ1 i))
 
-private theorem map_phiProdO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) :
-    Polynomial.map (coeffMap (algebraMap (integralClosure ℤ K) K)) (phiProdO ζ hζ1)
+private theorem coeffMap_qExpand_qTwist {R S : Type*} [CommRing R] [CommRing S]
+    (σ : R →+* S) (u : Rˣ) (v : Sˣ) (huv : (v : S) = σ (u : R)) (N : ℕ) [NeZero N]
+    (f : LaurentSeries R) :
+    coeffMap σ (qExpand R N (qTwist u f)) = qExpand S N (qTwist v (coeffMap σ f)) := by
+  rw [coeffMap_qExpand, coeffMap_qTwist σ u v huv]
+
+private theorem prod_eq_of_lift {A B : Type*} [CommRing A] [CommRing B] (f : A →+* B)
+    {n : ℕ} {y : Fin n → A} {z : Fin n → B} (h : ∀ i, f (y i) = z i) :
+    (∏ i : Fin n, (Polynomial.X - Polynomial.C (y i))).map f
+      = ∏ i : Fin n, (Polynomial.X - Polynomial.C (z i)) := by
+  rw [Polynomial.map_prod]
+  exact Finset.prod_congr rfl fun i _ => by
+    rw [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, h i]
+
+/-- Every coefficient of the conjugate product lies in `𝒪`. The lift `phiProdO`
+exists because `jq` has integer coefficients and `ζ ^ e` is a unit of `𝒪`, and
+`coeffMap` carries it back to `phiProd`. -/
+private theorem coeff_phiProd_mem (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (k : ℕ) (m : ℤ) :
+    ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff m ∈ integralClosure ℤ K := by
+  have hlift : ∀ e : ℕ, Units.map (algebraMap (integralClosure ℤ K) K).toMonoidHom
+      (zetaUnit ζ hζ1 e) = ζ ^ e := fun e => Units.ext (by simp [zetaUnit])
+  have hmap : (phiProdO ζ hζ1).map (coeffMap (algebraMap (integralClosure ℤ K) K))
       = phiProd ℓ (conj ℓ ζ) := by
-  rw [phiProdO, phiProd]
-  simp only [Polynomial.map_prod, Polynomial.map_sub, Polynomial.map_X,
-    Polynomial.map_C, coeffMap_conjO]
+    refine prod_eq_of_lift (coeffMap (algebraMap (integralClosure ℤ K) K)) fun i => ?_
+    unfold conjO conj cosetSubst
+    rw [RingHom.comp_apply]
+    rw [coeffMap_qExpand_qTwist (algebraMap (integralClosure ℤ K) K)
+      (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i)) (ζ ^ (cosetA ℓ i * cosetB ℓ i))
+      (by rw [← hlift (cosetA ℓ i * cosetB ℓ i)]; rfl)]
+    rw [coeffMap_jqO]
+  rw [← hmap, Polynomial.coeff_map, coeffMap_coeff]
+  exact (((phiProdO ζ hζ1).coeff k).coeff m).property
 
 /-! ## The integrality of the descended family -/
-
-private theorem exists_intCast_eq_of_mem {q : ℚ}
-    (h : algebraMap ℚ K q ∈ integralClosure ℤ K) : ∃ z : ℤ, q = (z : ℚ) := by
-  rw [mem_integralClosure_iff] at h
-  obtain ⟨P, hPmonic, hPeval⟩ := h
-  have hcomp : algebraMap ℤ K = (algebraMap ℚ K).comp (Int.castRingHom ℚ) :=
-    Subsingleton.elim _ _
-  rw [hcomp, ← Polynomial.hom_eval₂] at hPeval
-  have h0 : Polynomial.eval₂ (Int.castRingHom ℚ) q P = 0 :=
-    FaithfulSMul.algebraMap_injective ℚ K (by rw [hPeval, map_zero])
-  have hint : IsIntegral ℤ q :=
-    ⟨P, hPmonic, by
-      rwa [show algebraMap ℤ ℚ = Int.castRingHom ℚ from Subsingleton.elim _ _]⟩
-  obtain ⟨z, hz⟩ := IsIntegrallyClosed.isIntegral_iff.mp hint
-  exact ⟨z, by rw [← hz]; simp⟩
 
 variable {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ}
 
@@ -218,9 +211,14 @@ theorem PhiGenDescends.intCoeffs {K : Type*} [Field K] [Algebra ℚ K] {ℓ : �
   have h1 : algebraMap ℚ K ((c k).coeff m)
       = ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff ((ℓ : ℤ) * m) := by
     rw [hc k, coeffEmb_coeff, qExpand_coeff_mul]
-  refine exists_intCast_eq_of_mem (K := K) ?_
-  rw [h1, ← map_phiProdO ζ hζ1, Polynomial.coeff_map, coeffMap_coeff]
-  exact (((phiProdO ζ hζ1).coeff k).coeff ((ℓ : ℤ) * m)).property
+  have hmem : algebraMap ℚ K ((c k).coeff m) ∈ integralClosure ℤ K := by
+    rw [h1]
+    exact coeff_phiProd_mem ζ hζ1 k ((ℓ : ℤ) * m)
+  have : IsScalarTower ℤ ℚ K := IsScalarTower.of_algebraMap_eq' (Subsingleton.elim _ _)
+  have hint : IsIntegral ℤ ((c k).coeff m) := (isIntegral_algebraMap_iff (B := K)).mp hmem
+  obtain ⟨z, hz⟩ := IsIntegrallyClosed.isIntegral_iff.mp hint
+  exact ⟨z, by rw [← hz]; simp⟩
+
 
 /-! ## The triangularity descent
 
