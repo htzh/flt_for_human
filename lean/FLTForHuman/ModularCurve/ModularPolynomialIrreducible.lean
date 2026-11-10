@@ -11,8 +11,12 @@
 
   * `conj_injective` — the `ℓ + 1` conjugates are distinct (separated by their
     `q⁻¹` coefficients);
-  * `aeval_jq_ne_jqN` / `jqN_not_mem_adjoin_jq` — `j(q ^ ℓ)` is not a polynomial in
-    `j(q)` (the twist-sum refutation, using `one_le_coeff_jq` at `n = ℓ`);
+  * `jqN_not_mem_adjoin_jq` (private) — `j(q ^ ℓ)` is not a polynomial in `j(q)`, the
+    prime non-membership: the twist-sum refutation, using `one_le_coeff_jq` at
+    `n = ℓ`. The pin has it public (`aeval_jq_ne_jqN_of_isPrimitiveRoot`,
+    `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq`) but no file outside the block's own
+    copies cites any of the three, so the port keeps the statement and inlines the
+    chain into one private fact (its only consumer is the irreducibility proof);
   * `phiIrreducible_of_splits` — the datum is irreducible over `ℚ(j)`, by the
     factor-counting argument: a nonzero `D ∈ ℚ[j(q)]` with `D(jq) = 0` has degree
     `≥ ℓ` (the conjugates are distinct), so one factor of any factorisation has
@@ -44,8 +48,8 @@
   everything except `swapBivar_eq_of_evalSymm`, which is
   `P2M/Sol/S_ModularCurve_swapBivar_eq_of_evalSymm.lean` (95 lines). The public
   statements are the `Theorems/` wrappers verbatim where a wrapper exists, and the
-  `S_` file's own public declarations otherwise (`aeval_jq_ne_jqN`,
-  `jqN_not_mem_adjoin_jq`, `evalSymm_of_swapBivar_eq`, `eval_swap_eq_zero_of_splits`).
+  `S_` file's own public declarations otherwise (`evalSymm_of_swapBivar_eq`,
+  `eval_swap_eq_zero_of_splits`).
 
   ## Assumptions
 
@@ -177,6 +181,22 @@ theorem conj_injective {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
         push_cast at hv
         exact hv
       exact congrArg Fin.succ (Fin.ext (hζ.pow_inj b.isLt b'.isLt hpow))
+
+/-! ## Roots of the conjugate product -/
+
+section ConjRoots
+
+variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
+
+/-- The root count for the conjugate product: a vanishing value is one of the conjugates, a product
+of `ℓ + 1` linear factors being zero only if one factor is. -/
+private theorem exists_eq_conj_of_eval_phiProd_eq_zero {x : LaurentSeries K}
+    (h : (phiProd ℓ (conj ℓ ζ)).eval x = 0) : ∃ i, x = conj ℓ ζ i := by
+  simpa only [phiProd, Polynomial.eval_prod, Finset.prod_eq_zero_iff, Finset.mem_univ,
+    true_and, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C,
+    sub_eq_zero] using h
+
+end ConjRoots
 
 /-! ## The scalar embedding `ℚ → K((q))` -/
 
@@ -362,15 +382,6 @@ private theorem coeff_sum_conj_succ_ne_zero
     rw [h0] at h1
     norm_num at h1
 
-theorem aeval_jq_ne_jqN_of_isPrimitiveRoot
-    (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    (P : Polynomial ℚ) : Polynomial.aeval jq P ≠ jqN ℓ := by
-  intro h
-  have h1 := sum_conj_succ_eq_ratC_of_aeval_jq_eq ℓ ζ hζ h
-  have h2 := coeff_sum_conj_succ_ne_zero ℓ ζ hpos hζ
-  rw [h1] at h2
-  exact h2 (coeff_ratC_of_ne K _ (by exact_mod_cast hℓ.out.ne_zero))
-
 end Refutation
 
 section Headline
@@ -378,26 +389,33 @@ section Headline
 variable (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
 
 set_option linter.style.haveILetI false in
-/-- No polynomial in `j(q)` equals `j(q ^ ℓ)`. Uses `one_le_coeff_jq` at `n = ℓ`
-for the nonvanishing of the `q ^ ℓ` coefficient of the twist-sum. -/
-theorem aeval_jq_ne_jqN (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (P : Polynomial ℚ) :
-    Polynomial.aeval jq P ≠ jqN ℓ := by
+/-- The prime non-membership: `j(q ^ ℓ)` is not a polynomial in `j(q)`. The arithmetic is the
+twist-sum refutation — twist `P(j(q)) = j(q ^ ℓ)` by `ζ ^ b`, sum over the `ℓ` finite conjugates,
+and read the `q ^ ℓ` coefficient: it is `ℓ * jq.coeff ℓ`, nonzero by the positivity of `j`'s
+coefficients at `n = ℓ`, against `0` on the rational-constant side. This is the module's one
+arithmetic input, and the only place a prime-level non-membership is used. -/
+private theorem jqN_not_mem_adjoin_jq (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) :
+    jqN ℓ ∉ Algebra.adjoin ℚ {jq} := by
+  intro hmem
+  obtain ⟨P, hP⟩ := Algebra.adjoin_mem_exists_aeval _ _ hmem
   haveI : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
   haveI : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
     CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
   obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
     (Set.mem_singleton ℓ) hℓ.out.ne_zero
   have hzu : IsUnit z := hz.isUnit hℓ.out.ne_zero
-  refine aeval_jq_ne_jqN_of_isPrimitiveRoot ℓ hzu.unit hpos ?_ P
-  rw [hzu.unit_spec]
-  exact hz
-
-/-- `j(q ^ ℓ)` is not in `ℚ[j(q)]`. -/
-theorem jqN_not_mem_adjoin_jq (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) :
-    jqN ℓ ∉ Algebra.adjoin ℚ {jq} := by
-  intro hmem
-  obtain ⟨P, hP⟩ := Algebra.adjoin_mem_exists_aeval _ _ hmem
-  exact aeval_jq_ne_jqN ℓ hpos P hP
+  have hζ : IsPrimitiveRoot ((hzu.unit : (CyclotomicField ℓ ℚ)ˣ) : CyclotomicField ℓ ℚ) ℓ := by
+    rw [hzu.unit_spec]
+    exact hz
+  have hsum : (∑ b : Fin ℓ, conj ℓ hzu.unit b.succ)
+      = ratC (CyclotomicField ℓ ℚ) (-(P.coeff (ℓ - 1))) :=
+    sum_conj_succ_eq_ratC_of_aeval_jq_eq ℓ hzu.unit hζ hP
+  have hne : (∑ b : Fin ℓ, conj ℓ hzu.unit b.succ).coeff ((ℓ : ℕ) : ℤ) ≠ 0 :=
+    coeff_sum_conj_succ_ne_zero ℓ hzu.unit hpos hζ
+  refine hne ?_
+  calc (∑ b : Fin ℓ, conj ℓ hzu.unit b.succ).coeff ((ℓ : ℕ) : ℤ)
+      = (ratC (CyclotomicField ℓ ℚ) (-(P.coeff (ℓ - 1)))).coeff ((ℓ : ℕ) : ℤ) := by rw [hsum]
+    _ = 0 := coeff_ratC_of_ne (CyclotomicField ℓ ℚ) _ (by exact_mod_cast hℓ.out.ne_zero)
 
 end Headline
 
@@ -502,6 +520,7 @@ private theorem adjoinEmbedT_apply (x : adjoinJq) :
 private theorem adjoinEmbedT_injective : Function.Injective (adjoinEmbedT K ℓ) :=
   fun _ _ h => Subtype.ext (qEmbedT_injective K ℓ h)
 
+
 private theorem adjoinEmbedT_comp_evalAtJAdj :
     (adjoinEmbedT K ℓ).comp evalAtJAdj = (qEmbedT K ℓ).comp evalAtJ := by
   refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
@@ -510,6 +529,29 @@ private theorem adjoinEmbedT_comp_evalAtJAdj :
   rfl
 
 variable {K ℓ ζ}
+
+/-- The descent that a vanishing at the extra conjugate forces: if the level-`ℓ` image of `x` is
+`conj 0 = j(q ^ (ℓ * ℓ))` then `x` is `j(q ^ ℓ)`. `qEmbedT` is injective, and `qEmbedT_jqN`
+identifies that conjugate with the image of `j(q ^ ℓ)` — so this is where a root of the conjugate
+product comes back down to the non-membership `j(q ^ ℓ) ∉ ℚ[j(q)]`. -/
+private theorem eq_jqN_of_adjoinEmbedT_eq_conj_zero {x : adjoinJq}
+    (h : adjoinEmbedT K ℓ x = conj ℓ ζ 0) : (x : LaurentSeries ℚ) = jqN ℓ := by
+  refine qEmbedT_injective K ℓ ?_
+  calc qEmbedT K ℓ (x : LaurentSeries ℚ)
+      = adjoinEmbedT K ℓ x := (adjoinEmbedT_apply K ℓ x).symm
+    _ = conj ℓ ζ 0 := h
+    _ = qEmbedT K ℓ (jqN ℓ) := (qEmbedT_jqN K ℓ ζ).symm
+
+/-- The level-`ℓ` image of an element of `ℚ[j(q)]` has vanishing `q⁻¹` coefficient: it is a series
+in `q ^ ℓ`, and `ℓ ∤ -1`. That is the slot in which the finite conjugates are separated, their
+coefficient at `-1` being `(ζ ^ b)⁻¹ ≠ 0`. -/
+private theorem coeff_neg_one_adjoinEmbedT (x : adjoinJq) :
+    (adjoinEmbedT K ℓ x).coeff (-1 : ℤ) = 0 := by
+  rw [adjoinEmbedT_apply, qEmbedT_apply]
+  refine qExpand_coeff_of_not_dvd _ _ ?_
+  intro hdvd
+  have h1 : ((ℓ : ℕ) : ℤ) ∣ 1 := dvd_neg.mp hdvd
+  exact hℓ.out.one_lt.ne' (Nat.dvd_one.mp (by exact_mod_cast h1))
 
 private theorem eval_map_conj_succ_eq_zero (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     {D : Polynomial adjoinJq} (h : (D.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq) = 0)
@@ -521,23 +563,56 @@ private theorem eval_map_conj_succ_eq_zero (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     rw [Polynomial.eval_map, Polynomial.eval_map, Polynomial.hom_eval₂, hcomp]
   rw [conj_succ, ← key, h, map_zero]
 
+/-- A nonzero `D` over `ℚ[j(q)]` whose level-`ℓ` image vanishes at `j(q)` has degree at least `ℓ`:
+that image vanishes at the `ℓ` distinct finite conjugates, and a nonzero polynomial cannot have `ℓ`
+roots. -/
 private theorem le_natDegree_of_eval_map_jqK_eq_zero (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     {D : Polynomial adjoinJq} (hD : D ≠ 0)
     (h : (D.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq) = 0) : ℓ ≤ D.natDegree := by
-  have hmap : ℓ ≤ (D.map (adjoinEmbedT K ℓ)).natDegree := by
+  have hconj : Function.Injective fun b : Fin ℓ => conj ℓ ζ b.succ :=
+    fun b b' hbb' => Fin.succ_injective ℓ (conj_injective ℓ ζ hζ hbb')
+  have hroots : ∀ b : Fin ℓ, (D.map (adjoinEmbedT K ℓ)).eval (conj ℓ ζ b.succ) = 0 :=
+    fun b => eval_map_conj_succ_eq_zero hζ h b
+  have hDσ : D.map (adjoinEmbedT K ℓ) ≠ 0 := fun h0 =>
+    hD (Polynomial.map_injective _ (adjoinEmbedT_injective K ℓ)
+      (by rw [h0, Polynomial.map_zero]))
+  have hdeg : ℓ ≤ (D.map (adjoinEmbedT K ℓ)).natDegree := by
     by_contra hlt
     rw [not_le] at hlt
-    have hzero : D.map (adjoinEmbedT K ℓ) = 0 :=
-      Polynomial.eq_zero_of_natDegree_lt_card_of_eval_eq_zero _
-        (f := fun b : Fin ℓ => conj ℓ ζ b.succ)
-        (fun b b' hbb' => Fin.succ_injective ℓ (conj_injective ℓ ζ hζ hbb'))
-        (fun b => eval_map_conj_succ_eq_zero hζ h b)
-        (by rwa [Fintype.card_fin])
-    exact hD (Polynomial.map_injective _ (adjoinEmbedT_injective K ℓ)
-      (by rw [hzero, Polynomial.map_zero]))
-  exact le_trans hmap Polynomial.natDegree_map_le
+    exact hDσ (Polynomial.eq_zero_of_natDegree_lt_card_of_eval_eq_zero _
+      (f := fun b : Fin ℓ => conj ℓ ζ b.succ) hconj hroots (by rwa [Fintype.card_fin]))
+  calc ℓ ≤ (D.map (adjoinEmbedT K ℓ)).natDegree := hdeg
+    _ ≤ D.natDegree := Polynomial.natDegree_map_le
 
 end FactorAnalysis
+
+/-! ## A divisor of degree at most one of a rootless polynomial -/
+
+section NoRootDivisor
+
+/-- A divisor of a polynomial without roots is a unit, provided it has degree at most one and unit
+leading coefficient: of degree `0` it is a unit constant, and of degree `1` it would have the root
+`-u⁻¹ * p.coeff 0` for `u = p.leadingCoeff`, hence so would any polynomial it divides. -/
+private theorem isUnit_of_dvd_of_natDegree_le_one {R : Type*} [CommRing R]
+    {B P : Polynomial R} (hdvd : B ∣ P) (hlc : IsUnit B.leadingCoeff) (hdeg : B.natDegree ≤ 1)
+    (hroot : ∀ x, P.eval x ≠ 0) : IsUnit B := by
+  rcases Nat.le_one_iff_eq_zero_or_eq_one.mp hdeg with h0 | h1
+  · rw [Polynomial.eq_C_of_natDegree_eq_zero h0]
+    exact Polynomial.isUnit_C.mpr (by rwa [Polynomial.leadingCoeff, h0] at hlc)
+  · exfalso
+    obtain ⟨u, hu⟩ := hlc
+    obtain ⟨D, hD⟩ := hdvd
+    have hu1 : (u : R) = B.coeff 1 := by rw [hu, Polynomial.leadingCoeff, h1]
+    have hBev : ∀ x : R, B.eval x = B.coeff 1 * x + B.coeff 0 := fun x => by
+      conv_lhs => rw [Polynomial.eq_X_add_C_of_natDegree_le_one hdeg]
+      simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_C,
+        Polynomial.eval_X]
+    have hrootB : B.eval ((↑u⁻¹ : R) * -B.coeff 0) = 0 := by
+      rw [hBev, ← hu1]
+      linear_combination (-B.coeff 0) * u.mul_inv
+    exact hroot _ (by rw [hD, Polynomial.eval_mul, hrootB, zero_mul])
+
+end NoRootDivisor
 
 /-! ## The splitting identity in `K((q))` -/
 
@@ -581,62 +656,45 @@ conjugate linear factors, so by Gauss it suffices to factor `Φ = A · B` over
 `ℚ[j(q)]`: evaluating at `j(q)` kills one factor, the `ℓ` distinct conjugates
 force that factor to have degree `≥ ℓ`, and the other factor is then a unit
 because a degree-`1` factor would have a root in `ℚ[j(q)]`, which
-`j(q ^ ℓ) ∉ ℚ[j(q)]` forbids. Verbatim from the pin wrapper
+`j(q ^ ℓ) ∉ ℚ[j(q)]` forbids. The two levels are named in the proof: `Φ₀` is
+`Φ(j(q), Y)` over `ℚ[j(q)]`, and `Φ₁` is its level-`ℓ` image `Φ(j(q ^ ℓ), Y)` over
+`K((q))`. Verbatim from the pin wrapper
 `Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean`. -/
 theorem phiIrreducible_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     (data : ModularPolynomialData ℓ)
     (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
       = phiProd ℓ (conj ℓ ζ)) : PhiIrreducible data := by
-  have hsplit' : (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ) = phiProd ℓ (conj ℓ ζ) :=
-    calc (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ)
-        = data.Φ.map ((qEmbedT K ℓ).comp evalAtJ) := by
-          rw [Polynomial.map_map, adjoinEmbedT_comp_evalAtJAdj]
+  set Φ₀ : Polynomial adjoinJq := data.Φ.map evalAtJAdj with hΦ₀
+  set Φ₁ : Polynomial (LaurentSeries K) := Φ₀.map (adjoinEmbedT K ℓ) with hΦ₁
+  have hsplit₁ : Φ₁ = phiProd ℓ (conj ℓ ζ) :=
+    calc Φ₁ = data.Φ.map ((qEmbedT K ℓ).comp evalAtJ) := by
+          rw [hΦ₁, hΦ₀, Polynomial.map_map, adjoinEmbedT_comp_evalAtJAdj]
       _ = phiProd ℓ (conj ℓ ζ) := map_qEmbedT_evalAtJ_eq_phiProd ℓ ζ data hsplit
-  refine (phiIrreducible_iff_irreducible_map_evalAtJAdj data).mpr ?_
-  have hmonic : (data.Φ.map evalAtJAdj).Monic := data.monic.map _
-  have hdeg : (data.Φ.map evalAtJAdj).natDegree = ℓ + 1 :=
+  have hmonic : Φ₀.Monic := by
+    rw [hΦ₀]
+    exact data.monic.map _
+  have hdeg : Φ₀.natDegree = ℓ + 1 := by
+    rw [hΦ₀]
     calc (data.Φ.map evalAtJAdj).natDegree = data.Φ.natDegree := data.monic.natDegree_map _
       _ = dedekindPsi ℓ := data.natDegree_eq
       _ = ℓ + 1 := dedekindPsi_prime hℓ.out
-  have hnoRoot : ∀ β : adjoinJq, (data.Φ.map evalAtJAdj).eval β ≠ 0 := by
-    intro β hval
-    have hmap : (phiProd ℓ (conj ℓ ζ)).eval (adjoinEmbedT K ℓ β) = 0 := by
-      rw [← hsplit', Polynomial.eval_map, Polynomial.eval₂_at_apply, hval, map_zero]
-    rw [phiProd, Polynomial.eval_prod] at hmap
-    obtain ⟨i, -, hi⟩ := Finset.prod_eq_zero_iff.mp hmap
-    rw [Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_eq_zero] at hi
+  have hnoRoot : ∀ β : adjoinJq, Φ₀.eval β ≠ 0 := by
+    intro β hβ
+    have hβ₁ : (phiProd ℓ (conj ℓ ζ)).eval (adjoinEmbedT K ℓ β) = 0 := by
+      rw [← hsplit₁, hΦ₁]
+      exact Polynomial.IsRoot.map hβ
+    obtain ⟨i, hi⟩ := exists_eq_conj_of_eval_phiProd_eq_zero ℓ ζ hβ₁
     rcases Fin.eq_zero_or_eq_succ i with rfl | ⟨b, rfl⟩
-    · rw [adjoinEmbedT_apply, ← qEmbedT_jqN K ℓ ζ] at hi
-      have hβ : (β : LaurentSeries ℚ) = jqN ℓ := qEmbedT_injective K ℓ hi
-      exact jqN_not_mem_adjoin_jq ℓ one_le_coeff_jq (hβ ▸ β.2)
-    · have hvan : (adjoinEmbedT K ℓ β).coeff (-1 : ℤ) = 0 := by
-        rw [adjoinEmbedT_apply, qEmbedT_apply]
-        refine qExpand_coeff_of_not_dvd _ _ ?_
-        intro hdvd
-        have h1 : ((ℓ : ℕ) : ℤ) ∣ 1 := dvd_neg.mp hdvd
-        have h2 : ℓ ∣ 1 := by exact_mod_cast h1
-        exact hℓ.out.one_lt.ne' (Nat.dvd_one.mp h2)
-      rw [hi, conj_succ_coeff_neg_one] at hvan
+    · exact jqN_not_mem_adjoin_jq ℓ one_le_coeff_jq
+        (eq_jqN_of_adjoinEmbedT_eq_conj_zero hi ▸ β.2)
+    · have hvan : (conj ℓ ζ b.succ).coeff (-1 : ℤ) = 0 := by
+        rw [← hi]
+        exact coeff_neg_one_adjoinEmbedT β
+      rw [conj_succ_coeff_neg_one] at hvan
       exact Units.ne_zero _ hvan
-  have hunit : ∀ {B : Polynomial adjoinJq}, B ∣ data.Φ.map evalAtJAdj →
-      IsUnit B.leadingCoeff → B.natDegree ≤ 1 → IsUnit B := by
-    intro B hdvd hlc hBdeg
-    rcases Nat.le_one_iff_eq_zero_or_eq_one.mp hBdeg with h0 | h1
-    · rw [Polynomial.eq_C_of_natDegree_eq_zero h0]
-      exact Polynomial.isUnit_C.mpr (by rwa [Polynomial.leadingCoeff, h0] at hlc)
-    · exfalso
-      obtain ⟨u, hu⟩ := hlc
-      obtain ⟨D, hD⟩ := hdvd
-      have hu1 : (u : adjoinJq) = B.coeff 1 := by rw [hu, Polynomial.leadingCoeff, h1]
-      have hBev : ∀ x : adjoinJq, B.eval x = B.coeff 1 * x + B.coeff 0 := fun x => by
-        conv_lhs => rw [Polynomial.eq_X_add_C_of_natDegree_le_one hBdeg]
-        simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_C,
-          Polynomial.eval_X]
-      have hroot : B.eval ((↑u⁻¹ : adjoinJq) * -B.coeff 0) = 0 := by
-        rw [hBev, ← hu1]
-        linear_combination (-B.coeff 0) * u.mul_inv
-      exact hnoRoot _ (by rw [hD, Polynomial.eval_mul, hroot, zero_mul])
+  refine (phiIrreducible_iff_irreducible_map_evalAtJAdj data).mpr ?_
+  rw [← hΦ₀]
   constructor
   · exact Polynomial.not_isUnit_of_natDegree_pos _ (by omega)
   · intro A B hAB
@@ -645,36 +703,37 @@ theorem phiIrreducible_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : �
     have hlc : A.leadingCoeff * B.leadingCoeff = 1 :=
       calc A.leadingCoeff * B.leadingCoeff = (A * B).leadingCoeff :=
             (Polynomial.leadingCoeff_mul A B).symm
-        _ = (data.Φ.map evalAtJAdj).leadingCoeff := by rw [← hAB]
+        _ = Φ₀.leadingCoeff := by rw [← hAB]
         _ = 1 := hmonic.leadingCoeff
     have hsum : A.natDegree + B.natDegree = ℓ + 1 :=
       calc A.natDegree + B.natDegree = (A * B).natDegree :=
             (Polynomial.natDegree_mul hA0 hB0).symm
-        _ = (data.Φ.map evalAtJAdj).natDegree := by rw [← hAB]
+        _ = Φ₀.natDegree := by rw [← hAB]
         _ = ℓ + 1 := hdeg
-    have hAdvd : A ∣ data.Φ.map evalAtJAdj := ⟨B, hAB⟩
-    have hBdvd : B ∣ data.Φ.map evalAtJAdj := ⟨A, hAB.trans (mul_comm A B)⟩
+    have hlcA : IsUnit A.leadingCoeff := IsUnit.of_mul_eq_one _ hlc
+    have hlcB : IsUnit B.leadingCoeff := IsUnit.of_mul_eq_one_right _ hlc
+    have hAdvd : A ∣ Φ₀ := ⟨B, hAB⟩
+    have hBdvd : B ∣ Φ₀ := ⟨A, hAB.trans (mul_comm A B)⟩
     have hzero : ((A.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq))
         * ((B.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq)) = 0 :=
       calc (A.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq)
             * (B.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq)
           = ((A * B).map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq) := by
               rw [← Polynomial.eval_mul, ← Polynomial.map_mul]
-        _ = ((data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq) := by
-              rw [← hAB]
-        _ = (phiProd ℓ (conj ℓ ζ)).eval (coeffEmb K jq) := by rw [hsplit']
+        _ = Φ₁.eval (coeffEmb K jq) := by rw [← hAB, ← hΦ₁]
+        _ = (phiProd ℓ (conj ℓ ζ)).eval (coeffEmb K jq) := by rw [hsplit₁]
         _ = (phiProd ℓ (conj ℓ ζ)).eval (conj ℓ ζ (0 : Fin ℓ).succ) := by
               rw [← conj_succ_zero K ℓ ζ]
         _ = 0 := phiProd_eval_conj ℓ (conj ℓ ζ) _
     rcases mul_eq_zero.mp hzero with hAz | hBz
     · right
       have hAdeg : ℓ ≤ A.natDegree := le_natDegree_of_eval_map_jqK_eq_zero hζ hA0 hAz
-      have : B.natDegree ≤ 1 := by omega
-      exact hunit hBdvd (IsUnit.of_mul_eq_one_right _ hlc) this
+      have hB1 : B.natDegree ≤ 1 := by omega
+      exact isUnit_of_dvd_of_natDegree_le_one hBdvd hlcB hB1 hnoRoot
     · left
       have hBdeg : ℓ ≤ B.natDegree := le_natDegree_of_eval_map_jqK_eq_zero hζ hB0 hBz
-      have : A.natDegree ≤ 1 := by omega
-      exact hunit hAdvd (IsUnit.of_mul_eq_one _ hlc) this
+      have hA1 : A.natDegree ≤ 1 := by omega
+      exact isUnit_of_dvd_of_natDegree_le_one hAdvd hlcA hA1 hnoRoot
 
 end Irreducibility
 

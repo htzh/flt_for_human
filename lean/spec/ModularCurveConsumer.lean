@@ -515,8 +515,7 @@ example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
 `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` proves `one_le_coeff_jq` (every
 regular coefficient of `j(q)` is at least `1`), with the audit's two mathlib
 substitutions. `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` is the
-895 block written once: `conj_injective`, `aeval_jq_ne_jqN`/
-`jqN_not_mem_adjoin_jq`, `phiIrreducible_of_splits`,
+895 block written once: `conj_injective`, `phiIrreducible_of_splits`,
 `swapBivar_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion`,
 `evalSymm_of_irreducible`, `evalSymm_of_splits`, `evalAtJGen_injective`,
 `swapBivar_eq_of_evalSymm` and the two minimal-polynomial facts.
@@ -526,8 +525,9 @@ and `exists_phiIrreducible_evalSymm`.
 
 **The wire test is unconditional — the first.** `exists_phiIrreducible_evalSymm`
 needs no unported hypothesis, so it instantiates at `ℓ = 2`; `one_le_coeff_jq` is
-unconditional at `n = 0`; and `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq` become
-unconditional once `one_le_coeff_jq` is supplied for their `hpos`.
+unconditional at `n = 0`. (The block's `j(q ^ ℓ) ∉ ℚ[j(q)]` refutation is `private` in
+the port — the pin's three public declarations have no consumer outside the block's own
+five copies — so it is not part of this zone's surface.)
 -/
 
 #check @ModularCurve.one_le_coeff_jq
@@ -551,15 +551,6 @@ example : ∃ data : ModularCurve.ModularPolynomialData 2,
 
 -- `one_le_coeff_jq` at a concrete value, against `JqCoefficients`' `coeff_jq_zero`.
 example : (1 : ℚ) ≤ ModularCurve.jq.coeff (0 : ℤ) := ModularCurve.one_le_coeff_jq 0
-
--- `j(q ^ ℓ)` is not a polynomial in `j(q)` — unconditional once `hpos` is supplied.
-example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (P : Polynomial ℚ) :
-    Polynomial.aeval ModularCurve.jq P ≠ ModularCurve.jqN ℓ :=
-  ModularCurve.PhiGen.aeval_jq_ne_jqN ℓ ModularCurve.one_le_coeff_jq P
-
-example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
-    ModularCurve.jqN ℓ ∉ Algebra.adjoin ℚ {ModularCurve.jq} :=
-  ModularCurve.PhiGen.jqN_not_mem_adjoin_jq ℓ ModularCurve.one_le_coeff_jq
 
 /-! ## Zone K — [T13] the consequence and the cone's capstone
 
@@ -1217,16 +1208,16 @@ first zone that exercises the whole (a)→(b)→(c)→(d) chain concretely. Stil
 prove the datum's properties. `JqCoeffPositivity.lean` gives `one_le_coeff_jq`
 (two of the audit's mathlib substitutions landed);
 `ModularPolynomialIrreducible.lean` is the 895 block written once (FLT ships it
-five times), including `conj_injective`, `aeval_jq_ne_jqN`/
-`jqN_not_mem_adjoin_jq`, `phiIrreducible_of_splits`,
+five times), including `conj_injective`, `phiIrreducible_of_splits`,
 `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits` and
 `swapBivar_eq_of_evalSymm`; `ModularPolynomialProperties.lean` concludes
 `evalSymm_of_coeff_evalAtJ_eq` and the capstone
 `exists_phiIrreducible_evalSymm`. The Zone J wire test is the first
 **unconditional** one: `exists_phiIrreducible_evalSymm` at `ℓ = 2` produces an
-irreducible symmetric datum with no unported hypothesis, and
-`aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq` become unconditional once
-`one_le_coeff_jq` supplies their `hpos`. Still **0 errors**, one `sorry`.
+irreducible symmetric datum with no unported hypothesis. Still **0 errors**, one
+`sorry`. (The block's `j(q ^ ℓ) ∉ ℚ[j(q)]` refutation is `private` in the port: the
+pin's three public declarations, `aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`
+and `jqN_not_mem_adjoin_jq`, have no consumer outside the block's own five copies.)
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 

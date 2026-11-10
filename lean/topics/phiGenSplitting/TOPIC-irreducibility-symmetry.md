@@ -105,13 +105,26 @@ any factorisation `Φ = A · B` over `adjoinJq`:
 - so the other factor has degree `≤ 1`; and it is a unit, because a degree-`1`
   factor would have a root in `ℚ[j(q)]`, and `j(q^ℓ) ∉ ℚ[j(q)]`.
 
-The last is `jqN_not_mem_adjoin_jq`, and it is where positivity enters:
-`aeval_jq_ne_jqN` shows no `P ∈ ℚ[X]` has `P(jq) = j(q^ℓ)`. If one did, the
+The last is `jqN_not_mem_adjoin_jq` (private in the port, §3.3), and it is where
+positivity enters: it shows no `P ∈ ℚ[X]` has `P(jq) = j(q^ℓ)` (the pin splits this
+into `aeval_jq_ne_jqN_of_isPrimitiveRoot` and `aeval_jq_ne_jqN`). If one did, the
 arithmetic twist `ζ ↦ ζ^b` and the sum over the `ℓ` finite conjugates would make
-a rational constant whose `q^{-ℓ}` coefficient is `ℓ · jq.coeff ℓ ≠ 0` on one
-side and `0` on the other; `one_le_coeff_jq` at `n = ℓ` supplies the nonvanishing.
+a rational constant whose `q ^ ℓ` coefficient is `ℓ · jq.coeff ℓ ≠ 0` on one
+side and `0` on the other (the exponent is `+ℓ` — the positive multiples of `ℓ`
+are exactly the exponents that all the twists fix); `one_le_coeff_jq` at `n = ℓ`
+supplies the nonvanishing.
 (So although the exported positivity statement is for all `n`, the consumers use
 it only at `n = ℓ`; see §3.1.)
+
+**The same fact downstream.** `j(q ^ p) ∉ ℚ(j(q))` is proved a second time, at the field level and at
+general levels, in `FunctionFieldGeneration/Nonmembership.lean` (`jqN_prime_not_mem_base`, from
+`finrank_adjoin_jqN_eq_of_prime`) and `Generic/PrimeNonmembership.lean`
+(`prime_notMem_levelField`, with that degree fact as its base case). Both modules import
+`ModularPolynomialProperties`, and the finrank theorem they rest on comes from
+`exists_phiIrreducible_evalSymm`, hence from this topic's `phiIrreducible_of_splits`. So the
+coefficient-level refutation here is the *input* of the degree-level one — not a parallel duplicate —
+and the dictionary entry records the three statements side by side
+(`dict/ModularCurve/ModularPolynomialIrreducible.md` §10).
 
 ### 1.3 The datum is symmetric
 
@@ -211,10 +224,10 @@ The hidden results with wrappers are also public: `evalAtJGen_injective`,
 `ModularPolynomialData.evalSymm_of_irreducible`, `swapBivar_eq_of_evalSymm`,
 `conj_injective`, `ModularPolynomialData.aeval_jqN_toAdjoin`,
 `ModularPolynomialData.minpoly_jqN_eq`, and the block's
-`evalSymm_of_swapBivar_eq`, `eval_swap_eq_zero_of_splits`, `aeval_jq_ne_jqN`,
-`jqN_not_mem_adjoin_jq`. `aeval_jq_ne_jqN` and `jqN_not_mem_adjoin_jq` have no
-`Thm_` wrapper; like T7's `RealL` block they are transcribed from the `S_` file's
-own public declarations.
+`evalSymm_of_swapBivar_eq`, `eval_swap_eq_zero_of_splits`. The block's non-membership
+(`aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq` in the
+pin) is **private** here: no file outside the block's own five copies cites any of the
+three, so only the statement is kept, as one private `jqN_not_mem_adjoin_jq` (§3.3).
 
 ### 2.2 The block's declaration inventory
 
@@ -227,13 +240,16 @@ section names are the port's.
 | jqN lead | `coeff_jqN_self`, `coeff_jqN_of_lt` |
 | injectivity | `evalAtJ_injective` (T11's, private here), `evalAtJGen_injective` (public) |
 | distinctness | `coeff_coeffEmb_jq_neg_one`, `conj_zero_coeff_neg_one`, `conj_succ_coeff_neg_one`, `conj_injective` |
+| conjugate roots | `exists_eq_conj_of_eval_phiProd_eq_zero` |
+| descent at the extra conjugate | `eq_jqN_of_adjoinEmbedT_eq_conj_zero` |
 | scalar embedding | `ratC`, `ratC_apply`, `coeff_ratC_of_ne`, `coeffMap_jq` |
 | pole order | `ne_zero_of_aeval_jq_eq_jqN`, `natDegree_eq_of_aeval_jq_eq_jqN`, `monic_of_aeval_jq_eq_jqN` (the two coefficient lemmas are now T9's public `coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq`) |
-| transfer / Vieta / refutation | `zeta_pow_eq_one`, `zeta_pow_zpow_eq_one`, `eval₂_ratC_jqK_of_aeval_jq_eq`, `eval₂_ratC_conj_succ_of_aeval_jq_eq`, `sum_conj_succ_eq_ratC_of_aeval_jq_eq`, `coeff_sum_conj_succ_self`, `coeff_sum_conj_succ_ne_zero`, `aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq` |
+| transfer / Vieta / refutation | `zeta_pow_zpow_eq_one`, `eval₂_ratC_jqK_of_aeval_jq_eq`, `eval₂_ratC_conj_succ_of_aeval_jq_eq`, `sum_conj_succ_eq_ratC_of_aeval_jq_eq`, `coeff_sum_conj_succ_self`, `coeff_sum_conj_succ_ne_zero`, `jqN_not_mem_adjoin_jq` (private; the pin's `aeval_jq_ne_jqN_of_isPrimitiveRoot` and `aeval_jq_ne_jqN` are inlined into it) |
 | fraction field | `instUFMAdjoinJq`, `algebraMap_comp_evalAtJAdj`, `ModularPolynomialData.aeval_jqN_toAdjoin`, `ModularPolynomialData.minpoly_jqN_eq` |
 | embeddings | `qEmbedT`, `qEmbedT_apply`, `qEmbedT_injective`, `qEmbedT_jq`, `coeffEmb_comp_qExpand_comp_evalAtJ`, `qEmbedT_jqN`, `qTwist_comp_qEmbedT`, `conj_succ_zero`, `adjoinEmbedT`, `adjoinEmbedT_apply`, `adjoinEmbedT_injective`, `adjoinEmbedT_comp_evalAtJAdj` |
-| factor analysis | `eval_map_conj_succ_eq_zero`, `le_natDegree_of_eval_map_jqK_eq_zero` (the two root/unit steps below are `have`s in the headline) |
+| factor analysis | `coeff_neg_one_adjoinEmbedT`, `eval_map_conj_succ_eq_zero`, `le_natDegree_of_eval_map_jqK_eq_zero` |
 | splitting identity | `map_qEmbedT_evalAtJ_eq_phiProd` |
+| degree-`≤ 1` divisor (generic in `R`) | `isUnit_of_dvd_of_natDegree_le_one` |
 | irreducibility | `toAdjoin_eq_map_evalAtJAdj`, `phiIrreducible_iff_irreducible_map_evalAtJAdj`, `phiIrreducible_of_splits` |
 | swapBivar glue (§3.2) | `swapBivar_eq_swap`, `ev`, `aeval_toRingHom_eq`, `ev_eq_aevalAeval`, `ev_swap`, `ev_int`, `ev_sub` |
 | transpose engine | `swapBivar_eval₂`, `evalSymm_of_swapBivar_eq`, `aeval_jqN_transposeToAdjoin`, `swapBivar_eq_of_irreducible`, `evalSymm_of_irreducible` |
@@ -392,27 +408,56 @@ have degree `≥ ℓ`, and the other factor of degree `≤ 1` is a unit by
 composite), `toAdjoin_eq_map_evalAtJAdj` and
 `phiIrreducible_iff_irreducible_map_evalAtJAdj` (Gauss). The degree count
 `natDegree (Φ.map evalAtJAdj) = natDegree Φ = ψ(ℓ) = ℓ + 1` stays a `calc` in the
-headline, where it is read as part of the argument. Two further steps are `have`s
-in the headline rather than private lemmas — `hnoRoot`, that `Φ(j(q),·)` has no
-root in `ℚ[j(q)]` (the two conjugate cases: the extra one would force
-`j(q ^ ℓ) ∈ ℚ[j(q)]`, a finite one is excluded by its nonzero `q⁻¹` coefficient),
-and `hunit`, that a divisor of degree `≤ 1` with unit leading coefficient is a
-unit (degree `0` is a unit constant; degree `1` would give a root in `ℚ[j(q)]`,
-against `hnoRoot`). Both previously carried `hpos`/`data`/`hsplit` as parameters,
-which is noise the reader had to thread past. The pin's `hpos` parameter is
-gone from the port's private layer: the positivity input is named where the
-argument uses it (`isUnit_of_dvd_of_natDegree_le_one one_le_coeff_jq …`) rather
-than threaded through two wrappers. `evalSymm_of_splits_aux` carried `hpos` only
+headline, where it is read as part of the argument. The three images of `Φ` — `Φ₀ = Φ(j(q), Y)`
+over `ℚ[j(q)]`, `Φ₁ = Φ(j(q^ℓ), Y)` over `K((q))`, and `data.toAdjoin` over `ℚ(j(q))` — are now
+named `Φ₀`/`Φ₁` by `set` in the headline; the factor count then never touches the raw
+`Polynomial.map` spellings, and the vanishing `hzero` passes through `Φ₁` explicitly. The
+dictionary of that notation — the levels, the maps (`evalAt*`, `coeffEmb`, `qExpand`, `qEmbedT`,
+`adjoinEmbedT`, `qTwist`), the points, and the names inside the proof — is the first entry of the new
+`lean/dict/` tree, `dict/ModularCurve/ModularPolynomialIrreducible.md` (one entry per module,
+mirroring the port's path), not a `/-! … -/` block in the module: docstrings carry a declaration's
+mathematics, dictionaries carry the vocabulary, and math notes carry neither. The no-root statement is a
+`have hnoRoot` in the headline, and it is now the readable centre of the proof: a `calc` takes the
+root `β` of `Φ₀` in `ℚ[j(q)]` to a root `adjoinEmbedT β` of the conjugate product in `K((q))`
+(through `Φ₁ = Φ₀.map σ` and `eval₂` at a point in the image of `σ`), one factor of the product is
+therefore zero (`exists_eq_conj_of_eval_phiProd_eq_zero`, the proof's only root-counting step), and
+the two cases are a `calc` forcing `β = j(q ^ ℓ)` — hence `j(q ^ ℓ) ∈ ℚ[j(q)]`,
+against `jqN_not_mem_adjoin_jq`, the module's single arithmetic input — and the `q⁻¹`-coefficient
+comparison of a finite conjugate (`(ζ ^ b)⁻¹ ≠ 0`) against the level-`ℓ` image (`0`, the new
+`coeff_neg_one_adjoinEmbedT`; `-1` is the slot holding `j`'s simple pole, which every twist keeps
+nonzero and `q ↦ q ^ ℓ` empties). The level change itself is now one appeal to
+`Polynomial.IsRoot.map`, and the descent at the extra conjugate is the helper
+`eq_jqN_of_adjoinEmbedT_eq_conj_zero`. The root count `le_natDegree_of_eval_map_jqK_eq_zero` now names its
+three ingredients (`hconj`, the distinct finite conjugates; `hroots`, all of them roots of the
+image; `hDσ`, the image is nonzero) before its two-line `calc`.
+The degree-`≤ 1` unit step is now **one generic private lemma**, in its own section
+and over an arbitrary `CommRing R` rather than over `ℚ[j(q)]`: a divisor of degree
+`≤ 1` with unit leading coefficient of a polynomial with no root is a unit (degree
+`0` is a unit constant; degree `1` has the root `-u⁻¹ * p.coeff 0`). It carries the
+two hypotheses the statement needs over a non-field — *unit leading coefficient*
+(`ℤ[X]`'s `C 2` is a rootless constant and not a unit) and the divisor hypothesis
+(that is how the rootlessness of `Φ` reaches the factor) — so each factor branch of
+the headline is one line. The pin's `hpos` parameter is gone from the port's
+private layer: the positivity input is named where the argument uses it, inside
+`hnoRoot`, rather than threaded through two wrappers. `evalSymm_of_splits_aux` carried `hpos` only
 for its call to the irreducibility aux, so it collapsed into the public
 `PhiGen.evalSymm_of_splits`, whose body is now the three-line symmetry chain; and
 `eval_swap_eq_zero_of_splits` reads its hypothesis through
 `map_qEmbedT_evalAtJ_eq_phiProd` instead of rewriting `hsplit` in place.
 
-**No public statement changed** (15 public declarations before and after;
-`#print axioms` clean, `0 mismatched / 0 missing`), and the five importer modules
-rebuild green. Private declarations **56 → 53** (two in, five out), module
-**1011 → 1021 lines** (the proof bodies are comment-free; the rewriting steps the
-argument needs are `calc` blocks).
+**The public surface shrank, deliberately.** The pin ships the block's non-membership
+public in three layers (`aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`,
+`jqN_not_mem_adjoin_jq`); `grep -rln` over the pin clone at `aa2d8b3` finds them only inside
+the five copies of the block, i.e. no `Definitions/`, `Theorems/` or other `P2M/` file cites
+any of them, and in the port only this module did. So the two wrappers (the cyclotomic
+specialisation and the polynomial unpacking) are inlined and the three collapse into one
+**private** `jqN_not_mem_adjoin_jq`, whose statement is the pin's `jqN_not_mem_adjoin_jq`
+verbatim. Public declarations **15 → 12** (private **58**). Zone J of
+`spec/ModularCurveConsumer.lean` loses the two `example`s that exercised the removed
+exports, and its prose is updated; the wire test is otherwise untouched. `#print axioms`
+clean, checker `12 ok / 0 mismatched / 0 missing`. Private declarations **56 → 58** (seven in, five out), module
+**1011 → 1075 lines** (the proof bodies are comment-free; the rewriting steps the
+argument needs are `calc` blocks, and the levels of `Φ` are named by `set`).
 
 ## 4. Dependencies and the division
 
