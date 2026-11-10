@@ -10,7 +10,7 @@ the `evalAtJ_eq_aeval_map` promotion landed and T11 rebuilt green; the end-to-en
 wire test is the first **unconditional** capstone. A post-close pass
 (2026-09-23) removed five redundant private declarations and routed the
 `swapBivar`/`qEmbedT`/`ev` helpers through mathlib, public statements untouched
-(§3.2); the block module is now **1023 lines**. The measured cost and the
+(§3.2); the block module was then **1023 lines** (§3.3 is the current figure). The measured cost and the
 answers to the §10 questions are in
 [logs/phiGen-port.md](../../logs/phiGen-port.md) §12. This file is kept as the
 executed plan. The plan is [PORTING-PhiGen.md](../PORTING-PhiGen.md); the
@@ -218,9 +218,9 @@ own public declarations.
 
 ### 2.2 The block's declaration inventory
 
-Current (after the §3.2 cleanup); the pin's private `coeff_aeval_jq_of_lt` /
-`coeff_aeval_jq_neg_natDegree` copies are gone, and the section names are the
-port's.
+Current (after the §3.2 cleanup and the §3.3 refactor); the pin's private
+`coeff_aeval_jq_of_lt` / `coeff_aeval_jq_neg_natDegree` copies are gone, and the
+section names are the port's.
 
 | section | declarations |
 |---|---|
@@ -232,12 +232,13 @@ port's.
 | transfer / Vieta / refutation | `zeta_pow_eq_one`, `zeta_pow_zpow_eq_one`, `eval₂_ratC_jqK_of_aeval_jq_eq`, `eval₂_ratC_conj_succ_of_aeval_jq_eq`, `sum_conj_succ_eq_ratC_of_aeval_jq_eq`, `coeff_sum_conj_succ_self`, `coeff_sum_conj_succ_ne_zero`, `aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq` |
 | fraction field | `instUFMAdjoinJq`, `algebraMap_comp_evalAtJAdj`, `ModularPolynomialData.aeval_jqN_toAdjoin`, `ModularPolynomialData.minpoly_jqN_eq` |
 | embeddings | `qEmbedT`, `qEmbedT_apply`, `qEmbedT_injective`, `qEmbedT_jq`, `coeffEmb_comp_qExpand_comp_evalAtJ`, `qEmbedT_jqN`, `qTwist_comp_qEmbedT`, `conj_succ_zero`, `adjoinEmbedT`, `adjoinEmbedT_apply`, `adjoinEmbedT_injective`, `adjoinEmbedT_comp_evalAtJAdj` |
-| factor analysis | `eval_map_conj_succ_eq_zero`, `le_natDegree_of_eval_map_jqK_eq_zero`, `eval_map_evalAtJAdj_ne_zero`, `isUnit_of_dvd_of_natDegree_le_one` |
-| irreducibility | `irreducible_map_evalAtJAdj_of_splits`, `toAdjoin_eq_map_evalAtJAdj`, `phiIrreducible_of_splits_aux`, `phiIrreducible_of_splits` |
+| factor analysis | `eval_map_conj_succ_eq_zero`, `le_natDegree_of_eval_map_jqK_eq_zero` (the two root/unit steps below are `have`s in the headline) |
+| splitting identity | `map_qEmbedT_evalAtJ_eq_phiProd` |
+| irreducibility | `toAdjoin_eq_map_evalAtJAdj`, `phiIrreducible_iff_irreducible_map_evalAtJAdj`, `phiIrreducible_of_splits` |
 | swapBivar glue (§3.2) | `swapBivar_eq_swap`, `ev`, `aeval_toRingHom_eq`, `ev_eq_aevalAeval`, `ev_swap`, `ev_int`, `ev_sub` |
 | transpose engine | `swapBivar_eval₂`, `evalSymm_of_swapBivar_eq`, `aeval_jqN_transposeToAdjoin`, `swapBivar_eq_of_irreducible`, `evalSymm_of_irreducible` |
 | degree bookkeeping / dictionary | `swapBivar_C`, `degree_swapBivar_lt`, `swapBivar_monic_of_coeff_bounds`, `degree_lt_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`, `natDegree_le_of_evalAtJ_coeff_eq_zero`, `transposeToAdjoin_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion` |
-| symmetry from splitting | `eval_swap_eq_zero_of_splits`, `evalSymm_of_splits_aux`, `evalSymm_of_splits` |
+| symmetry from splitting | `eval_swap_eq_zero_of_splits`, `evalSymm_of_splits` |
 | the converse | `swap_eq_of_evalSymm`, `swapBivar_eq_of_evalSymm` |
 
 ## 3. The mathlib-first audit
@@ -375,6 +376,43 @@ declarations (theorem/def/abbrev, excluding the one `private scoped instance`)
 **62 → 57**; the three T12 modules total **1670 → 1623 lines**. `lake build`
 green, no `sorry`, `#print axioms` clean, statement checker 0 mismatched /
 0 missing.
+
+### 3.3 Post-close refactor: exposing the irreducibility argument (2026-11-09)
+
+The irreducibility headline was the one place in the block where the argument was
+cut into wrappers instead of laid out: `phiIrreducible_of_splits` passed
+`one_le_coeff_jq` to a private `phiIrreducible_of_splits_aux`, which reduced the
+splitting and called a private `irreducible_map_evalAtJAdj_of_splits`, which held
+the factor count. Both wrappers are now **inlined into the headline**, which reads
+as the argument itself — split over `K((q))`, Gauss down to `ℚ[j(q)]`, then for
+`Φ = A · B` the root `j(q)` kills a factor, the `ℓ` distinct conjugates force it to
+have degree `≥ ℓ`, and the other factor of degree `≤ 1` is a unit by
+`j(q ^ ℓ) ∉ ℚ[j(q)]`. The side arguments are named (table, §2.2):
+`map_qEmbedT_evalAtJ_eq_phiProd` (the splitting with `qEmbedT` for the pin's
+composite), `toAdjoin_eq_map_evalAtJAdj` and
+`phiIrreducible_iff_irreducible_map_evalAtJAdj` (Gauss). The degree count
+`natDegree (Φ.map evalAtJAdj) = natDegree Φ = ψ(ℓ) = ℓ + 1` stays a `calc` in the
+headline, where it is read as part of the argument. Two further steps are `have`s
+in the headline rather than private lemmas — `hnoRoot`, that `Φ(j(q),·)` has no
+root in `ℚ[j(q)]` (the two conjugate cases: the extra one would force
+`j(q ^ ℓ) ∈ ℚ[j(q)]`, a finite one is excluded by its nonzero `q⁻¹` coefficient),
+and `hunit`, that a divisor of degree `≤ 1` with unit leading coefficient is a
+unit (degree `0` is a unit constant; degree `1` would give a root in `ℚ[j(q)]`,
+against `hnoRoot`). Both previously carried `hpos`/`data`/`hsplit` as parameters,
+which is noise the reader had to thread past. The pin's `hpos` parameter is
+gone from the port's private layer: the positivity input is named where the
+argument uses it (`isUnit_of_dvd_of_natDegree_le_one one_le_coeff_jq …`) rather
+than threaded through two wrappers. `evalSymm_of_splits_aux` carried `hpos` only
+for its call to the irreducibility aux, so it collapsed into the public
+`PhiGen.evalSymm_of_splits`, whose body is now the three-line symmetry chain; and
+`eval_swap_eq_zero_of_splits` reads its hypothesis through
+`map_qEmbedT_evalAtJ_eq_phiProd` instead of rewriting `hsplit` in place.
+
+**No public statement changed** (15 public declarations before and after;
+`#print axioms` clean, `0 mismatched / 0 missing`), and the five importer modules
+rebuild green. Private declarations **56 → 53** (two in, five out), module
+**1011 → 1021 lines** (the proof bodies are comment-free; the rewriting steps the
+argument needs are `calc` blocks).
 
 ## 4. Dependencies and the division
 

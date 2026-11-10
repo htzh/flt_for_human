@@ -537,125 +537,144 @@ private theorem le_natDegree_of_eval_map_jqK_eq_zero (hζ : IsPrimitiveRoot (ζ 
       (by rw [hzero, Polynomial.map_zero]))
   exact le_trans hmap Polynomial.natDegree_map_le
 
-private theorem eval_map_evalAtJAdj_ne_zero
-    (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (data : ModularPolynomialData ℓ)
-    (hsplit : (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ) = phiProd ℓ (conj ℓ ζ))
-    (β : adjoinJq) : (data.Φ.map evalAtJAdj).eval β ≠ 0 := by
-  intro heval
-  have hmap : (phiProd ℓ (conj ℓ ζ)).eval (adjoinEmbedT K ℓ β) = 0 := by
-    rw [← hsplit, Polynomial.eval_map, Polynomial.eval₂_at_apply, heval, map_zero]
-  rw [phiProd, Polynomial.eval_prod] at hmap
-  obtain ⟨i, -, hi⟩ := Finset.prod_eq_zero_iff.mp hmap
-  rw [Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_eq_zero] at hi
-  rcases Fin.eq_zero_or_eq_succ i with rfl | ⟨b, rfl⟩
-  · rw [adjoinEmbedT_apply, ← qEmbedT_jqN K ℓ ζ] at hi
-    have hβ : (β : LaurentSeries ℚ) = jqN ℓ := qEmbedT_injective K ℓ hi
-    exact jqN_not_mem_adjoin_jq ℓ hpos (hβ ▸ β.2)
-  · have h0 : (adjoinEmbedT K ℓ β).coeff (-1 : ℤ) = 0 := by
-      rw [adjoinEmbedT_apply, qEmbedT_apply]
-      refine qExpand_coeff_of_not_dvd _ _ ?_
-      intro hdvd
-      have h1 : ((ℓ : ℕ) : ℤ) ∣ 1 := dvd_neg.mp hdvd
-      have h2 : ℓ ∣ 1 := by exact_mod_cast h1
-      exact hℓ.out.one_lt.ne' (Nat.dvd_one.mp h2)
-    rw [hi, conj_succ_coeff_neg_one] at h0
-    exact Units.ne_zero _ h0
-
-private theorem isUnit_of_dvd_of_natDegree_le_one
-    (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (data : ModularPolynomialData ℓ)
-    (hsplit : (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ) = phiProd ℓ (conj ℓ ζ))
-    {B : Polynomial adjoinJq} (hdvd : B ∣ data.Φ.map evalAtJAdj)
-    (hlc : IsUnit B.leadingCoeff) (hdeg : B.natDegree ≤ 1) : IsUnit B := by
-  rcases Nat.le_one_iff_eq_zero_or_eq_one.mp hdeg with h0 | h1
-  · rw [Polynomial.eq_C_of_natDegree_eq_zero h0]
-    refine Polynomial.isUnit_C.mpr ?_
-    have hc : B.coeff 0 = B.leadingCoeff := by rw [Polynomial.leadingCoeff, h0]
-    rw [hc]
-    exact hlc
-  · exfalso
-    obtain ⟨u, hu⟩ := hlc
-    obtain ⟨D, hD⟩ := hdvd
-    have hu1 : (u : adjoinJq) = B.coeff 1 := by rw [hu, Polynomial.leadingCoeff, h1]
-    have hBev : ∀ x : adjoinJq, B.eval x = B.coeff 1 * x + B.coeff 0 := fun x => by
-      conv_lhs => rw [Polynomial.eq_X_add_C_of_natDegree_le_one hdeg]
-      simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_C,
-        Polynomial.eval_X]
-    have hroot : B.eval ((↑u⁻¹ : adjoinJq) * -B.coeff 0) = 0 := by
-      rw [hBev, ← hu1]
-      linear_combination (-B.coeff 0) * u.mul_inv
-    refine eval_map_evalAtJAdj_ne_zero hpos data hsplit ((↑u⁻¹ : adjoinJq) * -B.coeff 0) ?_
-    rw [hD, Polynomial.eval_mul, hroot, zero_mul]
-
 end FactorAnalysis
+
+/-! ## The splitting identity in `K((q))` -/
+
+section Splitting
+
+variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
+
+/-- The splitting hypothesis with `qEmbedT` in place of the composite
+`(coeffEmb K).comp (qExpand ℚ ℓ)` that the pin spells out: the coefficients of `Φ`
+evaluate in `K((q))` to the conjugate product. -/
+private theorem map_qEmbedT_evalAtJ_eq_phiProd (data : ModularPolynomialData ℓ)
+    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
+      = phiProd ℓ (conj ℓ ζ)) :
+    data.Φ.map ((qEmbedT K ℓ).comp evalAtJ) = phiProd ℓ (conj ℓ ζ) := by
+  rw [← coeffEmb_comp_qExpand_comp_evalAtJ K ℓ]
+  exact hsplit
+
+end Splitting
 
 section Irreducibility
 
 variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
 
-private theorem irreducible_map_evalAtJAdj_of_splits
-    (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    (data : ModularPolynomialData ℓ)
-    (hsplit : (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ) = phiProd ℓ (conj ℓ ζ)) :
-    Irreducible (data.Φ.map evalAtJAdj) := by
-  have hmonic : (data.Φ.map evalAtJAdj).Monic := data.monic.map _
-  have hdeg : (data.Φ.map evalAtJAdj).natDegree = ℓ + 1 := by
-    rw [data.monic.natDegree_map, data.natDegree_eq, dedekindPsi_prime hℓ.out]
-  constructor
-  · exact Polynomial.not_isUnit_of_natDegree_pos _ (by omega)
-  · intro A B hAB
-    have hA0 : A ≠ 0 := fun h => hmonic.ne_zero (by rw [hAB, h, zero_mul])
-    have hB0 : B ≠ 0 := fun h => hmonic.ne_zero (by rw [hAB, h, mul_zero])
-    have hlcmul : A.leadingCoeff * B.leadingCoeff = 1 := by
-      rw [← Polynomial.leadingCoeff_mul, ← hAB]
-      exact hmonic.leadingCoeff
-    have hlcA : IsUnit A.leadingCoeff := IsUnit.of_mul_eq_one _ hlcmul
-    have hlcB : IsUnit B.leadingCoeff := IsUnit.of_mul_eq_one_right _ hlcmul
-    have hAdvd : A ∣ data.Φ.map evalAtJAdj := ⟨B, hAB⟩
-    have hBdvd : B ∣ data.Φ.map evalAtJAdj := ⟨A, hAB.trans (mul_comm A B)⟩
-    have hsum : A.natDegree + B.natDegree = ℓ + 1 := by
-      rw [← Polynomial.natDegree_mul hA0 hB0, ← hAB, hdeg]
-    have hzero : ((A.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq))
-        * ((B.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq)) = 0 := by
-      rw [← Polynomial.eval_mul, ← Polynomial.map_mul, ← hAB, hsplit,
-        ← conj_succ_zero K ℓ ζ]
-      exact phiProd_eval_conj ℓ _ _
-    rcases mul_eq_zero.mp hzero with hAz | hBz
-    · right
-      have hAdeg : ℓ ≤ A.natDegree := le_natDegree_of_eval_map_jqK_eq_zero hζ hA0 hAz
-      exact isUnit_of_dvd_of_natDegree_le_one hpos data hsplit hBdvd hlcB (by omega)
-    · left
-      have hBdeg : ℓ ≤ B.natDegree := le_natDegree_of_eval_map_jqK_eq_zero hζ hB0 hBz
-      exact isUnit_of_dvd_of_natDegree_le_one hpos data hsplit hAdvd hlcA (by omega)
-
+/-- The datum over the fraction field `ℚ(j(q))` is the image of `Φ` over `ℚ[j(q)]`. -/
 private theorem toAdjoin_eq_map_evalAtJAdj {N : ℕ} [NeZero N]
     (data : ModularPolynomialData N) :
     data.toAdjoin = (data.Φ.map evalAtJAdj).map (algebraMap adjoinJq ℚ⟮jq⟯) := by
   rw [ModularPolynomialData.toAdjoin, Polynomial.map_map, algebraMap_comp_evalAtJAdj]
 
-private theorem phiIrreducible_of_splits_aux
-    (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    (data : ModularPolynomialData ℓ)
-    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = phiProd ℓ (conj ℓ ζ)) : PhiIrreducible data := by
-  rw [coeffEmb_comp_qExpand_comp_evalAtJ K ℓ] at hsplit
-  have hsplit' : (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ)
-      = phiProd ℓ (conj ℓ ζ) := by
-    rw [Polynomial.map_map, adjoinEmbedT_comp_evalAtJAdj]
-    exact hsplit
-  show Irreducible data.toAdjoin
-  rw [toAdjoin_eq_map_evalAtJAdj]
-  exact ((data.monic.map evalAtJAdj).irreducible_iff_irreducible_map_fraction_map).mp
-    (irreducible_map_evalAtJAdj_of_splits ℓ ζ hpos hζ data hsplit')
+/-- Gauss: `Φ` is irreducible over `ℚ(j(q))` as soon as it is irreducible over
+`ℚ[j(q)]`, `Φ.map evalAtJAdj` being monic. -/
+private theorem phiIrreducible_iff_irreducible_map_evalAtJAdj {N : ℕ} [NeZero N]
+    (data : ModularPolynomialData N) :
+    PhiIrreducible data ↔ Irreducible (data.Φ.map evalAtJAdj) := by
+  rw [PhiIrreducible, toAdjoin_eq_map_evalAtJAdj data]
+  exact ((data.monic.map evalAtJAdj).irreducible_iff_irreducible_map_fraction_map).symm
 
 /-- The datum whose coefficients split into the conjugate product is irreducible
-over `ℚ(j)`. Verbatim from the pin wrapper
+over `ℚ(j)`. Over `K((q))` the image of `Φ` is the product of the `ℓ + 1`
+conjugate linear factors, so by Gauss it suffices to factor `Φ = A · B` over
+`ℚ[j(q)]`: evaluating at `j(q)` kills one factor, the `ℓ` distinct conjugates
+force that factor to have degree `≥ ℓ`, and the other factor is then a unit
+because a degree-`1` factor would have a root in `ℚ[j(q)]`, which
+`j(q ^ ℓ) ∉ ℚ[j(q)]` forbids. Verbatim from the pin wrapper
 `Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean`. -/
 theorem phiIrreducible_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     (data : ModularPolynomialData ℓ)
     (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = phiProd ℓ (conj ℓ ζ)) : PhiIrreducible data :=
-  phiIrreducible_of_splits_aux ℓ ζ one_le_coeff_jq hζ data hsplit
+      = phiProd ℓ (conj ℓ ζ)) : PhiIrreducible data := by
+  have hsplit' : (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ) = phiProd ℓ (conj ℓ ζ) :=
+    calc (data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ)
+        = data.Φ.map ((qEmbedT K ℓ).comp evalAtJ) := by
+          rw [Polynomial.map_map, adjoinEmbedT_comp_evalAtJAdj]
+      _ = phiProd ℓ (conj ℓ ζ) := map_qEmbedT_evalAtJ_eq_phiProd ℓ ζ data hsplit
+  refine (phiIrreducible_iff_irreducible_map_evalAtJAdj data).mpr ?_
+  have hmonic : (data.Φ.map evalAtJAdj).Monic := data.monic.map _
+  have hdeg : (data.Φ.map evalAtJAdj).natDegree = ℓ + 1 :=
+    calc (data.Φ.map evalAtJAdj).natDegree = data.Φ.natDegree := data.monic.natDegree_map _
+      _ = dedekindPsi ℓ := data.natDegree_eq
+      _ = ℓ + 1 := dedekindPsi_prime hℓ.out
+  have hnoRoot : ∀ β : adjoinJq, (data.Φ.map evalAtJAdj).eval β ≠ 0 := by
+    intro β hval
+    have hmap : (phiProd ℓ (conj ℓ ζ)).eval (adjoinEmbedT K ℓ β) = 0 := by
+      rw [← hsplit', Polynomial.eval_map, Polynomial.eval₂_at_apply, hval, map_zero]
+    rw [phiProd, Polynomial.eval_prod] at hmap
+    obtain ⟨i, -, hi⟩ := Finset.prod_eq_zero_iff.mp hmap
+    rw [Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C, sub_eq_zero] at hi
+    rcases Fin.eq_zero_or_eq_succ i with rfl | ⟨b, rfl⟩
+    · rw [adjoinEmbedT_apply, ← qEmbedT_jqN K ℓ ζ] at hi
+      have hβ : (β : LaurentSeries ℚ) = jqN ℓ := qEmbedT_injective K ℓ hi
+      exact jqN_not_mem_adjoin_jq ℓ one_le_coeff_jq (hβ ▸ β.2)
+    · have hvan : (adjoinEmbedT K ℓ β).coeff (-1 : ℤ) = 0 := by
+        rw [adjoinEmbedT_apply, qEmbedT_apply]
+        refine qExpand_coeff_of_not_dvd _ _ ?_
+        intro hdvd
+        have h1 : ((ℓ : ℕ) : ℤ) ∣ 1 := dvd_neg.mp hdvd
+        have h2 : ℓ ∣ 1 := by exact_mod_cast h1
+        exact hℓ.out.one_lt.ne' (Nat.dvd_one.mp h2)
+      rw [hi, conj_succ_coeff_neg_one] at hvan
+      exact Units.ne_zero _ hvan
+  have hunit : ∀ {B : Polynomial adjoinJq}, B ∣ data.Φ.map evalAtJAdj →
+      IsUnit B.leadingCoeff → B.natDegree ≤ 1 → IsUnit B := by
+    intro B hdvd hlc hBdeg
+    rcases Nat.le_one_iff_eq_zero_or_eq_one.mp hBdeg with h0 | h1
+    · rw [Polynomial.eq_C_of_natDegree_eq_zero h0]
+      exact Polynomial.isUnit_C.mpr (by rwa [Polynomial.leadingCoeff, h0] at hlc)
+    · exfalso
+      obtain ⟨u, hu⟩ := hlc
+      obtain ⟨D, hD⟩ := hdvd
+      have hu1 : (u : adjoinJq) = B.coeff 1 := by rw [hu, Polynomial.leadingCoeff, h1]
+      have hBev : ∀ x : adjoinJq, B.eval x = B.coeff 1 * x + B.coeff 0 := fun x => by
+        conv_lhs => rw [Polynomial.eq_X_add_C_of_natDegree_le_one hBdeg]
+        simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_C,
+          Polynomial.eval_X]
+      have hroot : B.eval ((↑u⁻¹ : adjoinJq) * -B.coeff 0) = 0 := by
+        rw [hBev, ← hu1]
+        linear_combination (-B.coeff 0) * u.mul_inv
+      exact hnoRoot _ (by rw [hD, Polynomial.eval_mul, hroot, zero_mul])
+  constructor
+  · exact Polynomial.not_isUnit_of_natDegree_pos _ (by omega)
+  · intro A B hAB
+    have hA0 : A ≠ 0 := fun h => hmonic.ne_zero (by rw [hAB, h, zero_mul])
+    have hB0 : B ≠ 0 := fun h => hmonic.ne_zero (by rw [hAB, h, mul_zero])
+    have hlc : A.leadingCoeff * B.leadingCoeff = 1 :=
+      calc A.leadingCoeff * B.leadingCoeff = (A * B).leadingCoeff :=
+            (Polynomial.leadingCoeff_mul A B).symm
+        _ = (data.Φ.map evalAtJAdj).leadingCoeff := by rw [← hAB]
+        _ = 1 := hmonic.leadingCoeff
+    have hsum : A.natDegree + B.natDegree = ℓ + 1 :=
+      calc A.natDegree + B.natDegree = (A * B).natDegree :=
+            (Polynomial.natDegree_mul hA0 hB0).symm
+        _ = (data.Φ.map evalAtJAdj).natDegree := by rw [← hAB]
+        _ = ℓ + 1 := hdeg
+    have hAdvd : A ∣ data.Φ.map evalAtJAdj := ⟨B, hAB⟩
+    have hBdvd : B ∣ data.Φ.map evalAtJAdj := ⟨A, hAB.trans (mul_comm A B)⟩
+    have hzero : ((A.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq))
+        * ((B.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq)) = 0 :=
+      calc (A.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq)
+            * (B.map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq)
+          = ((A * B).map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq) := by
+              rw [← Polynomial.eval_mul, ← Polynomial.map_mul]
+        _ = ((data.Φ.map evalAtJAdj).map (adjoinEmbedT K ℓ)).eval (coeffEmb K jq) := by
+              rw [← hAB]
+        _ = (phiProd ℓ (conj ℓ ζ)).eval (coeffEmb K jq) := by rw [hsplit']
+        _ = (phiProd ℓ (conj ℓ ζ)).eval (conj ℓ ζ (0 : Fin ℓ).succ) := by
+              rw [← conj_succ_zero K ℓ ζ]
+        _ = 0 := phiProd_eval_conj ℓ (conj ℓ ζ) _
+    rcases mul_eq_zero.mp hzero with hAz | hBz
+    · right
+      have hAdeg : ℓ ≤ A.natDegree := le_natDegree_of_eval_map_jqK_eq_zero hζ hA0 hAz
+      have : B.natDegree ≤ 1 := by omega
+      exact hunit hBdvd (IsUnit.of_mul_eq_one_right _ hlc) this
+    · left
+      have hBdeg : ℓ ≤ B.natDegree := le_natDegree_of_eval_map_jqK_eq_zero hζ hB0 hBz
+      have : A.natDegree ≤ 1 := by omega
+      exact hunit hAdvd (IsUnit.of_mul_eq_one _ hlc) this
 
 end Irreducibility
 
@@ -921,10 +940,9 @@ theorem eval_swap_eq_zero_of_splits (data : ModularPolynomialData ℓ)
     (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
       = phiProd ℓ (conj ℓ ζ)) :
     data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 := by
-  rw [coeffEmb_comp_qExpand_comp_evalAtJ K ℓ] at hsplit
   have h1 : data.Φ.eval₂ ((qEmbedT K ℓ).comp evalAtJ) (coeffEmb K jq) = 0 := by
-    rw [← Polynomial.eval_map, hsplit, ← conj_succ_zero K ℓ ζ, phiProd,
-      Polynomial.eval_prod]
+    rw [← Polynomial.eval_map, map_qEmbedT_evalAtJ_eq_phiProd ℓ ζ data hsplit,
+      ← conj_succ_zero K ℓ ζ, phiProd, Polynomial.eval_prod]
     exact Finset.prod_eq_zero (Finset.mem_univ ((0 : Fin ℓ).succ)) (by simp)
   have h2 : data.Φ.eval₂ ((qExpand K ℓ).comp ((qEmbedT K ℓ).comp evalAtJ))
       (qExpand K ℓ (coeffEmb K jq)) = 0 := by
@@ -941,23 +959,14 @@ theorem eval_swap_eq_zero_of_splits (data : ModularPolynomialData ℓ)
   rw [hhom]
   exact h2
 
-private theorem evalSymm_of_splits_aux
-    (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    (data : ModularPolynomialData ℓ)
-    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = phiProd ℓ (conj ℓ ζ))
-    (hTmonic : ((swapBivar data.Φ).map evalAtJGen).Monic)
-    (hTdeg : ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ dedekindPsi ℓ) :
-    EvalSymm data.Φ :=
-  data.evalSymm_of_irreducible (phiIrreducible_of_splits_aux ℓ ζ hpos hζ data hsplit)
-    (eval_swap_eq_zero_of_splits ℓ ζ data hsplit) hTmonic hTdeg
-
 end Swap
 
 end PhiGen
 
 /-- The datum is symmetric as soon as its coefficients split into the conjugate
-product and its transpose is monic of degree `ψ(ℓ)`. Verbatim from the pin wrapper
+product and its transpose is monic of degree `ψ(ℓ)`: symmetry follows from
+irreducibility (`phiIrreducible_of_splits`) and uniqueness of the minimal
+polynomial. Verbatim from the pin wrapper
 `Theorems/Thm_ModularCurve_PhiGen_evalSymm_of_splits.lean`. -/
 theorem PhiGen.evalSymm_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
@@ -967,7 +976,8 @@ theorem PhiGen.evalSymm_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : �
     (hTmonic : ((swapBivar data.Φ).map evalAtJGen).Monic)
     (hTdeg : ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ dedekindPsi ℓ) :
     EvalSymm data.Φ :=
-  PhiGen.evalSymm_of_splits_aux ℓ ζ one_le_coeff_jq hζ data hsplit hTmonic hTdeg
+  data.evalSymm_of_irreducible (PhiGen.phiIrreducible_of_splits ℓ ζ hζ data hsplit)
+    (PhiGen.eval_swap_eq_zero_of_splits ℓ ζ data hsplit) hTmonic hTdeg
 
 /-! ## The converse: evaluated symmetry forces `swapBivar Φ = Φ` -/
 
