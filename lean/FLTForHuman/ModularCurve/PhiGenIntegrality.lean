@@ -16,24 +16,31 @@
   closed under `0, 1, -, *, qExpand, qTwist` (six lemmas), then reads the
   integrality of `(phiProd …).coeff k` off three polynomial-coefficient lemmas
   (`coeffsIntegral_coeff_X_sub_C`, `_mul`, `_prod`, ~42 lines). This port takes
-  the route the work order calls **Route A**:
+  the route the work order calls **Route A**, and runs it over the source ring
+  `ℤ[ζ] := Algebra.adjoin ℤ {ζ}` rather than over `𝒪`:
 
-  * lift `jq` to `jqZ : LaurentSeries ℤ` (its coefficients are the
-    `jNum : PowerSeries ℤ` coefficients, by construction) and then to
-    `jqO : LaurentSeries (integralClosure ℤ K)`;
-  * lift the conjugate family to `conjO i : LaurentSeries (integralClosure ℤ K)`
-    using a unit `zetaUnit e : (integralClosure ℤ K)ˣ` lifting `ζ ^ e`;
-  * `coeffMap (algebraMap 𝒪 K) : LaurentSeries 𝒪 →+* LaurentSeries K` is a ring
-    hom, so it pushes through `qExpand` (`coeffMap_qExpand`, already public),
-    through `qTwist` (`coeffMap_qTwist`, new) and through the polynomial product
-    `phiProd` (`map_phiProdO`); every coefficient of the `K`-series is therefore
-    an `𝒪`-multiple, hence integral;
+  * `jq`'s coefficients are integers (`intCoeffs_jq`), so `jq` is a series over
+    `ℤ[ζ]` (`jqS`);
+  * `ζ` is a unit of `ℤ[ζ]` (`zetaUnitS`, inverse `ζ ^ (ℓ - 1)`; `ζ ^ ℓ = 1` is
+    the only input), so the conjugates are the same `qExpand`/`qTwist` formula
+    over `ℤ[ζ]` (`conjAdjoin i`);
+  * the product over `ℤ[ζ]` has `phiProd` as its image (`prod_eq_of_lift`), so
+    every coefficient of `phiProd` is the image of an element of `ℤ[ζ]`
+    (`coeff_phiProd_mem`);
+  * `ℤ[ζ] ≤ 𝒪` (`zetaRing_le`, one `mem_integralClosure_of_pow_eq_one`), so those
+    coefficients are integral;
   * the descent `hc` plus injectivity of `coeffEmb` produces the integer.
+
+  Nothing here needs the *image* of the lift under `algebraMap 𝒪 K`, i.e. the
+  `conjO`/`phiProdO` theory and `map_phiProdO` of the first version: membership in
+  `𝒪` is all `intCoeffs` consumes. That image theory is shelved in
+  `Reserve/ModularCurve/PhiGenIntegralityImage.lean`.
 
   The measured payoff is in `logs/phiGen-port.md` §9: the ~83 lines of FLT's
   `CoeffsIntegral` closure and polynomial-coefficient machinery are replaced by
-  ~90 lines of bridging lemmas, and the 24 lines of manual root-of-unity
-  integrality by one generic `mem_integralClosure_of_pow_eq_one` over `X ^ ℓ - 1`.
+  the ring structure of `LaurentSeries ↥(ℤ[ζ])` plus the map `ℤ[ζ] → K`, and the
+  manual root-of-unity integrality by one `mem_integralClosure_of_pow_eq_one` over
+  `X ^ ℓ - 1`.
 
   **Deviation from the work order's letter.** `poleOrderLE_aeval_jq` could not be
   promoted into `Defs/Jq.lean` (it needs `PoleOrderLE`, defined in
@@ -78,49 +85,11 @@ namespace PhiGen
 
 variable {K : Type*} [Field K] [Algebra ℚ K]
 
-/-! ## Bridging `coeffMap` to `HahnSeries.ofPowerSeries` and `qTwist`
+/-! ## The source ring `ℤ[ζ]`
 
-`jq` is built from `jNum : PowerSeries ℤ` through `HahnSeries.ofPowerSeries`; the
-`𝒪`-lift has to commute `coeffMap` with that embedding and with the unit twist.
-Both are coefficientwise computations. -/
-
-/-- `jq` lifted to `LaurentSeries ℤ`: its coefficients are `jNum`'s. -/
-private def jqZ : LaurentSeries ℤ :=
-  HahnSeries.single (-1 : ℤ) 1 * HahnSeries.ofPowerSeries ℤ ℤ jNum
-
-private theorem coeffMap_ofPowerSeries {R S : Type*} [CommRing R] [CommRing S]
-    (f : R →+* S) (x : PowerSeries R) :
-    coeffMap f (HahnSeries.ofPowerSeries ℤ R x) = HahnSeries.ofPowerSeries ℤ S (x.map f) := by
-  ext m
-  rcases lt_or_ge m 0 with hm | hm
-  · rw [coeffMap_coeff, ofPowerSeries_coeff_of_neg _ hm, map_zero,
-      ofPowerSeries_coeff_of_neg _ hm]
-  · have hcast : m = (((m.toNat : ℕ)) : ℤ) := (Int.toNat_of_nonneg hm).symm
-    rw [hcast]
-    simp only [coeffMap_coeff, HahnSeries.ofPowerSeries_apply_coeff, PowerSeries.coeff_map]
-
-/-! `coeffMap_qTwist` was this module's `private` 3-argument transport copy; T16
-promoted the canonical 5-argument form (with the explicit `v`/`huv`) to
-`Defs/Twist.lean`, which this module imports transitively through `Defs/PhiGen`.
-The one call site below now names the public lemma explicitly. -/
-
-private theorem coeffMap_jqZ : coeffMap (algebraMap ℤ K) jqZ = coeffEmb K jq := by
-  have hcomp : (algebraMap ℚ K).comp (Int.castRingHom ℚ) = algebraMap ℤ K :=
-    Subsingleton.elim _ _
-  change coeffMap (algebraMap ℤ K) (HahnSeries.single (-1 : ℤ) 1 *
-      HahnSeries.ofPowerSeries ℤ ℤ jNum)
-    = coeffMap (algebraMap ℚ K) (HahnSeries.single (-1 : ℤ) 1 *
-        HahnSeries.ofPowerSeries ℤ ℚ jNumQ)
-  rw [map_mul, map_mul, coeffMap_single, coeffMap_single, map_one (algebraMap ℤ K),
-    map_one (algebraMap ℚ K), coeffMap_ofPowerSeries, coeffMap_ofPowerSeries, jNumQ,
-    show (PowerSeries.map (algebraMap ℚ K)) ((PowerSeries.map (Int.castRingHom ℚ)) jNum)
-      = PowerSeries.map ((algebraMap ℚ K).comp (Int.castRingHom ℚ)) jNum from rfl,
-    hcomp]
-
-/-! ## The `𝒪`-lift of the conjugate family
-
-`ζ ^ e` is a root of `X ^ ℓ - 1`, hence integral; so is its inverse, and together
-they are a unit of `integralClosure ℤ K` mapping to `ζ ^ e` in `K`. -/
+`ζ` is a root of `X ^ ℓ - 1`, so `ℤ[ζ]` sits inside `𝒪 = integralClosure ℤ K`;
+and `ζ` is a unit of `ℤ[ζ]` (inverse `ζ ^ (ℓ - 1)`), so the `qExpand`/`qTwist`
+formula that defines the conjugates runs over `ℤ[ζ]` with no further input. -/
 
 omit [Algebra ℚ K] in
 private theorem mem_integralClosure_of_pow_eq_one {n : ℕ} (hn : n ≠ 0) {x : K}
@@ -130,39 +99,98 @@ private theorem mem_integralClosure_of_pow_eq_one {n : ℕ} (hn : n ≠ 0) {x : 
 
 variable {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
 
-/-- The unit of `integralClosure ℤ K` lifting `ζ ^ e`, for `ζ ^ ℓ = 1`. -/
-private def zetaUnit (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (e : ℕ) :
-    (integralClosure ℤ K)ˣ :=
-  let u : Kˣ := ζ ^ e
-  have hu : u ^ ℓ = 1 := by
-    rw [← pow_mul, mul_comm e ℓ, pow_mul, hζ1, one_pow]
-  have hval : (u : K) ^ ℓ = 1 := by rw [← Units.val_pow_eq_pow_val, hu, Units.val_one]
-  have hinv : ((u⁻¹ : Kˣ) : K) ^ ℓ = 1 := by
-    rw [Units.val_inv_eq_inv_val, inv_pow, hval, inv_one]
-  Units.mkOfMulEqOne
-    ⟨(u : K), mem_integralClosure_of_pow_eq_one hℓ.out.ne_zero hval⟩
-    ⟨((u⁻¹ : Kˣ) : K), mem_integralClosure_of_pow_eq_one hℓ.out.ne_zero hinv⟩
-    (by ext; simp)
+/-- `ℤ[ζ]`: the subalgebra of `K` generated by `ζ`. -/
+private def zetaRing (ζ : Kˣ) : Subalgebra ℤ K :=
+  Algebra.adjoin ℤ {(ζ : K)}
 
-/-- The `𝒪`-lift of `jq`. -/
-private def jqO : LaurentSeries (integralClosure ℤ K) :=
-  coeffMap (algebraMap ℤ (integralClosure ℤ K)) jqZ
+omit [Algebra ℚ K] in
+private theorem zetaRing_le (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) : zetaRing ζ ≤ integralClosure ℤ K := by
+  rw [zetaRing, Algebra.adjoin_le_iff]
+  rintro x (rfl : x = (ζ : K))
+  exact mem_integralClosure_of_pow_eq_one hℓ.out.ne_zero (by
+    rw [← Units.val_pow_eq_pow_val, hζ1, Units.val_one])
 
-private theorem coeffMap_jqO :
-    coeffMap (algebraMap (integralClosure ℤ K) K) jqO = coeffEmb K jq := by
-  rw [jqO, coeffMap_coeffMap, coeffMap_congr (Subsingleton.elim _ _), coeffMap_jqZ]
+/-- `ζ` as a unit of `ℤ[ζ]`, with inverse `ζ ^ (ℓ - 1)`. -/
+private def zetaUnitS (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) : (zetaRing ζ)ˣ :=
+  have hζ : (ζ : K) ^ ℓ = 1 := by rw [← Units.val_pow_eq_pow_val, hζ1, Units.val_one]
+  have hζmem : (ζ : K) ∈ zetaRing ζ := Algebra.subset_adjoin rfl
+  have hinv : ((ζ : K) ^ (ℓ - 1)) ∈ zetaRing ζ := pow_mem hζmem (ℓ - 1)
+  Units.mkOfMulEqOne ⟨(ζ : K), hζmem⟩ ⟨((ζ : K) ^ (ℓ - 1)), hinv⟩
+    (Subtype.ext (by
+      show (ζ : K) * (ζ : K) ^ (ℓ - 1) = 1
+      rw [← pow_succ', Nat.sub_add_cancel hℓ.out.one_le]
+      exact hζ))
 
-/-- The `𝒪`-lift of the conjugate family. -/
-private def conjO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (i : Fin (ℓ + 1)) :
-    LaurentSeries (integralClosure ℤ K) :=
-  qExpand (integralClosure ℤ K) (cosetA ℓ i * cosetA ℓ i)
-    (qTwist (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i)) jqO)
+omit [Algebra ℚ K] in
+private theorem zetaUnitS_val (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) :
+    ((zetaUnitS ζ hζ1 : ↥(zetaRing ζ)) : K) = (ζ : K) := rfl
 
-/-- The `𝒪`-lift of the product `∏_i (Y - conj i)`. `phiProd` is stated for a
-field, so the lift is the bare product over the (non-field) integral closure. -/
-private def phiProdO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) :
-    Polynomial (LaurentSeries (integralClosure ℤ K)) :=
-  ∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (conjO ζ hζ1 i))
+private theorem intCoeffs_jq_pow (n : ℕ) : IntCoeffs (jq ^ n) := by
+  intro m
+  rw [jq_pow, HahnSeries.coeff_single_mul, one_mul]
+  by_cases hneg : (m - -(n : ℤ)) < 0
+  · exact ⟨0, by rw [ofPowerSeries_coeff_of_neg _ hneg, Int.cast_zero]⟩
+  · refine ⟨(PowerSeries.coeff (m - -(n : ℤ)).toNat (jNum ^ n) : ℤ), ?_⟩
+    have hcast : (m - -(n : ℤ)) = (((m - -(n : ℤ)).toNat : ℕ) : ℤ) :=
+      (Int.toNat_of_nonneg (not_lt.mp hneg)).symm
+    rw [hcast, HahnSeries.ofPowerSeries_apply_coeff]
+    show PowerSeries.coeff _ (jNumQ ^ n) = _
+    rw [jNumQ, ← map_pow, PowerSeries.coeff_map]
+    rfl
+
+private theorem intCoeffs_jq : IntCoeffs jq := by
+  have h := intCoeffs_jq_pow 1
+  rwa [pow_one] at h
+
+/-- The coefficients of `jq` lie in `ℤ[ζ]`. -/
+private theorem jq_coeff_mem (ζ : Kˣ) (m : ℤ) : (coeffEmb K jq).coeff m ∈ zetaRing ζ := by
+  obtain ⟨z, hz⟩ := intCoeffs_jq m
+  have hcomp : (algebraMap ℚ K).comp (Int.castRingHom ℚ) = algebraMap ℤ K :=
+    Subsingleton.elim _ _
+  have hval : (algebraMap ℚ K) ((z : ℚ)) = algebraMap ℤ K z := by
+    rw [← hcomp]
+    rfl
+  rw [coeffEmb_coeff, hz, hval]
+  exact Subalgebra.algebraMap_mem _ z
+
+/-- `jq`, viewed over `ℤ[ζ]`. -/
+private def jqS (ζ : Kˣ) : LaurentSeries ↥(zetaRing ζ) where
+  coeff m := ⟨(coeffEmb K jq).coeff m, jq_coeff_mem ζ m⟩
+  isPWO_support' := (coeffEmb K jq).isPWO_support'.mono fun m hm => by
+    rw [Function.mem_support] at hm ⊢
+    exact fun h0 => hm (Subtype.ext h0)
+
+private theorem coeffMap_jqS (ζ : Kˣ) :
+    coeffMap (algebraMap ↥(zetaRing ζ) K) (jqS ζ) = coeffEmb K jq := rfl
+
+/-- `conj i`, viewed over `ℤ[ζ]`. -/
+private def conjAdjoin (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (i : Fin (ℓ + 1)) :
+    LaurentSeries ↥(zetaRing ζ) :=
+  qExpand ↥(zetaRing ζ) (cosetA ℓ i * cosetA ℓ i)
+    (qTwist (zetaUnitS ζ hζ1 ^ (cosetA ℓ i * cosetB ℓ i)) (jqS ζ))
+
+private theorem coeffMap_conjAdjoin (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (i : Fin (ℓ + 1)) :
+    coeffMap (algebraMap ↥(zetaRing ζ) K) (conjAdjoin ζ hζ1 i) = conj ℓ ζ i := by
+  have hval : ∀ n : ℕ, Units.map (algebraMap ↥(zetaRing ζ) K).toMonoidHom
+      ((zetaUnitS ζ hζ1) ^ n) = ζ ^ n := by
+    intro n
+    rw [map_pow]
+    congr 1
+    ext
+    rw [Units.coe_map]
+    exact zetaUnitS_val ζ hζ1
+  rw [conjAdjoin, coeffMap_qExpand,
+    coeffMap_qTwist (algebraMap ↥(zetaRing ζ) K)
+      (zetaUnitS ζ hζ1 ^ (cosetA ℓ i * cosetB ℓ i)) (ζ ^ (cosetA ℓ i * cosetB ℓ i))
+      (by rw [← hval (cosetA ℓ i * cosetB ℓ i)]; rfl),
+    coeffMap_jqS]
+  unfold conj cosetSubst
+  rw [RingHom.comp_apply]
+
+/-! `coeffMap_qTwist` was this module's `private` 3-argument transport copy; T16
+promoted the canonical 5-argument form (with the explicit `v`/`huv`) to
+`Defs/Twist.lean`, which this module imports transitively through `Defs/PhiGen`.
+The one call site below now names the public lemma explicitly. -/
 
 private theorem coeffMap_qExpand_qTwist {R S : Type*} [CommRing R] [CommRing S]
     (σ : R →+* S) (u : Rˣ) (v : Sˣ) (huv : (v : S) = σ (u : R)) (N : ℕ) [NeZero N]
@@ -174,28 +202,17 @@ private theorem prod_eq_of_lift {A B : Type*} [CommRing A] [CommRing B] (f : A �
     {n : ℕ} {y : Fin n → A} {z : Fin n → B} (h : ∀ i, f (y i) = z i) :
     (∏ i : Fin n, (Polynomial.X - Polynomial.C (y i))).map f
       = ∏ i : Fin n, (Polynomial.X - Polynomial.C (z i)) := by
-  rw [Polynomial.map_prod]
-  exact Finset.prod_congr rfl fun i _ => by
-    rw [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, h i]
+  simp only [Polynomial.map_prod, Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, h]
 
-/-- Every coefficient of the conjugate product lies in `𝒪`. The lift `phiProdO`
-exists because `jq` has integer coefficients and `ζ ^ e` is a unit of `𝒪`, and
-`coeffMap` carries it back to `phiProd`. -/
+/-- Every coefficient of the conjugate product lies in `𝒪`: the product is the
+image of a product over `ℤ[ζ]`. -/
 private theorem coeff_phiProd_mem (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (k : ℕ) (m : ℤ) :
     ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff m ∈ integralClosure ℤ K := by
-  have hlift : ∀ e : ℕ, Units.map (algebraMap (integralClosure ℤ K) K).toMonoidHom
-      (zetaUnit ζ hζ1 e) = ζ ^ e := fun e => Units.ext (by simp [zetaUnit])
-  have hmap : (phiProdO ζ hζ1).map (coeffMap (algebraMap (integralClosure ℤ K) K))
-      = phiProd ℓ (conj ℓ ζ) := by
-    refine prod_eq_of_lift (coeffMap (algebraMap (integralClosure ℤ K) K)) fun i => ?_
-    unfold conjO conj cosetSubst
-    rw [RingHom.comp_apply]
-    rw [coeffMap_qExpand_qTwist (algebraMap (integralClosure ℤ K) K)
-      (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i)) (ζ ^ (cosetA ℓ i * cosetB ℓ i))
-      (by rw [← hlift (cosetA ℓ i * cosetB ℓ i)]; rfl)]
-    rw [coeffMap_jqO]
+  have hmap : (∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (conjAdjoin ζ hζ1 i))).map
+        (coeffMap (algebraMap ↥(zetaRing ζ) K)) = phiProd ℓ (conj ℓ ζ) :=
+    prod_eq_of_lift _ fun i => coeffMap_conjAdjoin ζ hζ1 i
   rw [← hmap, Polynomial.coeff_map, coeffMap_coeff]
-  exact (((phiProdO ζ hζ1).coeff k).coeff m).property
+  exact zetaRing_le ζ hζ1 (SetLike.coe_mem _)
 
 /-! ## The integrality of the descended family -/
 
@@ -226,23 +243,6 @@ theorem PhiGenDescends.intCoeffs {K : Type*} [Field K] [Algebra ℚ K] {ℓ : �
 of `P(jq)` (`coeff_aeval_jq_neg`, promoted to `Defs/Jq.lean`); subtracting that
 top term and inducting on the degree turns `IntCoeffs (P(jq))` into `P ∈ ℤ[X]`.
 The auxiliary integer-coefficient lemmas are the pin's. -/
-
-private theorem intCoeffs_jq_pow (n : ℕ) : IntCoeffs (jq ^ n) := by
-  intro m
-  rw [jq_pow, HahnSeries.coeff_single_mul, one_mul]
-  by_cases hneg : (m - -(n : ℤ)) < 0
-  · exact ⟨0, by rw [ofPowerSeries_coeff_of_neg _ hneg, Int.cast_zero]⟩
-  · refine ⟨(PowerSeries.coeff (m - -(n : ℤ)).toNat (jNum ^ n) : ℤ), ?_⟩
-    have hcast : (m - -(n : ℤ)) = (((m - -(n : ℤ)).toNat : ℕ) : ℤ) :=
-      (Int.toNat_of_nonneg (not_lt.mp hneg)).symm
-    rw [hcast, HahnSeries.ofPowerSeries_apply_coeff]
-    show PowerSeries.coeff _ (jNumQ ^ n) = _
-    rw [jNumQ, ← map_pow, PowerSeries.coeff_map]
-    rfl
-
-private theorem intCoeffs_jq : IntCoeffs jq := by
-  have h := intCoeffs_jq_pow 1
-  rwa [pow_one] at h
 
 private theorem intCoeffs_algebraMap_int_mul_jq_pow (z : ℤ) (n : ℕ) :
     IntCoeffs (algebraMap ℚ (LaurentSeries ℚ) ((z : ℚ)) * jq ^ n) := by
