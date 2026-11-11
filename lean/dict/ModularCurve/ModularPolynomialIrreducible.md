@@ -1,10 +1,16 @@
 # `ModularCurve/ModularPolynomialIrreducible.lean` — notation dictionary
 
-The module proves that the level-`ℓ` datum is irreducible over `ℚ(j)` (`phiIrreducible_of_splits`)
-and symmetric (`evalSymm_of_splits`, `ModularPolynomialData.evalSymm_of_irreducible`), given that its
-coefficients split into the conjugate product. Almost all of its notation exists to keep the **three
-images of one formal polynomial** apart, and the part hardest to read is the family of ring homs that
-move between them — so those come first, alone.
+The module proves that the level-`ℓ` datum is irreducible over `ℚ(j)`
+(`phiIrreducible_of_splits`) and that `j(q ^ ℓ)` is not a polynomial in `j(q)`, given that the
+datum's coefficients split into the conjugate product. It keeps the level embedding `qEmbedT` that
+both halves of the cone read through, and with it the splitting's read-off into the transposed
+evaluation, `eval_swap_eq_zero_of_splits`. The block's transpose engine and q-expansion dictionary are
+not here: they sit beside the capstone that runs them, in
+[`ModularPolynomialProperties.md`](ModularPolynomialProperties.md).
+
+Almost all of this module's notation exists to keep the **three images of one formal polynomial**
+apart, and the part hardest to read is the family of ring homs that move between them — so those come
+first, alone.
 
 Module: [ModularPolynomialIrreducible.lean](../../FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean)
 
@@ -194,10 +200,9 @@ level; its two cases are degree `0` (unit constant) and degree `1` (would have t
 
 ## 9. The module's other exports
 
-The public surface is twelve declarations. The coefficient-cast evaluation `ev` and
-the converse `swap_eq_of_evalSymm` that the transpose argument uses are *not* among them:
-they live in `Defs/BivariateEval.lean`, the single home this module and the `X1`
-integrality module share. The block's non-membership is *not* among them: the pin
+The public surface is six declarations. The block's transpose engine and q-expansion dictionary are
+tabled in [`ModularPolynomialProperties.md`](ModularPolynomialProperties.md) §1, next to the capstone
+that runs them. The block's non-membership is *not* among the six: the pin
 ships `aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN` and `jqN_not_mem_adjoin_jq` public, but
 no file outside the block's own five copies cites any of them, so the port keeps only the statement,
 as the private `jqN_not_mem_adjoin_jq` of §6 (the two wrappers — the cyclotomic specialisation and
@@ -210,11 +215,7 @@ the polynomial unpacking — are inlined into it).
 | `jqN_not_mem_adjoin_jq` (**private**) | no polynomial in `j(q)` equals `j(q ^ ℓ)`, so `j(q ^ ℓ) ∉ ℚ[j(q)]` — the prime non-membership, and the module's one arithmetic input |
 | `ModularPolynomialData.aeval_jqN_toAdjoin` | `data.toAdjoin` annihilates `j(q ^ N)` |
 | `ModularPolynomialData.minpoly_jqN_eq` | for an irreducible datum, `data.toAdjoin` is `minpoly` of `j(q ^ N)` |
-| `swapBivar_monic_of_coeff_bounds` | a polynomial whose `Y^0` coefficient is monic of degree `d` and whose higher coefficients have smaller degree has a monic transpose of degree `d` |
-| `ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion` | the pole bounds of the descended family give that for `data.Φ` |
-| `evalSymm_of_swapBivar_eq`, `swapBivar_eq_of_evalSymm` | `swapBivar Φ = Φ` and `EvalSymm Φ` are equivalent (`swapBivar` is mathlib's `Bivariate.swap`) |
-| `eval_swap_eq_zero_of_splits` | the splitting gives `Φ(j(q ^ ℓ), j(q)) = 0`, the transposed evaluation |
-| `ModularPolynomialData.evalSymm_of_irreducible`, `evalSymm_of_splits` | symmetry from irreducibility plus uniqueness of the minimal polynomial |
+| `eval_swap_eq_zero_of_splits` | the splitting gives `Φ(j(q ^ ℓ), j(q)) = 0`, the transposed evaluation, through the level embedding of §5 |
 
 ## 10. The same fact elsewhere in the port
 

@@ -13,16 +13,14 @@
 
   Then `Φ = ∑_{k ≤ ℓ+1} Q k (X) * Y^k` is the datum: `c_top` makes it monic,
   `c_eq_zero`/`hΦdeg` give degree `ℓ + 1 = ψ(ℓ)`, and
-  `sum_mul_jqN_pow_eq_zero` is the vanishing at `j(q ^ ℓ)`. The same file carries
-  the coefficient comparison `splits_of_coeff_evalAtJ_eq`, which turns the datum
-  back into the conjugate product and is consumed by (e)/(f).
+  `sum_mul_jqN_pow_eq_zero` is the vanishing at `j(q ^ ℓ)`.
 
   ## Source
 
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
   `P2M/Sol/S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean` (191
-  lines). `splits_of_coeff_evalAtJ_eq` is public there; the assembly is `private`
-  and exposed through its wrapper. Both port statements are the wrappers verbatim.
+  lines). The assembly is `private` in the pin and exposed through its wrapper,
+  which the port statement is verbatim.
 
   ## Reuse
 
@@ -38,11 +36,10 @@
   `aeval_jq_intCoeffs_descent` and `PhiGenDescends.intCoeffs` T9's
   `PhiGenIntegrality`; the five `PhiGenDescends.*`/`evalAtJ_injective` exports
   this topic's `PhiGenDescendsStructure`.
-  Wired here, not in the frozen registry: the module left `PORT_FILES`
-  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+  Checked by `spec/check_port.py` through the `spec-pin:` lines below; the module is
+  not listed in `spec/old_check_stmts.py`.
 
   spec-pin: Theorems/Thm_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean
-  spec-pin: Theorems/Thm_ModularCurve_PhiGen_splits_of_coeff_evalAtJ_eq.lean
 -/
 import FLTForHuman.ModularCurve.PhiGenDescendsStructure
 import FLTForHuman.ModularCurve.PhiGenIntegrality
@@ -109,18 +106,6 @@ private theorem PhiGenDescends.exists_intPoly (hc : PhiGenDescends ℓ ζ c)
   · rw [evalAtJ_eq_aeval_map, hQmap, hP]
 
 end Exits
-
-/-- A datum whose coefficients evaluate to the descended family maps to the
-conjugate product under `coeffEmb K ∘ qExpand ℚ ℓ ∘ evalAtJ`. Consumed by (e) and
-(f). Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_PhiGen_splits_of_coeff_evalAtJ_eq.lean`. -/
-theorem splits_of_coeff_evalAtJ_eq {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ}
-    [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) {c : ℕ → LaurentSeries ℚ}
-    (hc : PhiGenDescends ℓ ζ c) (data : ModularPolynomialData ℓ)
-    (hcoeff : ∀ k, evalAtJ (data.Φ.coeff k) = c k) :
-    data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ) = phiProd ℓ (conj ℓ ζ) := by
-  refine Polynomial.ext fun k => ?_
-  rw [Polynomial.coeff_map, RingHom.comp_apply, RingHom.comp_apply, hcoeff k, hc k]
 
 section StrongExistence
 

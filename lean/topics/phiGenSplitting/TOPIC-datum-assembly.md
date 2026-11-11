@@ -132,19 +132,12 @@ theorem ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq {K : Type*} [F
     ∃ data : ModularPolynomialData ℓ, ∀ k, evalAtJ (data.Φ.coeff k) = c k
 ```
 
-The same file carries the one-line coefficient comparison that turns the datum
-back into the product,
-
-```lean
-theorem ModularCurve.PhiGen.splits_of_coeff_evalAtJ_eq {K : Type*} [Field K] [Algebra ℚ K]
-    {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) {c : ℕ → LaurentSeries ℚ}
-    (hc : PhiGenDescends ℓ ζ c) (data : ModularPolynomialData ℓ)
-    (hcoeff : ∀ k, evalAtJ (data.Φ.coeff k) = c k) :
-    data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ) = phiProd ℓ (conj ℓ ζ)
-```
-
-which belongs to piece (f) in the blueprint but lives in this file and is needed
-by both the (d) tail and (e).
+The pin's 41-line coefficient comparison that turns the datum back into the
+product — piece (f) in the blueprint, but written in the (d) file and needed by
+both the (d) tail and (e) — has no home in the port: its statement is the (d)
+conclusion read at the coefficients, so it is not an export here. Its two call
+sites — `splits_of_prime_cyclotomicField` (T13) and `exists_phiIrreducible_evalSymm`
+(T12) — spell its three lines out themselves.
 
 **Uniqueness and existence (T12/T13).** These four declarations make up 311 of
 the (d) bucket's 502 pin lines:
@@ -161,11 +154,15 @@ the (d) bucket's 502 pin lines:
   This is the cone's own construction: choose `ζ` in `CyclotomicField ℓ ℚ`
   (mathlib supplies the primitive root), then run (a) descent, (b) integrality,
   (c) membership, (d) assembly, and (e) irreducibility from the splitting.
-- `evalSymm_of_coeff_evalAtJ_eq`: symmetry `` $`\Phi(X,Y) = \Phi(Y,X)`$ `` in
+- the symmetry half of `exists_phiIrreducible_evalSymm` (the pin exports it as
+  `evalSymm_of_coeff_evalAtJ_eq`, a statement whose only consumer is that
+  capstone, so the port inlines it): symmetry `` $`\Phi(X,Y) = \Phi(Y,X)`$ `` in
   evaluated form. It feeds the splitting identity plus T10's two pole-bound
   exports (the leading pole coefficient `1` of `c 0`, and the vanishing of the
-  deeper coefficients of the non-constant family) into the 895-block device
-  `transposeToAdjoin_monic_of_qExpansion`, then `evalSymm_of_splits`.
+  deeper coefficients of the non-constant family) through the 895 block's
+  q-expansion-to-degree dictionary into `swapBivar_monic_of_coeff_bounds`, then
+  through the minimal polynomial (the transpose is monic of degree `ψ(ℓ)` and
+  annihilates `j(q ^ ℓ)`, so it is `Φ`).
 
 ## 2. The scouted inventory
 
@@ -284,7 +281,7 @@ written once.
 | topic | object | content | prereq |
 |---|---|---|---|
 | **T11** | the construction — from the conjugate product to a datum | (a) `exists_phiGenDescends`; the 328 block; `exists_modularPolynomialData_coeff_eq`, `splits_of_coeff_evalAtJ_eq` | T10 (done) |
-| **T12** | the properties — irreducibility and symmetry | `one_le_coeff_jq`; the 895 block (`phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`, plus the hidden `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq`); `evalSymm_of_coeff_evalAtJ_eq`; `exists_phiIrreducible_evalSymm` | T11 |
+| **T12** | the properties — irreducibility and symmetry | `one_le_coeff_jq`; the 895 block (`phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`, plus the hidden `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq`); `exists_phiIrreducible_evalSymm` | T11 |
 | **T13** | the consequence — uniqueness and the splitting | `finrank_adjoin_jqN_eq_of_prime`, `ModularPolynomialData.eq_of_prime`; `splits_of_prime`, `splits_prime_at_slot` | T12 |
 
 Why this is the cohesion-maximizing cut:
@@ -406,8 +403,8 @@ proof once. Concretely for T11:
 |---|---|---|
 | `FLTForHuman/ModularCurve/PhiGenDescent.lean` | `PhiGen.exists_phiGenDescends` | (a), 315 |
 | `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` | `PhiGenDescends.c_top`, `.c_eq_zero`, `.poleOrderLE`, `.sum_mul_jqN_pow_eq_zero`, `evalAtJ_injective` | the 328 block |
-| `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` | `exists_modularPolynomialData_coeff_eq`, `splits_of_coeff_evalAtJ_eq` | the 191-line (d) file |
-| *(T12)* `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` | `one_le_coeff_jq`, the 895 block's exports, `evalSymm_of_coeff_evalAtJ_eq`, `exists_phiIrreducible_evalSymm` | (e) + 311 |
+| `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` | `exists_modularPolynomialData_coeff_eq` | the 191-line (d) file |
+| *(T12)* `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` | `one_le_coeff_jq`, the 895 block's exports, `exists_phiIrreducible_evalSymm` | (e) + 311 |
 | *(T13)* `FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean` | `finrank_adjoin_jqN_eq_of_prime`, `ModularPolynomialData.eq_of_prime`, `splits_of_prime`, `splits_prime_at_slot` | (f) + 125 |
 
 The names are suggestions; what matters is §4.1's boundaries. T11's three modules
@@ -450,8 +447,9 @@ in the log if it is used.
       kept `private`; `evalAtJ_injective` by the mathlib route of §4.2 (it closed
       first try). **161 lines, 5 public + 2 `private`.**
 - [x] `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean`:
-      `exists_modularPolynomialData_coeff_eq` and `splits_of_coeff_evalAtJ_eq`
-      public and verbatim. **201 lines, 2 public + 5 `private`.**
+      `exists_modularPolynomialData_coeff_eq` public and verbatim. **182 lines,
+      1 public + 4 `private`** after the 2026-11-10 refactor that inlined
+      `splits_of_coeff_evalAtJ_eq` at its three call sites.
 - [x] `lake build` green, 0 warnings, no `sorry` (2594 jobs).
 - [x] `#print axioms` clean on all eight public declarations.
 - [x] `spec/old_check_stmts.py`: the eight wrappers in `SOURCES`, 0

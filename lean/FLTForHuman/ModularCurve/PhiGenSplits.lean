@@ -4,10 +4,10 @@
   `PhiGen.splits_of_prime` is the cone's content: the level-`p` datum, read at the
   level-`p` nome, is the conjugate product `∏_i (Y - conj_i)`. The proof joins the
   whole cone — T11's descent (a), T9's integrality (b), T8's membership (c), T11's
-  assembly (d), this topic's `eq_of_prime` for uniqueness, and T11's
-  `splits_of_coeff_evalAtJ_eq` for the read-off — first over `CyclotomicField p ℚ`,
-  then transported to an arbitrary `ℚ`-algebra `K` along an embedding sending the
-  chosen primitive root to `ζ`.
+  assembly (d), this topic's `eq_of_prime` for uniqueness, and (d)'s coefficient
+  comparison for the read-off — first over `CyclotomicField p ℚ`, then transported
+  to an arbitrary `ℚ`-algebra `K` along an embedding sending the chosen primitive
+  root to `ζ`.
 
   `PhiGen.splits_prime_at_slot` is the cone's exported statement, math/010 §3's
   formula with the general level datum `(e, u)`:
@@ -40,7 +40,7 @@
   through `eq_of_prime`/`evalAtI` over `ℚ`. The same two statements over an *arbitrary*
   field — the pin's char-`p` text, `jqModC K` in place of `coeffEmb K jq` — are the separate
   module `PhiGenSplitsAnyField.lean`, which obtains them by transporting `splits_of_prime`
-  through the integral cyclotomic order `ℤ[ζ_p]` (WORKORDER-GS1). They are not instances of
+  through the integral cyclotomic order `ℤ[ζ_p]`. They are not instances of
   these: the char-`p` proof *calls* `splits_of_prime`.
 
   ## Assumptions
@@ -48,10 +48,10 @@
   `Defs/TS`, `Defs/Laurent` (`coeffEmb_qExpand`), `Defs/Twist`, `Defs/Jq`,
   `Defs/PhiGen` (`conj`, `phiProd`), `Defs/Polynomial`; T8's
   `mem_adjoin_jq_of_phiGenDescends`; T9's `PhiGenDescends.intCoeffs`; T11's
-  `exists_phiGenDescends`, `exists_modularPolynomialData_coeff_eq`,
-  `splits_of_coeff_evalAtJ_eq`; this topic's `ModularPolynomialData.eq_of_prime`.
-  Wired here, not in the frozen registry: the module left `PORT_FILES`
-  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+  `exists_phiGenDescends`, `exists_modularPolynomialData_coeff_eq`; this topic's
+  `ModularPolynomialData.eq_of_prime`.
+  Checked by `spec/check_port.py` through the `spec-pin:` lines below; the module is
+  not listed in `spec/old_check_stmts.py`.
 
   spec-pin: Theorems/Thm_ModularCurve_PhiGen_splits_of_prime.lean
   spec-pin: Theorems/Thm_ModularCurve_PhiGen_splits_prime_at_slot.lean
@@ -75,29 +75,11 @@ namespace PhiGen
 
 variable {K : Type*} [Field K] [Algebra ℚ K]
 
-/-! ## The live bridges from `conj` to `TS`
-
-`iota_jq`, `conj_zero_eq` and `conj_succ_eq` were this module's `private`
-copies; T14 promoted the canonical copies to `Defs/PhiAtSlot.lean` (public), which
-this module imports, so the twins are gone. -/
-
-/-! ## A primitive `p`-th root in `CyclotomicField p ℚ`
-
-`exists_isPrimitiveRoot_cyclotomicField`, `cycUnit`, `cycUnit_spec`,
-`cycUnit_pow` and `isPrimitiveRoot_pow_div` are public in
-`Defs/Cyclotomic.lean` (promoted there from the FFG spine's private copies, which
-the pin repeats in both `splits_*` files). They are imported, not re-declared. -/
-
 /-! ## Transport of the identity along a `ℚ`-algebra embedding -/
 
 section Transport
 
 variable {K₀ : Type*} [Field K₀] [Algebra ℚ K₀]
-
-/-! `coeffMap_qTwist`, `coeffMap_coeffEmb_algHom` and `coeffMap_TS` were this
-module's `private` transport copies; T16 promoted the canonical copies to
-`Defs/Twist.lean`, `Defs/Laurent.lean` and `Defs/TS.lean` (all imported here), so
-the twins are gone. `coeffMap_conj` below now uses the public `coeffMap_TS`. -/
 
 private theorem coeffMap_conj (σ : K₀ →ₐ[ℚ] K) (p : ℕ) [Fact p.Prime] (ζ : K₀ˣ)
     (i : Fin (p + 1)) :
@@ -137,7 +119,8 @@ private theorem splits_of_prime_cyclotomicField (p : ℕ) [hp : Fact p.Prime]
     fun k => mem_adjoin_jq_of_phiGenDescends p (cycUnit p) hζ c hc k
   obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hc hIntCoeffs hmem
   rw [ModularPolynomialData.eq_of_prime p data data₀]
-  exact splits_of_coeff_evalAtJ_eq (cycUnit p) hc data₀ hdata₀
+  refine Polynomial.ext fun k => ?_
+  rw [Polynomial.coeff_map, RingHom.comp_apply, RingHom.comp_apply, hdata₀ k, hc k]
 
 /-- The modular polynomial splits into its `p + 1` conjugates. Verbatim from the
 pin wrapper `Theorems/Thm_ModularCurve_PhiGen_splits_of_prime.lean`. -/
@@ -172,10 +155,7 @@ theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fa
         rw [hmap]
     _ = phiProd p (conj p ζ) := h
 
-/-! ## The splitting at a general slot
-
-`qExpand_qTwist_TS`, this module's former `private` bridge, is now public in
-`Defs/TS.lean` beside `TS` (T14), and `Defs/TS` is imported above. -/
+/-! ## The splitting at a general slot -/
 
 /-- The cone's headline: the twisted, dilated slot splitting. Verbatim from the
 pin wrapper `Theorems/Thm_ModularCurve_PhiGen_splits_prime_at_slot.lean`. -/

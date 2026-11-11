@@ -94,7 +94,8 @@ conjugate product `` $`\prod_i (Y - \mathrm{conj}_i)`$ ``, whose roots are
   `mem_adjoin_jq_of_phiGenDescends` gives membership in `ℚ[jq]`; T11's
   `exists_modularPolynomialData_coeff_eq` assembles a datum `data₀` with
   `evalAtJ (data₀.Φ.coeff k) = c k`; **`eq_of_prime` identifies `data` with
-  `data₀`**; and T11's `splits_of_coeff_evalAtJ_eq` rewrites the product into
+  `data₀`**; and (d)'s coefficient comparison — inlined here, since it is the (d)
+  conclusion read at the coefficients — rewrites the map into
   `phiProd p (conj p ζ₀)`. So `eq_of_prime` is not a side lemma — it is the step
   that makes the *arbitrary* input `data` the *constructed* one.
 - **for arbitrary `K` and `ζ`**: an algebra embedding
@@ -304,7 +305,7 @@ T13 is the join of the whole cone. Its imports are all landed:
 | `exists_phiGenDescends` | T11 `PhiGenDescent.lean` |
 | `PhiGenDescends.intCoeffs` | T9 `PhiGenIntegrality.lean` |
 | `mem_adjoin_jq_of_phiGenDescends` | T8 `ModularForms/PhiGenDescends.lean` |
-| `exists_modularPolynomialData_coeff_eq`, `splits_of_coeff_evalAtJ_eq` | T11 `ModularPolynomialAssembly.lean` |
+| `exists_modularPolynomialData_coeff_eq` | T11 `ModularPolynomialAssembly.lean` |
 | `exists_phiIrreducible_evalSymm`, `evalAtJGen_injective`, `aeval_jqN_toAdjoin`, `minpoly_jqN_eq` | T12 `ModularPolynomialProperties.lean` / `ModularPolynomialIrreducible.lean` |
 | `evalAtJ_injective` | T11 `PhiGenDescendsStructure.lean` |
 | `TS` and its API | `Defs/TS.lean` |

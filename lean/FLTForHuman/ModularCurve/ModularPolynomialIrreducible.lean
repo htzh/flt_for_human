@@ -5,7 +5,12 @@
   (the three graph nodes `phiIrreducible_of_splits`, `evalSymm_of_splits`,
   `transposeToAdjoin_monic_of_qExpansion`, plus the two hidden exports
   `swapBivar_monic_of_coeff_bounds` and `evalSymm_of_irreducible`), `5 × 895 ≈
-  4,475` pin lines. The port writes it once.
+  4,475` pin lines. This module is the block's irreducibility half, with the level
+  embedding its proof shares: it exports the irreducibility headline, the prime
+  non-membership, the datum's minimal-polynomial facts and the transposed
+  evaluation. The block's transpose engine and q-expansion dictionary — everything
+  the symmetry argument is built from — are in `ModularPolynomialProperties.lean`,
+  beside the capstone that runs them.
 
   ## What it proves
 
@@ -21,14 +26,12 @@
     factor-counting argument: a nonzero `D ∈ ℚ[j(q)]` with `D(jq) = 0` has degree
     `≥ ℓ` (the conjugates are distinct), so one factor of any factorisation has
     degree `≤ 1`, and it is a unit because `j(q^ℓ) ∉ ℚ[j(q)]`;
-  * `swapBivar_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion` —
-    the transpose `swapBivar Φ` is monic of degree `ψ(ℓ)` from the pole bounds of
-    the descended family;
-  * `evalSymm_of_irreducible`, `evalSymm_of_splits` — symmetry, by uniqueness of
-    the minimal polynomial: the transpose is monic, annihilates `j(q^ℓ)` and has
-    the minimal degree, so it equals `Φ`;
-  * `evalAtJGen_injective`, `swapBivar_eq_of_evalSymm` — the two auxiliary
-    injectivity/symmetry transfers.
+  * `aeval_jqN_toAdjoin`, `minpoly_jqN_eq` — `data.toAdjoin` annihilates `j(q^ℓ)`,
+    and is its minimal polynomial when the datum is irreducible;
+  * `eval_swap_eq_zero_of_splits` — the transposed evaluation vanishes at
+    `(j(q ^ ℓ), j(q))`, read off the splitting through the level embedding;
+  * `evalAtJGen_injective` — the injectivity that lets the symmetry step be decided
+    over `ℚ(j(q))`.
 
   ## Reuse (work order §3.1)
 
@@ -44,12 +47,9 @@
   ## Source
 
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
-  `P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean` (895 lines) for
-  everything except `swapBivar_eq_of_evalSymm`, which is
-  `P2M/Sol/S_ModularCurve_swapBivar_eq_of_evalSymm.lean` (95 lines). The public
+  `P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean` (895 lines). The public
   statements are the `Theorems/` wrappers verbatim where a wrapper exists, and the
-  `S_` file's own public declarations otherwise (`evalSymm_of_swapBivar_eq`,
-  `eval_swap_eq_zero_of_splits`).
+  `S_` file's own public declaration otherwise (`eval_swap_eq_zero_of_splits`).
 
   ## Assumptions
 
@@ -60,20 +60,15 @@
   `jqN`/`evalAtJ`/`evalAtJ_eq_aeval_map`/`coeff_aeval_jq_neg`/`transcendental_jq`/
   `dedekindPsi_prime`; `Defs/BivariateEval`'s `ev`/`ev_swap`/`ev_int`/`ev_sub`/
   `swap_eq_of_evalSymm`; T11's `PhiGen.evalAtJ_injective`; T12's `one_le_coeff_jq`.
-  Wired here, not in the frozen registry: the module left `PORT_FILES`
-  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
+  Checked by `spec/check_port.py` through the `spec-pin:` lines below; the module is
+  not listed in `spec/old_check_stmts.py`.
 
   spec-pin: P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean
-  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_irreducible.lean
   spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_minpoly_jqN_eq.lean
-  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_transposeToAdjoin_monic_of_qExpansion.lean
   spec-pin: Theorems/Thm_ModularCurve_PhiGen_conj_injective.lean
-  spec-pin: Theorems/Thm_ModularCurve_PhiGen_evalSymm_of_splits.lean
   spec-pin: Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean
   spec-pin: Theorems/Thm_ModularCurve_aeval_jqN_toAdjoin.lean
   spec-pin: Theorems/Thm_ModularCurve_evalAtJGen_injective.lean
-  spec-pin: Theorems/Thm_ModularCurve_swapBivar_eq_of_evalSymm.lean
-  spec-pin: Theorems/Thm_ModularCurve_swapBivar_monic_of_coeff_bounds.lean
 -/
 import FLTForHuman.ModularCurve.JqCoeffPositivity
 import FLTForHuman.ModularCurve.PhiGenDescendsStructure
@@ -760,219 +755,6 @@ end Irreducibility
 
 end PhiGen
 
-/-! ## The transpose as mathlib's `Bivariate.swap`
-
-`swapBivar` is mathlib's `Bivariate.swap` as a ring hom on `ℤ[X][Y]`
-(`swapBivar_eq_swap`). Keeping that single bridge lets the transpose and symmetry
-proofs below cite mathlib's bivariate lemmas instead of re-deriving them, without
-touching the `Defs` API. The coefficient-cast evaluation `ev` that mediates between
-them, and the converse direction `swap_eq_of_evalSymm`, are in
-`Defs/BivariateEval.lean`. -/
-
-section SwapBivarGlue
-
-/-- `swapBivar` is mathlib's `Bivariate.swap`, as ring homs. -/
-private theorem swapBivar_eq_swap (Φ : Polynomial (Polynomial ℤ)) :
-    swapBivar Φ = Bivariate.swap Φ := by
-  have h : swapBivar = (Bivariate.swap (R := ℤ)).toAlgHom.toRingHom :=
-    Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _)
-      (by simp [Bivariate.swap_X])) (by simp [Bivariate.swap_Y])
-  exact RingHom.congr_fun h Φ
-
-end SwapBivarGlue
-
-/-! ## The transpose engine: `swapBivar` of a coefficient-bounded polynomial -/
-
-section SwapBivarEval
-
-/-- The transpose commutes with evaluation: `(swapBivar Φ)(x, y) = Φ(y, x)`.
-Mathlib's `Bivariate.aevalAeval_swap`, read through `swapBivar_eq_swap` and the
-`ev = aevalAeval` bridge. -/
-private theorem swapBivar_eval₂ (Φ : Polynomial (Polynomial ℤ)) (x y : LaurentSeries ℚ) :
-    (swapBivar Φ).eval₂ (Polynomial.aeval (R := ℤ) x).toRingHom y
-      = Φ.eval₂ (Polynomial.aeval (R := ℤ) y).toRingHom x := by
-  rw [swapBivar_eq_swap, aeval_toRingHom_eq, aeval_toRingHom_eq]
-  change ev (Bivariate.swap Φ) x y = ev Φ y x
-  exact ev_swap Φ x y
-
-/-- `swapBivar Φ = Φ` implies `EvalSymm Φ`. -/
-theorem evalSymm_of_swapBivar_eq {Φ : Polynomial (Polynomial ℤ)} (h : swapBivar Φ = Φ) :
-    EvalSymm Φ := fun x y => by
-  conv_lhs => rw [← h]
-  exact swapBivar_eval₂ Φ x y
-
-end SwapBivarEval
-
-namespace ModularPolynomialData
-
-/-- The transpose of a datum's `Φ` annihilates `j(q ^ N)` as soon as `Φ` does
-under the swapped evaluation. -/
-private theorem aeval_jqN_transposeToAdjoin {N : ℕ} [NeZero N] (data : ModularPolynomialData N)
-    (hswap : data.Φ.eval₂ (evalAtJqN N) jq = 0) :
-    Polynomial.aeval (jqN N) ((swapBivar data.Φ).map evalAtJGen) = 0 := by
-  rw [Polynomial.aeval_def, Polynomial.eval₂_map, algebraMap_comp_evalAtJGen,
-    evalAtJ_def, swapBivar_eval₂, ← evalAtJqN_def]
-  exact hswap
-
-private theorem swapBivar_eq_of_irreducible {N : ℕ} [NeZero N] (data : ModularPolynomialData N)
-    (hirr : PhiIrreducible data)
-    (hswap : data.Φ.eval₂ (evalAtJqN N) jq = 0)
-    (hTmonic : ((swapBivar data.Φ).map evalAtJGen).Monic)
-    (hTdeg : ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ dedekindPsi N) :
-    swapBivar data.Φ = data.Φ := by
-  apply Polynomial.map_injective evalAtJGen evalAtJGen_injective
-  show (swapBivar data.Φ).map evalAtJGen = data.toAdjoin
-  have hdvd : data.toAdjoin ∣ (swapBivar data.Φ).map evalAtJGen := by
-    rw [← data.minpoly_jqN_eq hirr]
-    exact minpoly.dvd _ _ (data.aeval_jqN_transposeToAdjoin hswap)
-  refine eq_of_monic_of_dvd_of_natDegree_le data.toAdjoin_monic hTmonic hdvd ?_
-  rw [toAdjoin, data.monic.natDegree_map, data.natDegree_eq]
-  exact hTdeg
-
-/-- Symmetry of `Φ` from irreducibility: the transpose is monic, annihilates
-`j(q ^ N)` and has the minimal degree, so it equals `Φ`. Verbatim from the pin
-wrapper
-`Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_irreducible.lean`. -/
-theorem evalSymm_of_irreducible {N : ℕ} [NeZero N] (data : ModularPolynomialData N)
-    (hirr : PhiIrreducible data)
-    (hswap : data.Φ.eval₂ (evalAtJqN N) jq = 0)
-    (hTmonic : ((swapBivar data.Φ).map evalAtJGen).Monic)
-    (hTdeg : ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ dedekindPsi N) :
-    EvalSymm data.Φ :=
-  evalSymm_of_swapBivar_eq (data.swapBivar_eq_of_irreducible hirr hswap hTmonic hTdeg)
-
-end ModularPolynomialData
-
-/-! ## Degree bookkeeping for the transpose -/
-
-section Engine
-
-private theorem swapBivar_C (c : Polynomial ℤ) :
-    swapBivar (Polynomial.C c) = c.map Polynomial.C := by
-  rw [swapBivar_eq_swap]
-  exact Bivariate.swap_C c
-
-private theorem degree_swapBivar_lt {Ψ : Polynomial (Polynomial ℤ)} {D : ℕ}
-    (h : ∀ k, (Ψ.coeff k).degree < (D : WithBot ℕ)) :
-    (swapBivar Ψ).degree < (D : WithBot ℕ) := by
-  conv_lhs => rw [Polynomial.as_sum_support_C_mul_X_pow Ψ, map_sum]
-  refine (Polynomial.degree_sum_le _ _).trans_lt
-    ((Finset.sup_lt_iff (WithBot.bot_lt_coe D)).2 fun k _ => ?_)
-  rw [map_mul, map_pow, swapBivar_C, swapBivar_X, ← map_pow]
-  refine lt_of_le_of_lt (le_trans (Polynomial.degree_mul_le _ _) ?_) (h k)
-  calc ((Ψ.coeff k).map Polynomial.C).degree + (Polynomial.C (Polynomial.X ^ k)).degree
-      ≤ (Ψ.coeff k).degree + 0 := by
-        gcongr
-        · exact le_of_eq (Polynomial.degree_map_eq_of_injective Polynomial.C_injective _)
-        · exact Polynomial.degree_C_le
-    _ = (Ψ.coeff k).degree := add_zero _
-
-/-- A bivariate polynomial whose `Y ^ 0` coefficient is monic of degree `d` and
-whose higher coefficients have degree `< d` has a monic transpose of degree `d`.
-Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_swapBivar_monic_of_coeff_bounds.lean`. -/
-theorem swapBivar_monic_of_coeff_bounds {Φ : Polynomial (Polynomial ℤ)} {d : ℕ}
-    (h0 : (Φ.coeff 0).Monic) (h0deg : (Φ.coeff 0).natDegree = d)
-    (hk : ∀ k, k ≠ 0 → (Φ.coeff k).degree < (d : WithBot ℕ)) :
-    (swapBivar Φ).Monic ∧ (swapBivar Φ).natDegree = d := by
-  have hsplit : swapBivar Φ = Polynomial.C Polynomial.X * swapBivar Φ.divX
-      + (Φ.coeff 0).map Polynomial.C := by
-    conv_lhs => rw [← Polynomial.X_mul_divX_add Φ]
-    rw [map_add, map_mul, swapBivar_X, swapBivar_C]
-  have hmap : ((Φ.coeff 0).map Polynomial.C).Monic := h0.map _
-  have hmapdeg : ((Φ.coeff 0).map Polynomial.C).degree = (d : WithBot ℕ) := by
-    rw [Polynomial.degree_eq_natDegree hmap.ne_zero, h0.natDegree_map, h0deg]
-  have hsmall : (Polynomial.C Polynomial.X * swapBivar Φ.divX).degree
-      < (d : WithBot ℕ) := by
-    refine lt_of_le_of_lt (Polynomial.degree_mul_le _ _) ?_
-    have hX : (Polynomial.C (Polynomial.X : Polynomial ℤ)).degree = 0 :=
-      Polynomial.degree_C Polynomial.X_ne_zero
-    rw [hX, zero_add]
-    exact degree_swapBivar_lt fun k => by
-      rw [Polynomial.coeff_divX]; exact hk (k + 1) (Nat.succ_ne_zero k)
-  have hlt : (Polynomial.C Polynomial.X * swapBivar Φ.divX).degree
-      < ((Φ.coeff 0).map Polynomial.C).degree := by rw [hmapdeg]; exact hsmall
-  refine ⟨?_, ?_⟩
-  · rw [hsplit]; exact hmap.add_of_right hlt
-  · rw [hsplit, Polynomial.natDegree_eq_of_degree_eq
-      (Polynomial.degree_add_eq_right_of_degree_lt hlt), h0.natDegree_map, h0deg]
-
-end Engine
-
-/-! ## Reading the pole bounds as coefficient bounds -/
-
-section Dictionary
-
-private theorem degree_lt_of_evalAtJ_coeff_eq_zero {P : Polynomial ℤ} {D : ℕ}
-    (h : ∀ m : ℕ, D ≤ m → (evalAtJ P).coeff (-(m : ℤ)) = 0) :
-    P.degree < (D : WithBot ℕ) := by
-  rcases eq_or_ne P 0 with rfl | hP0
-  · rw [Polynomial.degree_zero]; exact WithBot.bot_lt_coe D
-  rw [← Polynomial.natDegree_lt_iff_degree_lt hP0]
-  by_contra hle
-  rw [not_lt] at hle
-  have hQdeg : (P.map (Int.castRingHom ℚ)).natDegree = P.natDegree :=
-    Polynomial.natDegree_map_eq_of_injective Int.cast_injective P
-  have hcoeff := coeff_aeval_jq_neg (P.map (Int.castRingHom ℚ)) (m := P.natDegree) hQdeg.le
-  rw [← evalAtJ_eq_aeval_map, h P.natDegree hle, Polynomial.coeff_map,
-    eq_intCast] at hcoeff
-  have hlead : P.coeff P.natDegree = 0 := by exact_mod_cast hcoeff.symm
-  exact hP0 (Polynomial.leadingCoeff_eq_zero.mp hlead)
-
-private theorem monic_of_evalAtJ_coeff_eq_one {P : Polynomial ℤ} {D : ℕ}
-    (hle : P.natDegree ≤ D) (h1 : (evalAtJ P).coeff (-(D : ℤ)) = 1) :
-    P.Monic ∧ P.natDegree = D := by
-  have hQdeg : (P.map (Int.castRingHom ℚ)).natDegree = P.natDegree :=
-    Polynomial.natDegree_map_eq_of_injective Int.cast_injective P
-  have hcoeff := coeff_aeval_jq_neg (P.map (Int.castRingHom ℚ)) (m := D) (hQdeg.le.trans hle)
-  rw [← evalAtJ_eq_aeval_map, h1, Polynomial.coeff_map, eq_intCast] at hcoeff
-  have hPD : P.coeff D = 1 := by exact_mod_cast hcoeff.symm
-  have hge : D ≤ P.natDegree :=
-    Polynomial.le_natDegree_of_ne_zero (by rw [hPD]; exact one_ne_zero)
-  exact ⟨Polynomial.monic_of_natDegree_le_of_coeff_eq_one D hle hPD, le_antisymm hle hge⟩
-
-private theorem natDegree_le_of_evalAtJ_coeff_eq_zero {P : Polynomial ℤ} {D : ℕ}
-    (h : ∀ m : ℕ, D < m → (evalAtJ P).coeff (-(m : ℤ)) = 0) :
-    P.natDegree ≤ D := by
-  rcases eq_or_ne P 0 with rfl | hP0
-  · simp
-  by_contra hlt
-  rw [not_le] at hlt
-  have hdeg := degree_lt_of_evalAtJ_coeff_eq_zero (P := P) (D := D + 1)
-    (fun m hm => h m (by omega))
-  rw [← Polynomial.natDegree_lt_iff_degree_lt hP0] at hdeg
-  omega
-
-end Dictionary
-
-namespace ModularPolynomialData
-
-private theorem transposeToAdjoin_monic_of_coeff_bounds {N : ℕ} [NeZero N]
-    (data : ModularPolynomialData N)
-    (h0 : (data.Φ.coeff 0).Monic) (h0deg : (data.Φ.coeff 0).natDegree = dedekindPsi N)
-    (hk : ∀ k, k ≠ 0 → (data.Φ.coeff k).degree < (dedekindPsi N : WithBot ℕ)) :
-    ((swapBivar data.Φ).map evalAtJGen).Monic ∧
-      ((swapBivar data.Φ).map evalAtJGen).natDegree = dedekindPsi N := by
-  obtain ⟨hmonic, hdeg⟩ := swapBivar_monic_of_coeff_bounds h0 h0deg hk
-  exact ⟨hmonic.map _, by rw [hmonic.natDegree_map, hdeg]⟩
-
-/-- The pole bounds of the descended family make the datum's transpose monic of
-degree `ψ(N)`. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_ModularPolynomialData_transposeToAdjoin_monic_of_qExpansion.lean`. -/
-theorem transposeToAdjoin_monic_of_qExpansion {N : ℕ} [NeZero N]
-    (data : ModularPolynomialData N)
-    (h0top : (evalAtJ (data.Φ.coeff 0)).coeff (-(dedekindPsi N : ℤ)) = 1)
-    (h0le : ∀ m : ℕ, dedekindPsi N < m → (evalAtJ (data.Φ.coeff 0)).coeff (-(m : ℤ)) = 0)
-    (hk : ∀ k, k ≠ 0 → ∀ m : ℕ, dedekindPsi N ≤ m →
-      (evalAtJ (data.Φ.coeff k)).coeff (-(m : ℤ)) = 0) :
-    ((swapBivar data.Φ).map evalAtJGen).Monic ∧
-      ((swapBivar data.Φ).map evalAtJGen).natDegree = dedekindPsi N := by
-  obtain ⟨h0monic, h0deg⟩ := monic_of_evalAtJ_coeff_eq_one
-    (natDegree_le_of_evalAtJ_coeff_eq_zero h0le) h0top
-  exact transposeToAdjoin_monic_of_coeff_bounds data h0monic h0deg
-    fun k hk0 => degree_lt_of_evalAtJ_coeff_eq_zero (hk k hk0)
-
-end ModularPolynomialData
 
 namespace PhiGen
 
@@ -1010,30 +792,6 @@ theorem eval_swap_eq_zero_of_splits (data : ModularPolynomialData ℓ)
 end Swap
 
 end PhiGen
-
-/-- The datum is symmetric as soon as its coefficients split into the conjugate
-product and its transpose is monic of degree `ψ(ℓ)`: symmetry follows from
-irreducibility (`phiIrreducible_of_splits`) and uniqueness of the minimal
-polynomial. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_PhiGen_evalSymm_of_splits.lean`. -/
-theorem PhiGen.evalSymm_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
-    [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    (data : ModularPolynomialData ℓ)
-    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = phiProd ℓ (conj ℓ ζ))
-    (hTmonic : ((swapBivar data.Φ).map evalAtJGen).Monic)
-    (hTdeg : ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ dedekindPsi ℓ) :
-    EvalSymm data.Φ :=
-  data.evalSymm_of_irreducible (PhiGen.phiIrreducible_of_splits ℓ ζ hζ data hsplit)
-    (PhiGen.eval_swap_eq_zero_of_splits ℓ ζ data hsplit) hTmonic hTdeg
-
-/-! ## The converse: evaluated symmetry forces `swapBivar Φ = Φ` -/
-
-/-- Evaluated symmetry forces the transpose to be `Φ` itself. Verbatim from the
-pin wrapper `Theorems/Thm_ModularCurve_swapBivar_eq_of_evalSymm.lean`. -/
-theorem swapBivar_eq_of_evalSymm {Φ : Polynomial (Polynomial ℤ)} (h : EvalSymm Φ) :
-    swapBivar Φ = Φ := by
-  rw [swapBivar_eq_swap, swap_eq_of_evalSymm h]
 
 end ModularCurve
 

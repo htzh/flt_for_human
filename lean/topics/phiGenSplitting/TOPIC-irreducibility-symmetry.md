@@ -3,11 +3,19 @@
 **Status: done (2026-09-22), one goal round — the cone's datum has its
 properties.** Three modules: `FLTForHuman/ModularCurve/JqCoeffPositivity.lean`
 (`one_le_coeff_jq`), `ModularPolynomialIrreducible.lean` (the 895 block written
-once) and `ModularPolynomialProperties.lean` (`evalSymm_of_coeff_evalAtJ_eq`,
-`exists_phiIrreducible_evalSymm`), green with 0 warnings and no `sorry`. The 895
+once) and `ModularPolynomialProperties.lean` (`exists_phiIrreducible_evalSymm`,
+whose proof carries the symmetry argument inline), green with 0 warnings and no
+`sorry`. The 895
 block is shipped in **five** pin files (not three — §2's correction is recorded);
 the `evalAtJ_eq_aeval_map` promotion landed and T11 rebuilt green; the end-to-end
-wire test is the first **unconditional** capstone. A post-close pass
+wire test is the first **unconditional** capstone. A refactor (2026-11-10) then
+pulled three one-consumer statements out of the public surface — `evalSymm_of_splits`,
+`transposeToAdjoin_monic_of_qExpansion` and T12's `evalSymm_of_coeff_evalAtJ_eq` —
+and promoted the q-expansion-to-degree dictionary (§1.3) in exchange, so the
+capstone's proof is the symmetry argument itself; a second pass in the same round
+did the same to `evalSymm_of_irreducible` / `swapBivar_eq_of_irreducible`,
+promoting the engine's root lemma `aeval_jqN_transposeToAdjoin` in exchange, so the
+capstone ends at `evalSymm_of_swapBivar_eq`. A post-close pass
 (2026-09-23) removed five redundant private declarations and routed the
 `swapBivar`/`qEmbedT`/`ev` helpers through mathlib, public statements untouched
 (§3.2); the block module was then **1023 lines** (§3.3 is the current figure). The measured cost and the
@@ -142,11 +150,22 @@ exactly the pole bounds T10/T11 supply for the descended family:
 - `hk`: for `k ≠ 0`, all coefficients of `evalAtJ (Φ.coeff k)` from `q^{-ψ(ℓ)}`
   down vanish.
 
-`ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion` turns those three
-into `(swapBivar Φ).map evalAtJGen` being monic of `natDegree = ψ(ℓ)`; the
-symmetry chain then runs `swapBivar Φ = Φ` → `EvalSymm Φ`. The datum-level
-statement `evalSymm_of_coeff_evalAtJ_eq` derives `h0top`/`h0le`/`hk` from T10's
-`phiProd_conj_coeff_zero_lead` and `phiProd_conj_coeff_eq_zero_of_le`.
+The block's q-expansion-to-degree dictionary —
+`natDegree_le_of_evalAtJ_coeff_eq_zero` for `h0le`, `monic_of_evalAtJ_coeff_eq_one`
+for `h0top`, `degree_lt_of_evalAtJ_coeff_eq_zero` for `hk` — turns those three into
+`(swapBivar Φ).map evalAtJGen` being monic of `natDegree = ψ(ℓ)` (through
+`swapBivar_monic_of_coeff_bounds`); the symmetry chain then runs
+`swapBivar Φ = Φ` → `EvalSymm Φ`. The capstone derives
+`h0top`/`h0le`/`hk` on the way from T10's `phiProd_conj_coeff_zero_lead` and
+`phiProd_conj_coeff_eq_zero_of_le`, with nothing of its own in between: the
+leading one by reading the descent off `hc` itself — the generic
+`coeff_coeffEmb_qExpand`, then `← hc 0`, then the exponent rescale
+`` $`\ell \cdot (-(\ell+1)) = -(\ell^2+\ell)`$ `` — and T10's lead statement, both at the
+`h0top` site; the two vanishing bounds read straight off `hc.poleOrderLE` (`h0le`)
+and the same descent reading plus T10's bound (`hk`). The three bounds then feed the
+block's dictionary and `swapBivar_monic_of_coeff_bounds` on the main line, ending in
+the `.map evalAtJGen` form the minimal-polynomial step compares; the capstone keeps
+the data-dependent hypotheses and writes those steps out.
 
 ### 1.4 Existence
 
@@ -154,10 +173,15 @@ statement `evalSymm_of_coeff_evalAtJ_eq` derives `h0top`/`h0le`/`hk` from T10's
 irreducible symmetric datum. It chooses a primitive `ℓ`-th root in
 `CyclotomicField ℓ ℚ` (mathlib supplies one), then runs the whole T8–T12 chain:
 (a) descent (T11) gives `c`; (b) T9 gives `IntCoeffs`; (c) T8 gives membership in
-`ℚ[jq]`; T11's assembly gives `data` with `evalAtJ (data.Φ.coeff k) = c k`; T11's
-`splits_of_coeff_evalAtJ_eq` gives the splitting identity; and this topic's
-`phiIrreducible_of_splits` and `evalSymm_of_coeff_evalAtJ_eq` give the two
-properties. It is a join, not new mathematics.
+`ℚ[jq]`; T11's assembly gives `data` with `evalAtJ (data.Φ.coeff k) = c k`; the
+coefficient comparison of (d), inlined there, gives the splitting identity; and
+`phiIrreducible_of_splits` gives irreducibility, and symmetry closes the proof in
+place: `eval_swap_eq_zero_of_splits` says the datum annihilates `j(q ^ ℓ)`, the
+dictionary plus `swapBivar_monic_of_coeff_bounds` make the transpose monic of
+degree `ψ(ℓ)`, `minpoly.dvd` with `minpoly_jqN_eq` and
+`eq_of_monic_of_dvd_of_natDegree_le` identify the transpose with `Φ` under
+`evalAtJGen`, and `evalSymm_of_swapBivar_eq` reads that as `EvalSymm`. It is a
+join, not new mathematics.
 
 ## 2. The scouted inventory
 
@@ -195,39 +219,19 @@ theorem ModularCurve.PhiGen.phiIrreducible_of_splits {K : Type*} [Field K] [Alge
     (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ) = phiProd ℓ (conj ℓ ζ)) :
     PhiIrreducible data
 
-theorem ModularCurve.PhiGen.evalSymm_of_splits {K : Type*} [Field K] [Algebra ℚ K]
-    (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    (data : ModularPolynomialData ℓ)
-    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ) = phiProd ℓ (conj ℓ ζ))
-    (hTmonic : ((swapBivar data.Φ).map evalAtJGen).Monic)
-    (hTdeg : ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ dedekindPsi ℓ) :
-    EvalSymm data.Φ
-
-theorem ModularCurve.ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion
-    {N : ℕ} [NeZero N] (data : ModularPolynomialData N)
-    (h0top : (evalAtJ (data.Φ.coeff 0)).coeff (-(dedekindPsi N : ℤ)) = 1)
-    (h0le : ∀ m : ℕ, dedekindPsi N < m → (evalAtJ (data.Φ.coeff 0)).coeff (-(m : ℤ)) = 0)
-    (hk : ∀ k, k ≠ 0 → ∀ m : ℕ, dedekindPsi N ≤ m →
-      (evalAtJ (data.Φ.coeff k)).coeff (-(m : ℤ)) = 0) :
-    ((swapBivar data.Φ).map evalAtJGen).Monic ∧
-      ((swapBivar data.Φ).map evalAtJGen).natDegree = dedekindPsi N
-
-theorem ModularCurve.PhiGen.evalSymm_of_coeff_evalAtJ_eq {K : Type*} [Field K] [Algebra ℚ K]
-    {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)] {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ}
-    (hζ : IsPrimitiveRoot (ζ : K) ℓ) (hc : PhiGenDescends ℓ ζ c)
-    (data : ModularPolynomialData ℓ) (hcoeff : ∀ k, evalAtJ (data.Φ.coeff k) = c k) :
-    EvalSymm data.Φ
-
 theorem ModularCurve.exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
     ∃ data : ModularPolynomialData ℓ, PhiIrreducible data ∧ EvalSymm data.Φ
 ```
 
 The hidden results with wrappers are also public: `evalAtJGen_injective`,
-`swapBivar_monic_of_coeff_bounds`,
-`ModularPolynomialData.evalSymm_of_irreducible`, `swapBivar_eq_of_evalSymm`,
-`conj_injective`, `ModularPolynomialData.aeval_jqN_toAdjoin`,
-`ModularPolynomialData.minpoly_jqN_eq`, and the block's
-`evalSymm_of_swapBivar_eq`, `eval_swap_eq_zero_of_splits`. The block's non-membership
+`swapBivar_monic_of_coeff_bounds`, `swapBivar_eq_of_evalSymm`, `conj_injective`,
+`ModularPolynomialData.aeval_jqN_toAdjoin`, `ModularPolynomialData.minpoly_jqN_eq`,
+and the block's `evalSymm_of_swapBivar_eq`, `eval_swap_eq_zero_of_splits`,
+`ModularPolynomialData.aeval_jqN_transposeToAdjoin`. The
+q-expansion-to-degree dictionary (`degree_lt_of_evalAtJ_coeff_eq_zero`,
+`natDegree_le_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`) is public
+too, promoted from pin-private so that the capstone can compose
+`swapBivar_monic_of_coeff_bounds` itself. The block's non-membership
 (`aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq` in the
 pin) is **private** here: no file outside the block's own five copies cites any of the
 three, so only the statement is kept, as one private `jqN_not_mem_adjoin_jq` (§3.3).
@@ -255,9 +259,9 @@ section names are the port's.
 | degree-`≤ 1` divisor (generic in `R`) | `isUnit_of_dvd_of_natDegree_le_one` |
 | irreducibility | `toAdjoin_eq_map_evalAtJAdj`, `phiIrreducible_iff_irreducible_map_evalAtJAdj`, `phiIrreducible_of_splits` |
 | swapBivar glue (§3.2) | `swapBivar_eq_swap`, `ev`, `aeval_toRingHom_eq`, `ev_eq_aevalAeval`, `ev_swap`, `ev_int`, `ev_sub` |
-| transpose engine | `swapBivar_eval₂`, `evalSymm_of_swapBivar_eq`, `aeval_jqN_transposeToAdjoin`, `swapBivar_eq_of_irreducible`, `evalSymm_of_irreducible` |
-| degree bookkeeping / dictionary | `swapBivar_C`, `degree_swapBivar_lt`, `swapBivar_monic_of_coeff_bounds`, `degree_lt_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`, `natDegree_le_of_evalAtJ_coeff_eq_zero`, `transposeToAdjoin_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion` |
-| symmetry from splitting | `eval_swap_eq_zero_of_splits`, `evalSymm_of_splits` |
+| transpose engine | `swapBivar_eval₂`, `evalSymm_of_swapBivar_eq`, `aeval_jqN_transposeToAdjoin` (the minimal-polynomial uniqueness step itself lives in the capstone) |
+| degree bookkeeping / dictionary | `swapBivar_C`, `degree_swapBivar_lt`, `swapBivar_monic_of_coeff_bounds`, `degree_lt_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`, `natDegree_le_of_evalAtJ_coeff_eq_zero` |
+| symmetry from splitting | `eval_swap_eq_zero_of_splits` |
 | the converse | `swap_eq_of_evalSymm`, `swapBivar_eq_of_evalSymm` |
 
 ## 3. The mathlib-first audit
@@ -419,7 +423,11 @@ dictionary of that notation — the levels, the maps (`evalAt*`, `coeffEmb`, `qE
 `adjoinEmbedT`, `qTwist`), the points, and the names inside the proof — is the first entry of the new
 `lean/dict/` tree, `dict/ModularCurve/ModularPolynomialIrreducible.md` (one entry per module,
 mirroring the port's path), not a `/-! … -/` block in the module: docstrings carry a declaration's
-mathematics, dictionaries carry the vocabulary, and math notes carry neither. The no-root statement is a
+mathematics, dictionaries carry the vocabulary, and math notes carry neither. The symmetry half has
+its own entry, `dict/ModularCurve/ModularPolynomialProperties.md`: the objects, the capstone's main
+line, the closing chain and the block's transpose exports are named there, since the capstone is
+their only consumer — the two entries split along the same construction/properties line as the
+code, and neither restates what the other's proofs do not use. The no-root statement is a
 `have hnoRoot` in the headline, and it is now the readable centre of the proof: a `calc` takes the
 root `β` of `Φ₀` in `ℚ[j(q)]` to a root `adjoinEmbedT β` of the conjugate product in `K((q))`
 (through `Φ₁ = Φ₀.map σ` and `eval₂` at a point in the image of `σ`), one factor of the product is
@@ -544,12 +552,12 @@ T9's `intCoeffs`, T8's `mem_adjoin_jq_of_phiGenDescends`, T11's assembly and
 | module | public surface | pin |
 |---|---|---|
 | `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` | `one_le_coeff_jq` (and `coeff_jq_ne_zero` if useful) | 386 |
-| `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` | `phiIrreducible_of_splits`, `evalSymm_of_splits`, `ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion`, `evalAtJGen_injective`, `swapBivar_monic_of_coeff_bounds`, `ModularPolynomialData.evalSymm_of_irreducible`, `swapBivar_eq_of_evalSymm`, `conj_injective`, `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq`, `ModularPolynomialData.aeval_jqN_toAdjoin`, `ModularPolynomialData.minpoly_jqN_eq` | the 895 block |
-| `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` | `evalSymm_of_coeff_evalAtJ_eq`, `exists_phiIrreducible_evalSymm` | 124 + 62 |
+| `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` | the irreducibility half: `phiIrreducible_of_splits`, `evalAtJGen_injective`, `conj_injective`, `eval_swap_eq_zero_of_splits`, `ModularPolynomialData.aeval_jqN_toAdjoin`, `ModularPolynomialData.minpoly_jqN_eq`, plus the level embedding `qEmbedT` its proof shares | the 895 block |
+| `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` | the transpose engine and the symmetry argument: `swapBivar_monic_of_coeff_bounds`, the q-expansion-to-degree dictionary, `evalSymm_of_swapBivar_eq`, `swapBivar_eq_of_evalSymm`, `ModularPolynomialData.aeval_jqN_transposeToAdjoin`, and the capstone `exists_phiIrreducible_evalSymm` | the 895 block's transpose half + 124 + 62 |
 | `FLTForHuman/ModularCurve/Defs/Jq.lean` (edit) | promote `evalAtJ_eq_aeval_map` | — |
 
 The names are suggestions. Keep the block's private helpers `private`; the public
-surface is the ten declarations above plus the four T12 wrappers.
+surface is what the three rows above list.
 
 ## 8. Budget and stop-early
 
@@ -599,13 +607,17 @@ one that matches the statement; keep it.
       public and verbatim; `coeff_jq_zero`/`coeff_jq_one` (T11-era
       `JqCoefficients.lean`) still green. **425 lines, 2 public + 27 `private`**
       (the module also exports the one-line `coeff_jq_ne_zero`).
-- [x] `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean`: the block's
-      public surface, all verbatim or transcribed from the pin's public
-      declarations; private helpers `private`. **1023 lines, 15 public + 57
-      `private`** (was 1070 / 62 before the §3.2 cleanup).
-- [x] `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean`:
-      `evalSymm_of_coeff_evalAtJ_eq` and `exists_phiIrreducible_evalSymm` public
-      and verbatim. **175 lines, 2 public + 4 `private`.**
+- [x] `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean`: the
+      irreducibility half of the block, all verbatim or transcribed from the pin's
+      public declarations; private helpers `private`. **799 lines, 6 public + 39
+      `private`.**
+- [x] `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean`: the block's
+      transpose half plus the capstone `exists_phiIrreducible_evalSymm`, public and
+      verbatim. **342 lines, 8 public + 6 `private`**: the transpose engine
+      (`swapBivar_eq_swap`, `swapBivar_eval₂`, `swapBivar_C`, `degree_swapBivar_lt`),
+      the generic `coeff_coeffEmb_qExpand`, the cyclotomic root, and the symmetry
+      derivation — descent, pole bounds, dictionary, minimal polynomial, transpose
+      identity — as the capstone's own main line.
 - [x] `Defs/Jq.lean` gains `evalAtJ_eq_aeval_map`; the two T11 private copies and
       the block's `_rat` copy are deleted; T11 modules rebuilt green.
 - [x] `lake build` green, 0 warnings, no `sorry` (3817 jobs).

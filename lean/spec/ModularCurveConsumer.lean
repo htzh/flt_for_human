@@ -432,9 +432,10 @@ to `ℚ((q))`. `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` proves th
 328 block's shape exports (`c_top`, `c_eq_zero`, `poleOrderLE`,
 `sum_mul_jqN_pow_eq_zero`, `evalAtJ_injective`), the last by the mathlib route
 through the public `transcendental_jq`. `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean`
-proves (d): `exists_modularPolynomialData_coeff_eq` assembles the datum and
-`splits_of_coeff_evalAtJ_eq` turns it back into the product. Together with T9's
-integrality and T8's membership they compose into the cone's construction.
+proves (d): `exists_modularPolynomialData_coeff_eq` assembles the datum; the
+coefficient comparison that turns it back into the product is inlined where the
+product is consumed. Together with T9's integrality and T8's membership they
+compose into the cone's construction.
 
 **The wire test is end-to-end.** Unlike Zones F/G, (a) is now ported, so the whole
 chain can be run on a concrete field: `K = CyclotomicField ℓ ℚ` with mathlib's
@@ -453,7 +454,6 @@ bound.
 #check @ModularCurve.PhiGen.PhiGenDescends.sum_mul_jqN_pow_eq_zero
 #check @ModularCurve.PhiGen.evalAtJ_injective
 #check @ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq
-#check @ModularCurve.PhiGen.splits_of_coeff_evalAtJ_eq
 
 -- The 328 block in hypothesis form.
 example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
@@ -515,13 +515,17 @@ example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
 `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` proves `one_le_coeff_jq` (every
 regular coefficient of `j(q)` is at least `1`), with the audit's two mathlib
 substitutions. `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` is the
-895 block written once: `conj_injective`, `phiIrreducible_of_splits`,
-`swapBivar_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion`,
-`evalSymm_of_irreducible`, `evalSymm_of_splits`, `evalAtJGen_injective`,
-`swapBivar_eq_of_evalSymm` and the two minimal-polynomial facts.
-`FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` concludes:
-`evalSymm_of_coeff_evalAtJ_eq` (T10's pole bounds feed the transpose degree count)
-and `exists_phiIrreducible_evalSymm`.
+895 block's irreducibility half: `conj_injective`, `phiIrreducible_of_splits`,
+`eval_swap_eq_zero_of_splits`, `evalAtJGen_injective` and the two minimal-polynomial
+facts. `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` holds the block's
+transpose half — `swapBivar_monic_of_coeff_bounds`, the q-expansion-to-degree
+dictionary (`degree_lt_of_evalAtJ_coeff_eq_zero`,
+`natDegree_le_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`),
+`evalSymm_of_swapBivar_eq`, `swapBivar_eq_of_evalSymm`,
+`aeval_jqN_transposeToAdjoin` — and concludes with the capstone
+`exists_phiIrreducible_evalSymm`, whose proof runs the symmetry argument (T10's pole
+bounds through the dictionary to the transpose degree count, then uniqueness of the
+minimal polynomial) on its own main line.
 
 **The wire test is unconditional — the first.** `exists_phiIrreducible_evalSymm`
 needs no unported hypothesis, so it instantiates at `ℓ = 2`; `one_le_coeff_jq` is
@@ -532,13 +536,15 @@ five copies — so it is not part of this zone's surface.)
 
 #check @ModularCurve.one_le_coeff_jq
 #check @ModularCurve.PhiGen.phiIrreducible_of_splits
-#check @ModularCurve.PhiGen.evalSymm_of_splits
-#check @ModularCurve.ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion
-#check @ModularCurve.PhiGen.evalSymm_of_coeff_evalAtJ_eq
+#check @ModularCurve.degree_lt_of_evalAtJ_coeff_eq_zero
+#check @ModularCurve.monic_of_evalAtJ_coeff_eq_one
+#check @ModularCurve.natDegree_le_of_evalAtJ_coeff_eq_zero
 #check @ModularCurve.exists_phiIrreducible_evalSymm
 #check @ModularCurve.evalAtJGen_injective
 #check @ModularCurve.swapBivar_monic_of_coeff_bounds
-#check @ModularCurve.ModularPolynomialData.evalSymm_of_irreducible
+#check @ModularCurve.evalSymm_of_swapBivar_eq
+#check @ModularCurve.PhiGen.eval_swap_eq_zero_of_splits
+#check @ModularCurve.ModularPolynomialData.aeval_jqN_transposeToAdjoin
 #check @ModularCurve.swapBivar_eq_of_evalSymm
 #check @ModularCurve.PhiGen.conj_injective
 #check @ModularCurve.aeval_jqN_toAdjoin
@@ -1197,8 +1203,9 @@ modules build the cone's object end-to-end. `PhiGenDescent.lean` proves (a)
 `exists_phiGenDescends`; `PhiGenDescendsStructure.lean` the 328 block's five shape
 exports (`evalAtJ_injective` by the mathlib `transcendental_jq` route, so T12
 imports it rather than carrying the pin's private copy);
-`ModularPolynomialAssembly.lean` (d) `exists_modularPolynomialData_coeff_eq` and
-`splits_of_coeff_evalAtJ_eq`. The Zone I wire test is **end-to-end** —
+`ModularPolynomialAssembly.lean` (d) `exists_modularPolynomialData_coeff_eq`,
+whose coefficient comparison is inlined at its two consumers. The Zone I wire
+test is **end-to-end** —
 `K = CyclotomicField ℓ ℚ` produces a descended family, verifies its T9
 integrality, T8 membership and T10/T11 pole bound, and assembles the datum — the
 first zone that exercises the whole (a)→(b)→(c)→(d) chain concretely. Still
@@ -1209,9 +1216,8 @@ prove the datum's properties. `JqCoeffPositivity.lean` gives `one_le_coeff_jq`
 (two of the audit's mathlib substitutions landed);
 `ModularPolynomialIrreducible.lean` is the 895 block written once (FLT ships it
 five times), including `conj_injective`, `phiIrreducible_of_splits`,
-`transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits` and
-`swapBivar_eq_of_evalSymm`; `ModularPolynomialProperties.lean` concludes
-`evalSymm_of_coeff_evalAtJ_eq` and the capstone
+`swapBivar_monic_of_coeff_bounds` and `swapBivar_eq_of_evalSymm`;
+`ModularPolynomialProperties.lean` concludes with the capstone
 `exists_phiIrreducible_evalSymm`. The Zone J wire test is the first
 **unconditional** one: `exists_phiIrreducible_evalSymm` at `ℓ = 2` produces an
 irreducible symmetric datum with no unported hypothesis. Still **0 errors**, one

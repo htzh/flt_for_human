@@ -97,8 +97,7 @@ splits_prime_at_slot                     288 lines, wrapper (twist + dilation)
       ← PhiGen.exists_phiGenDescends      315      (a) descent to ℚ((q))
       ← PhiGen.PhiGenDescends.intCoeffs   239      (b) integrality
       ← PhiGen.mem_adjoin_jq_of_phiGenDescends     (c) membership in ℚ[j]
-      ← PhiGen.exists_modularPolynomialData_coeff_eq  (d) build the datum
-      ← PhiGen.splits_of_coeff_evalAtJ_eq 41       (f) read off the splitting
+      ← PhiGen.exists_modularPolynomialData_coeff_eq  (d) build the datum, then read off the splitting
 ```
 
 `splits_prime_at_slot` itself proves nothing about the modular equation: it
@@ -476,7 +475,7 @@ now the executed plan, which re-cut the remainder by mathematical object
   shape exports: `PhiGenDescends.c_top`, `.c_eq_zero`, `.poleOrderLE`,
   `.sum_mul_jqN_pow_eq_zero` and `evalAtJ_injective`;
 - `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` — (d)'s
-  `exists_modularPolynomialData_coeff_eq` and `splits_of_coeff_evalAtJ_eq`.
+  `exists_modularPolynomialData_coeff_eq`.
 
 All eight are the pin wrappers verbatim. `evalAtJ_injective` took the planned
 mathlib route (`transcendental_jq` + `transcendental_iff_injective` +
@@ -491,6 +490,12 @@ assembly are upstream of (e), so the blueprint's old T11 (328 + the whole 502-li
 (d) bucket) was not one executable unit. Measured cost and the division are in
 [logs/phiGen-port.md](../logs/phiGen-port.md) §11.
 
+**Refactor (2026-11-10).** `splits_of_coeff_evalAtJ_eq` left the public surface:
+its statement is the (d) conclusion read at the coefficients, so the two
+consumers spell out its three-line comparison themselves and the module keeps a
+single export. `ModularPolynomialAssembly.lean` is 182 lines, 1 public + 4
+`private`; T11 hands on seven wrappers.
+
 **T12 is done** (2026-09-22, one goal round) — **the datum has its properties.**
 Its work order was
 [topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md](phiGenSplitting/TOPIC-irreducibility-symmetry.md),
@@ -500,15 +505,19 @@ now the executed plan. It delivered three modules:
   regular coefficient of `j(q)` is `≥ 1`), with two of the work order's mathlib
   substitutions closing (`coeff_mul_prod_one_sub_of_lt_order`, and
   `PowerSeries.expand` + `mk_one_mul_one_sub_eq_one`);
-- `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` — the 895 block
-  written once: `conj_injective`, `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq`,
-  `phiIrreducible_of_splits`, `swapBivar_monic_of_coeff_bounds`,
-  `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_irreducible`,
-  `evalSymm_of_splits`, `evalAtJGen_injective`, `swapBivar_eq_of_evalSymm`,
-  `aeval_jqN_toAdjoin`, `minpoly_jqN_eq`;
-- `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` —
-  `evalSymm_of_coeff_evalAtJ_eq` and the capstone
-  `exists_phiIrreducible_evalSymm`.
+- `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` — the block's
+  irreducibility half, written once: `conj_injective`,
+  `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq`, `phiIrreducible_of_splits`,
+  `evalAtJGen_injective`, `eval_swap_eq_zero_of_splits`, `aeval_jqN_toAdjoin`,
+  `minpoly_jqN_eq`, with the level embedding `qEmbedT` both halves read through;
+- `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` — the block's
+  transpose half and the capstone: the transpose engine
+  (`swapBivar_monic_of_coeff_bounds`), the q-expansion-to-degree dictionary
+  (`degree_lt_of_evalAtJ_coeff_eq_zero`,
+  `natDegree_le_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`),
+  `evalSymm_of_swapBivar_eq`, `swapBivar_eq_of_evalSymm`,
+  `aeval_jqN_transposeToAdjoin`, and `exists_phiIrreducible_evalSymm`, whose proof
+  carries the symmetry argument.
 
 **The dedup is the cone's largest:** the 895 block ships in **five** pin files
 (`5 × 895 ≈ 4,475` lines) — §2's "×3" counted only its three graph nodes and
@@ -522,6 +531,51 @@ nineteen public declarations is clean, the checker moved 213 → 233, and the
 consumer gained Zone J with the first **unconditional** wire test
 (`exists_phiIrreducible_evalSymm` at `ℓ = 2`). Measured cost, the two substitutions
 and the shape issues are in [logs/phiGen-port.md](../logs/phiGen-port.md) §12.
+
+**Refactor (2026-11-10).** The symmetry chain is now the capstone's main line, at
+the cost of five public statements, each of which had exactly one consumer:
+
+- `evalSymm_of_coeff_evalAtJ_eq` — its content is the symmetry derivation itself,
+  so it went into `exists_phiIrreducible_evalSymm`'s proof;
+- `evalSymm_of_splits` — one composition of `evalSymm_of_irreducible` with
+  `phiIrreducible_of_splits` and `eval_swap_eq_zero_of_splits`;
+- `evalSymm_of_irreducible` and its private engine `swapBivar_eq_of_irreducible` —
+  the minimal-polynomial uniqueness step itself, so the capstone carries
+  `swapBivar Φ = Φ` (injectivity of `evalAtJGen`, `minpoly.dvd`,
+  `eq_of_monic_of_dvd_of_natDegree_le`, degree `ψ(ℓ)`) and closes with
+  `evalSymm_of_swapBivar_eq`;
+- `transposeToAdjoin_monic_of_qExpansion` — one composition of
+  `swapBivar_monic_of_coeff_bounds` with the block's q-expansion-to-degree
+  dictionary; the capstone composes them itself.
+
+Inlining the last one needed the dictionary public, so
+`degree_lt_of_evalAtJ_coeff_eq_zero`, `natDegree_le_of_evalAtJ_coeff_eq_zero` and
+`monic_of_evalAtJ_coeff_eq_one` are promoted from pin-private (the checker matches
+them in the `S_` file, 763 / 779 / 791). Promoting the engine's root lemma,
+`aeval_jqN_transposeToAdjoin`, kept the `Theorems/`-free route open: it is now
+public and wires to its pin-private copy in the `S_` file (645), spelled with
+`data` as a section variable so the statement matches the pin's binder for binder.
+
+The pole-bound seam lemmas went in too, down to the descent itself: `h0top` and
+`hk` read it off `hc` at the use site (`← coeff_coeffEmb_qExpand`, `← hc k`), `h0le`
+reads `hc.poleOrderLE` directly, and T10's `phiProd_conj_coeff_zero_lead` /
+`phiProd_conj_coeff_eq_zero_of_le` supply the coefficient. Nothing of the module's
+own now stands between `hc` and T10.
+
+What stayed factored out is generic: `coeff_coeffEmb_qExpand` (a `q ↦ q ^ N`
+substitution creates and loses no coefficients), `private`, so the public surface does
+not move. The rule the pass settled on: a helper whose statement mentions
+`data`/`PhiGenDescends`/`conj`/`phiProd` is a proof step under another name and
+belongs in the main line; a helper about a general object stays. A second attempt —
+`monic_map_swapBivar_of_coeff_bounds`, taking the capstone's own three hypotheses —
+was reverted as that same goto in disguise: it restated the goal with `data` erased,
+so the dictionary chain is now written on the main line.
+
+Cost: of T12's nineteen public declarations, seventeen remain (five removed, four
+promoted); `ModularPolynomialProperties.lean` is 171 lines, 1 public + 3 `private`,
+`ModularPolynomialIrreducible.lean` 976 lines, 13 public + 43 `private`; the wire
+drops four `Theorems/` wrappers — both graph-node wrappers and
+`evalSymm_of_irreducible`'s — and the two modules check 13 ok + 1 ok, 0 mismatch.
 
 **The cone is closed.** R1 (T5–T7), the cone's (c) (T8), the
 two halves of (b) (T9, T10), the construction (a) + 328 + (d) (T11), the
@@ -547,8 +601,8 @@ are in [logs/phiGen-port.md](../logs/phiGen-port.md) §13.
 |---|---|---|---|---|
 | **T9 (done)** | (b) integrality | `intCoeffs`, `aeval_jq_intCoeffs_descent` | ~347 | [TOPIC-integrality.md](phiGenSplitting/TOPIC-integrality.md) |
 | **T10 (done)** | (b) pole bounds | `phiProd_conj_coeff_{eq_zero_of_le,zero_lead}` + the shared `TPoleOrderLE` block | 391 + ~180 (dup ×12) | [TOPIC-pole-bounds.md](phiGenSplitting/TOPIC-pole-bounds.md) |
-| **T11 (done)** | the construction: (a) + the 328 block + (d) assembly | `exists_phiGenDescends`; `c_top`/`c_eq_zero`/`poleOrderLE`/`sum_mul_jqN_pow_eq_zero`/`evalAtJ_injective`; `exists_modularPolynomialData_coeff_eq`, `splits_of_coeff_evalAtJ_eq` | 315 + 328 (dup ×7, 84 distinctive) + 191 | [TOPIC-datum-assembly.md](phiGenSplitting/TOPIC-datum-assembly.md) |
-| **T12 (done)** | the properties: irreducibility/symmetry | `one_le_coeff_jq`; the 895 block's exports (`phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`); `evalSymm_of_coeff_evalAtJ_eq`; `exists_phiIrreducible_evalSymm` | 386 + 895 (dup ×5) + 124 + 62 | [TOPIC-irreducibility-symmetry.md](phiGenSplitting/TOPIC-irreducibility-symmetry.md) |
+| **T11 (done)** | the construction: (a) + the 328 block + (d) assembly | `exists_phiGenDescends`; `c_top`/`c_eq_zero`/`poleOrderLE`/`sum_mul_jqN_pow_eq_zero`/`evalAtJ_injective`; `exists_modularPolynomialData_coeff_eq` | 315 + 328 (dup ×7, 84 distinctive) + 191 | [TOPIC-datum-assembly.md](phiGenSplitting/TOPIC-datum-assembly.md) |
+| **T12 (done)** | the properties: irreducibility/symmetry | `one_le_coeff_jq`; the 895 block's exports (`phiIrreducible_of_splits`, `swapBivar_monic_of_coeff_bounds`, the dictionary); `exists_phiIrreducible_evalSymm` | 386 + 895 (dup ×5) + 124 + 62 | [TOPIC-irreducibility-symmetry.md](phiGenSplitting/TOPIC-irreducibility-symmetry.md) |
 | **T13 (done)** | the consequence: uniqueness + the splitting | `finrank_adjoin_jqN_eq_of_prime`, `ModularPolynomialData.eq_of_prime`, `splits_of_prime`, `splits_prime_at_slot` | 52 + 73 + 353 + 288 | [TOPIC-splitting.md](phiGenSplitting/TOPIC-splitting.md) |
 
 The pin-line column is the deduplicated count from the estimate below; **it is not
@@ -562,9 +616,9 @@ proceeds with `splits_prime_at_slot` as a theorem.
 `PhiGenDescendsStructure.lean` the public `evalAtJ_injective` (so the 895 block
 drops its private copy) and from T10's `Defs/PhiGen.lean` the whole
 `TPoleOrderLE` prelude; from T11's `ModularPolynomialAssembly.lean` it imports
-`exists_modularPolynomialData_coeff_eq` and `splits_of_coeff_evalAtJ_eq`. T13 then
-imports T12's `exists_phiIrreducible_evalSymm`, `evalSymm_of_coeff_evalAtJ_eq` and
-T11's `evalAtJ_injective` for `eq_of_prime`.
+`exists_modularPolynomialData_coeff_eq`. T13 then
+imports T12's `exists_phiIrreducible_evalSymm` and T11's `evalAtJ_injective` for
+`eq_of_prime`.
 
 **Cost honesty.** The cone's own `jq`-coefficients precedent is the warning:
 math/010 priced the `744`/`196884` coefficients against the same 11,034-line
@@ -796,7 +850,9 @@ their lines are counted once in §2.
 |---|---|---|---|
 | `ModularCurve.E4_cube_div_discriminant_smul` | SL₂(ℤ)-invariance of E₄³/Δ | 38 | |
 | `ModularCurve.ModularPolynomialData.eq_of_prime` | Uniqueness of prime-level modular polynomial data | 73 | |
-| `ModularCurve.ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion` | Transpose of Φ monic of degree ψ(N) over ℚ(j) | 894 | (dup ×3) |
+| `ModularCurve.degree_lt_of_evalAtJ_coeff_eq_zero` | A polynomial vanishing from `q ^ (-D)` down has degree `< D` | 763 | (pin-private) |
+| `ModularCurve.monic_of_evalAtJ_coeff_eq_one` | Degree `≤ D` and `q ^ (-D)`-coefficient `1` force monic of degree `D` | 779 | (pin-private) |
+| `ModularCurve.natDegree_le_of_evalAtJ_coeff_eq_zero` | A polynomial vanishing below `q ^ (-D)` has degree `≤ D` | 791 | (pin-private) |
 | `ModularCurve.PhiGen.PhiGenDescends.c_eq_zero` | Vanishing of descended coefficients above degree ℓ+1 | 328 | (rep ×5) |
 | `ModularCurve.PhiGen.PhiGenDescends.c_top` | Descended coefficient family has top coefficient 1 | 328 | (dup ×5) |
 | `ModularCurve.PhiGen.PhiGenDescends.hasSum_cosetPoly_coeff` | Formal descent data give q-expansions of the Hecke coset polynomial | 281 | |
@@ -805,15 +861,12 @@ their lines are counted once in §2.
 | `ModularCurve.PhiGen.PhiGenDescends.sum_mul_jqN_pow_eq_zero` | Descended coefficients annihilate j(q^ℓ) | 328 | (dup ×5) |
 | `ModularCurve.PhiGen.aeval_jq_intCoeffs_descent` | Integrality descent for polynomials in j | 308 | |
 | `ModularCurve.PhiGen.evalAtJ_injective` | Injectivity of evaluation at j(q) | 328 | (dup ×5) |
-| `ModularCurve.PhiGen.evalSymm_of_coeff_evalAtJ_eq` | Evaluation symmetry of a modular polynomial packet with descended coefficients | 124 | |
-| `ModularCurve.PhiGen.evalSymm_of_splits` | Symmetry of Φ_ℓ from its splitting into conjugates | 895 | (rep ×3) |
 | `ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq` | Assembling Φ_ℓ from a descended integral coefficient family | 191 | |
 | `ModularCurve.PhiGen.exists_phiGenDescends` | Descent of the coefficients of Φ_ℓ to ℚ((q)) | 315 | |
 | `ModularCurve.PhiGen.mem_adjoin_jq_of_phiGenDescends` | Coefficients of the generic level-ℓ modular polynomial lie in ℚ[j] | 47 | |
 | `ModularCurve.PhiGen.phiIrreducible_of_splits` | Irreducibility of Φ_ℓ(j,Y) over ℚ(j) from its conjugate factorisation | 895 | (dup ×3) |
 | `ModularCurve.PhiGen.phiProd_conj_coeff_eq_zero_of_le` | Pole bound for the non-constant coefficients of phiProd | 391 | (rep ×2) |
 | `ModularCurve.PhiGen.phiProd_conj_coeff_zero_lead` | Leading t-coefficient of the constant term of Φ_ℓ | 391 | (dup ×2) |
-| `ModularCurve.PhiGen.splits_of_coeff_evalAtJ_eq` | Descended coefficients force Φ to split into conjugates | 41 | |
 | `ModularCurve.PhiGen.splits_of_prime` | Prime-level modular polynomial splits over any field with ζₚ | 353 | |
 | `ModularCurve.aeval_jq_eq_zero` | A rational polynomial vanishing at j(q) is zero | 28 | |
 | `ModularCurve.coeffEmb_injective` | Injectivity of the coefficient embedding ℚ((q)) → L((q)) | 9 | |
