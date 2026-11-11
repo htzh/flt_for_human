@@ -5,15 +5,16 @@
   mathlib's `Bivariate.swap`; a coefficient-bounded polynomial has a monic
   transpose of a computable degree), the q-expansion dictionary that reads pole
   bounds as those coefficient bounds, `EvalSymm` and its two conversions to the
-  transpose identity, and the transposed evaluation with its minimal polynomial. On
-  top of it sits `exists_phiIrreducible_evalSymm`, the cone's own construction: it
-  chooses a primitive `ℓ`-th root in `CyclotomicField ℓ ℚ` (mathlib supplies one)
-  and runs (a) descent (T11) → (b) integrality (T9) → (c) membership (T8) → T11's
-  assembly → irreducibility from the splitting, then symmetry on the main line: the
-  descent `(phiProd).coeff k = coeffEmb K ((c k)(q ^ ℓ))` is read off `hc`, T10's
-  two pole-bound exports (`phiProd_conj_coeff_zero_lead`,
-  `phiProd_conj_coeff_eq_zero_of_le`) give the constant term's leading coefficient
-  and the two vanishing bounds, the dictionary turns those into
+  transpose identity, the transposed evaluation `Φ(j(q ^ ℓ), j(q)) = 0` read off the
+  splitting, the descent dictionary that turns a descended family into that
+  splitting and into the pole bounds, and the minimal polynomial of the transposed
+  evaluation. On top of it sits `exists_phiIrreducible_evalSymm`, the cone's own
+  construction: it chooses a primitive `ℓ`-th root in `CyclotomicField ℓ ℚ` (mathlib
+  supplies one) and runs (a) descent (T11) → (b) integrality (T9) → (c) membership
+  (T8) → T11's assembly → the splitting, which gives irreducibility, the transposed
+  evaluation and — through T10's pole-bound exports
+  (`phiProd_conj_coeff_zero_lead`, `phiProd_conj_coeff_eq_zero_of_le`) — the
+  coefficient bounds. The dictionary turns those into
   `(swapBivar Φ).map evalAtJGen` being monic of degree `ψ(ℓ)`, and the datum
   annihilates `j(q ^ ℓ)`, so the transpose is `Φ` itself by uniqueness of the
   minimal polynomial. It is a join, not new mathematics, and it is T13's entry
@@ -37,7 +38,9 @@
   T11's `ModularPolynomialAssembly` (the assembly) and `PhiGenDescent`
   (`exists_phiGenDescends`); T9's `PhiGenIntegrality`; T8's
   `ModularForms/PhiGenDescends`; `ModularPolynomialIrreducible` (`phiIrreducible_of_splits`,
-  `eval_swap_eq_zero_of_splits`, `minpoly_jqN_eq`, `evalAtJGen_injective`).
+  `minpoly_jqN_eq`, `evalAtJGen_injective`, and the level embedding `qEmbedT` with
+  `qEmbedT_injective`/`qEmbedT_jq`/`qEmbedT_jqN`, `qEmbedT_eq_coeffEmb_qExpand`, and the evaluation
+  `evalAtJK` the splitting is stated with, `conj_succ_zero`).
   Checked by `spec/check_port.py` through the `spec-pin:` lines below; the module is
   not listed in `spec/old_check_stmts.py`.
 
@@ -231,46 +234,144 @@ theorem swapBivar_eq_of_evalSymm {Φ : Polynomial (Polynomial ℤ)} (h : EvalSym
     swapBivar Φ = Φ := by
   rw [swapBivar_eq_swap, swap_eq_of_evalSymm h]
 
-/-! ## A generic step: coefficients of a level substitution
+/-! ## The transposed evaluation, read off the splitting
 
-The lemma mentions no datum, which is why it is extracted; everything else the
-symmetry proof needs is a statement about `data` and stays in the main line. -/
+The datum's own relation `eval_eq_zero` is the unswapped pair `Φ(j(q), j(q ^ ℓ)) = 0`; the
+symmetry argument needs the swapped one, `Φ(j(q ^ ℓ), j(q)) = 0`, because the transpose is a
+polynomial in `Y` over `ℚ(j(q))` and must vanish at `Y = j(q ^ ℓ)`. The product supplies it: the
+level substitution turns `Φ` into `∏ᵢ (Y - conj i)`, and `j(q)` is one of its roots
+(`conj_succ_zero`). The vanishing is read in `K((q))`, whence the injective level embedding
+`qEmbedT` (`j(q) ↦ j(q ^ ℓ)`, `j(q ^ ℓ) ↦ j(q ^ (ℓ * ℓ))`) brings it back to `ℚ((q))`. -/
 
-/-- A `q ↦ q ^ N` substitution creates and loses no coefficients: the coefficient of
-`q ^ (N * m)` in the expanded embedding is the embedding of the `q ^ m`
-coefficient. -/
-private theorem coeff_coeffEmb_qExpand {L : Type*} [Field L] [Algebra ℚ L] (N : ℕ) [NeZero N]
-    (f : LaurentSeries ℚ) (m : ℤ) :
-    (coeffEmb L (qExpand ℚ N f)).coeff ((N : ℤ) * m) = algebraMap ℚ L (f.coeff m) := by
-  rw [coeffEmb_coeff, qExpand_coeff_mul]
+namespace PhiGen
+
+variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
+
+/-- The datum annihilates `j(q ^ ℓ)` under the swapped evaluation, read off the
+splitting: the product has the root `j(q)` with multiplicity one. -/
+theorem eval_swap_eq_zero_of_splits (data : ModularPolynomialData ℓ)
+    (hsplit : data.Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)) :
+    data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 := by
+  have h1 : data.Φ.eval₂ (evalAtJK K ℓ) (coeffEmb K jq) = 0 := by
+    rw [← Polynomial.eval_map, hsplit, ← conj_succ_zero K ℓ ζ, phiProd, Polynomial.eval_prod]
+    exact Finset.prod_eq_zero (Finset.mem_univ ((0 : Fin ℓ).succ)) (by simp)
+  have h2 : data.Φ.eval₂ ((qExpand K ℓ).comp (evalAtJK K ℓ))
+      (qExpand K ℓ (coeffEmb K jq)) = 0 := by
+    have h := congrArg (qExpand K ℓ) h1
+    rwa [Polynomial.hom_eval₂, map_zero] at h
+  apply qEmbedT_injective K ℓ
+  rw [map_zero, Polynomial.hom_eval₂, qEmbedT_jq]
+  have hhom : (qEmbedT K ℓ).comp (evalAtJqN ℓ) = (qExpand K ℓ).comp (evalAtJK K ℓ) := by
+    refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
+    show qEmbedT K ℓ (evalAtJqN ℓ Polynomial.X) = qExpand K ℓ (evalAtJK K ℓ Polynomial.X)
+    rw [evalAtJqN_X, evalAtJK_X, qEmbedT_jqN K ℓ ζ, conj_zero, qExpand_qExpand]
+  rw [hhom]
+  exact h2
+
+end PhiGen
+
+/-! ## The q-expansion dictionary of a descent -/
+
+namespace PhiGen
+
+variable {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)] {ζ : Kˣ}
+  {c : ℕ → LaurentSeries ℚ}
+
+/-- The level embedding creates and loses no coefficients: the coefficient of `q ^ (ℓ * m)` in
+`qEmbedT`'s image is the embedding of the `q ^ m` coefficient. -/
+private theorem coeff_qEmbedT (f : LaurentSeries ℚ) (m : ℤ) :
+    (qEmbedT K ℓ f).coeff ((ℓ : ℤ) * m) = algebraMap ℚ K (f.coeff m) := by
+  rw [qEmbedT_eq_coeffEmb_qExpand, coeffEmb_coeff, qExpand_coeff_mul]
+
+/-- **A descent is a splitting**: a polynomial whose `X`-coefficients are the descended family's
+is annihilated by the conjugates of `j(q)`. -/
+theorem splits_of_descends (hc : PhiGenDescends ℓ ζ c) {Φ : Polynomial (Polynomial ℤ)}
+    (hΦ : ∀ k, evalAtJ (Φ.coeff k) = c k) :
+    Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ) := by
+  refine Polynomial.ext fun k => ?_
+  rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hΦ k,
+    qEmbedT_eq_coeffEmb_qExpand, ← hc k]
+
+/-- The coefficient dictionary of a level substitution: a `q ↦ q ^ ℓ` substitution moves the
+index by `ℓ` and nothing else, so the `m`-th coefficient of `Φ`'s `k`-th coefficient is the
+`ℓ * m`-th coefficient of the conjugate product's. -/
+private theorem coeff_eq_coeff_phiProd_of_splits {Φ : Polynomial (Polynomial ℤ)}
+    (hsplit : Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)) (k : ℕ) (m : ℤ) :
+    algebraMap ℚ K ((evalAtJ (Φ.coeff k)).coeff m)
+      = ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff ((ℓ : ℤ) * m) := by
+  have hk : evalAtJK K ℓ (Φ.coeff k) = (phiProd ℓ (conj ℓ ζ)).coeff k := by
+    rw [← Polynomial.coeff_map, ← hsplit]
+  rw [← hk, evalAtJK_def, RingHom.comp_apply, coeff_qEmbedT]
+
+/-- **The pole bounds of a splitting**: `Φ`'s coefficients have, coefficient by coefficient, the
+`q`-expansion of a monic degree-`ψ(ℓ)` polynomial read through the transpose — `q ^ (-ψ(ℓ))`
+carries a `1`, nothing sits below it, and every other coefficient vanishes at and below it.
+T10's leading term `phiProd_conj_coeff_zero_lead` and vanishing bound
+`phiProd_conj_coeff_eq_zero_of_le` are read at their `ℓ`-scaled index, and the constant
+coefficient's tail from T10's uniform bound `ℓ * ℓ + ℓ`. -/
+theorem coeff_poleBounds_of_splits (hζ : IsPrimitiveRoot (ζ : K) ℓ)
+    {Φ : Polynomial (Polynomial ℤ)} (hsplit : Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)) :
+    (evalAtJ (Φ.coeff 0)).coeff (-(dedekindPsi ℓ : ℤ)) = 1 ∧
+      (∀ m : ℕ, dedekindPsi ℓ < m → (evalAtJ (Φ.coeff 0)).coeff (-(m : ℤ)) = 0) ∧
+      (∀ k, k ≠ 0 → ∀ m : ℕ, dedekindPsi ℓ ≤ m →
+        (evalAtJ (Φ.coeff k)).coeff (-(m : ℤ)) = 0) := by
+  have hψ := dedekindPsi_prime hℓ.out
+  have hW : ∀ k, TPoleOrderLE ((phiProd ℓ (conj ℓ ζ)).coeff k) (ℓ * ℓ + ℓ) := fun k =>
+    tPoleOrderLE_phiProd_coeff ℓ ζ (coeffEmb K jq) (conj ℓ ζ) (conj_zero ℓ ζ)
+      (conj_succ ℓ ζ) jSimplePole_jqK k
+  have hidx : ∀ m : ℕ, (ℓ : ℤ) * (-(m : ℤ)) = -((ℓ * m : ℕ) : ℤ) := by
+    intro m; push_cast; ring
+  refine ⟨?_, ?_, ?_⟩
+  · have h1 : algebraMap ℚ K (1 : ℚ) = 1 := map_one _
+    refine (algebraMap ℚ K).injective ?_
+    rw [h1, coeff_eq_coeff_phiProd_of_splits hsplit 0, hψ]
+    have hidx' : (ℓ : ℤ) * (-((ℓ + 1 : ℕ) : ℤ)) = -((ℓ * ℓ + ℓ : ℕ) : ℤ) := by push_cast; ring
+    rw [hidx']
+    exact phiProd_conj_coeff_zero_lead ℓ ζ hζ
+  · intro m hm
+    have h0 : algebraMap ℚ K (0 : ℚ) = 0 := map_zero _
+    refine (algebraMap ℚ K).injective ?_
+    rw [h0, coeff_eq_coeff_phiProd_of_splits hsplit 0, hidx]
+    exact hW 0 _ (by
+      rw [hψ] at hm
+      have hm' : (ℓ : ℤ) + 1 < (m : ℤ) := by exact_mod_cast hm
+      have h2 : (2 : ℤ) ≤ (ℓ : ℤ) := by exact_mod_cast hℓ.out.two_le
+      push_cast
+      nlinarith)
+  · intro k hk0 m hm
+    have h0 : algebraMap ℚ K (0 : ℚ) = 0 := map_zero _
+    refine (algebraMap ℚ K).injective ?_
+    rw [h0, coeff_eq_coeff_phiProd_of_splits hsplit k, hidx]
+    exact phiProd_conj_coeff_eq_zero_of_le ℓ ζ k hk0 (ℓ * m)
+      (by rw [hψ] at hm; nlinarith [hℓ.out.two_le])
+
+end PhiGen
 
 /-! ## Existence of an irreducible symmetric datum -/
 
-/-- **The root the descent is run at**: `ℚ(ζ_ℓ)`'s primitive `ℓ`-th root (mathlib's), as a unit with
-`ζ ^ ℓ = 1`. Naming it keeps the choice of where the descent happens — which is all the cyclotomic
-setup amounts to — out of the existence proof, which then reads as the chain it is. -/
+/-- **The root the descent is run at**: `ℚ(ζ_ℓ)`'s primitive `ℓ`-th root (mathlib's), as a unit.
+Naming it keeps the choice of where the descent happens — which is all the cyclotomic setup
+amounts to — out of the existence proof, which then reads as the chain it is. -/
 private theorem exists_primitiveRoot_cyclotomic (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
     [hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ)] :
-    ∃ ζ : (CyclotomicField ℓ ℚ)ˣ,
-      IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ ∧ ζ ^ ℓ = 1 := by
+    ∃ ζ : (CyclotomicField ℓ ℚ)ˣ, IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ := by
   obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
     (Set.mem_singleton ℓ) hℓ.out.ne_zero
-  have hzu : IsUnit z := hz.isUnit hℓ.out.ne_zero
-  have hζ : IsPrimitiveRoot ((hzu.unit : (CyclotomicField ℓ ℚ)ˣ) : CyclotomicField ℓ ℚ) ℓ := by
-    rw [hzu.unit_spec]
-    exact hz
-  refine ⟨hzu.unit, hζ, ?_⟩
-  refine Units.ext ?_
-  rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
+  have hzu := hz.isUnit hℓ.out.ne_zero
+  exact ⟨hzu.unit, by rw [hzu.unit_spec]; exact hz⟩
 
 /-- **There is an irreducible symmetric modular polynomial datum at every prime `ℓ`**: run the
 descent at the cyclotomic field's primitive root, read off the coefficients' integrality (T9) and
-their membership in the `j`-line (T8), assemble the datum (T11), and conclude irreducibility and
-symmetry from the splitting (the block's dictionary and `swapBivar_monic_of_coeff_bounds`, then
-uniqueness of the minimal polynomial), the latter from T10's pole bounds on the descended family.
-The statement is the pin wrapper's
-`Theorems/Thm_ModularCurve_exists_phiIrreducible_evalSymm.lean`; the setup it needs from the field —
-cyclotomic, hence finite and Galois — is the three instances below, and the root is
+their membership in the `j`-line (T8), assemble the datum (T11), conclude irreducibility, the
+transposed evaluation and the pole bounds from the splitting, read the bounds through the
+dictionary as the transpose's monic degree `ψ(ℓ)`, and identify the transpose with the datum by
+uniqueness of the minimal polynomial of `j(q ^ ℓ)`. The statement is the pin wrapper's
+`Theorems/Thm_ModularCurve_exists_phiIrreducible_evalSymm.lean`.
+
+Two roles of `ℓ` meet in the statement, and only the first is about isogenies: `ℓ` is the order of
+the modular polynomial (`Φ_ℓ`, `ψ(ℓ) = ℓ + 1` conjugates, the nome change `q ↦ q ^ ℓ`), and it is
+also the level of the cyclotomic field the descent is run at, which is all the field setup below
+amounts to — cyclotomic, hence finite and Galois, with a primitive `ℓ`-th root from
 `exists_primitiveRoot_cyclotomic`. -/
 theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
     ∃ data : ModularPolynomialData ℓ, PhiIrreducible data ∧ EvalSymm data.Φ := by
@@ -279,62 +380,39 @@ theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
     CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
   have : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
     IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
-  obtain ⟨ζ, hζ, hζ1⟩ := exists_primitiveRoot_cyclotomic ℓ
+  obtain ⟨ζ, hζ⟩ := exists_primitiveRoot_cyclotomic ℓ
   obtain ⟨c, hc⟩ := PhiGen.exists_phiGenDescends ℓ ζ hζ
+  have hζ1 : ζ ^ ℓ = 1 := by
+    refine Units.ext ?_
+    rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
   obtain ⟨data, hcoeff⟩ := PhiGen.exists_modularPolynomialData_coeff_eq hc
     (fun k => hc.intCoeffs hζ1 k)
     (fun k => PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hc k)
-  have hsplit : data.Φ.map
-        (((coeffEmb (CyclotomicField ℓ ℚ)).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = PhiGen.phiProd ℓ (PhiGen.conj ℓ ζ) := by
-    refine Polynomial.ext fun k => ?_
-    rw [Polynomial.coeff_map, RingHom.comp_apply, RingHom.comp_apply, hcoeff k, hc k]
+  have hsplit := PhiGen.splits_of_descends hc hcoeff
   have hirr : PhiIrreducible data := PhiGen.phiIrreducible_of_splits ℓ ζ hζ data hsplit
   have hswap : data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 :=
     PhiGen.eval_swap_eq_zero_of_splits ℓ ζ data hsplit
-  have h0top : (evalAtJ (data.Φ.coeff 0)).coeff (-((dedekindPsi ℓ : ℕ) : ℤ)) = 1 := by
-    rw [hcoeff 0, dedekindPsi_prime hℓ.out]
-    refine (algebraMap ℚ (CyclotomicField ℓ ℚ)).injective ?_
-    rw [← coeff_coeffEmb_qExpand (N := ℓ), ← hc 0, map_one]
-    have hidx : (ℓ : ℤ) * (-((ℓ + 1 : ℕ) : ℤ)) = -((ℓ * ℓ + ℓ : ℕ) : ℤ) := by push_cast; ring
-    rw [hidx]
-    exact PhiGen.phiProd_conj_coeff_zero_lead ℓ ζ hζ
-  have h0le : ∀ m : ℕ, dedekindPsi ℓ < m →
-      (evalAtJ (data.Φ.coeff 0)).coeff (-(m : ℤ)) = 0 := by
-    intro m hm
-    rw [dedekindPsi_prime hℓ.out] at hm
-    rw [hcoeff 0]
-    exact hc.poleOrderLE 0 (-(m : ℤ)) (by push_cast; omega)
-  have hk : ∀ k, k ≠ 0 → ∀ m : ℕ, dedekindPsi ℓ ≤ m →
-      (evalAtJ (data.Φ.coeff k)).coeff (-(m : ℤ)) = 0 := by
-    intro k hk0 m hm
-    rw [dedekindPsi_prime hℓ.out] at hm
-    rw [hcoeff k]
-    refine (algebraMap ℚ (CyclotomicField ℓ ℚ)).injective ?_
-    rw [← coeff_coeffEmb_qExpand (N := ℓ), ← hc k, map_zero]
-    have hidx : (ℓ : ℤ) * (-(m : ℤ)) = -((ℓ * m : ℕ) : ℤ) := by push_cast; ring
-    rw [hidx]
-    exact PhiGen.phiProd_conj_coeff_eq_zero_of_le ℓ ζ k hk0 (ℓ * m)
-      (by nlinarith [hℓ.out.two_le])
+  obtain ⟨h0top, h0le, hk⟩ := PhiGen.coeff_poleBounds_of_splits hζ hsplit
   obtain ⟨h0monic, h0deg⟩ := monic_of_evalAtJ_coeff_eq_one
     (natDegree_le_of_evalAtJ_coeff_eq_zero h0le) h0top
+  set ΦT := swapBivar data.Φ with hΦT
   obtain ⟨hTmonic, hTdeg⟩ := swapBivar_monic_of_coeff_bounds h0monic h0deg
     fun k hk0 => degree_lt_of_evalAtJ_coeff_eq_zero (hk k hk0)
-  have hTmonicGen : ((swapBivar data.Φ).map evalAtJGen).Monic := hTmonic.map evalAtJGen
-  have hTdegGen : ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ dedekindPsi ℓ := by
-    rw [hTmonic.natDegree_map]
-    exact hTdeg.le
-  have hTeq : swapBivar data.Φ = data.Φ := by
-    apply Polynomial.map_injective evalAtJGen evalAtJGen_injective
-    show (swapBivar data.Φ).map evalAtJGen = data.toAdjoin
-    have hdvd : data.toAdjoin ∣ (swapBivar data.Φ).map evalAtJGen := by
-      rw [← data.minpoly_jqN_eq hirr]
-      exact minpoly.dvd _ _ (data.aeval_jqN_transposeToAdjoin hswap)
-    refine Polynomial.eq_of_monic_of_dvd_of_natDegree_le data.toAdjoin_monic hTmonicGen hdvd ?_
-    show ((swapBivar data.Φ).map evalAtJGen).natDegree ≤ (data.Φ.map evalAtJGen).natDegree
-    rw [data.monic.natDegree_map, data.natDegree_eq]
-    exact hTdegGen
-  exact ⟨data, hirr, evalSymm_of_swapBivar_eq hTeq⟩
+  rw [← hΦT] at hTmonic hTdeg
+  set T := ΦT.map evalAtJGen with hT
+  have hTgen : T.Monic := hTmonic.map evalAtJGen
+  have hann : Polynomial.aeval (jqN ℓ) T = 0 := data.aeval_jqN_transposeToAdjoin hswap
+  have hdvd : data.toAdjoin ∣ T := by
+    rw [← data.minpoly_jqN_eq hirr]
+    exact minpoly.dvd _ _ hann
+  have hTeq : T = data.toAdjoin :=
+    Polynomial.eq_of_monic_of_dvd_of_natDegree_le data.toAdjoin_monic hTgen hdvd (by
+      rw [hT, hTmonic.natDegree_map, hTdeg,
+        show data.toAdjoin = data.Φ.map evalAtJGen from rfl, data.monic.natDegree_map,
+        data.natDegree_eq])
+  have hsymm : ΦT = data.Φ :=
+    Polynomial.map_injective evalAtJGen evalAtJGen_injective (by rw [← hT, hTeq]; rfl)
+  exact ⟨data, hirr, evalSymm_of_swapBivar_eq (hΦT.symm.trans hsymm)⟩
 
 end ModularCurve
 

@@ -221,12 +221,12 @@ private theorem integral (data : ModularPolynomialData p) :
             (jqModC (cyclRing ℤ p)))) := by
   classical
   have hK := ModularCurve.PhiGen.splits_of_prime p (cycUnit p) (cycUnit_spec p) data
-  have hLK : data.Φ.map (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ)
+  have hLK : data.Φ.map (evalAtJK (CyclotomicField p ℚ) p)
       = phiAtSeed data (qExpand (CyclotomicField p ℚ) p (jqModC (CyclotomicField p ℚ))) := by
-    have hseed : ((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)) jq
+    have hseed : qEmbedT (CyclotomicField p ℚ) p jq
         = qExpand (CyclotomicField p ℚ) p (jqModC (CyclotomicField p ℚ)) := by
-      rw [RingHom.comp_apply, coeffEmb_qExpand, coeffEmb_jq]
-    rw [comp_evalAtJ, hseed, phiAtSeed]
+      rw [qEmbedT_jq, coeffEmb_jq]
+    rw [evalAtJK_def, comp_evalAtJ, hseed, phiAtSeed]
   have hseedO : coeffMap (iota p)
       (qExpand (cyclRing ℤ p) p (jqModC (cyclRing ℤ p)))
       = qExpand (CyclotomicField p ℚ) p (jqModC (CyclotomicField p ℚ)) := by
@@ -264,8 +264,7 @@ private theorem integral (data : ModularPolynomialData p) :
             (coeffMap (iota p))
         = phiAtSeed data (qExpand (CyclotomicField p ℚ) p (jqModC (CyclotomicField p ℚ))) := by
           rw [phiAtSeed_map, hseedO]
-      _ = data.Φ.map (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ) :=
-          hLK.symm
+      _ = data.Φ.map (evalAtJK (CyclotomicField p ℚ) p) := hLK.symm
       _ = phiProd p (conj p (cycUnit p)) := hK
   exact hmain.trans hmapProd.symm
 

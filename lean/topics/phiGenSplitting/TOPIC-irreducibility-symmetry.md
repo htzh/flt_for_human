@@ -700,3 +700,40 @@ is a registered deviation: the pin's `ev_int` (`ev Φ a b = Φ.evalEval a b`) le
 ring implicit and elaborates at `ℤ`, so the module keeps the `A`-pinned form and records an `own:`
 row; the checker gives `8 ok / 0 mismatch / 0 missing / 1 own` on the new module, `12 ok` here and
 `4 ok` on X1.
+## Refactor round: the splitting's spelling, and one home per argument
+
+The record above is the state after the porting rounds; this section supersedes its
+declaration lists where they disagree. The motivation was a shape rule, not coverage: a helper
+may generalize over its mathematical inputs (`degree_lt_of_evalAtJ_coeff_eq_zero` generalizes
+over `P` with pole bounds) but must not be a stage whose output is the next step's hypothesis,
+and the capstone's main line must display the argument's dependencies — irreducibility included.
+
+- **`eval_swap_eq_zero_of_splits` moved** from this block's irreducibility module to
+  `ModularPolynomialProperties.lean`, beside the capstone that consumes it; the level embedding it
+  transports along was promoted with it (`qEmbedT`, `qEmbedT_injective`, `qEmbedT_jq`,
+  `qEmbedT_jqN`, `conj_succ_zero`), since the irreducibility half uses them too.
+- **One name per map.** Every splitting hypothesis of the cone is now stated with
+  `evalAtJK K N` (`ℤ[X] → K((q))`, `X ↦ j(q ^ N)`): here, in `eval_swap_eq_zero_of_splits`,
+  `splits_of_descends`, `coeff_poleBounds_of_splits`, and T13's `splits_of_prime`. The pin's
+  composite `(coeffEmb K).comp (qExpand ℚ N) |>.comp evalAtJ` survives only inside
+  `splits_of_descends`, where it is derived from the descent.
+- **Deleted:** `map_qEmbedT_evalAtJ_eq_phiProd` (its consumers now take the `evalAtJK` statement)
+  and `coeffEmb_comp_qExpand_comp_evalAtJ` (it was the two-line proof of the former).
+  **Reinstated:** `qEmbedT_eq_coeffEmb_qExpand`, as the one bridge between `qEmbedT` and the
+  `coeffEmb ∘ qExpand` spelling the descent's own statements (`hc`) use.
+- **Two statements added**, the ones the block inlines: `splits_of_descends` (descent ⟹ splitting)
+  and `coeff_poleBounds_of_splits` (splitting + T10 ⟹ the three coefficient bounds, all index
+  arithmetic inside). Both are the port's, recorded as `own:` in `spec/decl_markers.tsv`, as are the
+  four statements whose splitting hypothesis changed spelling.
+- **Guises are named locally.** The capstone names `ΦT := swapBivar data.Φ` and
+  `T := ΦT.map evalAtJGen` with `set … with h…`, as the irreducibility headline names `Φ₀`/`Φ₁`;
+  the main line then has no long `map` expression and no `hTmonic`/`hTdeg` threaded into a helper.
+- **Open consistency item.** `qEmbedT K ℓ` is the same map as T4's `iota`
+  (`Analytic/Gamma0InvariantCore.lean:719`), and T11's `PhiGenDescendsStructure.lean:119` spells it
+  out again as a local `set`. Unifying would move `qEmbedT` (with `evalAtJK`) down to
+  `Defs/Laurent.lean`, next to `coeffEmb_qExpand`; that is a Defs-layer move and has not been made.
+
+Dict entries: [`dict/ModularCurve/ModularPolynomialProperties.md`](../../dict/ModularCurve/ModularPolynomialProperties.md)
+(§2.3 the composite, §4 the coefficient dictionary, §7 the main line, §10 the look-alikes) and
+[`dict/ModularCurve/ModularPolynomialIrreducible.md`](../../dict/ModularCurve/ModularPolynomialIrreducible.md)
+(§5 the two spellings, §8 the local names, §9 the exports).

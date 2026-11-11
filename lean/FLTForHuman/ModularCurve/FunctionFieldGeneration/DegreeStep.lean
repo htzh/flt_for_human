@@ -106,7 +106,7 @@ private theorem phiAtSeed_iota_jq_eq_phiProd (p : ℕ) [Fact p.Prime] (ζ : Kˣ)
   rw [← PhiGen.splits_of_prime p ζ hζ data, phiAtSeed]
   congr 1
   refine Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_
-  simp [evalAtJ_X]
+  simpa using coeffEmb_qExpand K p jq
 
 /-- **The first prime-power degree step**: if `jq ∈ F` and `jqN p ∉ F`, then
 `[F(j(q ^ p)) : F] = p + 1`. Verbatim from

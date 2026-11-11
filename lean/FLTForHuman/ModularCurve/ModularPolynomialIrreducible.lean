@@ -6,11 +6,14 @@
   `transposeToAdjoin_monic_of_qExpansion`, plus the two hidden exports
   `swapBivar_monic_of_coeff_bounds` and `evalSymm_of_irreducible`), `5 × 895 ≈
   4,475` pin lines. This module is the block's irreducibility half, with the level
-  embedding its proof shares: it exports the irreducibility headline, the prime
-  non-membership, the datum's minimal-polynomial facts and the transposed
-  evaluation. The block's transpose engine and q-expansion dictionary — everything
-  the symmetry argument is built from — are in `ModularPolynomialProperties.lean`,
-  beside the capstone that runs them.
+  embedding both halves share: it exports the irreducibility headline, the prime
+  non-membership, the datum's minimal-polynomial facts, and the level embedding
+  `qEmbedT` with the evaluation `evalAtJK` that every splitting hypothesis of the cone is
+  stated with, together with the conjugates' leading terms. Everything else the
+  symmetry argument is built from — the transposed evaluation read off the
+  splitting, the transpose engine, the q-expansion dictionary, the descended pole
+  bounds — is in `ModularPolynomialProperties.lean`, beside the capstone that runs
+  them.
 
   ## What it proves
 
@@ -28,10 +31,12 @@
     degree `≤ 1`, and it is a unit because `j(q^ℓ) ∉ ℚ[j(q)]`;
   * `aeval_jqN_toAdjoin`, `minpoly_jqN_eq` — `data.toAdjoin` annihilates `j(q^ℓ)`,
     and is its minimal polynomial when the datum is irreducible;
-  * `eval_swap_eq_zero_of_splits` — the transposed evaluation vanishes at
-    `(j(q ^ ℓ), j(q))`, read off the splitting through the level embedding;
   * `evalAtJGen_injective` — the injectivity that lets the symmetry step be decided
-    over `ℚ(j(q))`.
+    over `ℚ(j(q))`;
+  * `qEmbedT`, `qEmbedT_injective`, `qEmbedT_jq`, `qEmbedT_eq_coeffEmb_qExpand`,
+    `qEmbedT_jqN`, `evalAtJK`, `conj_succ_zero` — the level embedding `ℚ((q)) → K((q))`, its
+    readings, and the evaluation `ℤ[X] → K((q))` that the splitting hypotheses of the cone are
+    stated with; exported because the transposed evaluation runs the same transport.
 
   ## Reuse (work order §3.1)
 
@@ -48,8 +53,14 @@
 
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
   `P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean` (895 lines). The public
-  statements are the `Theorems/` wrappers verbatim where a wrapper exists, and the
-  `S_` file's own public declaration otherwise (`eval_swap_eq_zero_of_splits`).
+  statements are the `Theorems/` wrappers verbatim where a wrapper exists; the level
+  embedding is the `S_` file's own (private) machinery, promoted here because the
+  transpose half of the block imports it. The port keeps the block's headlines and
+  the statements the argument needs, and does not name the pin's staging nodes
+  (`transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_irreducible`,
+  `evalSymm_of_splits`), whose hypotheses are the transpose's monic and degree facts
+  — one step's output handed to the next; the capstone carries that argument on its
+  own main line instead.
 
   ## Assumptions
 
@@ -482,24 +493,23 @@ section Embed
 
 variable (K : Type*) [Field K] [Algebra ℚ K] (ℓ : ℕ) [NeZero ℓ]
 
-private def qEmbedT : LaurentSeries ℚ →+* LaurentSeries K :=
+/-- The level-`ℓ` embedding `ℚ((q)) → K((q))`: the coefficients are extended to `K` and the
+nome is raised to the `ℓ`-th power, so `j(q) ↦ j(q ^ ℓ)` and `j(q ^ ℓ) ↦ j(q ^ (ℓ * ℓ))`. It is
+injective, which is what lets a vanishing in `K((q))` be read back in `ℚ((q))`. The analytic setup of
+`Analytic/Gamma0InvariantCore.lean` calls the same map `iota`. -/
+def qEmbedT : LaurentSeries ℚ →+* LaurentSeries K :=
   (qExpand K ℓ).comp (coeffMap (algebraMap ℚ K))
 
 private theorem qEmbedT_apply (x : LaurentSeries ℚ) :
     qEmbedT K ℓ x = qExpand K ℓ (coeffMap (algebraMap ℚ K) x) := rfl
 
-private theorem qEmbedT_injective : Function.Injective (qEmbedT K ℓ) :=
+/-- The level-`ℓ` embedding is injective. -/
+theorem qEmbedT_injective : Function.Injective (qEmbedT K ℓ) :=
   (qEmbedT K ℓ).injective
 
-private theorem qEmbedT_jq : qEmbedT K ℓ jq = qExpand K ℓ (coeffEmb K jq) := by
+/-- The embedding sends the nome `q` to `q ^ ℓ`: `j(q)` becomes the `ℓ`-substituted series. -/
+theorem qEmbedT_jq : qEmbedT K ℓ jq = qExpand K ℓ (coeffEmb K jq) := by
   rw [qEmbedT_apply, coeffMap_jq]
-
-private theorem coeffEmb_comp_qExpand_comp_evalAtJ :
-    ((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ = (qEmbedT K ℓ).comp evalAtJ := by
-  refine RingHom.ext fun p => ?_
-  simp only [RingHom.comp_apply]
-  rw [show qEmbedT K ℓ (evalAtJ p) = qExpand K ℓ (coeffEmb K (evalAtJ p)) from rfl]
-  exact coeffEmb_qExpand K ℓ (evalAtJ p)
 
 end Embed
 
@@ -507,7 +517,9 @@ section EmbedPrime
 
 variable (K : Type*) [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
 
-private theorem qEmbedT_jqN : qEmbedT K ℓ (jqN ℓ) = conj ℓ ζ (0 : Fin (ℓ + 1)) := by
+/-- The embedding sends `j(q ^ ℓ)` to the `(ℓ, 0)` conjugate `j(q ^ (ℓ * ℓ))`: the cusp at
+infinity of the level-`ℓ` product, one canonical `ℓ`-isogeny beyond `j(q ^ ℓ)`. -/
+theorem qEmbedT_jqN : qEmbedT K ℓ (jqN ℓ) = conj ℓ ζ (0 : Fin (ℓ + 1)) := by
   rw [conj_zero, qEmbedT_apply, jqN, coeffMap_qExpand, coeffMap_jq, qExpand_qExpand]
 
 private theorem qTwist_comp_qEmbedT (hζ : IsPrimitiveRoot (ζ : K) ℓ) (b : ℕ) :
@@ -516,10 +528,38 @@ private theorem qTwist_comp_qEmbedT (hζ : IsPrimitiveRoot (ζ : K) ℓ) (b : �
   rw [RingHom.comp_apply, qEmbedT_apply, qTwist_qExpand, zeta_pow_zpow_eq_one ℓ ζ hζ b,
     qTwist_one_apply]
 
-private theorem conj_succ_zero : conj ℓ ζ (0 : Fin ℓ).succ = (coeffEmb K jq) := by
+/-- The conjugate at `(a, b) = (1, 0)` is `j(q)` itself: the tame twist is trivial, so `j(q)` is
+a root of the conjugate product. -/
+theorem conj_succ_zero : conj ℓ ζ (0 : Fin ℓ).succ = (coeffEmb K jq) := by
   rw [conj_succ, Fin.val_zero, pow_zero, qTwist_one_apply]
 
 end EmbedPrime
+
+section EvalAtJK
+
+variable (K : Type*) [Field K] [Algebra ℚ K] (ℓ : ℕ) [NeZero ℓ]
+
+/-- Evaluation of an integer polynomial at `j(q ^ ℓ)` over `K((q))`: the codomain-`K((q))` companion
+of `evalAtJqN`, and the `X`-slot substitution the symmetry argument reads `Φ` through. It is
+`evalAtJ` followed by the level embedding `qEmbedT K ℓ`, so on `X` it is `j(q ^ ℓ)`, the image of
+the nome `q ^ ℓ`; equivalently it is `coeffEmb K` applied after `evalAtJqN ℓ`. -/
+def evalAtJK : Polynomial ℤ →+* LaurentSeries K :=
+  (qEmbedT K ℓ).comp evalAtJ
+
+theorem evalAtJK_def : evalAtJK K ℓ = (qEmbedT K ℓ).comp evalAtJ := rfl
+
+@[simp]
+theorem evalAtJK_X : evalAtJK K ℓ Polynomial.X = qExpand K ℓ (coeffEmb K jq) := by
+  simp [evalAtJK, qEmbedT_jq]
+
+/-- The level embedding is the composite the descent states its families with: `qEmbedT K ℓ` is
+`coeffEmb K` after `qExpand ℚ ℓ`. -/
+theorem qEmbedT_eq_coeffEmb_qExpand (x : LaurentSeries ℚ) :
+    qEmbedT K ℓ x = coeffEmb K (qExpand ℚ ℓ x) := by
+  rw [qEmbedT_apply]
+  exact (coeffEmb_qExpand K ℓ x).symm
+
+end EvalAtJK
 
 /-! ## The factor-counting engine -/
 
@@ -636,16 +676,6 @@ section Splitting
 
 variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
 
-/-- The splitting hypothesis with `qEmbedT` in place of the composite
-`(coeffEmb K).comp (qExpand ℚ ℓ)` that the pin spells out: the coefficients of `Φ`
-evaluate in `K((q))` to the conjugate product. -/
-private theorem map_qEmbedT_evalAtJ_eq_phiProd (data : ModularPolynomialData ℓ)
-    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = phiProd ℓ (conj ℓ ζ)) :
-    data.Φ.map ((qEmbedT K ℓ).comp evalAtJ) = phiProd ℓ (conj ℓ ζ) := by
-  rw [← coeffEmb_comp_qExpand_comp_evalAtJ K ℓ]
-  exact hsplit
-
 end Splitting
 
 section Irreducibility
@@ -674,19 +704,18 @@ force that factor to have degree `≥ ℓ`, and the other factor is then a unit
 because a degree-`1` factor would have a root in `ℚ[j(q)]`, which
 `j(q ^ ℓ) ∉ ℚ[j(q)]` forbids. The two levels are named in the proof: `Φ₀` is
 `Φ(j(q), Y)` over `ℚ[j(q)]`, and `Φ₁` is its level-`ℓ` image `Φ(j(q ^ ℓ), Y)` over
-`K((q))`. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean`. -/
+`K((q))`. The pin wrapper's statement
+`Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean`, with its splitting hypothesis
+stated with `evalAtJK K ℓ` rather than the composite the pin spells out. -/
 theorem phiIrreducible_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     (data : ModularPolynomialData ℓ)
-    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = phiProd ℓ (conj ℓ ζ)) : PhiIrreducible data := by
+    (hsplit : data.Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)) : PhiIrreducible data := by
   set Φ₀ : Polynomial adjoinJq := data.Φ.map evalAtJAdj with hΦ₀
   set Φ₁ : Polynomial (LaurentSeries K) := Φ₀.map (adjoinEmbedT K ℓ) with hΦ₁
-  have hsplit₁ : Φ₁ = phiProd ℓ (conj ℓ ζ) :=
-    calc Φ₁ = data.Φ.map ((qEmbedT K ℓ).comp evalAtJ) := by
-          rw [hΦ₁, hΦ₀, Polynomial.map_map, adjoinEmbedT_comp_evalAtJAdj]
-      _ = phiProd ℓ (conj ℓ ζ) := map_qEmbedT_evalAtJ_eq_phiProd ℓ ζ data hsplit
+  have hsplit₁ : Φ₁ = phiProd ℓ (conj ℓ ζ) := by
+    rw [hΦ₁, hΦ₀, Polynomial.map_map, adjoinEmbedT_comp_evalAtJAdj]
+    exact hsplit
   have hmonic : Φ₀.Monic := by
     rw [hΦ₀]
     exact data.monic.map _
@@ -752,44 +781,6 @@ theorem phiIrreducible_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : �
       exact isUnit_of_dvd_of_natDegree_le_one hAdvd hlcA hA1 hnoRoot
 
 end Irreducibility
-
-end PhiGen
-
-
-namespace PhiGen
-
-/-! ## Symmetry of the datum from its splitting -/
-
-section Swap
-
-variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
-
-/-- The datum annihilates `j(q ^ ℓ)` under the swapped evaluation, read off the
-splitting: the product has the root `j(q)` with multiplicity one. -/
-theorem eval_swap_eq_zero_of_splits (data : ModularPolynomialData ℓ)
-    (hsplit : data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)
-      = phiProd ℓ (conj ℓ ζ)) :
-    data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 := by
-  have h1 : data.Φ.eval₂ ((qEmbedT K ℓ).comp evalAtJ) (coeffEmb K jq) = 0 := by
-    rw [← Polynomial.eval_map, map_qEmbedT_evalAtJ_eq_phiProd ℓ ζ data hsplit,
-      ← conj_succ_zero K ℓ ζ, phiProd, Polynomial.eval_prod]
-    exact Finset.prod_eq_zero (Finset.mem_univ ((0 : Fin ℓ).succ)) (by simp)
-  have h2 : data.Φ.eval₂ ((qExpand K ℓ).comp ((qEmbedT K ℓ).comp evalAtJ))
-      (qExpand K ℓ (coeffEmb K jq)) = 0 := by
-    have h := congrArg (qExpand K ℓ) h1
-    rwa [Polynomial.hom_eval₂, map_zero] at h
-  apply qEmbedT_injective K ℓ
-  rw [map_zero, Polynomial.hom_eval₂, qEmbedT_jq]
-  have hhom : (qEmbedT K ℓ).comp (evalAtJqN ℓ)
-      = (qExpand K ℓ).comp ((qEmbedT K ℓ).comp evalAtJ) := by
-    refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
-    show qEmbedT K ℓ (evalAtJqN ℓ Polynomial.X)
-      = qExpand K ℓ (qEmbedT K ℓ (evalAtJ Polynomial.X))
-    rw [evalAtJqN_X, evalAtJ_X, qEmbedT_jq, qEmbedT_jqN K ℓ ζ, conj_zero, qExpand_qExpand]
-  rw [hhom]
-  exact h2
-
-end Swap
 
 end PhiGen
 

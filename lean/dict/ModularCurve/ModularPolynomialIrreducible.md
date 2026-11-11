@@ -3,9 +3,9 @@
 The module proves that the level-`ℓ` datum is irreducible over `ℚ(j)`
 (`phiIrreducible_of_splits`) and that `j(q ^ ℓ)` is not a polynomial in `j(q)`, given that the
 datum's coefficients split into the conjugate product. It keeps the level embedding `qEmbedT` that
-both halves of the cone read through, and with it the splitting's read-off into the transposed
-evaluation, `eval_swap_eq_zero_of_splits`. The block's transpose engine and q-expansion dictionary are
-not here: they sit beside the capstone that runs them, in
+both halves of the cone read through, exported for that reason together with its readings and the
+evaluation `evalAtJK` that every splitting hypothesis of the cone is stated with. The block's transposed evaluation, transpose engine and q-expansion
+dictionary are not here: they sit beside the capstone that runs them, in
 [`ModularPolynomialProperties.md`](ModularPolynomialProperties.md).
 
 Almost all of this module's notation exists to keep the **three images of one formal polynomial**
@@ -29,15 +29,18 @@ they land in, and whether they change the level.
 | `algebraMap ℚ[j(q)] ℚ(j(q))` | `ℚ[j(q)] ↪ ℚ(j(q))` | inclusion | the Gauss step `phiIrreducible_iff_irreducible_map_evalAtJAdj` |
 | `coeffEmb K` | `ℚ((q)) → K((q))` | coefficients `ℚ → K`, `q` fixed | every statement at the `K((q))` level |
 | `qExpand K N` | `K((q)) → K((q))` | `q ↦ q ^ N`: the coefficient at `m` moves to `N * m` | `jqN N`, `conj 0`, inside `qEmbedT` |
-| `qEmbedT K ℓ` (**private**) | `ℚ((q)) → K((q))` | `q ↦ q ^ ℓ` then `ℚ → K`, so `j(q) ↦ j(q ^ ℓ)` | the `X`-slot spelling of `Φ₁` |
+| `qEmbedT K ℓ` | `ℚ((q)) → K((q))` | `q ↦ q ^ ℓ` then `ℚ → K`, so `j(q) ↦ j(q ^ ℓ)`; the analytic setup calls the same map `iota` | the `X`-slot spelling of `Φ₁`, and T12's transposed evaluation |
+| `evalAtJK K ℓ` | `ℤ[X] → K((q))` | `evalAtJ` after `qEmbedT K ℓ`, so `X ↦ j(q ^ ℓ)` | the hypothesis `hsplit`, and T12's transposed evaluation |
 | `adjoinEmbedT K ℓ` (**private**) | `ℚ[j(q)] → K((q))` | the same substitution, but on the coefficient ring | `Φ₁ = Φ₀.map σ`, `A ^ σ`, the root count, `hnoRoot` |
 | `qTwist u` | `K((q)) → K((q))` | `q ↦ u * q`: the coefficient at `m` is multiplied by `u ^ m` | the conjugates `conj b.succ`, and the twists of §11 |
 
 Two identities collapse the spellings, so the picture is smaller than the table:
 
-- `coeffEmb_qExpand` — `(coeffEmb K).comp (qExpand ℚ N) = (qExpand K N).comp (coeffMap (algebraMap ℚ K))`.
-  The right-hand side is by definition `qEmbedT K N`, so the pin's composite
-  `(coeffEmb K) ∘ (qExpand ℚ ℓ)` **is** `qEmbedT K ℓ`, not a second map.
+- `qEmbedT_eq_coeffEmb_qExpand` — `qEmbedT K N x = coeffEmb K (qExpand ℚ N x)`. The pin's composite
+  `(coeffEmb K) ∘ (qExpand ℚ ℓ)` **is** `qEmbedT K ℓ`, not a second map, and this is the one bridge
+  between the two spellings; the descent's own statements (`hc`) are written on the right-hand side.
+- `evalAtJK_def` — `evalAtJK K N = (qEmbedT K N).comp evalAtJ`. So the two rows below end at the
+  same map.
 - `adjoinEmbedT_comp_evalAtJAdj` — `(adjoinEmbedT K ℓ).comp evalAtJAdj = (qEmbedT K ℓ).comp evalAtJ`:
   the two rows below agree.
 
@@ -98,14 +101,20 @@ decided at `Φ₀`: `PhiIrreducible data` is `Irreducible data.toAdjoin`, and Ga
 | `conj ℓ ζ i` | `K((q))` | the `ℓ + 1` roots of `Φ₁`; the `ℓ` finite ones are all hit from one, by twist invariance of the coefficients |
 | `β : adjoinJq` | `ℚ[j(q)]` | the only place `Y` is evaluated in `ℚ[j(q)]`: `hnoRoot` rules out roots there |
 
-## 5. Three spellings of one polynomial
+## 5. Two spellings of one polynomial
 
-The level-`ℓ` image `Φ₁` is written three ways, and recognising them is most of the reading:
+The level-`ℓ` image `Φ₁` is written two ways, and recognising them is most of the reading:
 
 - `Φ₀.map (adjoinEmbedT K ℓ)` — the level change on the coefficient ring;
-- `data.Φ.map ((qEmbedT K ℓ).comp evalAtJ)` — the same map, `X` slot first;
-- `data.Φ.map (((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ)` — the pin's spelling, used in the
-  hypothesis `hsplit`; `coeffEmb_qExpand` says it is the same composite.
+- `data.Φ.map (evalAtJK K ℓ)` — the same map, `X` slot first, which is also the hypothesis
+  `hsplit`'s spelling.
+
+`Φ₀` and `Φ₁` themselves are not objects of the module: they are **local abbreviations** introduced
+inside the proof by `set Φ₀ := data.Φ.map evalAtJAdj with hΦ₀` and
+`set Φ₁ := Φ₀.map (adjoinEmbedT K ℓ) with hΦ₁`. The equations `hΦ₀`, `hΦ₁` are how a reader moves
+between a name and its expression, and `rw [hΦ₀]`/`rw [hΦ₁]` is how the proof does. T12's capstone
+uses the same device for its two guises (`ΦT`, `T`), listed in
+[`ModularPolynomialProperties.md`](ModularPolynomialProperties.md) §7.
 
 ## 6. The centre of the proof: `hnoRoot`
 
@@ -180,7 +189,7 @@ claim; the closing `calc` is exactly these two inequalities.
 
 | name | statement |
 |---|---|
-| `hsplit` | hypothesis: `Φ₁` is the conjugate product, in the pin's spelling |
+| `hsplit` | hypothesis: `Φ₁` is the conjugate product, i.e. `data.Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)` |
 | `hsplit₁` | `Φ₁ = phiProd ℓ (conj ℓ ζ)`, via the intermediate `data.Φ.map ((qEmbedT K ℓ).comp evalAtJ)` |
 | `hmonic`, `hdeg` | `Φ₀.Monic`, and `Φ₀.natDegree = ℓ + 1` (`natDegree Φ = ψ(ℓ) = ℓ + 1`) |
 | `hnoRoot` | see §6 |
@@ -200,9 +209,12 @@ level; its two cases are degree `0` (unit constant) and degree `1` (would have t
 
 ## 9. The module's other exports
 
-The public surface is six declarations. The block's transpose engine and q-expansion dictionary are
+The public surface falls in three groups: the irreducibility headline with its witnesses
+(`phiIrreducible_of_splits`, `conj_injective`, `evalAtJGen_injective`), the datum's minimal-polynomial
+facts, and the level embedding with the evaluation map the cone's splitting hypotheses use. The
+block's transpose engine and q-expansion dictionary are
 tabled in [`ModularPolynomialProperties.md`](ModularPolynomialProperties.md) §1, next to the capstone
-that runs them. The block's non-membership is *not* among the six: the pin
+that runs them. The block's non-membership is *not* among them: the pin
 ships `aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN` and `jqN_not_mem_adjoin_jq` public, but
 no file outside the block's own five copies cites any of them, so the port keeps only the statement,
 as the private `jqN_not_mem_adjoin_jq` of §6 (the two wrappers — the cyclotomic specialisation and
@@ -215,7 +227,8 @@ the polynomial unpacking — are inlined into it).
 | `jqN_not_mem_adjoin_jq` (**private**) | no polynomial in `j(q)` equals `j(q ^ ℓ)`, so `j(q ^ ℓ) ∉ ℚ[j(q)]` — the prime non-membership, and the module's one arithmetic input |
 | `ModularPolynomialData.aeval_jqN_toAdjoin` | `data.toAdjoin` annihilates `j(q ^ N)` |
 | `ModularPolynomialData.minpoly_jqN_eq` | for an irreducible datum, `data.toAdjoin` is `minpoly` of `j(q ^ N)` |
-| `eval_swap_eq_zero_of_splits` | the splitting gives `Φ(j(q ^ ℓ), j(q)) = 0`, the transposed evaluation, through the level embedding of §5 |
+| `qEmbedT`, `qEmbedT_injective`, `qEmbedT_jq`, `qEmbedT_eq_coeffEmb_qExpand`, `qEmbedT_jqN`, `conj_succ_zero` | the level embedding `ℚ((q)) → K((q))` and its readings |
+| `evalAtJK`, `evalAtJK_def`, `evalAtJK_X` | the evaluation `ℤ[X] → K((q))` at `j(q ^ ℓ)`: the splitting hypotheses of the whole cone are stated with it, and the transposed evaluation `eval_swap_eq_zero_of_splits` (in `ModularPolynomialProperties.lean`) runs its transport |
 
 ## 10. The same fact elsewhere in the port
 

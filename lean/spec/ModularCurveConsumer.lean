@@ -516,16 +516,20 @@ example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
 regular coefficient of `j(q)` is at least `1`), with the audit's two mathlib
 substitutions. `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` is the
 895 block's irreducibility half: `conj_injective`, `phiIrreducible_of_splits`,
-`eval_swap_eq_zero_of_splits`, `evalAtJGen_injective` and the two minimal-polynomial
-facts. `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` holds the block's
+`evalAtJGen_injective`, the two minimal-polynomial facts, and the level embedding
+`qEmbedT` with the conjugates' leading terms, which the transpose half shares.
+`FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` holds the block's
 transpose half — `swapBivar_monic_of_coeff_bounds`, the q-expansion-to-degree
 dictionary (`degree_lt_of_evalAtJ_coeff_eq_zero`,
 `natDegree_le_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`),
 `evalSymm_of_swapBivar_eq`, `swapBivar_eq_of_evalSymm`,
-`aeval_jqN_transposeToAdjoin` — and concludes with the capstone
-`exists_phiIrreducible_evalSymm`, whose proof runs the symmetry argument (T10's pole
-bounds through the dictionary to the transpose degree count, then uniqueness of the
-minimal polynomial) on its own main line.
+`aeval_jqN_transposeToAdjoin`, the transposed evaluation
+`eval_swap_eq_zero_of_splits`, the descent's splitting `splits_of_descends` and its
+pole bounds `coeff_poleBounds_of_splits` — and concludes with the capstone
+`exists_phiIrreducible_evalSymm`, whose main line is the argument itself: descent,
+assembly, splitting, its three consequences (irreducibility, the transposed
+evaluation, the pole bounds), T10's bounds through the dictionary to the transpose
+degree count, then uniqueness of the minimal polynomial.
 
 **The wire test is unconditional — the first.** `exists_phiIrreducible_evalSymm`
 needs no unported hypothesis, so it instantiates at `ℓ = 2`; `one_le_coeff_jq` is

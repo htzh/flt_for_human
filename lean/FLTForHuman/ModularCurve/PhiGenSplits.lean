@@ -105,8 +105,7 @@ end Transport
 input by `eq_of_prime`. -/
 private theorem splits_of_prime_cyclotomicField (p : ℕ) [hp : Fact p.Prime]
     (data : ModularPolynomialData p) :
-    data.Φ.map (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ) =
-      phiProd p (conj p (cycUnit p)) := by
+    data.Φ.map (evalAtJK (CyclotomicField p ℚ) p) = phiProd p (conj p (cycUnit p)) := by
   have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
   have hcyc : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
     CyclotomicField.isCyclotomicExtension p ℚ
@@ -120,13 +119,15 @@ private theorem splits_of_prime_cyclotomicField (p : ℕ) [hp : Fact p.Prime]
   obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hc hIntCoeffs hmem
   rw [ModularPolynomialData.eq_of_prime p data data₀]
   refine Polynomial.ext fun k => ?_
-  rw [Polynomial.coeff_map, RingHom.comp_apply, RingHom.comp_apply, hdata₀ k, hc k]
+  rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hdata₀ k,
+    qEmbedT_eq_coeffEmb_qExpand, ← hc k]
 
-/-- The modular polynomial splits into its `p + 1` conjugates. Verbatim from the
-pin wrapper `Theorems/Thm_ModularCurve_PhiGen_splits_of_prime.lean`. -/
+/-- The modular polynomial splits into its `p + 1` conjugates. The pin wrapper's statement
+`Theorems/Thm_ModularCurve_PhiGen_splits_of_prime.lean`, with the splitting stated with
+`evalAtJK K p` rather than the composite the pin spells out. -/
 theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fact (Nat.Prime p)]
     (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (data : ModularPolynomialData p) :
-    data.Φ.map (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ) = phiProd p (conj p ζ) := by
+    data.Φ.map (evalAtJK K p) = phiProd p (conj p ζ) := by
 
   have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
   have : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
@@ -140,19 +141,16 @@ theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fa
   have hσu : Units.map (σ : CyclotomicField p ℚ →+* K).toMonoidHom (cycUnit p) = ζ :=
     Units.ext (by rw [Units.coe_map]; exact hσ)
 
-  have hmap : (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ)
-      = (coeffMap (σ : CyclotomicField p ℚ →+* K)).comp
-          (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ) := by
+  have hmap : evalAtJK K p
+      = (coeffMap (σ : CyclotomicField p ℚ →+* K)).comp (evalAtJK (CyclotomicField p ℚ) p) := by
     refine Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_
-    simp only [RingHom.comp_apply, evalAtJ_X]
-    rw [coeffMap_coeffEmb_algHom]
+    simp only [RingHom.comp_apply, evalAtJK_X, coeffMap_qExpand, coeffMap_coeffEmb_algHom]
   have h := congrArg (Polynomial.map (coeffMap (σ : CyclotomicField p ℚ →+* K)))
     (splits_of_prime_cyclotomicField p data)
   rw [map_coeffMap_phiProd, hσu, Polynomial.map_map] at h
-  calc data.Φ.map (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ)
+  calc data.Φ.map (evalAtJK K p)
       = data.Φ.map ((coeffMap (σ : CyclotomicField p ℚ →+* K)).comp
-          (((coeffEmb (CyclotomicField p ℚ)).comp (qExpand ℚ p)).comp evalAtJ)) := by
-        rw [hmap]
+          (evalAtJK (CyclotomicField p ℚ) p)) := by rw [hmap]
     _ = phiProd p (conj p ζ) := h
 
 /-! ## The splitting at a general slot -/
@@ -176,10 +174,12 @@ theorem splits_prime_at_slot {K : Type*} [Field K] [Algebra ℚ K] (N : ℕ) [Ne
 
   have hhom : Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
       (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq)))
-      = ((qExpand K e).comp (qTwist u)).comp (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ) := by
+      = ((qExpand K e).comp (qTwist u)).comp (evalAtJK K p) := by
     refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
-    simp only [Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X, RingHom.comp_apply, evalAtJ_X]
-    rw [iota_jq, qExpand_qTwist_TS, mul_one, zpow_natCast, coeffEmb_jq]
+    simp only [Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X, evalAtJK_def, RingHom.comp_apply,
+      evalAtJ_X, qEmbedT_jq]
+    rw [← coeffEmb_qExpand K p jq, iota_jq (K := K) (N := p), qExpand_qTwist_TS, mul_one,
+      zpow_natCast, coeffEmb_jq]
     exact (TS_congr (Nat.mul_comm e p) (u ^ p)).symm
 
   have h₀ : ((qExpand K e).comp (qTwist u)) (conj p (ζ ^ (N / p)) (0 : Fin (p + 1)))
@@ -201,8 +201,7 @@ theorem splits_prime_at_slot {K : Type*} [Field K] [Algebra ℚ K] (N : ℕ) [Ne
       = (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u)) := by
     calc data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
           (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq))))
-        = (data.Φ.map (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ)).map
-            ((qExpand K e).comp (qTwist u)) := by
+        = (data.Φ.map (evalAtJK K p)).map ((qExpand K e).comp (qTwist u)) := by
           rw [hhom, ← Polynomial.map_map]
       _ = (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u)) := by
           rw [hsplits]
