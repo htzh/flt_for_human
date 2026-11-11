@@ -107,12 +107,15 @@ any factorisation `Φ = A · B` over `adjoinJq`:
 
 The last is `jqN_not_mem_adjoin_jq` (private in the port, §3.3), and it is where
 positivity enters: it shows no `P ∈ ℚ[X]` has `P(jq) = j(q^ℓ)` (the pin splits this
-into `aeval_jq_ne_jqN_of_isPrimitiveRoot` and `aeval_jq_ne_jqN`). If one did, the
-arithmetic twist `ζ ↦ ζ^b` and the sum over the `ℓ` finite conjugates would make
-a rational constant whose `q ^ ℓ` coefficient is `ℓ · jq.coeff ℓ ≠ 0` on one
-side and `0` on the other (the exponent is `+ℓ` — the positive multiples of `ℓ`
-are exactly the exponents that all the twists fix); `one_le_coeff_jq` at `n = ℓ`
-supplies the nonvanishing.
+into `aeval_jq_ne_jqN_of_isPrimitiveRoot` and `aeval_jq_ne_jqN`). The refutation is
+two lines, now stated as such: the `Y ^ (ℓ-1)` coefficient of the conjugate product
+(the sum of the `ℓ` twists, a series in `q ^ ℓ` with coefficient `ℓ · jq.coeff ℓ ≠ 0`
+at the twist-fixed exponent `+ℓ`) is never rational — `sum_conj_succ_ne_ratC`, this
+is where `one_le_coeff_jq` at `n = ℓ` is spent — while Vieta identifies `P` with that
+product plus the constant `j(q^ℓ)` and so forces `P.coeff (ℓ-1)` to be that same sum
+(`map_ratC_eq_prod_add_of_aeval_jq_eq`, `sum_conj_succ_eq_ratC_of_aeval_jq_eq`). Neither
+statement takes a positivity hypothesis any more: `one_le_coeff_jq` is applied inside, at
+`n = ℓ`, once, so the non-membership is unconditional.
 (So although the exported positivity statement is for all `n`, the consumers use
 it only at `n = ℓ`; see §3.1.)
 
@@ -452,11 +455,11 @@ the five copies of the block, i.e. no `Definitions/`, `Theorems/` or other `P2M/
 any of them, and in the port only this module did. So the two wrappers (the cyclotomic
 specialisation and the polynomial unpacking) are inlined and the three collapse into one
 **private** `jqN_not_mem_adjoin_jq`, whose statement is the pin's `jqN_not_mem_adjoin_jq`
-verbatim. Public declarations **15 → 12** (private **58**). Zone J of
+verbatim. Public declarations **15 → 12** (private **60**). Zone J of
 `spec/ModularCurveConsumer.lean` loses the two `example`s that exercised the removed
 exports, and its prose is updated; the wire test is otherwise untouched. `#print axioms`
-clean, checker `12 ok / 0 mismatched / 0 missing`. Private declarations **56 → 58** (seven in, five out), module
-**1011 → 1075 lines** (the proof bodies are comment-free; the rewriting steps the
+clean, checker `12 ok / 0 mismatched / 0 missing`. Private declarations **56 → 60** (nine in, five out), module
+**1011 → 1099 lines** (the proof bodies are comment-free; the rewriting steps the
 argument needs are `calc` blocks, and the levels of `Φ` are named by `set`).
 
 ## 4. Dependencies and the division
@@ -668,3 +671,20 @@ consequence — `finrank_adjoin_jqN_eq_of_prime`,
 `ModularPolynomialData.eq_of_prime`, `splits_of_prime`, `splits_prime_at_slot`.
 T12 hands T13 `exists_phiIrreducible_evalSymm` and T11's `evalAtJ_injective`;
 T13 is then the cone's last topic.
+
+### 3.4 The `ev` layer promoted to one home (2026-11-09)
+
+`dedup.py` over the `ModularCurve` slice reported seven clusters between this module and
+`X1/IntegralityJqNModC.lean`: the pin's `SepFibre` evaluation prelude (`ev`, `aeval_toRingHom_eq`,
+`ev_eq_aevalAeval`, `ev_swap`, `ev_int`, `ev_sub`, `map_ev`, `ev_eq_evalEval`) and
+`swap_eq_of_evalSymm`, ~66 lines written twice, both `private` in both modules — the private-twin
+pattern, since neither could import the other's helper. The pin has the same duplication (it copies
+its prelude into each `S_` file). They now live once, in
+`FLTForHuman/ModularCurve/Defs/BivariateEval.lean` (116 lines, wired to the pin node
+`S_ModularCurve_swapBivar_eq_of_evalSymm.lean`), which both modules import: this module lost 39
+lines (1080 → 1041) and X1 lost 76 (478 → 402), and `dedup.py` over the slice went from 219 to 212
+clusters and 1936 to 1874 removable lines, with no cluster mentioning either module. One statement
+is a registered deviation: the pin's `ev_int` (`ev Φ a b = Φ.evalEval a b`) leaves the coefficient
+ring implicit and elaborates at `ℤ`, so the module keeps the `A`-pinned form and records an `own:`
+row; the checker gives `8 ok / 0 mismatch / 0 missing / 1 own` on the new module, `12 ok` here and
+`4 ok` on X1.

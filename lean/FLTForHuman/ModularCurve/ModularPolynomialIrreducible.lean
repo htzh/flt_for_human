@@ -58,7 +58,8 @@
   `evalAtJAdj`/`swapBivar`; `Defs/Fields`'s `jGen`/`evalAtJGen`/
   `algebraMap_comp_evalAtJGen`/`toAdjoin`/`toAdjoin_monic`; `Defs/Jq`'s `jq`/
   `jqN`/`evalAtJ`/`evalAtJ_eq_aeval_map`/`coeff_aeval_jq_neg`/`transcendental_jq`/
-  `dedekindPsi_prime`; T11's `PhiGen.evalAtJ_injective`; T12's `one_le_coeff_jq`.
+  `dedekindPsi_prime`; `Defs/BivariateEval`'s `ev`/`ev_swap`/`ev_int`/`ev_sub`/
+  `swap_eq_of_evalSymm`; T11's `PhiGen.evalAtJ_injective`; T12's `one_le_coeff_jq`.
   Wired here, not in the frozen registry: the module left `PORT_FILES`
   (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
 
@@ -76,6 +77,7 @@
 -/
 import FLTForHuman.ModularCurve.JqCoeffPositivity
 import FLTForHuman.ModularCurve.PhiGenDescendsStructure
+import FLTForHuman.ModularCurve.Defs.BivariateEval
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import Mathlib.Algebra.Polynomial.Roots
 import Mathlib.Algebra.Polynomial.Bivariate
@@ -296,9 +298,13 @@ section Vieta
 variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
 variable {P : Polynomial ℚ}
 
-private theorem sum_conj_succ_eq_ratC_of_aeval_jq_eq (hζ : IsPrimitiveRoot (ζ : K) ℓ)
+/-- Vieta, as the identification of `P` itself: if `P(j(q)) = j(q ^ ℓ)` then `P` *is* the product of
+the `ℓ` finite conjugate linear factors plus the constant `j(q ^ ℓ)`. -/
+private theorem map_ratC_eq_prod_add_of_aeval_jq_eq (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     (h : Polynomial.aeval jq P = jqN ℓ) :
-    ∑ b : Fin ℓ, conj ℓ ζ b.succ = ratC K (-(P.coeff (ℓ - 1))) := by
+    P.map (ratC K)
+      = (∏ b : Fin ℓ, (Polynomial.X - Polynomial.C (conj ℓ ζ b.succ)))
+        + Polynomial.C (qExpand K ℓ (coeffEmb K jq)) := by
   have hPdeg : P.natDegree = ℓ := natDegree_eq_of_aeval_jq_eq_jqN ℓ h
   have hPmonic : P.Monic := monic_of_aeval_jq_eq_jqN ℓ h
   set A : Polynomial (LaurentSeries K) := P.map (ratC K) with hA
@@ -333,18 +339,30 @@ private theorem sum_conj_succ_eq_ratC_of_aeval_jq_eq (hζ : IsPrimitiveRoot (ζ 
           (by rw [Polynomial.degree_eq_natDegree hAmonic.ne_zero,
                 Polynomial.degree_eq_natDegree hBmonic.ne_zero, hAdeg, hBdeg])
           hAmonic.ne_zero (by rw [hAmonic.leadingCoeff, hBmonic.leadingCoeff])
+  calc A = (A - B) + B := (sub_add_cancel A B).symm
+    _ = Polynomial.C (qExpand K ℓ (coeffEmb K jq)) + B := by rw [key]
+    _ = B + Polynomial.C (qExpand K ℓ (coeffEmb K jq)) := add_comm _ _
+
+/-- The consequence at degree `ℓ - 1`: the finite conjugates sum to `-P.coeff (ℓ - 1)`, a rational
+number. -/
+private theorem sum_conj_succ_eq_ratC_of_aeval_jq_eq (hζ : IsPrimitiveRoot (ζ : K) ℓ)
+    (h : Polynomial.aeval jq P = jqN ℓ) :
+    ∑ b : Fin ℓ, conj ℓ ζ b.succ = ratC K (-(P.coeff (ℓ - 1))) := by
+  have key := map_ratC_eq_prod_add_of_aeval_jq_eq ℓ ζ hζ h
   have hcoeff := congrArg (fun p => Polynomial.coeff p (ℓ - 1)) key
   have hℓ2 : 2 ≤ ℓ := hℓ.out.two_le
-  simp only [Polynomial.coeff_sub, Polynomial.coeff_C,
-    ite_eq_right (by omega : ¬(ℓ - 1 = 0))] at hcoeff
-  have hBcoeff : B.coeff (ℓ - 1) = -∑ b : Fin ℓ, conj ℓ ζ b.succ := by
+  simp only [Polynomial.coeff_add, Polynomial.coeff_C,
+    ite_eq_right (by omega : ¬(ℓ - 1 = 0)), add_zero] at hcoeff
+  have hBcoeff : (∏ b : Fin ℓ, (Polynomial.X - Polynomial.C (conj ℓ ζ b.succ))).coeff (ℓ - 1)
+      = -∑ b : Fin ℓ, conj ℓ ζ b.succ := by
     have hv := Polynomial.prod_X_sub_C_coeff_card_pred (Finset.univ : Finset (Fin ℓ))
       (fun b => conj ℓ ζ b.succ) (by simp [hℓ.out.pos])
     simpa using hv
-  have hAcoeff : A.coeff (ℓ - 1) = ratC K (P.coeff (ℓ - 1)) := Polynomial.coeff_map _ _
-  rw [hAcoeff, hBcoeff, sub_neg_eq_add, add_comm] at hcoeff
+  rw [Polynomial.coeff_map, hBcoeff] at hcoeff
+  have hzero : ∑ b : Fin ℓ, conj ℓ ζ b.succ + ratC K (P.coeff (ℓ - 1)) = 0 := by
+    rw [add_comm, hcoeff, neg_add_cancel]
   rw [map_neg]
-  exact eq_neg_of_add_eq_zero_left hcoeff
+  exact eq_neg_of_add_eq_zero_left hzero
 
 end Vieta
 
@@ -366,8 +384,7 @@ private theorem coeff_sum_conj_succ_self (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
   rw [Finset.sum_congr rfl fun b _ => hterm b, Finset.sum_const, Finset.card_univ,
     Fintype.card_fin, nsmul_eq_mul]
 
-private theorem coeff_sum_conj_succ_ne_zero
-    (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
+private theorem coeff_sum_conj_succ_ne_zero (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
     (∑ b : Fin ℓ, conj ℓ ζ b.succ).coeff ((ℓ : ℕ) : ℤ) ≠ 0 := by
   rw [coeff_sum_conj_succ_self ℓ ζ hζ]
   refine mul_ne_zero ?_ ?_
@@ -378,9 +395,19 @@ private theorem coeff_sum_conj_succ_ne_zero
   · intro hc
     have h0 : jq.coeff ((ℓ : ℕ) : ℤ) = 0 :=
       (algebraMap ℚ K).injective (by rw [hc, map_zero])
-    have h1 := hpos ℓ
+    have h1 := one_le_coeff_jq ℓ
     rw [h0] at h1
     norm_num at h1
+
+/-- The other half of the argument: the sum of the `ℓ` finite conjugates is *not* a rational
+constant. It is fixed by every twist, so it is a series in `q ^ ℓ`, and its coefficient at the
+twist-fixed exponent `ℓ` is `ℓ * jq.coeff ℓ ≠ 0`, whereas a rational constant vanishes there. -/
+private theorem sum_conj_succ_ne_ratC (hζ : IsPrimitiveRoot (ζ : K) ℓ) (c : ℚ) :
+    ∑ b : Fin ℓ, conj ℓ ζ b.succ ≠ ratC K c := by
+  intro h
+  refine coeff_sum_conj_succ_ne_zero ℓ ζ hζ ?_
+  rw [h]
+  exact coeff_ratC_of_ne K c (by exact_mod_cast hℓ.out.ne_zero)
 
 end Refutation
 
@@ -389,13 +416,14 @@ section Headline
 variable (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
 
 set_option linter.style.haveILetI false in
-/-- The prime non-membership: `j(q ^ ℓ)` is not a polynomial in `j(q)`. The arithmetic is the
-twist-sum refutation — twist `P(j(q)) = j(q ^ ℓ)` by `ζ ^ b`, sum over the `ℓ` finite conjugates,
-and read the `q ^ ℓ` coefficient: it is `ℓ * jq.coeff ℓ`, nonzero by the positivity of `j`'s
-coefficients at `n = ℓ`, against `0` on the rational-constant side. This is the module's one
-arithmetic input, and the only place a prime-level non-membership is used. -/
-private theorem jqN_not_mem_adjoin_jq (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coeff (n : ℤ)) :
-    jqN ℓ ∉ Algebra.adjoin ℚ {jq} := by
+/-- The prime non-membership: `j(q ^ ℓ)` is not a polynomial in `j(q)` — two lines, and one
+arithmetic input, which is derived here rather than assumed. The conjugate product's `Y ^ (ℓ - 1)`
+coefficient is the sum of the `ℓ` finite conjugates, twist-invariant and with coefficient
+`ℓ * jq.coeff ℓ ≠ 0` at the twist-fixed exponent `ℓ`, so it is never rational
+(`sum_conj_succ_ne_ratC`, whose only input is `one_le_coeff_jq` at `n = ℓ`); while Vieta identifies
+`P` with that product plus the constant `j(q ^ ℓ)`, forcing `P.coeff (ℓ - 1)` to be that same sum
+(`sum_conj_succ_eq_ratC_of_aeval_jq_eq`). The statement takes no hypothesis. -/
+private theorem jqN_not_mem_adjoin_jq : jqN ℓ ∉ Algebra.adjoin ℚ {jq} := by
   intro hmem
   obtain ⟨P, hP⟩ := Algebra.adjoin_mem_exists_aeval _ _ hmem
   haveI : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
@@ -407,15 +435,8 @@ private theorem jqN_not_mem_adjoin_jq (hpos : ∀ n : ℕ, (1 : ℚ) ≤ jq.coef
   have hζ : IsPrimitiveRoot ((hzu.unit : (CyclotomicField ℓ ℚ)ˣ) : CyclotomicField ℓ ℚ) ℓ := by
     rw [hzu.unit_spec]
     exact hz
-  have hsum : (∑ b : Fin ℓ, conj ℓ hzu.unit b.succ)
-      = ratC (CyclotomicField ℓ ℚ) (-(P.coeff (ℓ - 1))) :=
-    sum_conj_succ_eq_ratC_of_aeval_jq_eq ℓ hzu.unit hζ hP
-  have hne : (∑ b : Fin ℓ, conj ℓ hzu.unit b.succ).coeff ((ℓ : ℕ) : ℤ) ≠ 0 :=
-    coeff_sum_conj_succ_ne_zero ℓ hzu.unit hpos hζ
-  refine hne ?_
-  calc (∑ b : Fin ℓ, conj ℓ hzu.unit b.succ).coeff ((ℓ : ℕ) : ℤ)
-      = (ratC (CyclotomicField ℓ ℚ) (-(P.coeff (ℓ - 1)))).coeff ((ℓ : ℕ) : ℤ) := by rw [hsum]
-    _ = 0 := coeff_ratC_of_ne (CyclotomicField ℓ ℚ) _ (by exact_mod_cast hℓ.out.ne_zero)
+  exact sum_conj_succ_ne_ratC ℓ hzu.unit hζ _
+    (sum_conj_succ_eq_ratC_of_aeval_jq_eq ℓ hzu.unit hζ hP)
 
 end Headline
 
@@ -686,7 +707,7 @@ theorem phiIrreducible_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : �
       exact Polynomial.IsRoot.map hβ
     obtain ⟨i, hi⟩ := exists_eq_conj_of_eval_phiProd_eq_zero ℓ ζ hβ₁
     rcases Fin.eq_zero_or_eq_succ i with rfl | ⟨b, rfl⟩
-    · exact jqN_not_mem_adjoin_jq ℓ one_le_coeff_jq
+    · exact jqN_not_mem_adjoin_jq ℓ
         (eq_jqN_of_adjoinEmbedT_eq_conj_zero hi ▸ β.2)
     · have hvan : (conj ℓ ζ b.succ).coeff (-1 : ℤ) = 0 := by
         rw [← hi]
@@ -739,14 +760,14 @@ end Irreducibility
 
 end PhiGen
 
-/-! ## Glue to mathlib's bivariate API
+/-! ## The transpose as mathlib's `Bivariate.swap`
 
 `swapBivar` is mathlib's `Bivariate.swap` as a ring hom on `ℤ[X][Y]`
 (`swapBivar_eq_swap`). Keeping that single bridge lets the transpose and symmetry
-proofs cite mathlib's bivariate lemmas instead of re-deriving them, without
-touching the `Defs` API. The `ev`/`aevalAeval` pair below is the coefficient-cast
-evaluation (`ℤ[X][Y]` at points of a commutative ring), which mathlib's
-same-ring `Polynomial.evalEval` does not cover. -/
+proofs below cite mathlib's bivariate lemmas instead of re-deriving them, without
+touching the `Defs` API. The coefficient-cast evaluation `ev` that mediates between
+them, and the converse direction `swap_eq_of_evalSymm`, are in
+`Defs/BivariateEval.lean`. -/
 
 section SwapBivarGlue
 
@@ -757,38 +778,6 @@ private theorem swapBivar_eq_swap (Φ : Polynomial (Polynomial ℤ)) :
     Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _)
       (by simp [Bivariate.swap_X])) (by simp [Bivariate.swap_Y])
   exact RingHom.congr_fun h Φ
-
-variable {A : Type*} [CommRing A]
-
-/-- The evaluated form of `Φ` in two variables of a commutative ring. -/
-private def ev (Φ : Polynomial (Polynomial ℤ)) (x y : A) : A :=
-  Φ.eval₂ (eval₂RingHom (Int.castRingHom A) x) y
-
-private theorem aeval_toRingHom_eq [Algebra ℤ A] (x : A) :
-    (Polynomial.aeval (R := ℤ) x).toRingHom = eval₂RingHom (Int.castRingHom A) x :=
-  Polynomial.ringHom_ext' (RingHom.ext_int _ _) (by simp)
-
-private theorem ev_eq_aevalAeval (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev Φ x y = aevalAeval x y Φ := by
-  have h : eval₂RingHom (eval₂RingHom (Int.castRingHom A) x) y
-      = (aevalAeval (R := ℤ) x y).toRingHom := by
-    refine Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_) ?_
-    · simp
-    · simp
-  exact RingHom.congr_fun h Φ
-
-private theorem ev_swap (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev (Bivariate.swap Φ) x y = ev Φ y x := by
-  rw [ev_eq_aevalAeval, ev_eq_aevalAeval, Bivariate.aevalAeval_swap]
-
-private theorem ev_int (Φ : Polynomial (Polynomial ℤ)) (a b : ℤ) :
-    ev Φ (a : A) (b : A) = ((Φ.evalEval a b : ℤ) : A) := by
-  rw [ev, eval₂_eval₂RingHom_apply]
-  exact map_mapRingHom_evalEval (Int.castRingHom A) Φ a b
-
-private theorem ev_sub (Φ Ψ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev (Φ - Ψ) x y = ev Φ x y - ev Ψ x y := by
-  rw [ev_eq_aevalAeval, map_sub, ← ev_eq_aevalAeval, ← ev_eq_aevalAeval]
 
 end SwapBivarGlue
 
@@ -1039,34 +1028,6 @@ theorem PhiGen.evalSymm_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : �
     (PhiGen.eval_swap_eq_zero_of_splits ℓ ζ data hsplit) hTmonic hTdeg
 
 /-! ## The converse: evaluated symmetry forces `swapBivar Φ = Φ` -/
-
-section EvalSymmSwap
-
-private theorem swap_eq_of_evalSymm {Φ : Polynomial (Polynomial ℤ)} (h : EvalSymm Φ) :
-    Bivariate.swap Φ = Φ := by
-  set G : Polynomial (Polynomial ℤ) := Bivariate.swap Φ - Φ with hG
-
-  have hL : ∀ x y : LaurentSeries ℚ, ev G x y = 0 := fun x y => by
-    have hxy := h x y
-    rw [aeval_toRingHom_eq, aeval_toRingHom_eq] at hxy
-    rw [hG, ev_sub, ev_swap, sub_eq_zero]
-    exact hxy.symm
-  have hZ : ∀ a b : ℤ, G.evalEval a b = 0 := fun a b => by
-    have h0 : ((G.evalEval a b : ℤ) : LaurentSeries ℚ) = 0 := by
-      rw [← ev_int G a b]
-      simpa using hL (a : LaurentSeries ℚ) (b : LaurentSeries ℚ)
-    exact Int.cast_injective (α := ℚ)
-      ((algebraMap ℚ (LaurentSeries ℚ)).injective (by simpa using h0))
-
-  have h1 : ∀ b : ℤ, G.eval (Polynomial.C b) = 0 := fun b =>
-    Polynomial.eq_zero_of_infinite_isRoot _ (Set.infinite_of_injective_forall_mem
-      (f := fun a : ℤ => a) (fun _ _ h => h) fun a => hZ a b)
-  have h2 : G = 0 :=
-    Polynomial.eq_zero_of_infinite_isRoot _ (Set.infinite_of_injective_forall_mem
-      (f := fun b : ℤ => Polynomial.C b) (fun _ _ h => Polynomial.C_injective h) fun b => h1 b)
-  exact sub_eq_zero.mp h2
-
-end EvalSymmSwap
 
 /-- Evaluated symmetry forces the transpose to be `Φ` itself. Verbatim from the
 pin wrapper `Theorems/Thm_ModularCurve_swapBivar_eq_of_evalSymm.lean`. -/

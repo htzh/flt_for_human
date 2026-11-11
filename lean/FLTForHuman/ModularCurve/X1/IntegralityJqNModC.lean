@@ -34,16 +34,15 @@
     `#print axioms` lines.
 
   Dedup against the port. The pin's `SepFibre.eval` prelude and
-  `swap_eq_of_evalSymm` are `private` in
-  `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` (`SwapBivarGlue`,
-  `EvalSymmSwap`); the pin's `coeffMap_jqModC` is `private` in
+  `swap_eq_of_evalSymm` are written once, in
+  `FLTForHuman/ModularCurve/Defs/BivariateEval.lean`, and imported here; the pin's
+  `coeffMap_jqModC` is `private` in
   `FLTForHuman/ModularCurve/X1/FunctionFieldResidue.lean`; the pin's
   `SolJJLAux.{gamma0_one_eq_top, gamma0_one_coe, one_mem_sp, e4cube, delta1}` are
   public as `ModularCurve.DeepCosetAux.*` in
-  `FLTForHuman/ModularCurve/ModularPolynomialE4Cube.lean`. No hub shares this
-  module's subject, so each needed helper is re-derived locally `private` (in the
-  pin's own inner namespace) rather than promoted; the pin's `ev_eq_evalEval` and
-  `map_ev` exist in no port module and are transcribed from the pin. The public
+  `FLTForHuman/ModularCurve/ModularPolynomialE4Cube.lean`. The remaining helpers are
+  re-derived locally `private` (in the pin's own inner namespace) rather than
+  promoted. The public
   `ModularForm.exists_degeneracy_Gamma0`, `ModularCurve.laurent_qParam_coeff_unique`,
   `ModularCurve.jqModC_eq_qExpansion_E4_cube_div_discriminant`,
   `ModularCurve.qExpansion_E4_eq_map_eisenstein4` and
@@ -82,6 +81,7 @@
   spec-pin: P2M/Sol/S_ModularCurve_qExpansion_E6_eq_map_mk.lean
 
 -/
+import FLTForHuman.ModularCurve.Defs.BivariateEval
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Defs.PhiGen
@@ -167,91 +167,15 @@ end EisensteinCube
 
 /-! ## `jqNModC` is integral over `K[jqModC]`
 
-The pin's `SepFibre` block. `ev`, `aeval_toRingHom_eq`, `ev_eq_aevalAeval`, `ev_swap`,
-`ev_int`, `ev_sub` and `swap_eq_of_evalSymm` are `private` in
-`FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean`; `coeffMap_jqModC` is
-`private` in `FLTForHuman/ModularCurve/X1/FunctionFieldResidue.lean`. Neither hub
-shares this headline's subject, so each is re-derived here `private`; the pin's
-`ev_eq_evalEval` / `map_ev` belong to no port module and are transcribed from the
-pin. -/
+The pin's `SepFibre` block, whose evaluation prelude (`ev`, its identifications with
+mathlib's `evalEval`/`aevalAeval`, and `swap_eq_of_evalSymm`) is imported from
+`FLTForHuman/ModularCurve/Defs/BivariateEval.lean`. `coeffMap_jqModC` is `private` in
+`FLTForHuman/ModularCurve/X1/FunctionFieldResidue.lean` and is re-derived here
+`private`. -/
 
 namespace SepFibre
 
 open Polynomial
-
-section Eval
-
-variable {A : Type*} [CommRing A]
-
-/-- The pin's `SepFibre.ev`: `Φ` evaluated at `(x, y)` with the integer
-coefficients cast into `A`. -/
-private def ev (Φ : Polynomial (Polynomial ℤ)) (x y : A) : A :=
-  Φ.eval₂ (eval₂RingHom (Int.castRingHom A) x) y
-
-private theorem aeval_toRingHom_eq [Algebra ℤ A] (x : A) :
-    (Polynomial.aeval (R := ℤ) x).toRingHom = eval₂RingHom (Int.castRingHom A) x :=
-  Polynomial.ringHom_ext' (RingHom.ext_int _ _) (by simp)
-
-/-- `ev` is mathlib's coefficient-cast `evalEval`. -/
-private theorem ev_eq_evalEval (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev Φ x y = (Φ.map (mapRingHom (Int.castRingHom A))).evalEval x y := by
-  rw [ev, ← eval₂_eval₂RingHom_apply]
-
-/-- `ev` is mathlib's `aevalAeval`. -/
-private theorem ev_eq_aevalAeval (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev Φ x y = aevalAeval x y Φ := by
-  have h : eval₂RingHom (eval₂RingHom (Int.castRingHom A) x) y
-      = (aevalAeval (R := ℤ) x y).toRingHom := by
-    refine Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_) ?_
-    · simp
-    · simp
-  exact RingHom.congr_fun h Φ
-
-/-- `ev` is natural in the coefficient ring. -/
-private theorem map_ev {B : Type*} [CommRing B] (φ : A →+* B) (Φ : Polynomial (Polynomial ℤ))
-    (x y : A) : φ (ev Φ x y) = ev Φ (φ x) (φ y) := by
-  rw [ev_eq_evalEval, ev_eq_evalEval, ← map_mapRingHom_evalEval φ, Polynomial.map_map,
-    mapRingHom_comp, RingHom.ext_int (φ.comp (Int.castRingHom A)) (Int.castRingHom B)]
-
-private theorem ev_swap (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev (Bivariate.swap Φ) x y = ev Φ y x := by
-  rw [ev_eq_aevalAeval, ev_eq_aevalAeval, Bivariate.aevalAeval_swap]
-
-private theorem ev_int (Φ : Polynomial (Polynomial ℤ)) (a b : ℤ) :
-    ev Φ (a : A) (b : A) = ((Φ.evalEval a b : ℤ) : A) := by
-  rw [ev, eval₂_eval₂RingHom_apply]
-  exact map_mapRingHom_evalEval (Int.castRingHom A) Φ a b
-
-private theorem ev_sub (Φ Ψ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev (Φ - Ψ) x y = ev Φ x y - ev Ψ x y := by
-  rw [ev_eq_aevalAeval, map_sub, ← ev_eq_aevalAeval, ← ev_eq_aevalAeval]
-
-end Eval
-
-/-- Evaluated symmetry forces the transpose to be `Φ` itself. The port's copy is
-`private` in `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean`; re-derived
-here. -/
-private theorem swap_eq_of_evalSymm {Φ : Polynomial (Polynomial ℤ)} (h : EvalSymm Φ) :
-    Bivariate.swap Φ = Φ := by
-  set G : Polynomial (Polynomial ℤ) := Bivariate.swap Φ - Φ with hG
-  have hL : ∀ x y : LaurentSeries ℚ, ev G x y = 0 := fun x y => by
-    have hxy := h x y
-    rw [aeval_toRingHom_eq, aeval_toRingHom_eq] at hxy
-    rw [hG, ev_sub, ev_swap, sub_eq_zero]
-    exact hxy.symm
-  have hZ : ∀ a b : ℤ, G.evalEval a b = 0 := fun a b => by
-    have h0 : ((G.evalEval a b : ℤ) : LaurentSeries ℚ) = 0 := by
-      rw [← ev_int G a b]
-      simpa using hL (a : LaurentSeries ℚ) (b : LaurentSeries ℚ)
-    exact Int.cast_injective (α := ℚ)
-      ((algebraMap ℚ (LaurentSeries ℚ)).injective (by simpa using h0))
-  have h1 : ∀ b : ℤ, G.eval (Polynomial.C b) = 0 := fun b =>
-    Polynomial.eq_zero_of_infinite_isRoot _ (Set.infinite_of_injective_forall_mem
-      (f := fun a : ℤ => a) (fun _ _ h => h) fun a => hZ a b)
-  have h2 : G = 0 :=
-    Polynomial.eq_zero_of_infinite_isRoot _ (Set.infinite_of_injective_forall_mem
-      (f := fun b : ℤ => Polynomial.C b) (fun _ _ h => Polynomial.C_injective h) fun b => h1 b)
-  exact sub_eq_zero.mp h2
 
 section Rel
 
