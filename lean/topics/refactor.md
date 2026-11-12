@@ -35,6 +35,8 @@ No inline comments.
 Code speaks for itself.
 Docstrings are good.
 Do not cross reference in a source file unless absolutely necessary: an external change should not cause a comment to berewritten and a gratuitous rebuild to cascade.
+Do not use Lean files as documents.
+Minimize the number of edits by batching up -- so no editing the docstrings unless the code changes.
 No tree build.
 Assume other refactors could follow.
 Follow general build hygiene.

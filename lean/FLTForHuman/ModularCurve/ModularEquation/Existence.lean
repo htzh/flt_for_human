@@ -14,21 +14,15 @@
   * the transpose of the assembled datum is the datum: it annihilates `j(q ^ ℓ)`, so it is the
     minimal polynomial, and both sides are monic of degree `ψ(ℓ)`.
 
-  The capstone `exists_phiIrreducible_evalSymm` runs the chain: `exists_phiGenDescends` (the descent,
-  in `Construction`), `PhiGenDescends.intCoeffs`, the `j`-line membership, and
-  `exists_modularPolynomialData_coeff_eq` (the assembly); the two read-offs below then turn the
-  descended family into the datum's splitting and its pole bounds, and the transpose comparison
-  closes the argument. The read-offs are private to this module: they are specializations of the
-  descent, with no consumer but the capstone.
+  The capstone `exists_phiIrreducible_evalSymm` starts from `exists_modularPolynomialData_splits`
+  (in `Construction`), which returns the assembled datum together with its splitting. The pole-bound
+  read-off below turns the splitting into the transpose's bounds, and the transpose comparison closes
+  the argument. The read-off is private to this module.
 -/
 
-import Mathlib.Algebra.Polynomial.Bivariate
 import Mathlib.Algebra.Polynomial.Roots
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
 import Mathlib.FieldTheory.Minpoly.Field
-import Mathlib.NumberTheory.Cyclotomic.Basic
-import Mathlib.RingTheory.Polynomial.GaussLemma
-import Mathlib.RingTheory.Polynomial.RationalRoot
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.LinearCombination
 
@@ -40,12 +34,12 @@ import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.Defs.Polynomial
+import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.JqCoeffPositivity
 import FLTForHuman.ModularCurve.ModularEquation.Construction
 import FLTForHuman.ModularCurve.ModularEquation.Support.LevelEmbedding
 import FLTForHuman.ModularCurve.ModularEquation.Support.PoleBounds
 import FLTForHuman.ModularCurve.ModularEquation.Transpose
-import FLTForHuman.ModularForms.PhiGenDescends
 
 set_option autoImplicit false
 
@@ -379,17 +373,9 @@ coefficient is the sum of the `ℓ` finite conjugates, twist-invariant and with 
 private theorem jqN_not_mem_adjoin_jq : jqN ℓ ∉ Algebra.adjoin ℚ {jq} := by
   intro hmem
   obtain ⟨P, hP⟩ := Algebra.adjoin_mem_exists_aeval _ _ hmem
-  haveI : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
-  haveI : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
-    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
-  obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
-    (Set.mem_singleton ℓ) hℓ.out.ne_zero
-  have hzu : IsUnit z := hz.isUnit hℓ.out.ne_zero
-  have hζ : IsPrimitiveRoot ((hzu.unit : (CyclotomicField ℓ ℚ)ˣ) : CyclotomicField ℓ ℚ) ℓ := by
-    rw [hzu.unit_spec]
-    exact hz
-  exact sum_conj_succ_ne_ratC ℓ hzu.unit hζ _
-    (sum_conj_succ_eq_ratC_of_aeval_jq_eq ℓ hzu.unit hζ hP)
+  have hζ := cycUnit_spec ℓ
+  exact sum_conj_succ_ne_ratC ℓ (cycUnit ℓ) hζ _
+    (sum_conj_succ_eq_ratC_of_aeval_jq_eq ℓ (cycUnit ℓ) hζ hP)
 
 end Headline
 
@@ -691,16 +677,6 @@ private theorem coeff_qEmbedT (f : LaurentSeries ℚ) (m : ℤ) :
     (qEmbedT K ℓ f).coeff ((ℓ : ℤ) * m) = algebraMap ℚ K (f.coeff m) := by
   rw [qEmbedT_eq_coeffEmb_qExpand, coeffEmb_coeff, qExpand_coeff_mul]
 
-/-- **A descent is a splitting**: a polynomial whose `X`-coefficients are the descended family's
-is annihilated by the conjugates of `j(q)`. -/
-private theorem splits_of_descends (hdescend : PhiGenDescends ℓ ζ c)
-    {Φ : Polynomial (Polynomial ℤ)}
-    (hΦ : ∀ k, evalAtJ (Φ.coeff k) = c k) :
-    Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ) := by
-  refine Polynomial.ext fun k => ?_
-  rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hΦ k,
-    qEmbedT_eq_coeffEmb_qExpand, ← hdescend k]
-
 /-- The coefficient dictionary of a level substitution: a `q ↦ q ^ ℓ` substitution moves the
 index by `ℓ` and nothing else, so the `m`-th coefficient of `Φ`'s `k`-th coefficient is the
 `ℓ * m`-th coefficient of the conjugate product's. -/
@@ -758,44 +734,24 @@ end PhiGen
 
 /-! ## Existence of an irreducible symmetric datum -/
 
-/-- **The root the descent is run at**: `ℚ(ζ_ℓ)`'s primitive `ℓ`-th root (mathlib's), as a unit.
-Naming it keeps the choice of where the descent happens — which is all the cyclotomic setup
-amounts to — out of the existence proof, which then reads as the chain it is. -/
-private theorem exists_primitiveRoot_cyclotomic (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
-    [hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ)] :
-    ∃ ζ : (CyclotomicField ℓ ℚ)ˣ, IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ := by
-  obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
-    (Set.mem_singleton ℓ) hℓ.out.ne_zero
-  have hzu := hz.isUnit hℓ.out.ne_zero
-  exact ⟨hzu.unit, by rw [hzu.unit_spec]; exact hz⟩
-
 /-- **There is an irreducible symmetric modular polynomial datum at every prime `ℓ`**: run the
-descent at the cyclotomic field's primitive root, read off the coefficients' integrality and
-their membership in the `j`-line, assemble the datum, conclude irreducibility, the
-transposed evaluation and the pole bounds from the splitting, read the bounds through the
-dictionary as the transpose's monic degree `ψ(ℓ)`, and identify the transpose with the datum by
-uniqueness of the minimal polynomial of `j(q ^ ℓ)`.
+descent at the cyclotomic field's primitive root through `exists_modularPolynomialData_splits`, then
+conclude irreducibility, the transposed evaluation and the pole bounds from the splitting, read the
+bounds through the dictionary as the transpose's monic degree `ψ(ℓ)`, and identify the transpose with
+the datum by uniqueness of the minimal polynomial of `j(q ^ ℓ)`.
 
 Two roles of `ℓ` meet in the statement, and only the first is about isogenies: `ℓ` is the order of
 the modular polynomial (`Φ_ℓ`, `ψ(ℓ) = ℓ + 1` conjugates, the nome change `q ↦ q ^ ℓ`), and it is
 also the level of the cyclotomic field the descent is run at — cyclotomic, hence finite and Galois,
-with a primitive `ℓ`-th root from `exists_primitiveRoot_cyclotomic`. -/
+with the canonical primitive `ℓ`-th root `cycUnit ℓ`. -/
 theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
     ∃ data : ModularPolynomialData ℓ, PhiIrreducible data ∧ EvalSymm data.Φ := by
-  have : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
-  have hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
-    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
-  have : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
-    IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
-  obtain ⟨ζ, hζ⟩ := exists_primitiveRoot_cyclotomic ℓ
-  obtain ⟨c, hdescend⟩ := PhiGen.exists_phiGenDescends ℓ ζ hζ
-  obtain ⟨data, hcoeff⟩ := PhiGen.exists_modularPolynomialData_coeff_eq hdescend
-    (fun k => hdescend.intCoeffs (units_pow_eq_one_of_isPrimitiveRoot hζ) k)
-    (fun k => PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hdescend k)
-  have hsplit := PhiGen.splits_of_descends hdescend hcoeff
-  have hirr : PhiIrreducible data := PhiGen.phiIrreducible_of_splits ℓ ζ hζ data hsplit
+  have hζ := cycUnit_spec ℓ
+  obtain ⟨data, hsplit⟩ := PhiGen.exists_modularPolynomialData_splits ℓ (cycUnit ℓ) hζ
+  have hirr : PhiIrreducible data :=
+    PhiGen.phiIrreducible_of_splits ℓ (cycUnit ℓ) hζ data hsplit
   have hswap : data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 :=
-    PhiGen.eval_swap_eq_zero_of_splits ℓ ζ data hsplit
+    PhiGen.eval_swap_eq_zero_of_splits ℓ (cycUnit ℓ) data hsplit
   obtain ⟨h0top, h0le, hk⟩ := PhiGen.coeff_poleBounds_of_splits hζ hsplit
   obtain ⟨h0monic, h0deg⟩ := monic_of_evalAtJ_coeff_eq_one
     (natDegree_le_of_evalAtJ_coeff_eq_zero h0le) h0top

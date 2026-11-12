@@ -22,6 +22,7 @@
   first two files; the third differs by 2 lines):
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_mem_modularFunctionField_of_hasSum_of_gamma0_invariant.lean
 -/
+import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.QAdicPlace
 import FLTForHuman.ModularCurve.Defs.AtkinLehner
 import FLTForHuman.ModularCurve.Defs.TS
@@ -29,6 +30,7 @@ import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.ModularEquation.Construction
 import FLTForHuman.ModularCurve.ModularEquation.Existence
+import FLTForHuman.ModularCurve.ModularEquation.Support.Descent
 import FLTForHuman.ModularCurve.Analytic.QParamUnique
 import FLTForHuman.ModularCurve.Analytic.Gamma0Cosets
 import FLTForHuman.ModularForms.JqAnalyticModel
@@ -53,82 +55,13 @@ local notation "𝕢" => Function.Periodic.qParam
 
 namespace ModularCurve
 
-/-! ### Locally-restated `ΦGen`-descent helpers
+/-! ### The cyclotomic character on the conjugates
 
-`PhiGenDescent.lean` keeps the four helpers the pin's `ΦGen` descent exposes
-(`mem_range_qExpand_of_qTwist_eq`, `mem_range_coeffEmb_of_forall_coeffMap_eq`,
-`exists_galoisPerm`, `mem_range_coeffEmb_qExpand_of_mem_inter`) `private`, so
-they are unreachable from here and the workspace rule forbids editing that
-module. They (and the `qContract`/support-collapse machinery they need) are
-restated `private` below, verbatim from
-`FLTForHuman/ModularCurve/PhiGenDescent.lean`. -/
+The descent helpers themselves live in `Support/Descent.lean`; the local form below is the
+cyclotomic character as the slot computation consumes it.
+-/
 
 section CoreHelpers
-
-private theorem coeff_eq_zero_of_qTwist_eq {K : Type*} [Field K] {ℓ : ℕ} {ζ : Kˣ}
-    (hζ : IsPrimitiveRoot (ζ : K) ℓ)
-    {f : LaurentSeries K} (hf : qTwist ζ f = f) {m : ℤ} (hm : ¬ (ℓ : ℤ) ∣ m) :
-    f.coeff m = 0 := by
-  have h := congrArg (fun g => HahnSeries.coeff g m) hf
-  simp only [qTwist_coeff] at h
-  by_contra hc
-  apply hm
-  rw [← hζ.zpow_eq_one_iff_dvd]
-  have hunit : ((ζ ^ m : Kˣ) : K) = (ζ : K) ^ m := Units.val_zpow_eq_zpow_val ζ m
-  have hzero : (((ζ ^ m : Kˣ) : K) - 1) * f.coeff m = 0 := by
-    rw [sub_mul, one_mul, h, sub_self]
-  rcases mul_eq_zero.mp hzero with h1 | h1
-  · rw [hunit] at h1
-    linear_combination h1
-  · exact absurd h1 hc
-
-private def qContract {K : Type*} [Field K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
-    (f : LaurentSeries K) : LaurentSeries K where
-  coeff m := f.coeff ((ℓ : ℤ) * m)
-  isPWO_support' := by
-    have hsub : (Function.support fun m : ℤ => f.coeff ((ℓ : ℤ) * m)) ⊆
-        (fun k : ℤ => k / (ℓ : ℤ)) '' f.support := by
-      intro m hm
-      refine ⟨(ℓ : ℤ) * m, hm, ?_⟩
-      exact Int.mul_ediv_cancel_left m (Nat.cast_ne_zero.mpr hℓ.out.ne_zero)
-    exact (f.isPWO_support'.image_of_monotone fun a b hab =>
-      Int.ediv_le_ediv (Int.natCast_pos.mpr hℓ.out.pos) hab).mono hsub
-
-private theorem qContract_coeff {K : Type*} [Field K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
-    (f : LaurentSeries K) (m : ℤ) :
-    (qContract ℓ f).coeff m = f.coeff ((ℓ : ℤ) * m) := rfl
-
-private theorem qExpand_qContract {K : Type*} [Field K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
-    {f : LaurentSeries K}
-    (hf : ∀ m : ℤ, ¬ (ℓ : ℤ) ∣ m → f.coeff m = 0) :
-    qExpand K ℓ (qContract ℓ f) = f := by
-  ext k
-  by_cases hk : (ℓ : ℤ) ∣ k
-  · obtain ⟨m, rfl⟩ := hk
-    rw [qExpand_coeff_mul, qContract_coeff]
-  · rw [qExpand_coeff_of_not_dvd ℓ _ hk, hf k hk]
-
-private theorem mem_range_qExpand_of_qTwist_eq {K : Type*} [Field K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
-    (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ) (f : LaurentSeries K) (hf : qTwist ζ f = f) :
-    f ∈ Set.range (qExpand K ℓ) :=
-  ⟨qContract ℓ f, qExpand_qContract fun _ hm => coeff_eq_zero_of_qTwist_eq hζ hf hm⟩
-
-private theorem mem_range_coeffEmb_of_forall_coeffMap_eq {K : Type*} [Field K] [Algebra ℚ K]
-    (hfix : ∀ c : K, (∀ σ : K ≃ₐ[ℚ] K, σ c = c) → ∃ r : ℚ, algebraMap ℚ K r = c)
-    {f : LaurentSeries K} (hf : ∀ σ : K ≃ₐ[ℚ] K, coeffMap (σ : K →+* K) f = f) :
-    f ∈ Set.range (coeffEmb K) := by
-  have hcoeff : ∀ m : ℤ, ∃ r : ℚ, algebraMap ℚ K r = f.coeff m := fun m =>
-    hfix (f.coeff m) fun σ => by
-      have hcongr := congrArg (fun g => HahnSeries.coeff g m) (hf σ)
-      simpa using hcongr
-  choose r hr using hcoeff
-  refine ⟨⟨r, ?_⟩, ?_⟩
-  · refine f.isPWO_support'.mono fun m hm => ?_
-    simp only [Function.mem_support] at hm ⊢
-    intro h
-    exact hm (FaithfulSMul.algebraMap_injective ℚ K (by rw [hr m, h, map_zero]))
-  · ext m
-    exact hr m
 
 private theorem exists_galoisPerm {K : Type*} [Field K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
     {ζ : Kˣ} (hζ : IsPrimitiveRoot (ζ : K) ℓ) (σ : K →+* K) :
@@ -149,21 +82,6 @@ private theorem exists_galoisPerm {K : Type*} [Field K] {ℓ : ℕ} [hℓ : Fact
       rw [hkey b, hkey b', hbb']
     exact Fin.ext (hζ.pow_inj b.isLt b'.isLt (σ.injective h1))
   exact ⟨Equiv.ofBijective e₀ (Finite.injective_iff_bijective.mp hinj), hkey⟩
-
-private theorem mem_range_coeffEmb_qExpand_of_mem_inter {K : Type*} [Field K] [Algebra ℚ K]
-    {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
-    {f : LaurentSeries K} (h1 : f ∈ Set.range (qExpand K ℓ))
-    (h2 : f ∈ Set.range (coeffEmb K)) :
-    ∃ g : LaurentSeries ℚ, f = coeffEmb K (qExpand ℚ ℓ g) := by
-  obtain ⟨h, hh⟩ := h2
-  have hsupp : ∀ m : ℤ, ¬ (ℓ : ℤ) ∣ m → h.coeff m = 0 := by
-    intro m hm
-    obtain ⟨g, hg⟩ := h1
-    refine FaithfulSMul.algebraMap_injective ℚ K ?_
-    rw [map_zero, ← coeffEmb_coeff, hh, ← hg, qExpand_coeff_of_not_dvd ℓ g hm]
-  refine ⟨qContract ℓ h, ?_⟩
-  rw [qExpand_qContract hsupp]
-  exact hh.symm
 
 end CoreHelpers
 
@@ -348,7 +266,7 @@ theorem exists_interpK_coeff_eq (f g : LaurentSeries ℚ) (k : ℕ) :
     ∃ ξ : LaurentSeries ℚ, (interpK ℓ ζ f g).coeff k = coeffEmb K (qExpand ℚ ℓ ξ) := by
   refine mem_range_coeffEmb_qExpand_of_mem_inter ?_ ?_
   ·
-    refine mem_range_qExpand_of_qTwist_eq ℓ ζ hζ _ ?_
+    refine mem_range_qExpand_of_qTwist_eq ℓ ζ hζ ?_
     rw [← Polynomial.coeff_map, interpK, interpPoly_map]
     have h1 : (⇑(qTwist ζ) ∘ slotH ℓ ζ f g) = slotH ℓ ζ f g ∘ liftPerm ℓ (Equiv.addRight (1 : Fin ℓ)) :=
       funext fun i => qTwist_slotH ℓ ζ hζ f g i
@@ -356,8 +274,7 @@ theorem exists_interpK_coeff_eq (f g : LaurentSeries ℚ) (k : ℕ) :
       funext fun i => qTwist_conj ℓ ζ hζ i
     rw [h1, h2, interpPoly_perm]
   ·
-    refine mem_range_coeffEmb_of_forall_coeffMap_eq
-      (fun c hc => (IsGalois.mem_range_algebraMap_iff_fixed c).mpr hc) fun σ => ?_
+    refine mem_range_coeffEmb_of_forall_coeffMap_eq fun σ => ?_
     obtain ⟨e, he⟩ := exists_galoisPerm hζ (σ : K →+* K)
     rw [← Polynomial.coeff_map, interpK, interpPoly_map]
     have h1 : (⇑(coeffMap (σ : K →+* K)) ∘ slotH ℓ ζ f g) = slotH ℓ ζ f g ∘ liftPerm ℓ e :=
@@ -371,13 +288,12 @@ include hζ in
 theorem exists_conjK_coeff_eq (f g : LaurentSeries ℚ) (k : ℕ) :
     ∃ π : LaurentSeries ℚ, (conjK ℓ ζ f g).coeff k = coeffEmb K (qExpand ℚ ℓ π) := by
   refine mem_range_coeffEmb_qExpand_of_mem_inter ?_ ?_
-  · refine mem_range_qExpand_of_qTwist_eq ℓ ζ hζ _ ?_
+  · refine mem_range_qExpand_of_qTwist_eq ℓ ζ hζ ?_
     rw [← Polynomial.coeff_map, conjK, conjPoly_map]
     have h1 : (⇑(qTwist ζ) ∘ slotH ℓ ζ f g) = slotH ℓ ζ f g ∘ liftPerm ℓ (Equiv.addRight (1 : Fin ℓ)) :=
       funext fun i => qTwist_slotH ℓ ζ hζ f g i
     rw [h1, conjPoly_perm]
-  · refine mem_range_coeffEmb_of_forall_coeffMap_eq
-      (fun c hc => (IsGalois.mem_range_algebraMap_iff_fixed c).mpr hc) fun σ => ?_
+  · refine mem_range_coeffEmb_of_forall_coeffMap_eq fun σ => ?_
     obtain ⟨e, he⟩ := exists_galoisPerm hζ (σ : K →+* K)
     rw [← Polynomial.coeff_map, conjK, conjPoly_map]
     have h1 : (⇑(coeffMap (σ : K →+* K)) ∘ slotH ℓ ζ f g) = slotH ℓ ζ f g ∘ liftPerm ℓ e :=

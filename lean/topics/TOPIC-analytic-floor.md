@@ -61,8 +61,9 @@ Hecke translates of `jq`. Then the Hauptmodul form puts each coefficient in `ℚ
 level-one q-expansion principle is enough.
 
 The module's exported surface is `hasSum_coeff_of_phiGenDescends` and
-`mem_adjoin_jq_of_phiGenDescends`; the second is what theory A's `Existence` imports, and what the
-level tower will use for its field statements.
+`mem_adjoin_jq_of_phiGenDescends`; the second is what theory A's `Construction` imports to build
+`exists_modularPolynomialData_splits`, which `Existence` consumes, and what the level tower will use
+for its field statements.
 
 ## 5. Where this sits in the code
 

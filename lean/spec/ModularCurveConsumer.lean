@@ -451,6 +451,7 @@ bound.
 #check @ModularCurve.PhiGen.PhiGenDescends.sum_mul_jqN_pow_eq_zero
 #check @ModularCurve.PhiGen.evalAtJ_injective
 #check @ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq
+#check @ModularCurve.PhiGen.exists_modularPolynomialData_splits
 
 -- The 328 block in hypothesis form.
 example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]

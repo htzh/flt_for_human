@@ -17,18 +17,22 @@
 
 import Mathlib.Algebra.Polynomial.Roots
 import Mathlib.FieldTheory.Minpoly.Field
+import Mathlib.NumberTheory.Cyclotomic.Basic
 import Mathlib.NumberTheory.Cyclotomic.PrimitiveRoots
 import Mathlib.RingTheory.AdjoinRoot
 import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
+import FLTForHuman.ModularCurve.Defs.DedekindPsi
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Defs.KatzLevelPCusps
+import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.Defs.TS
+import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.ModularEquation.Construction
 import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.ModularEquation.Support.LevelEmbedding
@@ -140,7 +144,7 @@ section Transport
 
 variable {K₀ : Type*} [Field K₀] [Algebra ℚ K₀]
 
-private theorem coeffMap_conj (σ : K₀ →ₐ[ℚ] K) (p : ℕ) [Fact p.Prime] (ζ : K₀ˣ)
+private theorem coeffMap_conj_algHom (σ : K₀ →ₐ[ℚ] K) (p : ℕ) [Fact p.Prime] (ζ : K₀ˣ)
     (i : Fin (p + 1)) :
     coeffMap (σ : K₀ →+* K) (conj p ζ i) =
       conj p (Units.map (σ : K₀ →+* K).toMonoidHom ζ) i := by
@@ -153,7 +157,7 @@ private theorem map_coeffMap_phiProd (σ : K₀ →ₐ[ℚ] K) (p : ℕ) [Fact p
       phiProd p (conj p (Units.map (σ : K₀ →+* K).toMonoidHom ζ)) := by
   rw [phiProd, phiProd, Polynomial.map_prod]
   refine Finset.prod_congr rfl fun i _ => ?_
-  rw [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, coeffMap_conj]
+  rw [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, coeffMap_conj_algHom]
 
 end Transport
 
@@ -165,28 +169,16 @@ input by `eq_of_prime`. -/
 private theorem splits_of_prime_cyclotomicField (p : ℕ) [hp : Fact p.Prime]
     (data : ModularPolynomialData p) :
     data.Φ.map (evalAtJK (CyclotomicField p ℚ) p) = phiProd p (conj p (cycUnit p)) := by
-  have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
-  have hcyc : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
-    CyclotomicField.isCyclotomicExtension p ℚ
-  have : IsGalois ℚ (CyclotomicField p ℚ) :=
-    IsCyclotomicExtension.isGalois {p} ℚ (CyclotomicField p ℚ)
   have hζ := cycUnit_spec p
-  obtain ⟨c, hdescend⟩ := exists_phiGenDescends p (cycUnit p) hζ
-  have hIntCoeffs : ∀ k, IntCoeffs (c k) := fun k => hdescend.intCoeffs (cycUnit_pow p) k
-  have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
-    fun k => mem_adjoin_jq_of_phiGenDescends p (cycUnit p) hζ c hdescend k
-  obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hdescend hIntCoeffs hmem
+  obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_splits p (cycUnit p) hζ
   rw [ModularPolynomialData.eq_of_prime p data data₀]
-  refine Polynomial.ext fun k => ?_
-  rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hdata₀ k,
-    qEmbedT_eq_coeffEmb_qExpand, ← hdescend k]
+  exact hdata₀
 
 /-- The modular polynomial splits into its `p + 1` conjugates, stated with `evalAtJK K p`. -/
 theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fact (Nat.Prime p)]
     (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (data : ModularPolynomialData p) :
     data.Φ.map (evalAtJK K p) = phiProd p (conj p ζ) := by
 
-  have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
   have : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
     CyclotomicField.isCyclotomicExtension p ℚ
   have hζ₀ := cycUnit_spec p

@@ -60,21 +60,26 @@ Two theories, then, with the seam above: **A = the modular equation at a prime**
 | module | lines | role |
 |---|---|---|
 | `Support/LevelEmbedding` | 77 | the level-`l` nome embedding `Q((q)) -> K((q))`, its injectivity, `evalAtJK`, and `conj 1 = j(q)` |
+| `Support/Descent` | 139 | the range tests behind the descent: a twist-fixed series is a level-`l` expand (`mem_range_qExpand_of_qTwist_eq`), a Galois-fixed series is rational (`mem_range_coeffEmb_of_forall_coeffMap_eq`), and their intersection is the image of `coeffEmb ∘ qExpand` (`mem_range_coeffEmb_qExpand_of_mem_inter`); the private contraction `qContract` |
 | `Support/PoleBounds` | 250 | the product's pole bounds at the cusp: the leading `1` at `q ^ -(l*l + l)` and the vanishing at and below it |
 | `Support/Permutation` | 267 | three sections: *products under a permutation* (`map_prod_of_perm`: any finite family, any permutation of it, any coefficient endomorphism); *the twist's permutation* (`twistPerm`, its label formula and only fixed point, `qTwist_conj`, and its factorwise form); *the Galois permutation* (`galExp`, the value of the cyclotomic character, `galLabelPerm` — labels multiplied by it, `galPerm`, `coeffMap_conj`, and its factorwise form); also `Fin.succEquivOfEquiv` |
 | `Transpose` | 240 | subject: the transpose engine (`swapBivar` against mathlib's `Bivariate.swap`), the monic/degree bookkeeping, the pole-bound-to-degree dictionary, and the transposed evaluation |
-| `Construction` | 691 | subject: descent to `Q((q))`, the descended family's shape, integrality, and the assembly of the datum |
-| `Existence` | 819 | main result: distinct conjugates, `j(q ^ l)` not a polynomial in `j(q)`, the minimal polynomial, irreducibility, the two read-offs of the descent (private), and `exists_phiIrreducible_evalSymm` |
-| `Split` | 709 | main result and the seam: prime-level uniqueness and degree, the split over `Q` and over any field, the slot root API, the coefficient-degree bound, and the symmetry corollary |
+| `Construction` | 545 | subject: descent to `Q((q))`, the descended family's shape, integrality, the assembly of the datum, and the public constructor `exists_modularPolynomialData_splits` that consumes the whole chain |
+| `Existence` | 782 | main result: distinct conjugates, `j(q ^ l)` not a polynomial in `j(q)`, the minimal polynomial, irreducibility, the two read-offs of the descent (private), and `exists_phiIrreducible_evalSymm` |
+| `Split` | 697 | main result and the seam: prime-level uniqueness and degree, the split over `Q` and over any field, the slot root API, the coefficient-degree bound, and the symmetry corollary |
 | `LevelTwo` | 440 | main result: `Φ = Φ₂` |
 
-The layer discipline is visible in the imports: `Construction` and `Transpose` import only the two support
-modules and `Defs/*`, and neither imports the other, so the subject layer is flat. The main results sit
-above them. `LevelTwo`'s thirty-six computation helpers are `private`; its only public declaration is
+The layer discipline is visible in the imports: `Transpose` imports only the support modules and `Defs/*`;
+`Construction` additionally imports `Support/LevelEmbedding`, `Support/Descent`, `Support/Permutation`
+and the analytic j-line membership `ModularForms/PhiGenDescends`, which is the one cross-area input it
+consumes. Neither imports the other, so the subject layer stays flat. The main results sit above them.
+`LevelTwo`'s thirty-six computation helpers are `private`; its only public declaration is
 `phi_eq_phiTwo`.
 
-A second discipline is the public surface. The seam is exactly `Existence` + `Split` (plus `LevelTwo` for
-the fibre computation); no Laurent-series internals, no pole-bound lemmas, no descent machinery cross it.
+A second discipline is the public surface. `Existence` and `Split` consume one constructor,
+`exists_modularPolynomialData_splits`, which returns the datum together with its map to `phiProd`; they
+do not see the descended family `c`, the assembly, or the coefficient equality. The only other
+crossing is `evalAtJ_injective`.
 
 ## 4. Rebuilding without breaking: copy, don't import
 
@@ -178,16 +183,25 @@ The rest of the old problems are still there, in rough order of how much they co
 * `Support/PoleBounds` is 250 lines with twelve private helpers (`coeff_mul_lead`,
   `pow_sum_range_isPrimitiveRoot`, `prod_inv_pow_isPrimitiveRoot`, ...) for a statement about a product of
   linear factors at a cusp. The `q`-expansion content is clear; the formalisation is old-style.
-* `Construction` is a merge of five old modules. Its descent has had the delayer pass: the nine
-  private wrappers (`map_phiProd_of_perm`, `map_phiProd_coeff_of_perm`, `qTwist_conj_zero/succ`,
-  `zeta_pow_mod`, `coeff_eq_zero_of_qTwist_eq`, `exists_galoisPerm`, `coeffMap_conj_zero`,
-  `mem_range_coeffEmb_of_forall_coeffMap_eq`, `mem_range_coeffEmb_qExpand_of_mem_inter`) are gone, and
-  `exists_phiGenDescends` is one theorem whose main line is its three steps: the twist fixes the
-  product so a coefficient is supported on the multiples of `ell`; a Galois automorphism fixes it so
-  the coefficient is rational; the two together put it in the image of `coeffEmb ∘ qExpand`, and the
-  preimage is `c k`. What stays named is the contraction `qContract` (the only real object: the
-  inverse of `qExpand` on `ell`-divisible supports, with a support argument not worth inlining) and
-  `coeffEmb_qExpand_injective` (three consumers, the shape lemmas). The permutation work is split into
+* `Construction` is a merge of five old modules. The general range tests behind the descent live in
+  `Support/Descent`: `mem_range_qExpand_of_qTwist_eq` (a twist-fixed series is a level-`ell`
+  expand), `mem_range_coeffEmb_of_forall_coeffMap_eq` (a Galois-fixed series is rational), and
+  `mem_range_coeffEmb_qExpand_of_mem_inter` (their intersection). Rationality is the fixed-field
+  theorem `IsGalois.mem_range_algebraMap_iff_fixed`, applied coefficientwise in
+  `mem_range_coeffEmb_of_forall_coeffMap_eq`; the cyclotomic action is used only to prove
+  `gal_fixes`. `exists_phiGenDescends` is now a short application of the three range tests.
+  The public constructor consumed by `Existence` and `Split` is
+  `exists_modularPolynomialData_splits`: it consumes `exists_phiGenDescends`,
+  `PhiGenDescends.intCoeffs`, `mem_adjoin_jq_of_phiGenDescends` and
+  `exists_modularPolynomialData_coeff_eq`, and returns the datum together with its map to
+  `phiProd`. Its parameters are only `ell`, `zeta` and `hzeta`: the cyclotomic field's
+  `IsCyclotomicExtension` and `IsGalois` are established locally, and `FiniteDimensional` follows
+  from them. The generic `exists_phiGenDescends` and the range lemmas in `Support/Descent` keep
+  `[IsGalois]`/`[FiniteDimensional]` because they are stated over an arbitrary field `K`.
+  `Split.splits_of_prime` keeps one local `IsCyclotomicExtension`, because mathlib's
+  `IsPrimitiveRoot.embeddingsEquivPrimitiveRoots` takes that instance as a section variable.
+  The contraction `qContract` is private in `Support/Descent`;
+  `coeffEmb_qExpand_injective` stays with the shape lemmas. The permutation work is split into
   two levels: the generic fact (`Polynomial.map_prod_of_perm`: any finite family, any permutation, any
   coefficient endomorphism) and the exhibited pairs for the two symmetries (`twistPerm` with
   `qTwist_X_sub_C_conj`; `galPerm` with `coeffMap_X_sub_C_conj`, the latter through the value `galExp`
@@ -197,8 +211,8 @@ The rest of the old problems are still there, in rough order of how much they co
   the labels, order `ℓ`, and transitivity on the finite cusps (the arithmetic form of "`twistPerm` is
   one `ℓ`-cycle"); the iteration needs the `Fin ℓ`-level rotation lemma, which is the missing piece.
   The assembly (`exists_intPoly`, `exists_modularPolynomialData_coeff_eq`) still has its old helpers
-  and is the next delayer target; the two read-offs `splits_of_descends` / `coeff_poleBounds_of_splits`
-  are now private lemmas in `Existence`, immediately above the capstone.
+  and is the next delayer target; `splits_of_descends` is private in `Construction`, while
+  `coeff_poleBounds_of_splits` is private in `Existence`.
 * `Transpose` still bridges to mathlib's bivariate API through one private `swapBivar_eq_swap` because
   `swapBivar` is the port's own ring hom. Using mathlib's `Bivariate.swap` directly would delete the
   bridge and the bookkeeping that goes with it.

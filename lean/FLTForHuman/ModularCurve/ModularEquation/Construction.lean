@@ -10,23 +10,30 @@
     `Gal(K/ℚ)` (which permutes the conjugates), so it lies in the image of the level embedding.
   * `PhiGenDescends.intCoeffs` — `c k` has integer `q`-coefficients: the product's coefficients lie
     in `ℤ[ζ]`, hence so do the descended ones, and a rational algebraic integer is an integer.
-  * `exists_modularPolynomialData_coeff_eq` — the descended family assembles: integer polynomials
-    `Q k` with `evalAtJ (Q k) = c k` and `Q (ℓ + 1) = 1` give the datum `Φ = ∑ Q k · X ^ k`, monic
-    of degree `ℓ + 1`, vanishing at `(j(q), j(q ^ ℓ))`.
+  * `exists_modularPolynomialData_splits` — the descended family assembles into a monic degree-`ℓ + 1`
+    datum whose `X`-slot evaluation is the conjugate product. The coefficient equality is the
+    intermediate `exists_modularPolynomialData_coeff_eq`; the capstone consumes it and the splitting
+    step, so callers see only the datum and its map to `phiProd`.
 
-  The module stops at the datum: the two read-offs that turn the descended family into the datum's
-  splitting and into the transpose's pole bounds are not generic in `c` or `Φ`, so they live with
-  their only consumer (`Existence`).
+  The pole-bound read-off that needs the splitting lives with its consumer (`Existence`).
 -/
 
 import Mathlib.Algebra.Polynomial.Lifts
 import Mathlib.FieldTheory.Galois.Basic
+import Mathlib.NumberTheory.Cyclotomic.Basic
 import Mathlib.RingTheory.Adjoin.Polynomial.Basic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
+import FLTForHuman.ModularCurve.Defs.DedekindPsi
+import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.PhiGen
+import FLTForHuman.ModularCurve.Defs.Twist
+import FLTForHuman.ModularCurve.ModularEquation.Support.Descent
+import FLTForHuman.ModularCurve.ModularEquation.Support.LevelEmbedding
 import FLTForHuman.ModularCurve.ModularEquation.Support.Permutation
+import FLTForHuman.ModularForms.PhiGenDescends
 
 set_option autoImplicit false
 
@@ -37,126 +44,35 @@ open Polynomial HahnSeries
 namespace ModularCurve
 namespace PhiGen
 
-/-! ## The contraction of a level-`ℓ` support
-
-`qContract ℓ f` is the series `m ↦ f.coeff (ℓ * m)`. It is the inverse of `qExpand ℚ ℓ` on series
-whose support avoids the exponents not divisible by `ℓ`, which is exactly what the twist produces.
--/
-
-section Contract
-
-variable {K : Type*} [Field K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
-
-private def qContract (f : LaurentSeries K) : LaurentSeries K where
-  coeff m := f.coeff ((ℓ : ℤ) * m)
-  isPWO_support' := by
-    have hsub : (Function.support fun m : ℤ => f.coeff ((ℓ : ℤ) * m)) ⊆
-        (fun k : ℤ => k / (ℓ : ℤ)) '' f.support := by
-      intro m hm
-      refine ⟨(ℓ : ℤ) * m, hm, ?_⟩
-      exact Int.mul_ediv_cancel_left m (Nat.cast_ne_zero.mpr hℓ.out.ne_zero)
-    exact (f.isPWO_support'.image_of_monotone fun a b hab =>
-      Int.ediv_le_ediv (Int.natCast_pos.mpr hℓ.out.pos) hab).mono hsub
-
-private theorem qContract_coeff (f : LaurentSeries K) (m : ℤ) :
-    (qContract ℓ f).coeff m = f.coeff ((ℓ : ℤ) * m) := rfl
-
-variable {ℓ}
-
-private theorem qExpand_qContract {f : LaurentSeries K}
-    (hf : ∀ m : ℤ, ¬ (ℓ : ℤ) ∣ m → f.coeff m = 0) :
-    qExpand K ℓ (qContract ℓ f) = f := by
-  ext k
-  by_cases hk : (ℓ : ℤ) ∣ k
-  · obtain ⟨m, rfl⟩ := hk
-    rw [qExpand_coeff_mul, qContract_coeff]
-  · rw [qExpand_coeff_of_not_dvd ℓ _ hk, hf k hk]
-
-end Contract
-
 section Descent
 
 variable {K : Type*} [Field K] [Algebra ℚ K]
 
 /-- **The coefficients of `phiProd ℓ (conj ℓ ζ)` descend to `ℚ((q))`.**
 
-One coefficient at a time. The tame twist `qTwist ζ` fixes the infinite conjugate and cycles the
-finite ones, so it permutes the conjugate family and fixes the product: a coefficient of the product
-is therefore supported on the multiples of `ℓ`. A Galois automorphism fixes `coeffEmb K jq`, hence
-also the infinite conjugate, and permutes the finite ones through its action `ζ ↦ ζ ^ a`, so it too
-fixes the product: every `q`-coefficient of every `F_k` is fixed by `Gal(K/ℚ)`, hence rational. Both
-together put each `F_k` in the image of `coeffEmb K ∘ qExpand ℚ ℓ`, and `c k` is the preimage. -/
+Each coefficient is both a level-`ℓ` expansion and rational, and those two ranges intersect in the
+image of `coeffEmb K ∘ qExpand ℚ ℓ`. -/
 theorem exists_phiGenDescends {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
     [IsGalois ℚ K] [FiniteDimensional ℚ K] (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
     ∃ c : ℕ → LaurentSeries ℚ, PhiGenDescends ℓ ζ c := by
-  -- The twist is the permutation `twistPerm` of the conjugates, and a product does not see a
-  -- permutation of its factors.
   have twist_fixes : ∀ k, qTwist ζ ((phiProd ℓ (conj ℓ ζ)).coeff k)
       = (phiProd ℓ (conj ℓ ζ)).coeff k :=
     fun k => Polynomial.coeff_map_prod_of_perm (qTwist ζ)
       (fun i => Polynomial.X - Polynomial.C (conj ℓ ζ i)) (twistPerm ℓ)
       (qTwist_X_sub_C_conj ℓ hζ) k
-
-  -- A coefficient fixed by the twist is supported on the multiples of `ℓ`.
-  have hsupp : ∀ (k : ℕ) (m : ℤ),
-      ¬ (ℓ : ℤ) ∣ m → ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff m = 0 := by
-    intro k m hm
-    have htwist := congrArg (fun g => HahnSeries.coeff g m) (twist_fixes k)
-    simp only [qTwist_coeff] at htwist
-    by_contra hc
-    apply hm
-    rw [← hζ.zpow_eq_one_iff_dvd]
-    have hunit : ((ζ ^ m : Kˣ) : K) = (ζ : K) ^ m := Units.val_zpow_eq_zpow_val ζ m
-    have hzero : (((ζ ^ m : Kˣ) : K) - 1) * ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff m = 0 := by
-      rw [sub_mul, one_mul, htwist, sub_self]
-    rcases mul_eq_zero.mp hzero with h1 | h1
-    · rw [hunit] at h1
-      linear_combination h1
-    · exact absurd h1 hc
-
-  -- A Galois automorphism is the permutation `galPerm σ` of the conjugates, through its value of the
-  -- cyclotomic character; the product is unchanged by a permutation of its factors.
   have gal_fixes : ∀ (σ : K ≃ₐ[ℚ] K) (k : ℕ),
       coeffMap (σ : K →+* K) ((phiProd ℓ (conj ℓ ζ)).coeff k)
         = (phiProd ℓ (conj ℓ ζ)).coeff k :=
     fun σ k => Polynomial.coeff_map_prod_of_perm (coeffMap (σ : K →+* K))
       (fun i => Polynomial.X - Polynomial.C (conj ℓ ζ i)) (galPerm σ hζ)
       (coeffMap_X_sub_C_conj σ hζ) k
-
-
-  -- A product fixed by the whole Galois group has rational coefficients.
-  have rational : ∀ k, ∃ f : LaurentSeries ℚ,
-      (phiProd ℓ (conj ℓ ζ)).coeff k = coeffEmb K f := by
-    intro k
-    have hcoeff : ∀ m : ℤ, ∃ r : ℚ,
-        algebraMap ℚ K r = ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff m := by
-      intro m
-      exact (IsGalois.mem_range_algebraMap_iff_fixed _).mpr fun σ => by
-        have hcongr := congrArg (fun g => HahnSeries.coeff g m) (gal_fixes σ k)
-        simpa using hcongr
-    choose r hr using hcoeff
-    refine ⟨⟨r, ?_⟩, ?_⟩
-    · refine ((phiProd ℓ (conj ℓ ζ)).coeff k).isPWO_support'.mono fun m hm => ?_
-      simp only [Function.mem_support] at hm ⊢
-      intro h
-      exact hm (FaithfulSMul.algebraMap_injective ℚ K (by rw [hr m, h, map_zero]))
-    · ext m
-      rw [coeffEmb_coeff]
-      exact (hr m).symm
-
-  -- The support of the rational series is on the multiples of `ℓ`, so it contracts.
-  have descend : ∀ k, ∃ g : LaurentSeries ℚ,
-      (phiProd ℓ (conj ℓ ζ)).coeff k = coeffEmb K (qExpand ℚ ℓ g) := by
-    intro k
-    obtain ⟨f, hf⟩ := rational k
-    have hf_supp : ∀ m : ℤ, ¬ (ℓ : ℤ) ∣ m → f.coeff m = 0 := by
-      intro m hm
-      refine FaithfulSMul.algebraMap_injective ℚ K ?_
-      rw [map_zero, ← coeffEmb_coeff, ← hf, hsupp k m hm]
-    exact ⟨qContract ℓ f, by rw [qExpand_qContract hf_supp, hf]⟩
-
-  choose c hc using descend
+  have hmem : ∀ k : ℕ, ∃ g : LaurentSeries ℚ,
+      (phiProd ℓ (conj ℓ ζ)).coeff k = coeffEmb K (qExpand ℚ ℓ g) := fun k =>
+    mem_range_coeffEmb_qExpand_of_mem_inter
+      (mem_range_qExpand_of_qTwist_eq ℓ ζ hζ (twist_fixes k))
+      (mem_range_coeffEmb_of_forall_coeffMap_eq fun σ => gal_fixes σ k)
+  choose c hc using hmem
   exact ⟨c, hc⟩
 
 end Descent
@@ -597,6 +513,35 @@ theorem exists_modularPolynomialData_coeff_eq {K : Type*} [Field K] [Algebra ℚ
       rw [hΦcoeff k]
     rw [Finset.sum_congr rfl hterm]
     exact hc.sum_mul_jqN_pow_eq_zero
+
+/-- A descent is a splitting: a polynomial whose `X`-coefficients are the descended family's is
+annihilated by the conjugates of `j(q)`. -/
+private theorem splits_of_descends {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ}
+    [hℓ : Fact (Nat.Prime ℓ)] {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ}
+    (hdescend : PhiGenDescends ℓ ζ c) {Φ : Polynomial (Polynomial ℤ)}
+    (hΦ : ∀ k, evalAtJ (Φ.coeff k) = c k) :
+    Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ) := by
+  refine Polynomial.ext fun k => ?_
+  rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hΦ k,
+    qEmbedT_eq_coeffEmb_qExpand, ← hdescend k]
+
+/-- **The assembled datum splits into the conjugates of `phiProd`**: its `X`-slot evaluation is the
+product of the linear factors of the conjugate family. -/
+theorem exists_modularPolynomialData_splits (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
+    (ζ : (CyclotomicField ℓ ℚ)ˣ) (hζ : IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ) :
+    ∃ data : ModularPolynomialData ℓ,
+      data.Φ.map (evalAtJK (CyclotomicField ℓ ℚ) ℓ) = phiProd ℓ (conj ℓ ζ) := by
+  have : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
+    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
+  have : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
+    IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
+  obtain ⟨c, hc⟩ := exists_phiGenDescends ℓ ζ hζ
+  have hint : ∀ k, IntCoeffs (c k) :=
+    fun k => hc.intCoeffs (units_pow_eq_one_of_isPrimitiveRoot hζ) k
+  have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
+    fun k => mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hc k
+  obtain ⟨data, hcoeff⟩ := exists_modularPolynomialData_coeff_eq hc hint hmem
+  exact ⟨data, splits_of_descends hc hcoeff⟩
 
 end PhiGen
 end ModularCurve
