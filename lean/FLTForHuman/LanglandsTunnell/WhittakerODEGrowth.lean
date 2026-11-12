@@ -14,8 +14,19 @@
   (pinned `aa2d8b3`, 601 lines / 43 declarations) and its statement from the wrapper
   `Theorems/Thm_LanglandsTunnell_norm_le_mul_rpow_near_zero_of_whittaker_ode_of_forcing.lean`.
 
+  The Liouville transform of the equation — the exponential substitution `eA`/`eB`, the transformed
+  components `Gf`/`Hf`/`vp`/`vm`, the energy `Efun`, its rate `rate` and comparison function `Phi`, and the
+  general AM-GM inequality `rate_bound` — is what the pin copies into every file of this family, so it is
+  public here: the two unforced siblings
+  `P2M/Sol/S_LanglandsTunnell_norm_le_mul_rpow_half_sub_abs_re_near_zero_of_whittaker_ode.lean` and
+  `P2M/Sol/S_LanglandsTunnell_exists_rpow_bound_near_zero_of_whittaker_ode_of_abs_re_lt_half.lean` state it
+  identically, and their `spec-pin:` lines are carried below. The forcing (`Ff`, the forced `vp`/`vm`
+  derivative rows, `rate_bound_forced`, `sq_assemble`, `Phi_ge`) and the engine stay private.
+
   spec-pin: Theorems/Thm_LanglandsTunnell_norm_le_mul_rpow_near_zero_of_whittaker_ode_of_forcing.lean
   spec-pin: P2M/Sol/S_LanglandsTunnell_norm_le_mul_rpow_near_zero_of_whittaker_ode_of_forcing.lean
+  spec-pin: P2M/Sol/S_LanglandsTunnell_norm_le_mul_rpow_half_sub_abs_re_near_zero_of_whittaker_ode.lean
+  spec-pin: P2M/Sol/S_LanglandsTunnell_exists_rpow_bound_near_zero_of_whittaker_ode_of_abs_re_lt_half.lean
 -/
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.Calculus.Deriv.Basic
@@ -32,40 +43,40 @@ noncomputable section
 
 namespace LanglandsTunnell
 
-private noncomputable def eA (t : ℝ) : ℝ := Real.exp (-t)
-private noncomputable def eB (t : ℝ) : ℝ := Real.exp (t / 2)
+noncomputable def eA (t : ℝ) : ℝ := Real.exp (-t)
+noncomputable def eB (t : ℝ) : ℝ := Real.exp (t / 2)
 
-private lemma eA_pos (t : ℝ) : 0 < eA t := Real.exp_pos _
-private lemma eB_pos (t : ℝ) : 0 < eB t := Real.exp_pos _
-private lemma eA_le_one {t : ℝ} (ht : 0 ≤ t) : eA t ≤ 1 := by
+lemma eA_pos (t : ℝ) : 0 < eA t := Real.exp_pos _
+lemma eB_pos (t : ℝ) : 0 < eB t := Real.exp_pos _
+lemma eA_le_one {t : ℝ} (ht : 0 ≤ t) : eA t ≤ 1 := by
   unfold eA; exact Real.exp_le_one_iff.mpr (by linarith)
-private lemma eA_zero : eA 0 = 1 := by simp [eA]
-private lemma eB_sq (t : ℝ) : eB t ^ 2 = Real.exp t := by
+lemma eA_zero : eA 0 = 1 := by simp [eA]
+lemma eB_sq (t : ℝ) : eB t ^ 2 = Real.exp t := by
   unfold eB; rw [← Real.exp_nat_mul]; congr 1; ring
-private lemma eA_mul_eB_sq (t : ℝ) : eA t * eB t ^ 2 = 1 := by
+lemma eA_mul_eB_sq (t : ℝ) : eA t * eB t ^ 2 = 1 := by
   rw [eB_sq]; unfold eA; rw [← Real.exp_add]; simp
 
-private lemma eA_hasDerivAt (t : ℝ) : HasDerivAt eA (-(eA t)) t := by
+lemma eA_hasDerivAt (t : ℝ) : HasDerivAt eA (-(eA t)) t := by
   have h : HasDerivAt (fun x : ℝ => Real.exp (-x)) (Real.exp (-t) * (-1)) t := (hasDerivAt_neg t).exp
   unfold eA; simpa using h
-private lemma eB_hasDerivAt (t : ℝ) : HasDerivAt eB (eB t / 2) t := by
+lemma eB_hasDerivAt (t : ℝ) : HasDerivAt eB (eB t / 2) t := by
   have h : HasDerivAt (fun x : ℝ => Real.exp (x / 2)) (Real.exp (t / 2) * (1 / 2)) t := by
     have h0 : HasDerivAt (fun x : ℝ => x / 2) (1 / 2) t := by
       simpa using (hasDerivAt_id t).div_const (2 : ℝ)
     exact h0.exp
   unfold eB; convert h using 1; ring
 
-private noncomputable def Gf (f : ℝ → ℂ) (t : ℝ) : ℂ := (eB t : ℂ) * f (eA t)
+noncomputable def Gf (f : ℝ → ℂ) (t : ℝ) : ℂ := (eB t : ℂ) * f (eA t)
 
-private noncomputable def Hf (f : ℝ → ℂ) (t : ℝ) : ℂ := (eA t : ℂ) * (eB t : ℂ) * deriv f (eA t)
-private noncomputable def vp (l : ℂ) (f : ℝ → ℂ) (t : ℝ) : ℂ := (1 / 2 + l) * Gf f t - Hf f t
-private noncomputable def vm (l : ℂ) (f : ℝ → ℂ) (t : ℝ) : ℂ := (1 / 2 - l) * Gf f t - Hf f t
+noncomputable def Hf (f : ℝ → ℂ) (t : ℝ) : ℂ := (eA t : ℂ) * (eB t : ℂ) * deriv f (eA t)
+noncomputable def vp (l : ℂ) (f : ℝ → ℂ) (t : ℝ) : ℂ := (1 / 2 + l) * Gf f t - Hf f t
+noncomputable def vm (l : ℂ) (f : ℝ → ℂ) (t : ℝ) : ℂ := (1 / 2 - l) * Gf f t - Hf f t
 
 private noncomputable def Ff (h : ℝ → ℂ) (t : ℝ) : ℂ := (eB t : ℂ) * h (eA t)
-private noncomputable def sfun (ν l : ℂ) (k : ℝ) (t : ℝ) : ℂ :=
+noncomputable def sfun (ν l : ℂ) (k : ℝ) (t : ℝ) : ℂ :=
   ν ^ 2 - l ^ 2 + 4 * (π : ℂ) ^ 2 * ((eA t : ℝ) : ℂ) ^ 2 - 2 * (π : ℂ) * (k : ℂ) * ((eA t : ℝ) : ℂ)
 
-private lemma vp_sub_vm (l : ℂ) (f : ℝ → ℂ) (t : ℝ) : vp l f t - vm l f t = 2 * l * Gf f t := by
+lemma vp_sub_vm (l : ℂ) (f : ℝ → ℂ) (t : ℝ) : vp l f t - vm l f t = 2 * l * Gf f t := by
   unfold vp vm; ring
 
 section derivs
@@ -74,7 +85,7 @@ variable (f : ℝ → ℂ) (hf : DifferentiableOn ℝ f (Set.Ioi 0)) (hf' : Diff
 include hf hf'
 
 omit hf' in
-private lemma Gf_hasDerivAt (t : ℝ) :
+lemma Gf_hasDerivAt (t : ℝ) :
     HasDerivAt (Gf f) (((eB t / 2 : ℝ) : ℂ) * f (eA t) + (eB t : ℂ) * (((-(eA t) : ℝ) : ℂ) * deriv f (eA t))) t := by
   have hy : eA t ∈ Set.Ioi (0 : ℝ) := eA_pos t
   have h1 : HasDerivAt (fun x : ℝ => ((eB x : ℝ) : ℂ)) ((eB t / 2 : ℝ) : ℂ) t := (eB_hasDerivAt t).ofReal_comp
@@ -86,7 +97,7 @@ private lemma Gf_hasDerivAt (t : ℝ) :
   convert h3 using 1
 
 omit hf in
-private lemma Hf_hasDerivAt (t : ℝ) :
+lemma Hf_hasDerivAt (t : ℝ) :
     HasDerivAt (Hf f)
       ((((-(eA t) : ℝ) : ℂ) * (eB t : ℂ) + (eA t : ℂ) * ((eB t / 2 : ℝ) : ℂ)) * deriv f (eA t)
         + (eA t : ℂ) * (eB t : ℂ) * (((-(eA t) : ℝ) : ℂ) * deriv (deriv f) (eA t))) t := by
@@ -130,12 +141,12 @@ private lemma vm_hasDerivAt (l : ℂ) (t : ℝ) :
 
 end derivs
 
-private noncomputable def nsq (v : ℝ → ℂ) (t : ℝ) : ℝ := (v t).re * (v t).re + (v t).im * (v t).im
+noncomputable def nsq (v : ℝ → ℂ) (t : ℝ) : ℝ := (v t).re * (v t).re + (v t).im * (v t).im
 
-private lemma nsq_eq (v : ℝ → ℂ) (t : ℝ) : nsq v t = ‖v t‖ ^ 2 := by
+lemma nsq_eq (v : ℝ → ℂ) (t : ℝ) : nsq v t = ‖v t‖ ^ 2 := by
   unfold nsq; rw [← Complex.normSq_eq_norm_sq, Complex.normSq_apply]
 
-private lemma nsq_hasDerivAt {v : ℝ → ℂ} {v' : ℂ} {t : ℝ} (hv : HasDerivAt v v' t) :
+lemma nsq_hasDerivAt {v : ℝ → ℂ} {v' : ℂ} {t : ℝ} (hv : HasDerivAt v v' t) :
     HasDerivAt (nsq v) (2 * ((v t).re * v'.re + (v t).im * v'.im)) t := by
   have hre : HasDerivAt (fun x => (v x).re) v'.re t := by
     have := Complex.reCLM.hasFDerivAt.comp_hasDerivAt t hv
@@ -150,18 +161,18 @@ private lemma nsq_hasDerivAt {v : ℝ → ℂ} {v' : ℂ} {t : ℝ} (hv : HasDer
   convert h using 1
   ring
 
-private lemma cross_le (v w : ℂ) : v.re * w.re + v.im * w.im ≤ ‖v‖ * ‖w‖ := by
+lemma cross_le (v w : ℂ) : v.re * w.re + v.im * w.im ≤ ‖v‖ * ‖w‖ := by
   have h1 : v.re * w.re + v.im * w.im = ((starRingEnd ℂ) v * w).re := by
     simp [Complex.mul_re]
   have h2 : ((starRingEnd ℂ) v * w).re ≤ ‖(starRingEnd ℂ) v * w‖ := Complex.re_le_norm _
   rw [h1]; refine h2.trans (le_of_eq ?_); rw [norm_mul, Complex.norm_conj]
 
-private lemma cross_decomp (v c w : ℂ) :
+lemma cross_decomp (v c w : ℂ) :
     v.re * (c * v + w).re + v.im * (c * v + w).im
       = c.re * (v.re * v.re + v.im * v.im) + (v.re * w.re + v.im * w.im) := by
   simp only [Complex.add_re, Complex.add_im, Complex.mul_re, Complex.mul_im]; ring
 
-private lemma rate_bound (p q g S m lre Li cp cm : ℝ) (hp : 0 ≤ p) (hq : 0 ≤ q) (hg0 : 0 ≤ g) (hS : 0 ≤ S)
+lemma rate_bound (p q g S m lre Li cp cm : ℝ) (hp : 0 ≤ p) (hq : 0 ≤ q) (hg0 : 0 ≤ g) (hS : 0 ≤ S)
     (hSm : S ≤ m) (hLi : 0 ≤ Li) (hg : 2 * g ≤ Li * (p + q)) (hcp : cp ≤ p * (S * g)) (hcm : cm ≤ q * (S * g)) :
     2 * (lre * (p * p) + cp) + 2 * ((-lre) * (q * q) + cm) ≤ (2 * |lre| + 2 * Li * m) * (p * p + q * q) := by
   have hl1 : lre ≤ |lre| := le_abs_self lre
@@ -224,14 +235,14 @@ variable (hfeq : ∀ y : ℝ, 0 < y →
     (y : ℂ) ^ 2 * deriv (deriv f) y
       + (1 / 4 - ν ^ 2 + 2 * (π : ℂ) * (k : ℂ) * (y : ℂ) - 4 * (π : ℂ) ^ 2 * (y : ℂ) ^ 2) * f y = h y)
 
-private noncomputable def Efun (t : ℝ) : ℝ := nsq (vp l f) t + nsq (vm l f) t
+noncomputable def Efun (t : ℝ) : ℝ := nsq (vp l f) t + nsq (vm l f) t
 
-private lemma Efun_nonneg (t : ℝ) : 0 ≤ Efun l f t := by
+lemma Efun_nonneg (t : ℝ) : 0 ≤ Efun l f t := by
   unfold Efun; rw [nsq_eq, nsq_eq]; positivity
 
-private noncomputable def mfun (m₀ : ℝ) (t : ℝ) : ℝ := m₀ + 2 * π * |k| * eA t + 4 * π ^ 2 * (eA t * eA t)
+noncomputable def mfun (m₀ : ℝ) (t : ℝ) : ℝ := m₀ + 2 * π * |k| * eA t + 4 * π ^ 2 * (eA t * eA t)
 
-private lemma norm_sfun_le (m₀ : ℝ) (hm₀ : ‖ν ^ 2 - l ^ 2‖ ≤ m₀) (t : ℝ) : ‖sfun ν l k t‖ ≤ mfun k m₀ t := by
+lemma norm_sfun_le (m₀ : ℝ) (hm₀ : ‖ν ^ 2 - l ^ 2‖ ≤ m₀) (t : ℝ) : ‖sfun ν l k t‖ ≤ mfun k m₀ t := by
   unfold sfun mfun
   have hA : 0 ≤ eA t := (eA_pos t).le
   have hpi : ‖(π : ℂ)‖ = π := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos Real.pi_pos]
@@ -249,7 +260,7 @@ private lemma norm_sfun_le (m₀ : ℝ) (hm₀ : ‖ν ^ 2 - l ^ 2‖ ≤ m₀) 
     _ ≤ (m₀ + 4 * π ^ 2 * (eA t * eA t)) + 2 * π * |k| * eA t := by gcongr
     _ = m₀ + 2 * π * |k| * eA t + 4 * π ^ 2 * (eA t * eA t) := by ring
 
-private noncomputable def rate (m₀ : ℝ) (t : ℝ) : ℝ := 2 * |l.re| + 2 * ‖l‖⁻¹ * mfun k m₀ t
+noncomputable def rate (m₀ : ℝ) (t : ℝ) : ℝ := 2 * |l.re| + 2 * ‖l‖⁻¹ * mfun k m₀ t
 
 include hf hf' hfeq in
 private lemma Efun_hasDerivAt_le (hl : l ≠ 0) (m₀ : ℝ) (hm₀ : ‖ν ^ 2 - l ^ 2‖ ≤ m₀) (η : ℝ) (hη : 0 < η) (t : ℝ) :
@@ -302,10 +313,10 @@ private lemma Efun_hasDerivAt_le (hl : l ≠ 0) (m₀ : ℝ) (hm₀ : ‖ν ^ 2 
   rw [hdp, hdm, hnp, hnm]
   linarith [hmain]
 
-private noncomputable def Phi (m₀ : ℝ) (t : ℝ) : ℝ :=
+noncomputable def Phi (m₀ : ℝ) (t : ℝ) : ℝ :=
   2 * |l.re| * t + 2 * ‖l‖⁻¹ * (m₀ * t + 2 * π * |k| * (1 - eA t) + 4 * π ^ 2 / 2 * (1 - eA t * eA t))
 
-private lemma Phi_hasDerivAt (m₀ : ℝ) (t : ℝ) : HasDerivAt (Phi l k m₀) (rate l k m₀ t) t := by
+lemma Phi_hasDerivAt (m₀ : ℝ) (t : ℝ) : HasDerivAt (Phi l k m₀) (rate l k m₀ t) t := by
   have hA := eA_hasDerivAt t
   have h1 : HasDerivAt (fun x : ℝ => 1 - eA x) (-(-(eA t))) t := hA.const_sub 1
   have h2 : HasDerivAt (fun x : ℝ => 1 - eA x * eA x) (-((-(eA t)) * eA t + eA t * (-(eA t)))) t :=
@@ -317,10 +328,10 @@ private lemma Phi_hasDerivAt (m₀ : ℝ) (t : ℝ) : HasDerivAt (Phi l k m₀) 
   convert h using 1
   ring
 
-private lemma Phi_zero (m₀ : ℝ) : Phi l k m₀ 0 = 0 := by
+lemma Phi_zero (m₀ : ℝ) : Phi l k m₀ 0 = 0 := by
   unfold Phi; rw [eA_zero]; ring
 
-private lemma Phi_le (m₀ : ℝ) {t : ℝ} (ht : 0 ≤ t) :
+lemma Phi_le (m₀ : ℝ) {t : ℝ} (ht : 0 ≤ t) :
     Phi l k m₀ t ≤ (2 * |l.re| + 2 * ‖l‖⁻¹ * m₀) * t + 2 * ‖l‖⁻¹ * (2 * π * |k| + 4 * π ^ 2 / 2) := by
   unfold Phi
   have hA0 : 0 ≤ eA t := (eA_pos t).le

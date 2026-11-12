@@ -3484,3 +3484,147 @@ round promotes what generalizes.
   two carried declarations are recorded `own:` this time, but a larger one is a definition-layer set.
 - **seen**: 2026-11-08, SET-AF38 (the degeneracy lift); the same class as the `idelicHaar` deferral of
   SET-AF39 §1, where the missing module *was* vocabulary.
+
+## FR-0162 [tooling] — `dedup.py --within` is a *boolean flag*, not a pattern selector; the recorded invocation form fails
+
+- **where**: gate 5 of the two orders of SET-AF41 (`dedup`/`move_dead` on the new modules).
+- **symptom**: `python3 dedup.py --within ../FLTForHuman/LanglandsTunnell/WhittakerODENearZero.lean`
+  answers `no module matches ['../FLTForHuman/…']`, and the "corrected" form the manager sent next,
+  `--within LanglandsTunnell.WhittakerODENearZero`, fails the same way. Both orders lost a tool call to it.
+- **cause**: `--within` and `--cross` are mutually exclusive **flags** selecting the comparison scope
+  (inside one module / across modules); the module selection is `--module PATTERN` (repeatable) or a
+  positional pattern. The briefs of earlier waves wrote `dedup.py --within <module>`, which reads as if
+  `--within` took the module.
+- **fix / rule**: the working forms are
+  `python3 dedup.py --within --module <ModuleName> [--min-cost N]` and
+  `python3 dedup.py --cross --module A --module B`. `move_dead.py` is different and does take a file
+  path (`--source <path>`, relative to `tools/deps` unless absolute), and its leading number is the count
+  of *dead* declarations, so `0 declarations, 0 lines` is the clean answer rather than a parse failure.
+- **seen**: 2026-11-12, SET-AF41 (both orders; the AF41A agent found it, the manager had mis-corrected it
+  once).
+
+## FR-0163 [mathlib] — v4.34 fires `linter.unnecessarySeqFocus`/`unusedTactic` on the pin's `convert … <;> try … rfl` idiom
+
+- **where**: four sites of the Bessel file, SET-AF41B: `odeC`'s `hGd` (pin `:46`), `gapC`'s `hGd`
+  (pin `:158`) and `hBd` (pin `:195`), `twoTermAp`'s `hud` (pin `:274`), all of the shape
+  `convert h using 1 <;> try with_reducible_and_instances rfl` followed by `all_goals try rfl`.
+- **symptom**: the transcription compiles but gate 1 (zero warnings) fails with `unnecessarySeqFocus` /
+  `unusedTactic` on tactics that were silent at the pin's toolchain.
+- **cause**: the pin's idiom deliberately runs a *focusing* combinator over zero-or-more goals, which the
+  newer linters read as an unused sequence point; and its `convert` orientation leaves the goal's
+  orientation opposite to what `HasDerivAt.congr_deriv` produces.
+- **fix / rule**: write the intent directly — `refine h.congr_deriv ?_` then the coefficient identity
+  (`simp only`/`linear_combination`/`ring`) — and check the **sign** of the coefficient, because the
+  `congr_deriv` orientation is the reverse of the pin's `convert` one (measured twice here). Never
+  silence the linter: the four rewrites were statement-preserving and cost one line each.
+- **seen**: 2026-11-12, SET-AF41B.
+
+## FR-0164 [checker] — a pin hypothesis the pin never uses: `linter.unusedVariables` vs statement fidelity
+
+- **where**: the Bessel headline `norm_le_mul_rpow_near_zero_of_bessel_ode_of_forcing_of_apriori`
+  (pin wrapper `:11`), which carries `(hν : 0 ≤ ν.re)` and never uses it; SET-AF41B.
+- **symptom**: the port's proof is complete and silent except for one `linter.unusedVariables` warning on
+  `hν`; both bounds hold with no sign condition on `Re ν`.
+- **cause**: a redundant hypothesis in the pin's statement. The two obvious cures are both forbidden here:
+  renaming the binder to `_hν` is a **statement** change (the checker compares binder text — AF36's
+  recorded `_hν` rejection), and `set_option linter.unusedVariables false` silences a linter.
+- **fix / rule**: keep the hypothesis and *reference* it once — `have hν₀ : 0 ≤ ν.re := hν` immediately
+  after the proof's first `set` — so the linter sees a use and no mathematics changes. Record it in the
+  set's brief as a deviation with the reason, and never as a `set_option`.
+- **seen**: 2026-11-12, SET-AF41B.
+
+## FR-0165 [tooling] — a `shape` cluster whose statements are *identical* is a merge, not a keep
+
+- **where**: `dedup.py --within --module ODENearZeroBounds` on the landed SET-AF41B module.
+- **symptom**: the worker reported `1 duplicate cluster, 106 lines removable` between
+  `OdeCAux.main` (euler pin file `:19`) and `Gap41.odeC` (bessel pin file `:16`) as `tier shape`, and
+  kept it with the reason "different namespaces, non-interchangeable statements". Normalising the two
+  statements modulo their names shows they are **the same theorem**, binder for binder and conclusion for
+  conclusion: the pin wrote its first-order argument `y f' = b f + h` twice, in two files.
+- **cause**: the `shape` tier is evidence, not a verdict, and "different namespaces" is never a
+  mathematical difference. The keep/merge decision is the manager's (`instructions.md`: `dedup` after the
+  order) and it turns on the **statement** comparison, which `dedup` does not make for you.
+- **fix / rule**: for every `shape` cluster, normalise the two statements and compare before accepting a
+  keep. Identical → prove once and keep the pin's second name as a one-line application; the module keeps
+  its checked surface (10 → 10 `ok` here) and the duplicated body disappears (106 → 8 removable lines,
+  the residual being the pin's own duplicated *statement*, which the port keeps on purpose). Different →
+  the keep stands and the reason goes in the brief.
+- **seen**: 2026-11-12, SET-AF41B (the manager merged it; the module went 795 → 694 lines).
+
+## FR-0166 [tooling] — a scaffold carries the *statement's* import closure, not the proof's
+
+- **where**: the four scaffolds of the AF42/AF43 wave, generated programmatically from the pin's `S_` files
+  (statements + `sorry` bodies), then handed to three workers.
+- **symptom**: two of the three workers hit a proof that needed a theorem sitting in a port module the
+  scaffold did not import — four times in all: `CongruenceSubgroup.Gamma_div_le_gamma1_inf_Gamma_sup_zpowers`
+  (`NumberTheory/ModularForms/CongruenceSubgroupLattice`), `CuspForm.IsEigenformWith.heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul`
+  (`ModularForms/Level/DegeneracyString`), `EisensteinSeries.sum_eisensteinG_vecCons_eq_mul_tsum_divisorSum_mul_cexp_pow`
+  (`ModularForms/Eisenstein/ResidueSumQExpansion`) and `CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast`
+  + `ModularForm.finiteDimensional_of_isArithmetic` (`ModularForms/WeightOne/Gamma1IntegralBasis`). Each was
+  a report and a manager ruling, not a silent import.
+- **cause**: the scaffolder maps the pin's `Definitions/Def_*` imports to port homes and checks the
+  statements against them, and `check_port` verifies **statements** only — so a module can read
+  `55 ok / 0 mismatch / 0 missing` while lacking every premise its 54 bodies need. The pin's `Theorems/`
+  imports are the *proof's* premise list, and they are invisible to the statement gate (the same split as
+  FR-0049's and FR-0161's, seen from the scaffolder's side instead of the shelf's).
+- **fix / rule**: when generating a scaffold from a pin file, also emit the mapping from its
+  `Theorems/Thm_*` imports to their port homes, and put those imports in the header before handing the
+  module out (if the mapping is not immediate, state in the order which premises are still unresolved).
+  The recipe's §4 import-direction rule is about the *proofs*; a statement-clean scaffold is not yet an
+  import-clean one. The workers' four reports cost one ruling each and no rework, because the rule they
+  followed — report, do not silently add — is what kept the header honest.
+- **seen**: 2026-11-12, AF43A (2 imports), AF43BC (2 imports). AF42 needed none: its four pin files cite
+  exactly the five `S_` files the previous set landed, which the scaffold had already imported.
+
+## FR-0167 [process] — a premise whose port home sits above the home: import the closure, or re-prove privately?
+
+- **where**: `CuspForm.StableU`, needed by `CuspForm.heckeULinH_comm` (AF43BC order B). Its port is
+  `CuspForm.stableU` in `ModularCurve/Period/HeckeStability.lean:94`, whose own premise
+  (`ModularForm.heckeU_slash_eq_self_of_mem_GammaH`) is a further ModularForms module, and whose 16-module
+  closure imports `EichlerShimura/PeriodOf`.
+- **symptom**: a one-hypothesis need, satisfiable three ways — import a `ModularCurve` module into a
+  `ModularForms` module; re-prove `StableU` in-module; or duplicate the ported proof.
+- **cause**: the port's directory layering (`ModularForms` below `ModularCurve`) is not the import graph;
+  the recipe's rule is that the *home* must be able to import its premises, which a `ModularForms` module
+  can do for a `ModularCurve` premise without a cycle (nothing imports the new module). The real cost is
+  the closure, not the direction.
+- **fix / rule**: decide on **measured closure size**, and record the side taken with three facts (the pin
+  line of the use, the port declaration that would have been imported, and the line count of the
+  alternative). Concretely, this wave's rule: *import* when the module is the port home of a consumed pin
+  premise and its closure is in the same weight class as the module's own (here 3 and 53 modules against
+  existing 52–56); *re-prove privately* when the closure drags an analytic layer for one hypothesis and
+  the re-proof is about one screen from in-closure facts. AF43BC took the second route: a **62-line
+  `have`** inlined inside the consumer, so no declaration and no checker surface change.
+- **seen**: 2026-11-12, AF43BC order B; the same test ruled the four imports of FR-0166 in.
+
+## FR-0168 [tooling] — measure heartbeat headroom by *lowering* the gate, not by asserting it
+
+- **where**: the heartbeat gate ("the module fits the default 200,000; the pin's override is not carried"),
+  applied to `NebentypusSeparation.lean` (AF43A), whose pin file asked for `maxHeartbeats 3200000`.
+- **symptom**: "it fits 200,000" is satisfied by a module whose worst proof needs 190,000, and that fact is
+  invisible in a green gate — the next edit to that proof then breaks the build for a reason nobody sees
+  coming.
+- **cause**: the gate measures a *pass*, not a margin.
+- **fix / rule**: run the same elaboration with `-DmaxHeartbeats=40000`, `20000`, `10000`, `5000`, `1000`
+  and record the first value at which a declaration fails; the margin is then a number. Measured on
+  AF43A: silent at 40,000 / 20,000 / 10,000, three declarations failing at 5,000 (`slashV_E`, `induct`,
+  `main`) and 101 at 1,000 (the sanity check that the option bites) — so the worst proof is in [5k, 10k],
+  a 20×–40× margin, and the pin's 3,200,000 override is genuinely unnecessary rather than merely dropped.
+- **seen**: 2026-11-12, AF43A. The same wave's other two modules were silent at the gate with no override
+  to remove.
+
+## FR-0169 [mathlib] — a v4.34 `whnf` divergence: the pin's `Summable.mul_left` one-liner does not elaborate at any budget
+
+- **where**: `DiamondDivisorSum`'s `FracLemma` summability step (AF43BC order C), the pin's
+  `(summable_pow_mul_geometric_of_norm_lt_one 4 (by rwa [norm_norm])).mul_left 2`.
+- **symptom**: a deterministic timeout in elaboration — reproduced **at 2,000,000 heartbeats**, so it is
+  not a budget problem — while the pin's toolchain accepted the same text.
+- **cause**: with the bound's ring still undetermined, v4.34's `whnf` diverges on the `.mul_left`
+  projection before typeclass search has fixed the codomain; the pin's toolchain resolved the same term
+  eagerly.
+- **fix / rule**: fix the ring explicitly by *naming the intermediate summable function* —
+  `have h0 : Summable (fun m : ℕ => (m : ℝ) ^ 4 * ‖exp‖ ^ m) := summable_pow_mul_geometric_of_norm_lt_one 4 (by …)`
+  then `h0.mul_left 2` — and expand the following `gcongr` into a `calc`. Same mathematics, same constants;
+  a timeout that survives a 10× heartbeat raise is an elaboration divergence and must be reported as one,
+  not silenced by an override (which is what the wave's heartbeat gate forbids anyway).
+- **seen**: 2026-11-12, AF43BC order C.

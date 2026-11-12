@@ -868,6 +868,73 @@ scaffolded checker-green and is order AF40B; before this layer it could not even
 concrete answer to "run `--with-defs` once per set" (FR-0161: that gate closes over statement vocabulary,
 not over the pin's `Definitions/` import chain).
 
+The forty-first **is landed** (2026-11-12): [automorphicForm/SET-AF41.md](automorphicForm/SET-AF41.md),
+the **near-zero growth bound at the cusp** — the unforced Whittaker pair
+(`norm_le_mul_rpow_half_sub_abs_re_near_zero_of_whittaker_ode` 443 and its `|Re ν| < 1/2` sibling 427,
+the second *derived* in 11 lines because the first's `ε`-form already gives it) together with the three
+elementary ODE bounds the torus-system estimates rest on (Bessel 420, first-order system 240, first-order
+Euler 128). **5 premise-free leaves / 1,658 silo in 828 written lines**, 988 module lines over two new
+modules; no definition gate (the five pin files import mathlib only), no legacy module, no migration.
+Its manager's layer is the column's cleanest promotion measurement yet: `port_advise` reported 24 names
+byte-identical to `private` declarations of AF36's forced development, and promoting those 33 declarations
+(the 24 plus the nine `def`s their statements mention) took `WhittakerODEGrowth.lean` from **1 ok to
+34 ok / 0 mismatch / 0 missing** with two widened wires and a silent 19 s build — after which order 41A's
+six transcribed bodies compiled **first try** with zero re-statements, so the 327-line prelude the pin
+copies into both files was *imported*. The set's second saving is its own dedup: the pin states its
+first-order argument twice (`OdeCAux.main` ≡ `Gap41.odeC`, identical statements), so the port proves it
+once and keeps the pin's second name as one application — 106 → 8 removable lines, checked surface
+unchanged at 10 `ok` (FR-0165). Three v4.34 frictions came out of it and are recorded: the
+`convert … <;> try … rfl` idiom now warns (`unnecessarySeqFocus`/`unusedTactic`, FR-0163), a pin
+hypothesis the pin never uses cannot be renamed or suppressed (FR-0164), and `dedup.py --within` is a
+flag, not a pattern (FR-0162). The re-read is **exact on all seven cells**: `needed`
+**742 / 309,646 → 737 / 307,988**, literal 758 / 315,065 → 753 / 313,407, frontier 1,669 / 814,882 →
+1,674 / 816,540, ready 50 / 9,171 → **53 / 10,555**, leaves 200 / 50,557 → **195 / 48,899**,
+`AutomorphicForm` demand unchanged 260 / 113,790, `LanglandsTunnell` 33 / 13,790 → **28 / 12,132** — and
+the return is exactly the three rows the brief named before dispatch (508 + 499 + 377): the
+**torus-system block** is AF42, with `casimir_pos_or_discrete_or_zero_of_weightSet` (139) as its
+`CuspidalConstituent` edge.
+
+The forty-second **is landed** (2026-11-12): [automorphicForm/SET-AF42.md](automorphicForm/SET-AF42.md),
+the **Casimir trichotomy and the growth of the torus-system solutions** — the four rows the previous set's
+return column named: the trichotomy (`λ > 0`, `λ = k(k−2)/4` discrete, `λ = 0`, from a non-empty `±2`-closed
+weight set) and the three growth regimes of an `n`-step `SU(2)`-string solving the `GL₂(ℂ)` Whittaker
+system. **4 rows / 1,523 silo in 1,179 written proof lines** over a 421-line scaffold, landing as
+`LanglandsTunnell/TorusSystemGrowth.lean` (**1,561 lines, 54 ok / 0 / 0**, all four headlines axiom-clean,
+4.1 s–21 s silent builds). Its price is the column's extreme: **1.03 module lines per silo line**, because
+it is a pure transcription with nothing already in the port — and its *composition* is the other
+measurement: the four pin files cite exactly the five `S_` files SET-AF41 landed, and the proof of
+`AlphaAux.main` is the pin's own route through them (`sysN` ← the diagonal-system bound,
+`norm_block_le` → `norm_Bn_le` → `hB`, `f_eq` reassembling the string) with the exponent `1 − ε` intact.
+Return: **zero**, as pre-dispatch measurement said; the three torus rows' consumers each owe two or more
+premises, so the set is a chain head and the brief says so. The re-read was exact on all six cells:
+`needed` **737 / 307,988 → 733 / 306,465**, ready 53 / 10,555 → 50 / 9,171, leaves 195 → 194 / 48,760,
+`LanglandsTunnell` demand 28 / 12,132 → 24 / 10,609.
+
+The forty-third **is landed** (2026-11-12): [automorphicForm/SET-AF43.md](automorphicForm/SET-AF43.md),
+the **`Γ₁` level-lowering separation, the cusp-space structure and the diamond divisor sums** — the first
+cut in the `ModularForms` (`Γ₁`) layer since SET-AF38, and the shelf's best return. **7 rows / 1,203 silo
+in 1,057 written proof lines** over three scaffolds of 261 lines: `ModularForms/NebentypusSeparation.lean`
+(**815 lines, 55 ok**, the split of a `Γ₁(N)`-invariant divisor sum into the levels `Γ₁(N/p)` and the
+multiplicity-one independence of degeneracy lifts), `ModularForms/Gamma1CuspStructure.lean` (**250, 12 ok**,
+commuting `U_ℓ`, the primitive-form vanishing criterion, an integral basis, finite dimension) and
+`ModularForms/CohCarrier/DiamondDivisorSum.lean` (**260, 1 ok**, the weight-four Eisenstein witness for the
+diamond action). Return **as measured**: `ModularCurve.IsDiamondPullbackModL.apply_eq_one_iff_gamma0Units_mem`
+(485) and `CuspForm.IsEigenformWith.fg_adjoin_qCoeff` (291) readied, 776 silo of new work for 415 silo of
+the set. Three method findings came out of the wave and are recorded: the **scaffolder's blind spot**
+(FR-0166 — a scaffold carries the *statement's* import closure, not the proof's: four project imports were
+added by ruling after the checker had already certified the scaffolds at 55 ok); the **heavy-closure
+re-proof trade** (FR-0167 — `CuspForm.StableU` re-proved as a 62-line `have` rather than importing
+`ModularCurve/Period/HeckeStability`'s `EichlerShimura`-bearing closure, with the cost recorded); the
+**heartbeat-headroom instrument** (FR-0168 — probe by *lowering* the gate: the worst proof of the pin's
+3,200,000-heartbeat file sits in [5k, 10k], a 20×–40× margin); and one genuine v4.34 elaborator divergence
+that no budget fixes (FR-0169, the pin's `Summable.mul_left` one-liner). The wave's re-read: `needed`
+**737 / 307,988 → 726 / 305,262** (−11 nodes / −2,726 lines, both sets' silo to the line), ready
+53 / 10,555 → **45 / 8,744**, leaves 195 → **194 / 48,760** — exact except one bookkeeping cell (the
+seventh row is `ModularForm`-namespaced and was subtracted from `CuspForm`, so `CuspForm` reads
+34 / 11,498 against a forecast 33 / 11,261). Named next by measurement: the 868-line
+`CuspForm.exists_qCoeff_eq_sum_primeFactors_of_forall_coprime_qCoeff_eq_zero`, one premise away from this
+set's A1.
+
 
 ## 6. Verification and wiring
 
@@ -930,8 +997,25 @@ notation `Δ` collides with mathlib's scoped `Δ` for the Laplacian once the ana
 in scope, so `AdelicHaar/MulRightInvariant` spells the character out; and
 `Units.isClosedEmbedding_embedProduct.isCompact_preimage` is now spelled
 `Topology.IsClosedEmbedding.isCompact_preimage Units.isClosedEmbedding_embedProduct`. Files that
-keep a pin `letI`/`haveI` wall or literal (unused) section variables carry a one-line
-`set_option linter.… false` with the reason.
+keep a pin `letI`/`haveI` wall or literal (unused) section variables carried a one-line
+`set_option linter.… false` with the reason — **no longer allowed**: the later sets write
+`have hν₀ : 0 ≤ ν.re := hν`, one line naming the pin's hypothesis (SET-AF41's Bessel headline, FR-0164). Two further v4.34
+adaptations came in with SET-AF41 and cost one line each: the pin's
+`convert … <;> try with_reducible_and_instances rfl` idiom now trips
+`linter.unnecessarySeqFocus`/`unusedTactic`, so it is written as `refine h.congr_deriv ?_` plus the
+coefficient identity — watching the sign, the `congr_deriv` orientation being the reverse of the pin's
+`convert` (FR-0163) — and `open Real Set Filter Topology` no longer suffices for `Tendsto`/`𝓝`, which
+wants `open Real Set Filter` with `open scoped Topology`. The AF42/AF43 wave added four more, all
+proof-text only: `push_neg` → `push Not`; the `CuspForm.coe_zero/coe_add/coe_sub/coe_smul` aliases →
+`FunLike.coe_*`; `haveI : <class> :=` → `have` (`haveILetI`); and one genuine **elaborator**
+divergence — the pin's `(summable_pow_mul_geometric_of_norm_lt_one 4 …).mul_left 2` `whnf`s forever
+at v4.34 at *any* heartbeat budget (measured at 2,000,000), so the intermediate summable function is
+named first (FR-0169). The wave also replaced the "it fits the default budget" assertion by a
+measurement: probe with `-DmaxHeartbeats=40000/20000/10000/5000/1000` and record the first failure
+(FR-0168) — AF43A's worst proof sits in [5k, 10k] under the 200,000 gate. One recorded negative: the pin's `P2M.Util`
+is **tooling only** (127 lines of elab commands, no lemmas), so a ported proof never needs a counterpart
+for it; its imports of `Mathlib.Algebra.Order.Chebyshev` &c. do need re-adding (the scaffold's union
+dropped one, for `sq_sum_le_card_mul_sum_sq`).
 
 ## 9. Reproduce
 
