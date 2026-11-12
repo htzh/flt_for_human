@@ -962,6 +962,67 @@ next: the two rows the 427 unlocks (1,082 + 848), the rest of the `ValuationSubr
 consumers**), and — outside any story — `M4aTorus.completedRayL_fe`, **12,126 silo**, the shelf's largest
 node by a factor of three, which is a mechanical-transcription set on the AF7 pattern rather than a story.
 
+The forty-fifth **is landed** (2026-11-12): [automorphicForm/SET-AF45.md](automorphicForm/SET-AF45.md),
+the **regular prolongation's residue calculus and the valuation subring's denominators** — five of its six
+rows are the rows SET-AF44 readied, taken with the one leaf of the same subject, so the set is the chain
+AF44's return column pointed at. **6 rows / 1,337 silo in 1,034 written proof lines**, landing as an
+**insertion** into the port's `AlgebraicCurve/RegularProlongationFinrank.lean` (1,568 → 2,015 lines; the
+home is decided by subject, since that module already held five of the pin's `RegularProlongation` nodes)
+and a new `FieldTheory/ValuationSubringFinrank.lean` (861 lines, 16 declarations, including the
+`isPrincipalIdealRing_of_finiteDimensional_adjoin` row with **36 project consumers**). Both are green —
+**62 ok** on the hub (unchanged) and **16 ok** on the new module — silent at the default 200,000-heartbeat
+budget (the new module is silent even at 30,000), all six headlines axiom-clean, the hub's dependent
+`Place/ConstantFieldExtension.lean` still building (the insertion's cascade is clean), and **0 dead**.
+The return is **five rows / 2,146 silo**, including the 1,082 and 848 rows AF44 §7 named. Three findings:
+the **qualified-`end` artefact** (FR-0172 — the pin closes its label namespaces with `end A.B.C`, which
+cannot resolve inside the port's nested namespaces, and `check_port` cannot see it because it never
+elaborates); **`linter.style.haveILetI` is on by default at v4.34** (FR-0173 — eleven `haveI`/`letI` walls
+rewritten to `have`/`let`, which register the instance anyway); and the **`ValuationSubring` shadowing is
+wider than AF44 recorded** (FR-0174, superseding FR-0170 — besides `add_mem`/`neg_mem`/`mul_mem`, the bare
+`eq_top_iff` silently means `ValuationSubring.eq_top_iff`, and `IsLocalHom`'s field is `map_nonunit`). The manager's own edits: one approved import on the hub (`ValuationSubringApproximation`,
+the module AF44 had landed two hours earlier — the fifth FR-0166 instance in three waves, and the first
+where the column feeds itself), and one **dedup merge** of five intra-module copies the pin's two files
+produce (`constHom`, `coe_constHom`, `residue_constHom`, `aeval_eq_linearCombination`,
+`linearIndependent_pow_iff_transcendental`): one proof each, the second pin name kept as a one-line
+application, 59 → 42 removable lines with the checker unmoved. The re-read is exact on six of seven cells
+(`needed` **722 / 303,258 → 716 / 301,921**, ready 50 / 10,592 → **52 / 11,898**, leaves 190 / 46,756 →
+**187 / 46,259**, `ValuationSubring` 20 / 4,214 → **16 / 3,380**, `AlgebraicCurve` 48 / 19,391 →
+**46 / 18,888**); the literal cell is four lines off because the brief's subtraction said 307,344 where
+308,677 − 1,337 = 307,340 — arithmetic, not the model. Named next: the four rows that are now one premise
+away (largest `ValuationSubring.exists_valuation_mul_eq_one_of_finrank_le_card`, 1,062) and
+`RegularProlongation.exists_prolongation_of_card_roots_eq` (613), with `M4aTorus.completedRayL_fe` priced
+as the queued big effort (four unported `Def_` modules, 1,139 pin lines, then 742 declarations).
+
+The forty-sixth **is landed** (2026-11-12): [automorphicForm/SET-AF46.md](automorphicForm/SET-AF46.md),
+the **residue map's Gauss basis and its rank** — 4 rows / 2,119 silo, and the column's second *mechanical*
+set after AF7. The measurements decide the strategy: a statement-by-statement scaffold is the wrong
+instrument when the pin's declarations carry `LinearMap`/`RingHom` structure literals and `letI`-scoped
+modules, because cutting a def body **changes the surrounding implicit binder lists** (a section variable
+used only by a body drops out of the signature) — the manager hit exactly that and switched routes. The
+mechanical copy (the pin's text, the tooling translated) landed at **zero `sorry` and zero statement
+changes**: `AlgebraicCurve/RegularProlongationResidueSpan.lean` (966 lines, 26 `ok`, 32 warnings cleared)
+and `…GaussBasis.lean` (1,244 lines, 50 `ok`, 14 elaboration sites and 49 warnings cleared), both silent,
+both axiom-clean, 76 `ok` between them. The set's findings are instrument-level: **`check_port` compares
+statement text, so it cannot see a name-resolution change** — the pin's bare `residue` means
+`IsLocalRing.residue`, the port's `namespace RegularProlongation` resolves it to the structure field, and
+the declaration read `ok` while its meaning had drifted; the answer is a `local notation` giving the pin's
+meaning *with* the pin's text (FR-0176). Second, v4.34 turned `ResidueField` from an `abbrev` into a `def`,
+so mathlib's `Module (R ⧸ I) (M ⧸ I • ⊤)` no longer fires through it — the port opens the file's own
+scoped instances rather than the pin's `attribute [-instance]` shim (FR-0177). Third, the wave caught a
+**port duplicate at the import boundary**: `coeff_mem_of_aeval_mem_integers` was declared in two modules,
+so importing both failed; the manager kept the namespace owner's copy and deleted the fully-qualified one,
+10 → 9 `ok` (FR-0175). And one ruling now stands in the record: **`omit` is not a silencer** — it shapes a
+signature, so the pin's `omit [Fintype ι] in` stays, and only `set_option linter.… false` is forbidden. The
+re-read: `needed` **716 / 301,921 → 712 / 299,802**, literal 732 / 307,340 → **728 / 305,221**, ready
+52 / 11,898 → **50 / 10,210**, `AlgebraicCurve` 46 / 18,888 → **42 / 16,769**, two rows readied (261 +
+170); the frontier cell is 238 lines off because the brief's addition slipped (822,607 + 2,119 = 824,726,
+not 824,488) — the model, a per-set subtraction, was exact in every other cell. Named next: the four rows
+AF45 moved to one premise (`ValuationSubring.exists_valuation_mul_eq_one_of_finrank_le_card` 1,062 and the
+`ord_residue` / `existsUnique_place` / `gaussBasis` successors), then `M4aTorus.completedRayL_fe`
+(12,126 silo, four unported `Def_` modules), and **the residue calculus chain AF44→AF45→AF46 is now
+complete** — the regular prolongation's bound, its Gauss basis, its rank equality and the `L²` comparison
+are all in the port.
+
 
 ## 6. Verification and wiring
 
