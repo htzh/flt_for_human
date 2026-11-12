@@ -14,8 +14,12 @@
   * the transpose of the assembled datum is the datum: it annihilates `j(q ^ ℓ)`, so it is the
     minimal polynomial, and both sides are monic of degree `ψ(ℓ)`.
 
-  The capstone `exists_phiIrreducible_evalSymm` runs the chain: descent, integrality, membership in
-  the `j`-line, assembly, splitting, then the transpose comparison.
+  The capstone `exists_phiIrreducible_evalSymm` runs the chain: `exists_phiGenDescends` (the descent,
+  in `Construction`), `PhiGenDescends.intCoeffs`, the `j`-line membership, and
+  `exists_modularPolynomialData_coeff_eq` (the assembly); the two read-offs below then turn the
+  descended family into the datum's splitting and its pole bounds, and the transpose comparison
+  closes the argument. The read-offs are private to this module: they are specializations of the
+  descent, with no consumer but the capstone.
 -/
 
 import Mathlib.Algebra.Polynomial.Bivariate
@@ -39,6 +43,7 @@ import FLTForHuman.ModularCurve.Defs.Polynomial
 import FLTForHuman.ModularCurve.JqCoeffPositivity
 import FLTForHuman.ModularCurve.ModularEquation.Construction
 import FLTForHuman.ModularCurve.ModularEquation.Support.LevelEmbedding
+import FLTForHuman.ModularCurve.ModularEquation.Support.PoleBounds
 import FLTForHuman.ModularCurve.ModularEquation.Transpose
 import FLTForHuman.ModularForms.PhiGenDescends
 
@@ -666,6 +671,90 @@ end PhiGen
 end ModularCurve
 
 namespace ModularCurve
+
+/-! ## Reading the splitting and the pole bounds off the descent
+
+The two read-offs the capstone needs, private to this module: the descent gives the family, the
+assembly gives the datum, and these two statements are what that datum's splitting and pole bounds
+become. They are not generic in `c` or `Φ`, so they live with their only consumer.
+-/
+
+namespace PhiGen
+
+
+variable {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)] {ζ : Kˣ}
+  {c : ℕ → LaurentSeries ℚ}
+
+/-- The level embedding creates and loses no coefficients: the coefficient of `q ^ (ℓ * m)` in
+`qEmbedT`'s image is the embedding of the `q ^ m` coefficient. -/
+private theorem coeff_qEmbedT (f : LaurentSeries ℚ) (m : ℤ) :
+    (qEmbedT K ℓ f).coeff ((ℓ : ℤ) * m) = algebraMap ℚ K (f.coeff m) := by
+  rw [qEmbedT_eq_coeffEmb_qExpand, coeffEmb_coeff, qExpand_coeff_mul]
+
+/-- **A descent is a splitting**: a polynomial whose `X`-coefficients are the descended family's
+is annihilated by the conjugates of `j(q)`. -/
+private theorem splits_of_descends (hdescend : PhiGenDescends ℓ ζ c)
+    {Φ : Polynomial (Polynomial ℤ)}
+    (hΦ : ∀ k, evalAtJ (Φ.coeff k) = c k) :
+    Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ) := by
+  refine Polynomial.ext fun k => ?_
+  rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hΦ k,
+    qEmbedT_eq_coeffEmb_qExpand, ← hdescend k]
+
+/-- The coefficient dictionary of a level substitution: a `q ↦ q ^ ℓ` substitution moves the
+index by `ℓ` and nothing else, so the `m`-th coefficient of `Φ`'s `k`-th coefficient is the
+`ℓ * m`-th coefficient of the conjugate product's. -/
+private theorem coeff_eq_coeff_phiProd_of_splits {Φ : Polynomial (Polynomial ℤ)}
+    (hsplit : Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)) (k : ℕ) (m : ℤ) :
+    algebraMap ℚ K ((evalAtJ (Φ.coeff k)).coeff m)
+      = ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff ((ℓ : ℤ) * m) := by
+  have hk : evalAtJK K ℓ (Φ.coeff k) = (phiProd ℓ (conj ℓ ζ)).coeff k := by
+    rw [← Polynomial.coeff_map, ← hsplit]
+  rw [← hk, evalAtJK_def, RingHom.comp_apply, coeff_qEmbedT]
+
+/-- **The pole bounds of a splitting**: `Φ`'s coefficients have, coefficient by coefficient, the
+`q`-expansion of a monic degree-`ψ(ℓ)` polynomial read through the transpose — `q ^ (-ψ(ℓ))`
+carries a `1`, nothing sits below it, and every other coefficient vanishes at and below it.
+T10's leading term `phiProd_conj_coeff_zero_lead` and vanishing bound
+`phiProd_conj_coeff_eq_zero_of_le` are read at their `ℓ`-scaled index, and the constant
+coefficient's tail from T10's uniform bound `ℓ * ℓ + ℓ`. -/
+private theorem coeff_poleBounds_of_splits (hζ : IsPrimitiveRoot (ζ : K) ℓ)
+    {Φ : Polynomial (Polynomial ℤ)} (hsplit : Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)) :
+    (evalAtJ (Φ.coeff 0)).coeff (-(dedekindPsi ℓ : ℤ)) = 1 ∧
+      (∀ m : ℕ, dedekindPsi ℓ < m → (evalAtJ (Φ.coeff 0)).coeff (-(m : ℤ)) = 0) ∧
+      (∀ k, k ≠ 0 → ∀ m : ℕ, dedekindPsi ℓ ≤ m →
+        (evalAtJ (Φ.coeff k)).coeff (-(m : ℤ)) = 0) := by
+  have hψ := dedekindPsi_prime hℓ.out
+  have hW : ∀ k, TPoleOrderLE ((phiProd ℓ (conj ℓ ζ)).coeff k) (ℓ * ℓ + ℓ) := fun k =>
+    tPoleOrderLE_phiProd_coeff ℓ ζ (coeffEmb K jq) (conj ℓ ζ) (conj_zero ℓ ζ)
+      (conj_succ ℓ ζ) jSimplePole_jqK k
+  have hidx : ∀ m : ℕ, (ℓ : ℤ) * (-(m : ℤ)) = -((ℓ * m : ℕ) : ℤ) := by
+    intro m; push_cast; ring
+  refine ⟨?_, ?_, ?_⟩
+  · have h1 : algebraMap ℚ K (1 : ℚ) = 1 := map_one _
+    refine (algebraMap ℚ K).injective ?_
+    rw [h1, coeff_eq_coeff_phiProd_of_splits hsplit 0, hψ]
+    have hidx' : (ℓ : ℤ) * (-((ℓ + 1 : ℕ) : ℤ)) = -((ℓ * ℓ + ℓ : ℕ) : ℤ) := by push_cast; ring
+    rw [hidx']
+    exact phiProd_conj_coeff_zero_lead ℓ ζ hζ
+  · intro m hm
+    have h0 : algebraMap ℚ K (0 : ℚ) = 0 := map_zero _
+    refine (algebraMap ℚ K).injective ?_
+    rw [h0, coeff_eq_coeff_phiProd_of_splits hsplit 0, hidx]
+    exact hW 0 _ (by
+      rw [hψ] at hm
+      have hm' : (ℓ : ℤ) + 1 < (m : ℤ) := by exact_mod_cast hm
+      have h2 : (2 : ℤ) ≤ (ℓ : ℤ) := by exact_mod_cast hℓ.out.two_le
+      push_cast
+      nlinarith)
+  · intro k hk0 m hm
+    have h0 : algebraMap ℚ K (0 : ℚ) = 0 := map_zero _
+    refine (algebraMap ℚ K).injective ?_
+    rw [h0, coeff_eq_coeff_phiProd_of_splits hsplit k, hidx]
+    exact phiProd_conj_coeff_eq_zero_of_le ℓ ζ k hk0 (ℓ * m)
+      (by rw [hψ] at hm; nlinarith [hℓ.out.two_le])
+
+end PhiGen
 
 /-! ## Existence of an irreducible symmetric datum -/
 

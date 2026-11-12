@@ -61,9 +61,10 @@ Two theories, then, with the seam above: **A = the modular equation at a prime**
 |---|---|---|
 | `Support/LevelEmbedding` | 77 | the level-`l` nome embedding `Q((q)) -> K((q))`, its injectivity, `evalAtJK`, and `conj 1 = j(q)` |
 | `Support/PoleBounds` | 250 | the product's pole bounds at the cusp: the leading `1` at `q ^ -(l*l + l)` and the vanishing at and below it |
+| `Support/Permutation` | 267 | three sections: *products under a permutation* (`map_prod_of_perm`: any finite family, any permutation of it, any coefficient endomorphism); *the twist's permutation* (`twistPerm`, its label formula and only fixed point, `qTwist_conj`, and its factorwise form); *the Galois permutation* (`galExp`, the value of the cyclotomic character, `galLabelPerm` — labels multiplied by it, `galPerm`, `coeffMap_conj`, and its factorwise form); also `Fin.succEquivOfEquiv` |
 | `Transpose` | 240 | subject: the transpose engine (`swapBivar` against mathlib's `Bivariate.swap`), the monic/degree bookkeeping, the pole-bound-to-degree dictionary, and the transposed evaluation |
-| `Construction` | 816 | subject: descent to `Q((q))`, the descended family's shape, integrality, assembly of the datum, and the q-expansion dictionary of a descent |
-| `Existence` | 734 | main result: distinct conjugates, `j(q ^ l)` not a polynomial in `j(q)`, the minimal polynomial, irreducibility, and `exists_phiIrreducible_evalSymm` |
+| `Construction` | 691 | subject: descent to `Q((q))`, the descended family's shape, integrality, and the assembly of the datum |
+| `Existence` | 819 | main result: distinct conjugates, `j(q ^ l)` not a polynomial in `j(q)`, the minimal polynomial, irreducibility, the two read-offs of the descent (private), and `exists_phiIrreducible_evalSymm` |
 | `Split` | 709 | main result and the seam: prime-level uniqueness and degree, the split over `Q` and over any field, the slot root API, the coefficient-degree bound, and the symmetry corollary |
 | `LevelTwo` | 440 | main result: `Φ = Φ₂` |
 
@@ -94,6 +95,11 @@ lake build FLTForHuman.ModularCurve.ModularEquation.Existence
 
 No tree build. Each module of theory A was checked this way (4–9 s per module) while the old cluster was
 still live, which is what made a seven-module rewrite safe to do incrementally.
+
+**Build scope while the theory is being rewritten.** Only modules of the theory itself. Consumers are not
+built: a public-name change inside the theory is recorded as an API delta (by `grep`, not by compiling
+the downstream cone) and paid for at the next retarget. Building the consumers on every change is the
+friction that stops refactoring; a single consumer, on request, is the most that is worth running.
 
 Header hygiene for the new modules: the subject, the statement of what is proved, and nothing about
 provenance — no pin, no checker, no topic references. The old headers keep that material; the new ones
@@ -172,10 +178,27 @@ The rest of the old problems are still there, in rough order of how much they co
 * `Support/PoleBounds` is 250 lines with twelve private helpers (`coeff_mul_lead`,
   `pow_sum_range_isPrimitiveRoot`, `prod_inv_pow_isPrimitiveRoot`, ...) for a statement about a product of
   linear factors at a cusp. The `q`-expansion content is clear; the formalisation is old-style.
-* `Construction` is a merge of five old modules. The descent is the real proof and reads as such; the
-  assembly (`exists_intPoly`, `exists_modularPolynomialData_coeff_eq`) is a transcription, and
-  `splits_of_descends` / `coeff_poleBounds_of_splits` are port-authored staging statements that a rewrite
-  should probably inline.
+* `Construction` is a merge of five old modules. Its descent has had the delayer pass: the nine
+  private wrappers (`map_phiProd_of_perm`, `map_phiProd_coeff_of_perm`, `qTwist_conj_zero/succ`,
+  `zeta_pow_mod`, `coeff_eq_zero_of_qTwist_eq`, `exists_galoisPerm`, `coeffMap_conj_zero`,
+  `mem_range_coeffEmb_of_forall_coeffMap_eq`, `mem_range_coeffEmb_qExpand_of_mem_inter`) are gone, and
+  `exists_phiGenDescends` is one theorem whose main line is its three steps: the twist fixes the
+  product so a coefficient is supported on the multiples of `ell`; a Galois automorphism fixes it so
+  the coefficient is rational; the two together put it in the image of `coeffEmb ∘ qExpand`, and the
+  preimage is `c k`. What stays named is the contraction `qContract` (the only real object: the
+  inverse of `qExpand` on `ell`-divisible supports, with a support argument not worth inlining) and
+  `coeffEmb_qExpand_injective` (three consumers, the shape lemmas). The permutation work is split into
+  two levels: the generic fact (`Polynomial.map_prod_of_perm`: any finite family, any permutation, any
+  coefficient endomorphism) and the exhibited pairs for the two symmetries (`twistPerm` with
+  `qTwist_X_sub_C_conj`; `galPerm` with `coeffMap_X_sub_C_conj`, the latter through the value `galExp`
+  of the cyclotomic character). Both `twist_fixes` and `gal_fixes` in the descent are now single lines —
+  the generic theorem applied to an exhibited pair — so the descent carries **no** permutation
+  hypothesis at all. What is left in that module is the cycle structure: the iteration `b ↦ b + n` on
+  the labels, order `ℓ`, and transitivity on the finite cusps (the arithmetic form of "`twistPerm` is
+  one `ℓ`-cycle"); the iteration needs the `Fin ℓ`-level rotation lemma, which is the missing piece.
+  The assembly (`exists_intPoly`, `exists_modularPolynomialData_coeff_eq`) still has its old helpers
+  and is the next delayer target; the two read-offs `splits_of_descends` / `coeff_poleBounds_of_splits`
+  are now private lemmas in `Existence`, immediately above the capstone.
 * `Transpose` still bridges to mathlib's bivariate API through one private `swapBivar_eq_swap` because
   `swapBivar` is the port's own ring hom. Using mathlib's `Bivariate.swap` directly would delete the
   bridge and the bookkeeping that goes with it.
@@ -197,7 +220,7 @@ question for later.
 | | modules | lines |
 |---|---|---|
 | old cluster, retired | 11 | 3984 |
-| theory A, new | 7 | 3266 |
+| theory A, new | 8 | 3411 |
 
 Retarget touched 21 library modules and 2 spec consumers; 4 modules needed more than an import swap;
 12 marker rows were removed; 11 modules moved to `Reserve`.
