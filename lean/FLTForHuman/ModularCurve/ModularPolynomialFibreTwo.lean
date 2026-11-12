@@ -59,7 +59,7 @@ import FLTForHuman.ModularCurve.Defs.ClassicalModularPolynomials
 import FLTForHuman.ModularCurve.Defs.FibrePoly
 import FLTForHuman.WeierstrassCurve.Velu.Defs
 import FLTForHuman.WeierstrassCurve.Velu.OrderTwo
-import FLTForHuman.ModularCurve.ModularPolynomialLevelTwo
+import FLTForHuman.ModularCurve.ModularEquation.LevelTwo
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Algebra.Polynomial.Degree.SmallDegree
 import Mathlib.Algebra.Polynomial.Roots

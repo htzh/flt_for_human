@@ -1,85 +1,27 @@
 /-
-  WORKORDER MS-7 row 410 — `Φ = Φ₂` at level two:
-  `ModularCurve.ModularPolynomialData.phi_eq_phiTwo`.
+  The modular equation at level two: `Φ = Φ₂`.
 
-  Statement verbatim from `Theorems/Thm_ModularCurve_ModularPolynomialData_phi_eq_phiTwo.lean`;
-  proof transcribed from
-  `P2M/Sol/S_ModularCurve_ModularPolynomialData_phi_eq_phiTwo.lean` (410 lines,
-  pinned `aa2d8b3`), adapted to mathlib `v4.34.0`.
-
-  ## What the proof is
-
-  A `ModularPolynomialData 2` datum has `Φ` of `Y`-degree `ψ(2) = 3`
-  (`data.natDegree_eq`), monic (`data.monic`), and vanishing at `j(q²)`
-  (`data.eval_eq_zero`); `phiTwo` is written out coefficient by coefficient.
-  The proof pins `Φ`'s three lower `Y`-coefficients to `phiTwoC0/C1/C2` by
-  comparing `q`-expansions on the four coefficients `q⁻³ … q⁰`:
-
-  * `PhiGen.splits_prime_of_isPrimitiveRoot` at `p = 2`, `ζ = -1` splits `Φ`'s
-    `q`-expansion into `(X - q⁴j) · (X - j) · (X - (-j))`, so the three
-    elementary symmetric functions of `{q⁴j, j, -j}` are the `q`-expansions of
-    `Φ`'s coefficients (`coeff_identities`);
-  * each of those is expanded in `q` through the `NF` normal form: a Laurent
-    series `x` with `x = q^a · F(q)` and `F`'s first seven coefficients pinned
-    by a list of integers (`LJ`, `LC`, `LA`, `L2` and their convolutions
-    `nf_AB`, `nf_ACm`, `nf_BCm`, `nf_ABCm`, `nf_J22`, `nf_J23`);
-  * `eq_zero_of_natDegree_le_of_coeff_evalAtJ_eq_zero` then upgrades the
-    four-coefficient agreement to `data.Φ.coeff k = phiTwo.coeff k` for
-    `k ≤ 2` (`natDegree_coeff_le` bounds the `Y`-degree of both sides by 3),
-    and `p3`/`pge` finish `k = 3` (both are monic of degree 3) and `k ≥ 4`
-    (`phiTwo.coeff k = 0` and `Φ` has `natDegree` 3).
-
-  The `LowCoeffs`/`conv` list algebra is *not* restated here: it is public in
-  `ModularCurve/JqCoefficients.lean`, namespace `ModularCurve.JCoeff`
-  (`LowCoeffs`, `conv`, `length_conv`, `finset_sum_range_eq_list_sum`,
-  `getD_conv`, `LowCoeffs.mul`, `LowCoeffs.congr`), and is imported and used as
-  it stands.  The `NF` normal form on top of it (`ofPS`, `coeff_ofPS`,
-  `coeff_single_mul_ofPS`, `eq_single_mul_ofPS`, `NF` and its three lemmas) has
-  no port copy and is transcribed below.
-
-  ## Public / private split
-
-  Public: only the headline `ModularPolynomialData.phi_eq_phiTwo`.  Everything
-  else — the whole `PhiTwoCalc` block — is `private`: nothing outside this
-  module consumes the coefficient machinery, so no promotion is owed.  The
-  pin's `phi_eq_phiTwo'` and its root-level `solution` wrapper are *inlined*
-  into the headline here rather than restated: the pin's engine statement and
-  its wrapper have the same shape, so keeping both would be a duplicate
-  cluster at `dedup.py --tier shape`.  The headline therefore carries the
-  engine's proof term directly.
-
-  ## Deviations from the pin
-
-  * The pin's `set_option maxHeartbeats 3200000 in` on `phi_eq_phiTwo'` is not
-    transcribed (FR-0067): the module elaborates at the project's 200 k cap.
-  * The pin's `attribute [-simp] ModularForm.val_heckeDiagMatrix …` prelude and
-    its `set_option linter.unusedSimpArgs false` are not transcribed: no `simp`
-    or `simp only` below meets those lemmas, and no simp argument is unused.
-  * The pin's `p2m_open`/`p2m_export` re-export machinery is not needed: the
-    port's `JqCoefficients`/`Jq`/`ClassicalModularPolynomials` already carry the
-    names at their pin locations.
-  * `Mathlib.Tactic.ComputeDegree` is imported for the two `compute_degree!`
-    steps (`phiTwo_coeff`'s `natDegree ≤ 3`, `natDegree_phiTwoC`); it is the one
-    mathlib import the workorder did not name.
-
-  FLT provenance, pinned `aa2d8b3`:
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_ModularPolynomialData_phi_eq_phiTwo.lean
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_ModularPolynomialData_phi_eq_phiTwo.lean
-
-  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_phi_eq_phiTwo.lean
-  spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_phi_eq_phiTwo.lean
+  A datum at level two has `Y`-degree `ψ(2) = 3`, is monic, and vanishes at `j(q ^ 2)`. The split at
+  `p = 2`, `ζ = -1` reads its three conjugates as `j(q ^ 4)`, `j(q)` and `-j(q)`, so the three
+  lower `Y`-coefficients are the elementary symmetric functions of those three series. Comparing
+  the first four `q`-coefficients (computed from `j`'s coefficients) pins those coefficients to
+  the classical `Φ₂`, and the coefficient-degree bound upgrades the agreement to all coefficients.
 -/
-import FLTForHuman.ModularCurve.JqCoefficients
-import FLTForHuman.ModularCurve.ModularPolynomialUniquenessIrreducible
-import FLTForHuman.ModularCurve.PhiGenSplitsAnyField
-import FLTForHuman.ModularCurve.Defs.ClassicalModularPolynomials
+
 import Mathlib.Tactic.ComputeDegree
+
+import FLTForHuman.ModularCurve.Defs.ClassicalModularPolynomials
+import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularCurve.Defs.PhiGen
+import FLTForHuman.ModularCurve.JqCoefficients
+import FLTForHuman.ModularCurve.ModularEquation.Split
 
 set_option autoImplicit false
 
 noncomputable section
 
 open Polynomial PowerSeries
+
 open scoped PowerSeries
 
 namespace ModularCurve
@@ -108,14 +50,14 @@ private theorem conv_map_intCast {R : Type*} [CommRing R] (L M : List ℤ) :
 private noncomputable abbrev ofPS (F : ℚ⟦X⟧) : LaurentSeries ℚ :=
   HahnSeries.ofPowerSeries ℤ ℚ F
 
-theorem coeff_ofPS (F : ℚ⟦X⟧) (m : ℤ) :
+private theorem coeff_ofPS (F : ℚ⟦X⟧) (m : ℤ) :
     (ofPS F).coeff m = if 0 ≤ m then PowerSeries.coeff m.toNat F else 0 := by
   split_ifs with h
   · obtain ⟨n, rfl⟩ := Int.eq_ofNat_of_zero_le h
     rw [Int.toNat_natCast, HahnSeries.ofPowerSeries_apply_coeff]
   · exact ofPowerSeries_coeff_of_neg F (by omega)
 
-theorem coeff_single_mul_ofPS (a : ℤ) (r : ℚ) (F : ℚ⟦X⟧) (m : ℤ) :
+private theorem coeff_single_mul_ofPS (a : ℤ) (r : ℚ) (F : ℚ⟦X⟧) (m : ℤ) :
     (HahnSeries.single a r * ofPS F).coeff m =
       if a ≤ m then r * PowerSeries.coeff (m - a).toNat F else 0 := by
   rw [HahnSeries.coeff_single_mul, coeff_ofPS]
@@ -123,7 +65,7 @@ theorem coeff_single_mul_ofPS (a : ℤ) (r : ℚ) (F : ℚ⟦X⟧) (m : ℤ) :
   · rw [ite_eq_left (by omega), ite_eq_left h]
   · rw [ite_eq_right (by omega), ite_eq_right h, mul_zero]
 
-theorem eq_single_mul_ofPS (x : LaurentSeries ℚ) (a : ℤ)
+private theorem eq_single_mul_ofPS (x : LaurentSeries ℚ) (a : ℤ)
     (hx : ∀ m < a, x.coeff m = 0) :
     x = HahnSeries.single a 1 * ofPS (PowerSeries.mk fun i => x.coeff (a + i)) := by
   ext m
@@ -132,11 +74,11 @@ theorem eq_single_mul_ofPS (x : LaurentSeries ℚ) (a : ℤ)
   · rw [PowerSeries.coeff_mk]; congr 1; omega
   · exact hx m (by omega)
 
-def NF (x : LaurentSeries ℚ) (a : ℤ) (L : List ℤ) : Prop :=
+private def NF (x : LaurentSeries ℚ) (a : ℤ) (L : List ℤ) : Prop :=
   ∃ F : ℚ⟦X⟧, x = HahnSeries.single a 1 * ofPS F ∧
     LowCoeffs F (L.map (Int.cast : ℤ → ℚ))
 
-theorem NF.mul {x y : LaurentSeries ℚ} {a b : ℤ} {L M : List ℤ} (hx : NF x a L)
+private theorem NF.mul {x y : LaurentSeries ℚ} {a b : ℤ} {L M : List ℤ} (hx : NF x a L)
     (hy : NF y b M) : NF (x * y) (a + b) (conv L M) := by
   obtain ⟨F, rfl, hF⟩ := hx
   obtain ⟨G, rfl, hG⟩ := hy
@@ -146,10 +88,10 @@ theorem NF.mul {x y : LaurentSeries ℚ} {a b : ℤ} {L M : List ℤ} (hx : NF x
     exact (map_mul (HahnSeries.ofPowerSeries ℤ ℚ) F G).symm
   · rw [← conv_map_intCast]; exact hF.mul hG
 
-theorem NF.congr {x : LaurentSeries ℚ} {a : ℤ} {L M : List ℤ} (hx : NF x a L)
+private theorem NF.congr {x : LaurentSeries ℚ} {a : ℤ} {L M : List ℤ} (hx : NF x a L)
     (h : L = M) : NF x a M := h ▸ hx
 
-theorem NF.coeff {x : LaurentSeries ℚ} {a : ℤ} {L : List ℤ} (hx : NF x a L) (m : ℤ)
+private theorem NF.coeff {x : LaurentSeries ℚ} {a : ℤ} {L : List ℤ} (hx : NF x a L) (m : ℤ)
     (hm : (m - a).toNat < L.length) :
     x.coeff m = if a ≤ m then ((L.getD (m - a).toNat 0 : ℤ) : ℚ) else 0 := by
   obtain ⟨F, rfl, hF⟩ := hx
@@ -160,30 +102,30 @@ theorem NF.coeff {x : LaurentSeries ℚ} {a : ℤ} {L : List ℤ} (hx : NF x a L
 
 /-! ## The low coefficients of `j(q)` and of the three factors, to order six -/
 
-theorem coeff_jq_eq (i : ℕ) :
+private theorem coeff_jq_eq (i : ℕ) :
     jq.coeff (-1 + (i : ℤ)) = ((PowerSeries.coeff i jNum : ℤ) : ℚ) := by
   rw [show jq = HahnSeries.single (-1 : ℤ) 1 * ofPS jNumQ from rfl, coeff_single_mul_ofPS,
     one_mul, ite_eq_left (by omega), show (-1 + (i : ℤ) - -1).toNat = i by omega, jNumQ,
     PowerSeries.coeff_map]
   simp
 
-def LJ : List ℤ := [1, 744, 196884, 21493760, 864299970, 20245856256, 333202640600]
+private def LJ : List ℤ := [1, 744, 196884, 21493760, 864299970, 20245856256, 333202640600]
 
-theorem coeff_jNum_eq_LJ (i : ℕ) (hi : i < 7) :
+private theorem coeff_jNum_eq_LJ (i : ℕ) (hi : i < 7) :
     (PowerSeries.coeff i jNum : ℤ) = LJ.getD i 0 := by
   obtain ⟨h0, h1, h2, h3, h4, h5, h6⟩ := ModularCurve.coeff_jNum_le_six
   interval_cases i <;> simp [LJ, h0, h1, h2, h3, h4, h5, h6]
 
-theorem nf_jq : NF jq (-1) LJ := by
+private theorem nf_jq : NF jq (-1) LJ := by
   refine ⟨PowerSeries.mk fun i => jq.coeff (-1 + i), eq_single_mul_ofPS jq (-1)
     (fun m hm => coeff_jq_of_lt hm), ?_⟩
   intro i hi
   simp only [List.length_map, LJ, List.length_cons, List.length_nil] at hi
   rw [PowerSeries.coeff_mk, coeff_jq_eq, coeff_jNum_eq_LJ i (by omega), getD_map_intCast]
 
-def LC : List ℤ := [-1, 744, -196884, 21493760, -864299970, 20245856256, -333202640600]
+private def LC : List ℤ := [-1, 744, -196884, 21493760, -864299970, 20245856256, -333202640600]
 
-theorem nf_qTwist_neg_one_jq : NF (qTwist (-1 : ℚˣ) jq) (-1) LC := by
+private theorem nf_qTwist_neg_one_jq : NF (qTwist (-1 : ℚˣ) jq) (-1) LC := by
   refine ⟨PowerSeries.mk fun i => (qTwist (-1 : ℚˣ) jq).coeff (-1 + i),
     eq_single_mul_ofPS _ (-1) (fun m hm => by rw [qTwist_coeff, coeff_jq_of_lt hm, mul_zero]), ?_⟩
   intro i hi
@@ -192,9 +134,9 @@ theorem nf_qTwist_neg_one_jq : NF (qTwist (-1 : ℚˣ) jq) (-1) LC := by
   rw [getD_map_intCast]
   interval_cases i <;> simp [LJ, LC] <;> norm_num
 
-def LA : List ℤ := [1, 0, 0, 0, 744, 0, 0]
+private def LA : List ℤ := [1, 0, 0, 0, 744, 0, 0]
 
-theorem nf_qExpand_four_jq : NF (qExpand ℚ 4 jq) (-4) LA := by
+private theorem nf_qExpand_four_jq : NF (qExpand ℚ 4 jq) (-4) LA := by
   refine ⟨PowerSeries.mk fun i => (qExpand ℚ 4 jq).coeff (-4 + i),
     eq_single_mul_ofPS _ (-4) (fun m hm => ?_), ?_⟩
   · by_cases h : (4 : ℤ) ∣ m
@@ -220,9 +162,9 @@ theorem nf_qExpand_four_jq : NF (qExpand ℚ 4 jq) (-4) LA := by
     · rw [qExpand_coeff_of_not_dvd 4 jq (by decide)]; simp [LA]
     · rw [qExpand_coeff_of_not_dvd 4 jq (by decide)]; simp [LA]
 
-def L2 : List ℤ := [1, 0, 744, 0, 196884, 0, 21493760]
+private def L2 : List ℤ := [1, 0, 744, 0, 196884, 0, 21493760]
 
-theorem nf_qExpand_two_jq : NF (qExpand ℚ 2 jq) (-2) L2 := by
+private theorem nf_qExpand_two_jq : NF (qExpand ℚ 2 jq) (-2) L2 := by
   refine ⟨PowerSeries.mk fun i => (qExpand ℚ 2 jq).coeff (-2 + i),
     eq_single_mul_ofPS _ (-2) (fun m hm => ?_), ?_⟩
   · by_cases h : (2 : ℤ) ∣ m
@@ -252,37 +194,37 @@ theorem nf_qExpand_two_jq : NF (qExpand ℚ 2 jq) (-2) L2 := by
         qExpand_coeff_mul, coeff_jq_eq, coeff_jNum_eq_LJ 3 (by omega)]
       simp [L2, LJ]
 
-theorem nf_AB :
+private theorem nf_AB :
     NF (qExpand ℚ 4 jq * jq) (-5) [1, 744, 196884, 21493760, 864300714, 20246409792, 333349122296] :=
   (nf_qExpand_four_jq.mul nf_jq).congr (by decide)
 
-theorem nf_ACm : NF (qExpand ℚ 4 jq * qTwist (-1 : ℚˣ) jq) (-5)
+private theorem nf_ACm : NF (qExpand ℚ 4 jq * qTwist (-1 : ℚˣ) jq) (-5)
     [-1, 744, -196884, 21493760, -864300714, 20246409792, -333349122296] :=
   (nf_qExpand_four_jq.mul nf_qTwist_neg_one_jq).congr (by decide)
 
-theorem nf_BCm : NF (jq * qTwist (-1 : ℚˣ) jq) (-2)
+private theorem nf_BCm : NF (jq * qTwist (-1 : ℚˣ) jq) (-2)
     [-1, 0, 159768, 0, -8509194516, 0, 151107477178368] :=
   (nf_jq.mul nf_qTwist_neg_one_jq).congr (by decide)
 
-theorem nf_ABCm : NF (qExpand ℚ 4 jq * jq * qTwist (-1 : ℚˣ) jq) (-6)
+private theorem nf_ABCm : NF (qExpand ℚ 4 jq * jq * qTwist (-1 : ℚˣ) jq) (-6)
     [-1, 0, 159768, 0, -8509195260, 0, 151107596045760] :=
   (nf_AB.mul nf_qTwist_neg_one_jq).congr (by decide)
 
-theorem nf_J22 : NF (qExpand ℚ 2 jq * qExpand ℚ 2 jq) (-4)
+private theorem nf_J22 : NF (qExpand ℚ 2 jq * qExpand ℚ 2 jq) (-4)
     [1, 0, 1488, 0, 947304, 0, 335950912] :=
   (nf_qExpand_two_jq.mul nf_qExpand_two_jq).congr (by decide)
 
-theorem nf_J23 :
+private theorem nf_J23 :
     NF (qExpand ℚ 2 jq * qExpand ℚ 2 jq * qExpand ℚ 2 jq) (-6)
       [1, 0, 2232, 0, 2251260, 0, 1355202240] :=
   (nf_J22.mul nf_qExpand_two_jq).congr (by decide)
 
 /-! ## The three coefficient identities of `Φ`, read off the level-2 splitting -/
 
-theorem isPrimitiveRoot_neg_one : IsPrimitiveRoot ((-1 : ℚˣ) : ℚ) 2 := by
+private theorem isPrimitiveRoot_neg_one : IsPrimitiveRoot ((-1 : ℚˣ) : ℚ) 2 := by
   simpa using IsPrimitiveRoot.neg_one (R := ℚ) 0 (by norm_num)
 
-theorem eval₂_qExpand_two_jq (P : Polynomial ℤ) :
+private theorem eval₂_qExpand_two_jq (P : Polynomial ℤ) :
     Polynomial.eval₂ (Int.castRingHom (LaurentSeries ℚ)) (qExpand ℚ 2 jq) P =
       qExpand ℚ 2 (evalAtJ P) := by
   have : (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries ℚ)) (qExpand ℚ 2 jq))
@@ -291,14 +233,14 @@ theorem eval₂_qExpand_two_jq (P : Polynomial ℤ) :
     rw [Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X, RingHom.comp_apply, evalAtJ_X]
   exact congrArg (fun f => f P) (congrArg DFunLike.coe this)
 
-theorem cubic_expand (a b c : LaurentSeries ℚ) :
+private theorem cubic_expand (a b c : LaurentSeries ℚ) :
     (Polynomial.X - Polynomial.C a) * ((Polynomial.X - Polynomial.C b) * (Polynomial.X - Polynomial.C c))
       = Polynomial.X ^ 3 - Polynomial.C (a + b + c) * Polynomial.X ^ 2
         + Polynomial.C (a * b + a * c + b * c) * Polynomial.X - Polynomial.C (a * b * c) := by
   simp only [map_add, map_mul]
   ring
 
-theorem coeff_identities (data : ModularPolynomialData 2) :
+private theorem coeff_identities (data : ModularPolynomialData 2) :
     qExpand ℚ 2 (evalAtJ (data.Φ.coeff 2)) = -(qExpand ℚ 4 jq + jq + qTwist (-1 : ℚˣ) jq) ∧
     qExpand ℚ 2 (evalAtJ (data.Φ.coeff 1))
       = qExpand ℚ 4 jq * jq + qExpand ℚ 4 jq * qTwist (-1 : ℚˣ) jq + jq * qTwist (-1 : ℚˣ) jq ∧
@@ -318,7 +260,7 @@ theorem coeff_identities (data : ModularPolynomialData 2) :
       Polynomial.coeff_C_mul_X, Polynomial.coeff_X_pow, Polynomial.coeff_C] <;>
     norm_num
 
-theorem phiTwo_coeff :
+private theorem phiTwo_coeff :
     phiTwo.coeff 0 = phiTwoC0 ∧ phiTwo.coeff 1 = phiTwoC1 ∧ phiTwo.coeff 2 = phiTwoC2 ∧
       phiTwo.coeff 3 = 1 ∧ ∀ n, 4 ≤ n → phiTwo.coeff n = 0 := by
   have hdeg : phiTwo.natDegree ≤ 3 := by unfold phiTwo; compute_degree!
@@ -326,14 +268,14 @@ theorem phiTwo_coeff :
     simp [phiTwo, Polynomial.coeff_X, Polynomial.coeff_C, Polynomial.coeff_X_pow,
       Polynomial.coeff_C_mul]
 
-theorem natDegree_phiTwoC :
+private theorem natDegree_phiTwoC :
     phiTwoC0.natDegree ≤ 3 ∧ phiTwoC1.natDegree ≤ 3 ∧ phiTwoC2.natDegree ≤ 3 := by
   refine ⟨?_, ?_, ?_⟩
   · unfold phiTwoC0; compute_degree!
   · unfold phiTwoC1; compute_degree!
   · unfold phiTwoC2; compute_degree!
 
-theorem qExpand_evalAtJ_phiTwoC :
+private theorem qExpand_evalAtJ_phiTwoC :
     qExpand ℚ 2 (evalAtJ phiTwoC2)
       = -(qExpand ℚ 2 jq * qExpand ℚ 2 jq) + HahnSeries.C (1488 : ℚ) * qExpand ℚ 2 jq
         - HahnSeries.C (162000 : ℚ) ∧
@@ -353,16 +295,16 @@ theorem qExpand_evalAtJ_phiTwoC :
       Polynomial.eval₂_neg]
     ring
 
-theorem coeff_C_mul' (r : ℚ) (x : LaurentSeries ℚ) (m : ℤ) :
+private theorem coeff_C_mul' (r : ℚ) (x : LaurentSeries ℚ) (m : ℤ) :
     (HahnSeries.C r * x).coeff m = r * x.coeff m := by
   rw [HahnSeries.C_mul_eq_smul, HahnSeries.coeff_smul, smul_eq_mul]
 
-theorem coeff_C' (r : ℚ) (m : ℤ) :
+private theorem coeff_C' (r : ℚ) (m : ℤ) :
     (HahnSeries.C r : LaurentSeries ℚ).coeff m = if m = 0 then r else 0 := by
   rw [HahnSeries.C_apply, HahnSeries.coeff_single]
   split_ifs <;> rfl
 
-theorem coeff_eq_coeff_qExpand_two (f : LaurentSeries ℚ) (m : ℤ) :
+private theorem coeff_eq_coeff_qExpand_two (f : LaurentSeries ℚ) (m : ℤ) :
     f.coeff m = (qExpand ℚ 2 f).coeff (2 * m) := by
   have h := qExpand_coeff_mul (R := ℚ) 2 f m
   rw [Nat.cast_ofNat] at h
@@ -376,10 +318,7 @@ open PhiTwoCalc
 
 namespace ModularPolynomialData
 
-/-- The level-two modular polynomial datum's `Φ` is the classical `Φ₂`.  The pin
-states this as `PhiTwoCalc.ModularPolynomialData.phi_eq_phiTwo'` plus a root
-`solution` wrapper; the port inlines the proof here, so no wrapper exists (see
-the header). -/
+/-- The level-two modular polynomial datum's `Φ` is the classical `Φ₂`. -/
 theorem phi_eq_phiTwo (data : ModularPolynomialData 2) : data.Φ = phiTwo := by
   obtain ⟨h2, h1, h0⟩ := coeff_identities data
   obtain ⟨p0, p1, p2, p3, pge⟩ := phiTwo_coeff

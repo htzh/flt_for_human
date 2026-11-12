@@ -55,7 +55,7 @@
   | any field | `K` | `K` | `RingHom.id` | `jqModC K` | the caller's root | `rfl` |
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.FieldTheory.CommonRoot
 
 set_option autoImplicit false

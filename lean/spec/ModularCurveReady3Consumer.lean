@@ -29,7 +29,7 @@ import FLTForHuman.ModularCurve.SiegelUnit.ProductForm
 import FLTForHuman.ModularCurve.LevelN.GenusFF
 import FLTForHuman.ModularCurve.LevelN.SpecialRamification
 import FLTForHuman.ModularCurve.ModularPolynomialCoset
-import FLTForHuman.ModularCurve.ModularPolynomialLevelTwo
+import FLTForHuman.ModularCurve.ModularEquation.LevelTwo
 import FLTForHuman.ModularCurve.ModularPolynomialFibreTwo
 import FLTForHuman.ModularCurve.SiegelUnit.PeakedAuxiliary
 import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupLattice

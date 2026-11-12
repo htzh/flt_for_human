@@ -24,7 +24,7 @@
 -/
 import FLTForHuman.ModularCurve.Degree.PhiData
 import FLTForHuman.ModularCurve.Analytic.ModularUnitQExpansion
-import FLTForHuman.ModularCurve.PhiGenDescendsStructure
+import FLTForHuman.ModularCurve.ModularEquation.Construction
 import Mathlib.RingTheory.Algebraic.Basic
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
 

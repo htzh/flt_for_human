@@ -81,11 +81,11 @@
   `rfl`-equal to the root name.
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotValue
-import FLTForHuman.ModularCurve.PhiGenSplitsAnyField
+import FLTForHuman.ModularCurve.ModularEquation.Split
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.Degree.JqCyclotomicConjugates
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 
 set_option autoImplicit false
 

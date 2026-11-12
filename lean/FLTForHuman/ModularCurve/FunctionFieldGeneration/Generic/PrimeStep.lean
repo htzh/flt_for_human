@@ -43,7 +43,7 @@
   (`mem_of_mem_range_levelNome`).
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.FieldTheory.CommonRoot
 
 set_option autoImplicit false

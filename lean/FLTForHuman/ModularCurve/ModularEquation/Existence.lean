@@ -1,92 +1,25 @@
 /-
-  T12 — the 895 block: irreducibility and symmetry of the datum.
+  Existence of the modular equation at a prime, and its irreducibility.
 
-  The block is FLT's single largest shared development: it ships in five pin files
-  (the three graph nodes `phiIrreducible_of_splits`, `evalSymm_of_splits`,
-  `transposeToAdjoin_monic_of_qExpansion`, plus the two hidden exports
-  `swapBivar_monic_of_coeff_bounds` and `evalSymm_of_irreducible`), `5 × 895 ≈
-  4,475` pin lines. This module is the block's irreducibility half, with the level
-  embedding both halves share: it exports the irreducibility headline, the prime
-  non-membership, the datum's minimal-polynomial facts, and the level embedding
-  `qEmbedT` with the evaluation `evalAtJK` that every splitting hypothesis of the cone is
-  stated with, together with the conjugates' leading terms. Everything else the
-  symmetry argument is built from — the transposed evaluation read off the
-  splitting, the transpose engine, the q-expansion dictionary, the descended pole
-  bounds — is in `ModularPolynomialProperties.lean`, beside the capstone that runs
-  them.
+  The datum is `Φ ∈ ℤ[X][Y]`, monic of degree `ψ(ℓ) = ℓ + 1`, vanishing at `(j(q), j(q ^ ℓ))`.
+  The module proves one exists and is irreducible and symmetric, by three facts:
 
-  ## What it proves
+  * the `ℓ + 1` conjugates are distinct, and `j(q ^ ℓ)` is not a polynomial in `j(q)` — a
+    vanishing `q⁻¹` coefficient of every element of `ℚ[j(q)]` separates it from the finite
+    conjugates, whose `q⁻¹` coefficients `(ζ ^ b)⁻¹` are distinct;
+  * a monic polynomial that splits into distinct linear factors over `K((q))`, has one root
+    outside the base field and has its other roots cycled by a base-field automorphism is
+    irreducible — the twist `q ↦ ζ q` fixes `j(q ^ (ℓ * ℓ))`, cycles the conjugates, and fixes
+    `ℚ(j(q))` pointwise;
+  * the transpose of the assembled datum is the datum: it annihilates `j(q ^ ℓ)`, so it is the
+    minimal polynomial, and both sides are monic of degree `ψ(ℓ)`.
 
-  * `conj_injective` — the `ℓ + 1` conjugates are distinct (separated by their
-    `q⁻¹` coefficients);
-  * `jqN_not_mem_adjoin_jq` (private) — `j(q ^ ℓ)` is not a polynomial in `j(q)`, the
-    prime non-membership: the twist-sum refutation, using `one_le_coeff_jq` at
-    `n = ℓ`. The pin has it public (`aeval_jq_ne_jqN_of_isPrimitiveRoot`,
-    `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq`) but no file outside the block's own
-    copies cites any of the three, so the port keeps the statement and inlines the
-    chain into one private fact (its only consumer is the irreducibility proof);
-  * `phiIrreducible_of_splits` — the datum is irreducible over `ℚ(j)`, by the
-    factor-counting argument: a nonzero `D ∈ ℚ[j(q)]` with `D(jq) = 0` has degree
-    `≥ ℓ` (the conjugates are distinct), so one factor of any factorisation has
-    degree `≤ 1`, and it is a unit because `j(q^ℓ) ∉ ℚ[j(q)]`;
-  * `aeval_jqN_toAdjoin`, `minpoly_jqN_eq` — `data.toAdjoin` annihilates `j(q^ℓ)`,
-    and is its minimal polynomial when the datum is irreducible;
-  * `evalAtJGen_injective` — the injectivity that lets the symmetry step be decided
-    over `ℚ(j(q))`;
-  * `qEmbedT`, `qEmbedT_injective`, `qEmbedT_jq`, `qEmbedT_eq_coeffEmb_qExpand`,
-    `qEmbedT_jqN`, `evalAtJK`, `conj_succ_zero` — the level embedding `ℚ((q)) → K((q))`, its
-    readings, and the evaluation `ℤ[X] → K((q))` that the splitting hypotheses of the cone are
-    stated with; exported because the transposed evaluation runs the same transport.
-
-  ## Reuse (work order §3.1)
-
-  The block's private `evalAtJ_injective` is T11's public one; its private
-  `coeff_aeval_jq_neg` is T9's; its private `evalAtJ_eq_aeval_map_rat` is the
-  `Defs/Jq.lean` promotion; its private `coeff_aeval_jq_of_lt` is
-  `Defs/PhiGen.lean`'s `poleOrderLE_aeval_jq` and its private
-  `coeff_aeval_jq_neg_natDegree` is `Defs/Jq.lean`'s `coeff_aeval_jq_neg` at
-  `m = P.natDegree`; `evalAtJGen_injective` is derived from
-  `evalAtJ_injective` through `algebraMap_comp_evalAtJGen` (the `eq_of_prime` file's
-  two-line proof), and `conj_injective` is written once and exported.
-
-  ## Source
-
-  FLT `anthropics/fermats-last-theorem@aa2d8b3`:
-  `P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean` (895 lines). The public
-  statements are the `Theorems/` wrappers verbatim where a wrapper exists; the level
-  embedding is the `S_` file's own (private) machinery, promoted here because the
-  transpose half of the block imports it. The port keeps the block's headlines and
-  the statements the argument needs, and does not name the pin's staging nodes
-  (`transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_irreducible`,
-  `evalSymm_of_splits`), whose hypotheses are the transpose's monic and degree facts
-  — one step's output handed to the next; the capstone carries that argument on its
-  own main line instead.
-
-  ## Assumptions
-
-  `Defs/PhiGen`'s `conj`/`conj_zero`/`conj_succ`/`phiProd`/`phiProd_eval_conj`/
-  `ModularPolynomialData`/`EvalSymm`/`PhiIrreducible`/`adjoinJq`/`jAdj`/
-  `evalAtJAdj`/`swapBivar`; `Defs/Fields`'s `jGen`/`evalAtJGen`/
-  `algebraMap_comp_evalAtJGen`/`toAdjoin`/`toAdjoin_monic`; `Defs/Jq`'s `jq`/
-  `jqN`/`evalAtJ`/`evalAtJ_eq_aeval_map`/`coeff_aeval_jq_neg`/`transcendental_jq`/
-  `dedekindPsi_prime`; `Defs/BivariateEval`'s `ev`/`ev_swap`/`ev_int`/`ev_sub`/
-  `swap_eq_of_evalSymm`; T11's `PhiGen.evalAtJ_injective`; T12's `one_le_coeff_jq`.
-  Checked by `spec/check_port.py` through the `spec-pin:` lines below; the module is
-  not listed in `spec/old_check_stmts.py`.
-
-  spec-pin: P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean
-  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_minpoly_jqN_eq.lean
-  spec-pin: Theorems/Thm_ModularCurve_PhiGen_conj_injective.lean
-  spec-pin: Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean
-  spec-pin: Theorems/Thm_ModularCurve_aeval_jqN_toAdjoin.lean
-  spec-pin: Theorems/Thm_ModularCurve_evalAtJGen_injective.lean
+  The capstone `exists_phiIrreducible_evalSymm` runs the chain: descent, integrality, membership in
+  the `j`-line, assembly, splitting, then the transpose comparison.
 -/
-import FLTForHuman.ModularCurve.JqCoeffPositivity
-import FLTForHuman.ModularCurve.PhiGenDescendsStructure
-import FLTForHuman.ModularCurve.Defs.BivariateEval
-import FLTForHuman.ModularCurve.Defs.Cyclotomic
-import Mathlib.Algebra.Polynomial.Roots
+
 import Mathlib.Algebra.Polynomial.Bivariate
+import Mathlib.Algebra.Polynomial.Roots
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
 import Mathlib.FieldTheory.Minpoly.Field
 import Mathlib.NumberTheory.Cyclotomic.Basic
@@ -94,6 +27,20 @@ import Mathlib.RingTheory.Polynomial.GaussLemma
 import Mathlib.RingTheory.Polynomial.RationalRoot
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.LinearCombination
+
+import FLTForHuman.ModularCurve.Defs.BivariateEval
+import FLTForHuman.ModularCurve.Defs.Cyclotomic
+import FLTForHuman.ModularCurve.Defs.DedekindPsi
+import FLTForHuman.ModularCurve.Defs.Fields
+import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularCurve.Defs.Laurent
+import FLTForHuman.ModularCurve.Defs.PhiGen
+import FLTForHuman.ModularCurve.Defs.Polynomial
+import FLTForHuman.ModularCurve.JqCoeffPositivity
+import FLTForHuman.ModularCurve.ModularEquation.Construction
+import FLTForHuman.ModularCurve.ModularEquation.Support.LevelEmbedding
+import FLTForHuman.ModularCurve.ModularEquation.Transpose
+import FLTForHuman.ModularForms.PhiGenDescends
 
 set_option autoImplicit false
 
@@ -161,8 +108,7 @@ private theorem conj_succ_coeff_neg_one {K : Type*} [Field K] [Algebra ℚ K] (�
   rw [conj_succ, qTwist_coeff, coeff_coeffEmb_jq_neg_one, mul_one, zpow_neg_one]
 
 /-- The `ℓ + 1` conjugates are distinct: the extra root has `q⁻¹` coefficient `0`
-and the finite roots have distinct `q⁻¹` coefficients `(ζ ^ b)⁻¹`. Verbatim from
-the pin wrapper `Theorems/Thm_ModularCurve_PhiGen_conj_injective.lean`. -/
+and the finite roots have distinct `q⁻¹` coefficients `(ζ ^ b)⁻¹`. -/
 theorem conj_injective {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
     Function.Injective (conj ℓ ζ (K := K)) := by
@@ -220,10 +166,6 @@ private theorem ratC_apply (c : ℚ) : ratC K c = HahnSeries.single 0 (algebraMa
 private theorem coeff_ratC_of_ne (c : ℚ) {k : ℤ} (hk : k ≠ 0) : (ratC K c).coeff k = 0 := by
   rw [ratC_apply]
   exact HahnSeries.coeff_single_of_ne hk
-
-private theorem coeffMap_jq : coeffMap (algebraMap ℚ K) jq = (coeffEmb K jq) := by
-  ext k
-  rfl
 
 end ScalarEmbedding
 
@@ -465,17 +407,13 @@ private theorem algebraMap_comp_evalAtJAdj :
 
 namespace ModularPolynomialData
 
-/-- `data.toAdjoin` annihilates `j(q ^ N)`. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_aeval_jqN_toAdjoin.lean` (declared at the
-`ModularCurve` level as the wrapper has it). -/
+/-- `data.toAdjoin` annihilates `j(q ^ N)`. -/
 theorem _root_.ModularCurve.aeval_jqN_toAdjoin {N : ℕ} [NeZero N]
     (data : ModularPolynomialData N) : Polynomial.aeval (jqN N) data.toAdjoin = 0 := by
   rw [Polynomial.aeval_def, toAdjoin, Polynomial.eval₂_map, algebraMap_comp_evalAtJGen]
   exact data.eval_eq_zero
 
-/-- For an irreducible datum, `data.toAdjoin` is the minimal polynomial of
-`j(q ^ N)`. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_ModularPolynomialData_minpoly_jqN_eq.lean`. -/
+/-- For an irreducible datum, `data.toAdjoin` is the minimal polynomial of `j(q ^ N)`. -/
 theorem minpoly_jqN_eq {N : ℕ} [NeZero N] (data : ModularPolynomialData N)
     (hirr : PhiIrreducible data) :
     minpoly (↥ℚ⟮jq⟯) (jqN N) = data.toAdjoin :=
@@ -487,40 +425,14 @@ end FractionField
 
 namespace PhiGen
 
-/-! ## The embedding `ℚ((q)) → K((q))` at level `ℓ` -/
-
-section Embed
-
-variable (K : Type*) [Field K] [Algebra ℚ K] (ℓ : ℕ) [NeZero ℓ]
-
-/-- The level-`ℓ` embedding `ℚ((q)) → K((q))`: the coefficients are extended to `K` and the
-nome is raised to the `ℓ`-th power, so `j(q) ↦ j(q ^ ℓ)` and `j(q ^ ℓ) ↦ j(q ^ (ℓ * ℓ))`. It is
-injective, which is what lets a vanishing in `K((q))` be read back in `ℚ((q))`. The analytic setup of
-`Analytic/Gamma0InvariantCore.lean` calls the same map `iota`. -/
-def qEmbedT : LaurentSeries ℚ →+* LaurentSeries K :=
-  (qExpand K ℓ).comp (coeffMap (algebraMap ℚ K))
-
-private theorem qEmbedT_apply (x : LaurentSeries ℚ) :
-    qEmbedT K ℓ x = qExpand K ℓ (coeffMap (algebraMap ℚ K) x) := rfl
-
-/-- The level-`ℓ` embedding is injective. -/
-theorem qEmbedT_injective : Function.Injective (qEmbedT K ℓ) :=
-  (qEmbedT K ℓ).injective
-
-/-- The embedding sends the nome `q` to `q ^ ℓ`: `j(q)` becomes the `ℓ`-substituted series. -/
-theorem qEmbedT_jq : qEmbedT K ℓ jq = qExpand K ℓ (coeffEmb K jq) := by
-  rw [qEmbedT_apply, coeffMap_jq]
-
-end Embed
+/-! ## The twist commutes past the level embedding -/
 
 section EmbedPrime
 
 variable (K : Type*) [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
 
-/-- The embedding sends `j(q ^ ℓ)` to the `(ℓ, 0)` conjugate `j(q ^ (ℓ * ℓ))`: the cusp at
-infinity of the level-`ℓ` product, one canonical `ℓ`-isogeny beyond `j(q ^ ℓ)`. -/
-theorem qEmbedT_jqN : qEmbedT K ℓ (jqN ℓ) = conj ℓ ζ (0 : Fin (ℓ + 1)) := by
-  rw [conj_zero, qEmbedT_apply, jqN, coeffMap_qExpand, coeffMap_jq, qExpand_qExpand]
+private theorem qEmbedT_apply (x : LaurentSeries ℚ) :
+    qEmbedT K ℓ x = qExpand K ℓ (coeffMap (algebraMap ℚ K) x) := rfl
 
 private theorem qTwist_comp_qEmbedT (hζ : IsPrimitiveRoot (ζ : K) ℓ) (b : ℕ) :
     (qTwist (ζ ^ b)).comp (qEmbedT K ℓ) = qEmbedT K ℓ := by
@@ -528,38 +440,7 @@ private theorem qTwist_comp_qEmbedT (hζ : IsPrimitiveRoot (ζ : K) ℓ) (b : �
   rw [RingHom.comp_apply, qEmbedT_apply, qTwist_qExpand, zeta_pow_zpow_eq_one ℓ ζ hζ b,
     qTwist_one_apply]
 
-/-- The conjugate at `(a, b) = (1, 0)` is `j(q)` itself: the tame twist is trivial, so `j(q)` is
-a root of the conjugate product. -/
-theorem conj_succ_zero : conj ℓ ζ (0 : Fin ℓ).succ = (coeffEmb K jq) := by
-  rw [conj_succ, Fin.val_zero, pow_zero, qTwist_one_apply]
-
 end EmbedPrime
-
-section EvalAtJK
-
-variable (K : Type*) [Field K] [Algebra ℚ K] (ℓ : ℕ) [NeZero ℓ]
-
-/-- Evaluation of an integer polynomial at `j(q ^ ℓ)` over `K((q))`: the codomain-`K((q))` companion
-of `evalAtJqN`, and the `X`-slot substitution the symmetry argument reads `Φ` through. It is
-`evalAtJ` followed by the level embedding `qEmbedT K ℓ`, so on `X` it is `j(q ^ ℓ)`, the image of
-the nome `q ^ ℓ`; equivalently it is `coeffEmb K` applied after `evalAtJqN ℓ`. -/
-def evalAtJK : Polynomial ℤ →+* LaurentSeries K :=
-  (qEmbedT K ℓ).comp evalAtJ
-
-theorem evalAtJK_def : evalAtJK K ℓ = (qEmbedT K ℓ).comp evalAtJ := rfl
-
-@[simp]
-theorem evalAtJK_X : evalAtJK K ℓ Polynomial.X = qExpand K ℓ (coeffEmb K jq) := by
-  simp [evalAtJK, qEmbedT_jq]
-
-/-- The level embedding is the composite the descent states its families with: `qEmbedT K ℓ` is
-`coeffEmb K` after `qExpand ℚ ℓ`. -/
-theorem qEmbedT_eq_coeffEmb_qExpand (x : LaurentSeries ℚ) :
-    qEmbedT K ℓ x = coeffEmb K (qExpand ℚ ℓ x) := by
-  rw [qEmbedT_apply]
-  exact (coeffEmb_qExpand K ℓ x).symm
-
-end EvalAtJK
 
 /-! ## The factor-counting engine -/
 
@@ -704,9 +585,7 @@ force that factor to have degree `≥ ℓ`, and the other factor is then a unit
 because a degree-`1` factor would have a root in `ℚ[j(q)]`, which
 `j(q ^ ℓ) ∉ ℚ[j(q)]` forbids. The two levels are named in the proof: `Φ₀` is
 `Φ(j(q), Y)` over `ℚ[j(q)]`, and `Φ₁` is its level-`ℓ` image `Φ(j(q ^ ℓ), Y)` over
-`K((q))`. The pin wrapper's statement
-`Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean`, with its splitting hypothesis
-stated with `evalAtJK K ℓ` rather than the composite the pin spells out. -/
+`K((q))`, with the splitting hypothesis stated with `evalAtJK K ℓ`. -/
 theorem phiIrreducible_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ)
     [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ)
     (data : ModularPolynomialData ℓ)
@@ -786,5 +665,70 @@ end PhiGen
 
 end ModularCurve
 
-end
+namespace ModularCurve
 
+/-! ## Existence of an irreducible symmetric datum -/
+
+/-- **The root the descent is run at**: `ℚ(ζ_ℓ)`'s primitive `ℓ`-th root (mathlib's), as a unit.
+Naming it keeps the choice of where the descent happens — which is all the cyclotomic setup
+amounts to — out of the existence proof, which then reads as the chain it is. -/
+private theorem exists_primitiveRoot_cyclotomic (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
+    [hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ)] :
+    ∃ ζ : (CyclotomicField ℓ ℚ)ˣ, IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ := by
+  obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
+    (Set.mem_singleton ℓ) hℓ.out.ne_zero
+  have hzu := hz.isUnit hℓ.out.ne_zero
+  exact ⟨hzu.unit, by rw [hzu.unit_spec]; exact hz⟩
+
+/-- **There is an irreducible symmetric modular polynomial datum at every prime `ℓ`**: run the
+descent at the cyclotomic field's primitive root, read off the coefficients' integrality and
+their membership in the `j`-line, assemble the datum, conclude irreducibility, the
+transposed evaluation and the pole bounds from the splitting, read the bounds through the
+dictionary as the transpose's monic degree `ψ(ℓ)`, and identify the transpose with the datum by
+uniqueness of the minimal polynomial of `j(q ^ ℓ)`.
+
+Two roles of `ℓ` meet in the statement, and only the first is about isogenies: `ℓ` is the order of
+the modular polynomial (`Φ_ℓ`, `ψ(ℓ) = ℓ + 1` conjugates, the nome change `q ↦ q ^ ℓ`), and it is
+also the level of the cyclotomic field the descent is run at — cyclotomic, hence finite and Galois,
+with a primitive `ℓ`-th root from `exists_primitiveRoot_cyclotomic`. -/
+theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
+    ∃ data : ModularPolynomialData ℓ, PhiIrreducible data ∧ EvalSymm data.Φ := by
+  have : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
+  have hcyc : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
+    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
+  have : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
+    IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
+  obtain ⟨ζ, hζ⟩ := exists_primitiveRoot_cyclotomic ℓ
+  obtain ⟨c, hdescend⟩ := PhiGen.exists_phiGenDescends ℓ ζ hζ
+  obtain ⟨data, hcoeff⟩ := PhiGen.exists_modularPolynomialData_coeff_eq hdescend
+    (fun k => hdescend.intCoeffs (units_pow_eq_one_of_isPrimitiveRoot hζ) k)
+    (fun k => PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hdescend k)
+  have hsplit := PhiGen.splits_of_descends hdescend hcoeff
+  have hirr : PhiIrreducible data := PhiGen.phiIrreducible_of_splits ℓ ζ hζ data hsplit
+  have hswap : data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 :=
+    PhiGen.eval_swap_eq_zero_of_splits ℓ ζ data hsplit
+  obtain ⟨h0top, h0le, hk⟩ := PhiGen.coeff_poleBounds_of_splits hζ hsplit
+  obtain ⟨h0monic, h0deg⟩ := monic_of_evalAtJ_coeff_eq_one
+    (natDegree_le_of_evalAtJ_coeff_eq_zero h0le) h0top
+  set ΦT := swapBivar data.Φ with hΦT
+  obtain ⟨hTmonic, hTdeg⟩ := swapBivar_monic_of_coeff_bounds h0monic h0deg
+    fun k hk0 => degree_lt_of_evalAtJ_coeff_eq_zero (hk k hk0)
+  rw [← hΦT] at hTmonic hTdeg
+  set T := ΦT.map evalAtJGen with hT
+  have hTgen : T.Monic := hTmonic.map evalAtJGen
+  have hann : Polynomial.aeval (jqN ℓ) T = 0 := data.aeval_jqN_transposeToAdjoin hswap
+  have hdvd : data.toAdjoin ∣ T := by
+    rw [← data.minpoly_jqN_eq hirr]
+    exact minpoly.dvd _ _ hann
+  have hTeq : T = data.toAdjoin :=
+    Polynomial.eq_of_monic_of_dvd_of_natDegree_le data.toAdjoin_monic hTgen hdvd (by
+      rw [hT, hTmonic.natDegree_map, hTdeg,
+        show data.toAdjoin = data.Φ.map evalAtJGen from rfl, data.monic.natDegree_map,
+        data.natDegree_eq])
+  have hsymm : ΦT = data.Φ :=
+    Polynomial.map_injective evalAtJGen evalAtJGen_injective (by rw [← hT, hTeq]; rfl)
+  exact ⟨data, hirr, evalSymm_of_swapBivar_eq (hΦT.symm.trans hsymm)⟩
+
+end ModularCurve
+
+end

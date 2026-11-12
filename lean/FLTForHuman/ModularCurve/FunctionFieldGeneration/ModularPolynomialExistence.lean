@@ -26,7 +26,7 @@
 -/
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import Mathlib.Data.Nat.Factorization.Induction
 
 set_option autoImplicit false

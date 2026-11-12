@@ -71,8 +71,8 @@ import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
 import FLTForHuman.FieldTheory.CommonRoot
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.PhiSlotRoots
-import FLTForHuman.ModularCurve.PhiGenSplits
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Split
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.FieldTheory.AdjoinTower
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation

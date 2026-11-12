@@ -33,8 +33,8 @@ import FLTForHuman.ModularCurve.Defs.FibrePoly
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.Defs.Invariants
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
-import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
+import FLTForHuman.ModularCurve.ModularEquation.Existence
+import FLTForHuman.ModularCurve.ModularEquation.Split
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
 
@@ -47,11 +47,6 @@ open Polynomial IntermediateField Finset Nat
 namespace ModularCurve
 
 /-! ## The one-liners over the ported Φ_p effort -/
-
-theorem exists_modularPolynomialData_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
-    ∃ data : ModularPolynomialData ℓ, EvalSymm data.Φ := by
-  obtain ⟨data, _, hsymm⟩ := exists_phiIrreducible_evalSymm ℓ
-  exact ⟨data, hsymm⟩
 
 theorem modularPolynomialFamily : ModularPolynomialFamily := fun ℓ _ hℓ => by
   have : Fact (Nat.Prime ℓ) := ⟨hℓ⟩

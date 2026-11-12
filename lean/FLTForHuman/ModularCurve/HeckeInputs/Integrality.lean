@@ -27,6 +27,7 @@ import FLTForHuman.ModularCurve.Defs.DegeneracyTower
 import FLTForHuman.ModularCurve.Defs.HeckeTotal
 import FLTForHuman.ModularCurve.Degree.LaurentGlue
 import FLTForHuman.ModularCurve.Degree.PhiData
+import FLTForHuman.ModularCurve.ModularEquation.Split
 import FLTForHuman.AlgebraicCurve.WeilExchange.Transport
 import Mathlib.RingTheory.IntegralClosure.IsIntegral.Basic
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
@@ -136,7 +137,7 @@ end Alpha
 
 section Beta
 
-private theorem qExpand_jqNModC (L : Type*) [Field L] (ℓ e : ℕ) [NeZero ℓ] [NeZero e] :
+private theorem qExpand_jqNModC_field (L : Type*) [Field L] (ℓ e : ℕ) [NeZero ℓ] [NeZero e] :
     qExpand L ℓ (jqNModC L e) = jqNModC L (e * ℓ) := by
   unfold jqNModC
   rw [qExpand_qExpand]
@@ -169,7 +170,7 @@ private theorem isIntegralElem_heckeBetaBar_gens {L : Type*} [Field L] [Algebra 
       show ((heckeBetaBar L N ℓ ⟨jqNModC L e, _⟩ :
           laurentBaseChange L (modularFunctionFieldFull (N * ℓ))) : LaurentSeries L) = jqNModC L (e * ℓ)
       rw [coe_heckeBetaBar]
-      exact qExpand_jqNModC L ℓ e
+      exact qExpand_jqNModC_field L ℓ e
     rw [hcomp]
     exact data.eval_jqNModC_of_mul_eq_zero hsymm L e
   · have : NeZero d := ⟨fun h => (NeZero.ne (d * ℓ)) (by rw [h, zero_mul])⟩
@@ -179,7 +180,7 @@ private theorem isIntegralElem_heckeBetaBar_gens {L : Type*} [Field L] [Algebra 
     show jqNModC L (d * ℓ) = ((heckeBetaBar L N ℓ ⟨jqNModC L d, _⟩ :
       laurentBaseChange L (modularFunctionFieldFull (N * ℓ))) : LaurentSeries L)
     rw [coe_heckeBetaBar]
-    exact (qExpand_jqNModC L ℓ d).symm
+    exact (qExpand_jqNModC_field L ℓ d).symm
 
 theorem finiteAlong_heckeBetaBar_of_modularPolynomialData (L : Type*) [Field L] [Algebra ℚ L]
     {ℓ : ℕ} [NeZero ℓ] (data : ModularPolynomialData ℓ) (hsymm : EvalSymm data.Φ)

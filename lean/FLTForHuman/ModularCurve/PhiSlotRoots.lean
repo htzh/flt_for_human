@@ -39,7 +39,7 @@
 -/
 import Mathlib.Algebra.Polynomial.Roots
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
-import FLTForHuman.ModularCurve.PhiGenSplits
+import FLTForHuman.ModularCurve.ModularEquation.Split
 
 set_option autoImplicit false
 

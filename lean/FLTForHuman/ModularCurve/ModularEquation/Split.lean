@@ -1,152 +1,284 @@
 /-
-  GS1 — the prime splitting of `Φ_p` over an **arbitrary** field, with the at-slot
-  roots API that reads it off.
+  The prime-level uniqueness of the modular equation, and its splitting.
 
-  `PhiGen.splits_prime_of_isPrimitiveRoot` is `Φ_p(j(q^p), Y) = ∏_i (Y - conj_i)`
-  over any field `K` (`[Field K]`, no `ℚ`-algebra structure), the level-`p` datum
-  read at the level-`p` nome `jqModC K` splitting into its `p + 1` conjugates.
-  `PhiGen.splits_prime_at_slot_of_isPrimitiveRoot` is the same identity at the
-  general level datum `(e, u)`, and the roots API reads the root multiset, its
-  distinctness and the `IsRoot` membership form off it.
+  Two facts about the datum at a prime `p`, and the root family they make explicit:
 
-  The proof is one transport engine. It applies the ported char-0 splitting
-  `PhiGen.splits_of_prime` at `CyclotomicField p ℚ`, rewrites that statement's `X`
-  slot as `phiAtSeed` and its `jq` as `jqModC`, **pulls the identity back** to the
-  integral cyclotomic order `cyclRing ℤ p` along the injective
-  `cyclRing ℤ p →+* CyclotomicField p ℚ` (injective because the cyclotomic
-  polynomial is the minimal polynomial of the chosen primitive root), and **pushes
-  it forward** to `K` along `AdjoinRoot.lift (Int.castRingHom K) (ζ : K)`. The
-  at-slot form is the first identity pushed through `(qExpand K e).comp (qTwist u)`
-  — the same move the char-0 `PhiGenSplits.splits_prime_at_slot` makes — and the
-  second headline is its `e = u = 1` case, exactly as the pin proves it.
+  * uniqueness — any two data at `p` are equal, because each `toAdjoin` is the minimal polynomial
+    of `j(q ^ p)` and the relative degree is `p + 1`;
+  * the splitting — `Φ_p(j(u ^ p q ^ (p * e)), Y) = (Y - j(u ^ (p * p) q ^ (p * p * e)))
+    ∏ b, (Y - j(u ζ ^ b q ^ e))`, first over `ℚ(ζ_p)`, then over any field carrying a primitive
+    `p`-th root, and at an arbitrary level datum `(e, u)`.
 
-  ## Source
+  The module also exports the at-slot root API: the slot values are exactly the roots, they are
+  distinct, and the slot polynomial factors through them.
 
-  FLT `anthropics/fermats-last-theorem@aa2d8b3`:
-  `P2M/Sol/S_ModularCurve_PhiGen_splits_prime_of_isPrimitiveRoot.lean` (607 lines)
-  and `P2M/Sol/S_ModularCurve_PhiGen_splits_prime_at_slot_of_isPrimitiveRoot.lean`
-  (607 lines). The two files are **byte-identical except for the 15 lines that
-  spell their own name and the final `solution`**: one 607-line development, so
-  one module. The declarations transcribed are pin 267–486 (the transport engine),
-  426–484 (the two public engine theorems) and 496–589 (the two headlines and the
-  roots API).
-
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_splits_prime_of_isPrimitiveRoot.lean#L267-L589
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_splits_prime_at_slot_of_isPrimitiveRoot.lean#L267-L589
-
-  The two headlines are the pin's `Theorems/` wrappers verbatim
-  (`Theorems/Thm_ModularCurve_PhiGen_splits_prime_of_isPrimitiveRoot.lean:9` and
-  `Theorems/Thm_ModularCurve_PhiGen_splits_prime_at_slot_of_isPrimitiveRoot.lean:9`);
-  the engine theorems and the roots API are the `S_` file's verbatim.
-
-  ## Twins this module is and is not
-
-  It is the **any-field** twin of `PhiGenSplits.lean` (the splitting) and of
-  `PhiSlotRoots.lean` (the roots read off it). It is **not** an instance of either:
-  both of those spend an `Algebra ℚ K` and read the slot as `coeffEmb K jq`, which
-  an arbitrary field does not have — and the pin's own graph makes
-  `splits_of_prime` a *premise* of this module, which is exactly what the
-  integrality step uses. The statements therefore differ in their slot
-  (`jqModC K` here, `coeffEmb K jq` there) and in the `N`/`p ∣ N` bookkeeping of
-  the roots API (there the slot is read at an `N`-th primitive root restricted to
-  `ζ ^ (N / p)`; here `ζ` is primitive of order `p` outright).
-
-  ## Names — four renames the pin's two namespaces hide
-
-  The pin states the at-slot roots API **twice** (this file's char-`p` spelling at
-  level `p`, and `PhiSlotRoots`' char-0 spelling at general `N`), each inside its
-  own per-file namespace `P2MW.S_…`, so both keep the plain names. A single
-  `ModularCurve` namespace cannot hold two declarations of one name — Lean refuses
-  the *import* of both modules (`environment already contains
-  'ModularCurve.isRoot_prime_at_slot_iff'`), which would make any module wanting
-  both unbuildable. The char-0 copy was landed first and is what five modules call,
-  so this module's four at-slot names take the pin's own disambiguator for the
-  any-field variants of this development, `_of_isPrimitiveRoot` (the suffix of the
-  two headlines and of the pin's file names):
-
-  | ported name | pin name (same statement) |
-  |---|---|
-  | `roots_prime_at_slot_of_isPrimitiveRoot` | `roots_prime_at_slot` (518) |
-  | `roots_prime_at_slot_nodup_of_isPrimitiveRoot` | `roots_prime_at_slot_nodup` (535) |
-  | `roots_prime_at_slot_roots_nodup_of_isPrimitiveRoot` | `roots_prime_at_slot_roots_nodup` (558) |
-  | `isRoot_prime_at_slot_iff_of_isPrimitiveRoot` | `isRoot_prime_at_slot_iff` (565) |
-
-  The statements are the pin's verbatim, and the checker still verifies them — by
-  content, with one `pin:` row each in [spec/decl_markers.tsv](../../spec/decl_markers.tsv).
-  `prod_form_ne_zero` (pin 511) is `private` here, as in the pin: its public
-  promoted home is `PhiSlotRoots`' more general copy, and `roots_phiAtSeed_TS` (pin
-  584) keeps the pin's name because `PhiSlotRoots` has no such declaration.
-
-  ## Layering
-
-  This is the C-layer's entry to the at-slot roots (`roots_phiAtSeed_TS` has five
-  consumers there), so it sits beside `PhiGenSplits`/`PhiSlotRoots` in
-  `ModularCurve/`; it imports the definition layer and `PhiGenSplits`, and nothing
-  imports it but the C layer.
-
-  ## The prelude is imported, not re-written (pin 33–192, 269–281, 296–317, 355–364)
-
-  The pin repeats its `TS`/`coeffMap`/`phiAtSeed` prelude in every `S_` file that
-  needs it; the port gives each declaration one home, and this module imports them
-  instead of transcribing them. `Defs/TS.lean` has `TS` and its coefficient API at
-  `[Field K]` (including `TS_injective`, which `roots_prime_at_slot_nodup` needs,
-  and `qTwist_TS`/`qExpand_TS`/`TS_congr`/`qExpand_qTwist_TS`); `Defs/PhiAtSlot.lean`
-  has `phiAtSeed` and its API; `Defs/PhiGen.lean` has `conj`, `conj_zero`,
-  `conj_succ`, `phiProd`; `Defs/Cyclotomic.lean` has `cycUnit`, `cycUnit_spec` and
-  `isPrimitiveRoot_pow_div` (the pin's `ksplit_exists_isPrimitiveRoot`,
-  `ksplitCycUnit`, `ksplitCycUnit_spec`); `Defs/KatzLevelPCusps.lean` has
-  `cyclRing`, `cyclZeta`, `cyclRing_root_pow`, `val_cyclZeta` and
-  `qTwist_qExpand_of_pow_eq_one` (the pin's `ksplit_root_pow`, `ksplitZeta`);
-  `Defs/Laurent.lean` has `coeffEmb_qExpand` (the pin's `ksplit_coeffEmb_qExpand`)
-  and `coeffMap_injective`; `Defs/JqCoeff.lean` has `coeffEmb_jq` (the pin's
-  `ksplit_coeffEmb_jq`); `Defs/Twist.lean` has `coeffMap_qTwist` and
-  `qTwistEquiv`; `X0/FunctionFieldFull.lean` has `coeff_jqModC_of_lt` (pin 44–47);
-  `Defs/Cyclotomic.lean` has `units_pow_eq_one_of_isPrimitiveRoot` (pin 189–190).
-
-  Four of the pin's prelude bridges are **not written anywhere in the port yet at
-  these statements**, and are not this module's: `jqModC_eq_TS` (pin 105),
-  `jqNModC_eq_TS` (108),
-  `qExpand_jqNModC` (111) and `qExpand_jqModC_eq_TS` (114). Their consumers are the
-  `finrank_adjoin_jqNModC_*` / `jqNModC_*` nodes, which own them; nothing here
-  mentions them. `qTwistEquiv_apply` (163) and `coeff_qTwistEquiv` (165) are dead
-  in the pin — `coeff_qTwistEquiv` has no consumer anywhere in the pin, and
-  `qTwistEquiv`'s only other use is that projection.
-
-  **Dropped, and why.** `roots_nodup_prime_at_slot_of_isPrimitiveRoot`
-  (pin 596–598): `private`, a one-line alias of `roots_prime_at_slot_roots_nodup`,
-  no consumer in the pin. The prelude above (pin 33–192, 269–281, 296–317,
-  355–364), because it is imported. The pin's dead `qTwistEquiv` block
-  (pin 151–167), whose one live member `qTwistEquiv` is `Defs/Twist.lean`'s. The
-  pin's `ksplit_comp_evalAtJ` (283–290) is **kept** as `comp_evalAtJ`: it is the
-  engine's own `evalAtJ` bridge and has no other home.
-
-  ## Assumptions
-
-  `PhiGenSplits.splits_of_prime` (the premise), `Defs/TS`, `Defs/PhiAtSlot`,
-  `Defs/PhiGen`, `Defs/Cyclotomic`, `Defs/KatzLevelPCusps`, `Defs/Laurent`,
-  `Defs/Twist`, `Defs/JqCoeff`; mathlib's `AdjoinRoot`, the cyclotomic roots API
-  (`Polynomial.cyclotomic_eq_minpoly_rat`, `map_cyclotomic_int`,
-  `IsPrimitiveRoot.isRoot_cyclotomic`) and `Polynomial.roots_*`.
-
-  spec-pin: P2M/Sol/S_ModularCurve_PhiGen_splits_prime_of_isPrimitiveRoot.lean
-  spec-pin: P2M/Sol/S_ModularCurve_PhiGen_splits_prime_at_slot_of_isPrimitiveRoot.lean
+  Together with `Existence`, this is the public surface of the theory at a prime.
 -/
-import FLTForHuman.ModularCurve.PhiGenSplits
-import FLTForHuman.ModularCurve.Defs.TS
-import FLTForHuman.ModularCurve.Defs.PhiAtSlot
-import FLTForHuman.ModularCurve.Defs.Cyclotomic
-import FLTForHuman.ModularCurve.Defs.KatzLevelPCusps
-import FLTForHuman.ModularCurve.Defs.JqCoeff
-import Mathlib.RingTheory.AdjoinRoot
-import Mathlib.NumberTheory.Cyclotomic.PrimitiveRoots
-import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
+
 import Mathlib.Algebra.Polynomial.Roots
+import Mathlib.FieldTheory.Minpoly.Field
+import Mathlib.NumberTheory.Cyclotomic.PrimitiveRoots
+import Mathlib.RingTheory.AdjoinRoot
+import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
+import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
+
+import FLTForHuman.ModularCurve.Defs.Cyclotomic
+import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularCurve.Defs.JqCoeff
+import FLTForHuman.ModularCurve.Defs.KatzLevelPCusps
+import FLTForHuman.ModularCurve.Defs.PhiAtSlot
+import FLTForHuman.ModularCurve.Defs.PhiGen
+import FLTForHuman.ModularCurve.Defs.TS
+import FLTForHuman.ModularCurve.ModularEquation.Construction
+import FLTForHuman.ModularCurve.ModularEquation.Existence
+import FLTForHuman.ModularCurve.ModularEquation.Support.LevelEmbedding
 
 set_option autoImplicit false
 
 noncomputable section
 
-open Polynomial HahnSeries
+open Polynomial HahnSeries IntermediateField
+
+open scoped IntermediateField.algebraAdjoinAdjoin
+
+namespace ModularCurve
+
+/-! ## The relative degree of `j(q ^ N)` -/
+
+section Finrank
+
+variable {N : ℕ} [NeZero N]
+
+/-- For an irreducible datum the relative degree is `ψ(N)`: `data.toAdjoin` is the
+minimal polynomial of `j(q ^ N)`, and `IntermediateField.adjoin.finrank` turns the
+degree of that minimal polynomial into the degree of the simple extension. -/
+private theorem finrank_adjoin_jqN_eq (data : ModularPolynomialData N)
+    (hirr : PhiIrreducible data) :
+    Module.finrank ℚ⟮jq⟯ ℚ⟮jq⟯⟮jqN N⟯ = dedekindPsi N := by
+  have hint : IsIntegral ℚ⟮jq⟯ (jqN N) :=
+    ⟨data.toAdjoin, data.toAdjoin_monic, by
+      rw [← Polynomial.aeval_def]
+      exact aeval_jqN_toAdjoin data⟩
+  rw [IntermediateField.adjoin.finrank hint, ModularPolynomialData.minpoly_jqN_eq data hirr,
+    ModularPolynomialData.toAdjoin, data.monic.natDegree_map, data.natDegree_eq]
+
+end Finrank
+
+/-- The relative degree at a prime is `p + 1`. -/
+theorem finrank_adjoin_jqN_eq_of_prime (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
+    Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+      (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+        ({jqN ℓ} : Set (LaurentSeries ℚ))) = ℓ + 1 := by
+  obtain ⟨data, hirr, -⟩ := exists_phiIrreducible_evalSymm ℓ
+  rw [show Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+        (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))
+          ({jqN ℓ} : Set (LaurentSeries ℚ))) = dedekindPsi ℓ from
+      finrank_adjoin_jqN_eq data hirr,
+    dedekindPsi_prime hℓ.out]
+
+/-! ## Uniqueness of the datum -/
+
+section Uniqueness
+
+variable {N : ℕ} [NeZero N]
+
+/-- The `Y`-degree of the transported datum is `ψ(N)`. -/
+private theorem natDegree_toAdjoin (data : ModularPolynomialData N) :
+    data.toAdjoin.natDegree = dedekindPsi N := by
+  rw [ModularPolynomialData.toAdjoin, data.monic.natDegree_map, data.natDegree_eq]
+
+/-- Every datum at a prime has `toAdjoin` equal to the minimal polynomial of
+`j(q ^ p)`: it is monic, it annihilates `j(q ^ p)`, and its degree is the
+minimal one, `p + 1`.
+
+The `p + 1` is not read off the datum. `natDegree_toAdjoin` plus divisibility give
+`(minpoly …).natDegree ≤ ψ(p)` — the datum is a monic annihilator, so the minimal polynomial
+divides it — while `eq_of_monic_of_dvd_of_natDegree_le` wants the *reverse* inequality,
+`ψ(p) ≤ (minpoly …).natDegree`. That one is `finrank_adjoin_jqN_eq_of_prime`, i.e. the
+irreducibility of the datum's `Φ`, and it is the whole reason this theorem (and
+`eq_of_prime` on it) is char 0 rather than bookkeeping. -/
+private theorem toAdjoin_eq_minpoly (p : ℕ) [hp : Fact p.Prime] (data : ModularPolynomialData p) :
+    data.toAdjoin = minpoly ℚ⟮jq⟯ (jqN p) := by
+  have hint : IsIntegral ℚ⟮jq⟯ (jqN p) :=
+    ⟨data.toAdjoin, data.toAdjoin_monic, by
+      simpa [Polynomial.aeval_def] using aeval_jqN_toAdjoin data⟩
+  have hdeg : (minpoly ℚ⟮jq⟯ (jqN p)).natDegree = p + 1 := by
+    rw [← IntermediateField.adjoin.finrank hint]
+    exact finrank_adjoin_jqN_eq_of_prime p
+  refine Polynomial.eq_of_monic_of_dvd_of_natDegree_le (minpoly.monic hint) data.toAdjoin_monic
+    (minpoly.dvd _ _ (aeval_jqN_toAdjoin data)) ?_
+  rw [hdeg, natDegree_toAdjoin, dedekindPsi_prime hp.out]
+
+end Uniqueness
+
+namespace ModularPolynomialData
+
+/-- Any two modular-polynomial data at a prime are equal. -/
+theorem eq_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)] (d d' : ModularPolynomialData p) :
+    d = d' := by
+  have h : d.Φ = d'.Φ := by
+    apply Polynomial.map_injective evalAtJGen evalAtJGen_injective
+    change d.toAdjoin = d'.toAdjoin
+    rw [toAdjoin_eq_minpoly p d, toAdjoin_eq_minpoly p d']
+  cases d
+  cases d'
+  cases h
+  rfl
+
+end ModularPolynomialData
+
+end ModularCurve
+
+namespace ModularCurve
+namespace PhiGen
+
+variable {K : Type*} [Field K] [Algebra ℚ K]
+
+/-! ## Transport of the identity along a `ℚ`-algebra embedding -/
+
+section Transport
+
+variable {K₀ : Type*} [Field K₀] [Algebra ℚ K₀]
+
+private theorem coeffMap_conj (σ : K₀ →ₐ[ℚ] K) (p : ℕ) [Fact p.Prime] (ζ : K₀ˣ)
+    (i : Fin (p + 1)) :
+    coeffMap (σ : K₀ →+* K) (conj p ζ i) =
+      conj p (Units.map (σ : K₀ →+* K).toMonoidHom ζ) i := by
+  refine Fin.cases ?_ (fun b => ?_) i
+  · rw [conj_zero_eq, conj_zero_eq, coeffMap_TS, map_one]
+  · rw [conj_succ_eq, conj_succ_eq, coeffMap_TS, map_pow]
+
+private theorem map_coeffMap_phiProd (σ : K₀ →ₐ[ℚ] K) (p : ℕ) [Fact p.Prime] (ζ : K₀ˣ) :
+    (phiProd p (conj p ζ)).map (coeffMap (σ : K₀ →+* K)) =
+      phiProd p (conj p (Units.map (σ : K₀ →+* K).toMonoidHom ζ)) := by
+  rw [phiProd, phiProd, Polynomial.map_prod]
+  refine Finset.prod_congr rfl fun i _ => ?_
+  rw [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C, coeffMap_conj]
+
+end Transport
+
+/-! ## The splitting at a prime -/
+
+/-- The identity at `CyclotomicField p ℚ`, with the chosen primitive root
+`cycUnit p`: assemble the datum from the descended family and identify it with the
+input by `eq_of_prime`. -/
+private theorem splits_of_prime_cyclotomicField (p : ℕ) [hp : Fact p.Prime]
+    (data : ModularPolynomialData p) :
+    data.Φ.map (evalAtJK (CyclotomicField p ℚ) p) = phiProd p (conj p (cycUnit p)) := by
+  have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
+  have hcyc : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
+    CyclotomicField.isCyclotomicExtension p ℚ
+  have : IsGalois ℚ (CyclotomicField p ℚ) :=
+    IsCyclotomicExtension.isGalois {p} ℚ (CyclotomicField p ℚ)
+  have hζ := cycUnit_spec p
+  obtain ⟨c, hdescend⟩ := exists_phiGenDescends p (cycUnit p) hζ
+  have hIntCoeffs : ∀ k, IntCoeffs (c k) := fun k => hdescend.intCoeffs (cycUnit_pow p) k
+  have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
+    fun k => mem_adjoin_jq_of_phiGenDescends p (cycUnit p) hζ c hdescend k
+  obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hdescend hIntCoeffs hmem
+  rw [ModularPolynomialData.eq_of_prime p data data₀]
+  refine Polynomial.ext fun k => ?_
+  rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hdata₀ k,
+    qEmbedT_eq_coeffEmb_qExpand, ← hdescend k]
+
+/-- The modular polynomial splits into its `p + 1` conjugates, stated with `evalAtJK K p`. -/
+theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fact (Nat.Prime p)]
+    (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (data : ModularPolynomialData p) :
+    data.Φ.map (evalAtJK K p) = phiProd p (conj p ζ) := by
+
+  have : NeZero ((p : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hp.out.ne_zero⟩
+  have : IsCyclotomicExtension {p} ℚ (CyclotomicField p ℚ) :=
+    CyclotomicField.isCyclotomicExtension p ℚ
+  have hζ₀ := cycUnit_spec p
+  have hirr := Polynomial.cyclotomic.irreducible_rat hp.out.pos
+  obtain ⟨σ, hσ⟩ : ∃ σ : CyclotomicField p ℚ →ₐ[ℚ] K, σ (cycUnit p : CyclotomicField p ℚ) = ζ :=
+    ⟨(hζ₀.embeddingsEquivPrimitiveRoots K hirr).symm
+        ⟨ζ, (mem_primitiveRoots hp.out.pos).mpr hζ⟩, by
+      rw [← hζ₀.embeddingsEquivPrimitiveRoots_apply_coe K hirr, Equiv.apply_symm_apply]⟩
+  have hσu : Units.map (σ : CyclotomicField p ℚ →+* K).toMonoidHom (cycUnit p) = ζ :=
+    Units.ext (by rw [Units.coe_map]; exact hσ)
+
+  have hmap : evalAtJK K p
+      = (coeffMap (σ : CyclotomicField p ℚ →+* K)).comp (evalAtJK (CyclotomicField p ℚ) p) := by
+    refine Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_
+    simp only [RingHom.comp_apply, evalAtJK_X, coeffMap_qExpand, coeffMap_coeffEmb_algHom]
+  have h := congrArg (Polynomial.map (coeffMap (σ : CyclotomicField p ℚ →+* K)))
+    (splits_of_prime_cyclotomicField p data)
+  rw [map_coeffMap_phiProd, hσu, Polynomial.map_map] at h
+  calc data.Φ.map (evalAtJK K p)
+      = data.Φ.map ((coeffMap (σ : CyclotomicField p ℚ →+* K)).comp
+          (evalAtJK (CyclotomicField p ℚ) p)) := by rw [hmap]
+    _ = phiProd p (conj p ζ) := h
+
+/-! ## The splitting at a general slot -/
+
+/-- The twisted, dilated slot splitting. -/
+theorem splits_prime_at_slot {K : Type*} [Field K] [Algebra ℚ K] (N : ℕ) [NeZero N] (ζ : Kˣ)
+    (hζ : IsPrimitiveRoot (ζ : K) N) (p : ℕ) [hp : Fact (Nat.Prime p)] (hpN : p ∣ N)
+    (data : ModularPolynomialData p) (e : ℕ) [NeZero e] (u : Kˣ) :
+    data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
+      (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq)))) =
+      (Polynomial.X - Polynomial.C (qExpand K (p * (p * e))
+        (qTwist (u ^ (p * p)) (coeffEmb K jq)))) *
+        ∏ b ∈ Finset.range p,
+          (Polynomial.X - Polynomial.C (qExpand K e
+            (qTwist (u * ζ ^ (b * (N / p))) (coeffEmb K jq)))) := by
+
+  have hζp : IsPrimitiveRoot ((ζ ^ (N / p) : Kˣ) : K) p :=
+    isPrimitiveRoot_pow_div hζ hpN
+  have hsplits := splits_of_prime p (ζ ^ (N / p)) hζp data
+
+  have hhom : Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
+      (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq)))
+      = ((qExpand K e).comp (qTwist u)).comp (evalAtJK K p) := by
+    refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
+    simp only [Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X, evalAtJK_def, RingHom.comp_apply,
+      evalAtJ_X, qEmbedT_jq]
+    rw [← coeffEmb_qExpand K p jq, iota_jq (K := K) (N := p), qExpand_qTwist_TS, mul_one,
+      zpow_natCast, coeffEmb_jq]
+    exact (TS_congr (Nat.mul_comm e p) (u ^ p)).symm
+
+  have h₀ : ((qExpand K e).comp (qTwist u)) (conj p (ζ ^ (N / p)) (0 : Fin (p + 1)))
+      = qExpand K (p * (p * e)) (qTwist (u ^ (p * p)) (coeffEmb K jq)) := by
+    rw [RingHom.comp_apply, conj_zero_eq, qExpand_qTwist_TS, mul_one, zpow_natCast,
+      coeffEmb_jq]
+    exact TS_congr (by ring) (u ^ (p * p))
+
+  have h₁ : ∀ b : Fin p,
+      ((qExpand K e).comp (qTwist u)) (conj p (ζ ^ (N / p)) b.succ)
+      = qExpand K e (qTwist (u * ζ ^ ((b : ℕ) * (N / p))) (coeffEmb K jq)) := by
+    intro b
+    rw [RingHom.comp_apply, conj_succ_eq, qExpand_qTwist_TS,
+      Nat.cast_one, zpow_one, ← pow_mul, Nat.mul_comm (N / p) (b : ℕ), coeffEmb_jq]
+    exact TS_congr (mul_one e) (u * ζ ^ ((b : ℕ) * (N / p)))
+
+  have hmain : data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
+        (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq))))
+      = (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u)) := by
+    calc data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
+          (qExpand K (p * e) (qTwist (u ^ p) (coeffEmb K jq))))
+        = (data.Φ.map (evalAtJK K p)).map ((qExpand K e).comp (qTwist u)) := by
+          rw [hhom, ← Polynomial.map_map]
+      _ = (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u)) := by
+          rw [hsplits]
+  have hpush : (phiProd p (conj p (ζ ^ (N / p)))).map ((qExpand K e).comp (qTwist u))
+      = (Polynomial.X - Polynomial.C (qExpand K (p * (p * e))
+          (qTwist (u ^ (p * p)) (coeffEmb K jq))))
+        * ∏ b ∈ Finset.range p,
+            (Polynomial.X - Polynomial.C (qExpand K e
+              (qTwist (u * ζ ^ (b * (N / p))) (coeffEmb K jq)))) := by
+    rw [phiProd, Polynomial.map_prod, Fin.prod_univ_succ]
+    simp only [Polynomial.map_sub, Polynomial.map_X, Polynomial.map_C]
+    congr 1
+    · rw [h₀]
+    · rw [Finset.prod_range
+        (fun b => Polynomial.X - Polynomial.C (qExpand K e
+          (qTwist (u * ζ ^ (b * (N / p))) (coeffEmb K jq))))]
+      exact Finset.prod_congr rfl fun i _ => by rw [h₁ i]
+  rw [hmain, hpush]
+
+end PhiGen
+end ModularCurve
 
 namespace ModularCurve
 namespace PhiGen
@@ -155,13 +287,12 @@ variable {K : Type*} [Field K]
 
 /-! ## The transport engine
 
-`integral` is the pin's core: the splitting, pulled back from
-`CyclotomicField p ℚ` to the integral cyclotomic order `cyclRing ℤ p` along the
-injective `iota`. `zetaLift` then pushes it forward to an arbitrary field along
-the chosen primitive root `ζ`. -/
+`integral` is the core: the splitting, pulled back from `CyclotomicField p ℚ` to the
+integral cyclotomic order `cyclRing ℤ p` along the injective `iota`. `zetaLift` then pushes it
+forward to an arbitrary field along the chosen primitive root `ζ`. -/
 
-/-- The pin's `KSplit.comp_evalAtJ`: evaluating an integer polynomial at `jq` and
-then pushing it through `φ` is evaluating it at `φ jq`. -/
+/-- Evaluating an integer polynomial at `jq` and then pushing it through `φ` is evaluating it
+at `φ jq`. -/
 private theorem comp_evalAtJ {L : Type*} [CommRing L] (φ : LaurentSeries ℚ →+* L) :
     φ.comp evalAtJ = Polynomial.eval₂RingHom (Int.castRingHom L) (φ jq) := by
   refine Polynomial.ringHom_ext (fun a => ?_) ?_
@@ -369,8 +500,7 @@ end Engine
 
 /-! ## The two headlines -/
 
-/-- The modular polynomial splits into its `p + 1` conjugates over an arbitrary
-field. Verbatim from the pin headline (and its `Theorems/` wrapper); the
+/-- The modular polynomial splits into its `p + 1` conjugates over an arbitrary field; the
 `eval₂RingHom` map is `phiAtSeed` by definition. -/
 theorem splits_prime_of_isPrimitiveRoot {K : Type*} [Field K] (p : ℕ) [hp : Fact (Nat.Prime p)]
     (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (data : ModularPolynomialData p) :
@@ -379,8 +509,7 @@ theorem splits_prime_of_isPrimitiveRoot {K : Type*} [Field K] (p : ℕ) [hp : Fa
         * ∏ b ∈ Finset.range p, (Polynomial.X - Polynomial.C (qTwist (ζ ^ b) (jqModC K))) :=
   phiAtSeed_qExpand_prime_eq p ζ hζ data
 
-/-- The headline at the general slot: the same splitting with the level datum
-`(e, u)`. Verbatim from the pin headline (and its `Theorems/` wrapper). -/
+/-- The headline at the general slot: the same splitting with the level datum `(e, u)`. -/
 theorem splits_prime_at_slot_of_isPrimitiveRoot {K : Type*} [Field K] (p : ℕ) [hp : Fact (Nat.Prime p)]
     (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (data : ModularPolynomialData p)
     (e : ℕ) [NeZero e] (u : Kˣ) :
@@ -399,10 +528,8 @@ section Roots
 variable {K : Type*} [Field K]
 
 /-- The product `(X - j(u ^ p² q ^ p²e)) · ∏_{b < p} (X - j(u ζ^b q^e))` is
-nonzero: its factors are `X - C` and a product of monic linear factors. `private`
-as in the pin: its public promoted home is the more general
-`PhiSlotRoots.prod_form_ne_zero`, and a public copy here would collide with it
-(the *Names* paragraph of the header). -/
+nonzero: its factors are `X - C` and a product of monic linear factors. It stays `private`
+because its public home is the more general `PhiSlotRoots.prod_form_ne_zero`. -/
 private theorem prod_form_ne_zero (ζ : Kˣ) (p : ℕ) [NeZero p] (e : ℕ) [NeZero e] (u : Kˣ) :
     (Polynomial.X - Polynomial.C (qExpand K (p * (p * e)) (qTwist (u ^ (p * p)) (jqModC K)))) *
         ∏ b ∈ Finset.range p,
@@ -499,5 +626,84 @@ end Roots
 
 end ModularCurve
 
-end
+namespace ModularCurve
 
+/-- At a prime there is a symmetric datum. -/
+theorem exists_modularPolynomialData_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
+    ∃ data : ModularPolynomialData ℓ, EvalSymm data.Φ := by
+  obtain ⟨data, _, hsymm⟩ := exists_phiIrreducible_evalSymm ℓ
+  exact ⟨data, hsymm⟩
+
+namespace ModularPolynomialData
+
+/-- At a prime the datum is symmetric: uniqueness identifies it with the symmetric datum the
+capstone produces. -/
+theorem evalSymm_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)] (data : ModularPolynomialData p) :
+    EvalSymm data.Φ := by
+  obtain ⟨d, hd⟩ := exists_modularPolynomialData_evalSymm p
+  rw [ModularPolynomialData.eq_of_prime p data d]
+  exact hd
+
+end ModularPolynomialData
+
+/-! ## The transpose of `Φ_p` and its coefficient-degree bound -/
+
+/-- The inner map of the swap is the coefficient map `c ↦ c.map C`: both send `X` to the
+constant polynomial `X`. -/
+private theorem swapInner_eq_map (c : Polynomial ℤ) :
+    swapInner c = c.map (Polynomial.C : ℤ →+* Polynomial ℤ) := by
+  show Polynomial.aeval (R := ℤ) (Polynomial.X : Polynomial (Polynomial ℤ)) c = _
+  rw [Polynomial.aeval_def, Polynomial.map]
+  congr 1
+
+/-- The swap of `C c * X ^ b` is the transpose monomial `c.map C * C (X ^ b)`. -/
+private theorem swapBivar_C_mul_X_pow (c : Polynomial ℤ) (b : ℕ) :
+    swapBivar (Polynomial.C c * Polynomial.X ^ b)
+      = c.map (Polynomial.C : ℤ →+* Polynomial ℤ) * Polynomial.C (Polynomial.X ^ b) := by
+  rw [map_mul, map_pow, swapBivar_X, ← map_pow]
+  congr 1
+  show Polynomial.eval₂ swapInner (Polynomial.C Polynomial.X) (Polynomial.C c) = _
+  rw [Polynomial.eval₂_C, swapInner_eq_map]
+
+/-- The swap exchanges the two coefficient indices: the `a`-th coefficient of the `k`-th
+coefficient of `swapBivar Φ` is the `k`-th coefficient of the `a`-th coefficient of `Φ`. -/
+private theorem coeff_coeff_swapBivar (Φ : Polynomial (Polynomial ℤ)) (k a : ℕ) :
+    ((swapBivar Φ).coeff k).coeff a = (Φ.coeff a).coeff k := by
+  induction Φ using Polynomial.induction_on' with
+  | add p q hp hq => simp only [map_add, Polynomial.coeff_add, hp, hq]
+  | monomial b c =>
+    rw [← Polynomial.C_mul_X_pow_eq_monomial, swapBivar_C_mul_X_pow, Polynomial.coeff_mul_C,
+      Polynomial.coeff_map, Polynomial.coeff_C_mul, Polynomial.coeff_X_pow,
+      Polynomial.coeff_C_mul, Polynomial.coeff_X_pow]
+    by_cases h : a = b
+    · subst h; simp
+    · simp [h]
+
+namespace ModularPolynomialData
+
+/-- The transport form of the coefficient-degree bound: with `k` the `Y`-index, every
+`X`-coefficient of `Φ_p` has `Y`-degree at most `p + 1`, read off `swapBivar Φ_p = Φ_p` and
+`natDegree Φ_p = p + 1`. -/
+theorem natDegree_coeff_le_of_swapBivar (p : ℕ) [Fact p.Prime]
+    (data : ModularPolynomialData p) (k : ℕ) : (data.Φ.coeff k).natDegree ≤ p + 1 := by
+  have hsymm := swapBivar_eq_of_evalSymm (ModularPolynomialData.evalSymm_of_prime p data)
+  have hdeg : data.Φ.natDegree = p + 1 := by
+    rw [data.natDegree_eq, dedekindPsi_prime (Fact.out : p.Prime)]
+  rw [Polynomial.natDegree_le_iff_coeff_eq_zero]
+  intro a ha
+  rw [← hsymm, coeff_coeff_swapBivar]
+  have : data.Φ.coeff a = 0 :=
+    Polynomial.coeff_eq_zero_of_natDegree_lt (by rw [hdeg]; exact_mod_cast ha)
+  rw [this, Polynomial.coeff_zero]
+
+/-- **The coefficient-degree bound.** Every `Y`-coefficient of `Φ_p` has `Y`-degree at most
+`p + 1`. -/
+theorem natDegree_coeff_le (p : ℕ) [Fact p.Prime]
+    (data : ModularPolynomialData p) (k : ℕ) : (data.Φ.coeff k).natDegree ≤ p + 1 :=
+  natDegree_coeff_le_of_swapBivar p data k
+
+end ModularPolynomialData
+
+end ModularCurve
+
+end

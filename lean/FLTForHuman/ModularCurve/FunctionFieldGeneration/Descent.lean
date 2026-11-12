@@ -67,7 +67,7 @@ import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.ModularCurve.PhiSlotRoots
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.PrimeStep
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Rat.LevelPackage

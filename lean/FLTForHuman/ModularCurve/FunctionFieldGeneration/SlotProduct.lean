@@ -94,9 +94,8 @@ import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.ModularCurve.Defs.Invariants
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.PhiSlotRoots
-import FLTForHuman.ModularCurve.PhiGenSplits
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
-import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
+import FLTForHuman.ModularCurve.ModularEquation.Split
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.NumberTheory.DedekindPsi
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generic.SlotProduct
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Rat.SlotProduct

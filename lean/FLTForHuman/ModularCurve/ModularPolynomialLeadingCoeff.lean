@@ -43,7 +43,7 @@
   public one is imported from `ModularPolynomialIrreducible.lean`).
   spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_isUnit_leadingCoeff_diag_of_not_isSquare.lean
 -/
-import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.ModularPolynomialUniquenessIrreducible
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.Cyclotomic

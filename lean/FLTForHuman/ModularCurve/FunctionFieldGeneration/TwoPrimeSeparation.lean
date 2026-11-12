@@ -54,9 +54,8 @@ import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.PhiSlotRoots
-import FLTForHuman.ModularCurve.PhiGenSplits
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
-import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
+import FLTForHuman.ModularCurve.ModularEquation.Split
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
 
 set_option autoImplicit false

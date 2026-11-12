@@ -55,7 +55,7 @@
 -/
 import FLTForHuman.ModularCurve.Degree.JqCyclotomicConjugates
 import FLTForHuman.ModularCurve.Degree.PhiDegree
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.JqCoeffPositivity
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
 import Mathlib.RingTheory.Polynomial.RationalRoot

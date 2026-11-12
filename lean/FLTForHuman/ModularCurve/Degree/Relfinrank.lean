@@ -32,7 +32,7 @@ import FLTForHuman.ModularCurve.Defs.GeometricBaseChange
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.PhiSlotRoots
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
 import Mathlib.FieldTheory.Relrank

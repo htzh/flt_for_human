@@ -49,10 +49,9 @@
   spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eval_jLattice_eq_zero_of_isAddCyclic.lean
   spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_jLattice_eq_zero_of_isAddCyclic.lean
 -/
-import FLTForHuman.ModularCurve.ModularPolynomialAssembly
-import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
-import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
+import FLTForHuman.ModularCurve.ModularEquation.Construction
+import FLTForHuman.ModularCurve.ModularEquation.Existence
+import FLTForHuman.ModularCurve.ModularEquation.Split
 import FLTForHuman.ModularCurve.Defs.PrimCosetReps
 import FLTForHuman.ModularCurve.JqIntegralRatios
 import FLTForHuman.ModularForms.JInvariant

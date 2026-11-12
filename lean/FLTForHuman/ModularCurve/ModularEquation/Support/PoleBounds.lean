@@ -1,50 +1,19 @@
 /-
-  T10 — the pole bounds, the second half of the cone's (b).
+  The pole bounds of the conjugate product at the cusp.
 
-  The candidate product `phiProd ℓ (conj ℓ ζ)` is `∏_i (Y - j(ζ ^ b q ^ a))`. Its
-  degree-`0` coefficient has a pole of order exactly `ℓ * ℓ + ℓ` at `q = 0`, with
-  residue `1` (`phiProd_conj_coeff_zero_lead`), and every non-constant
-  coefficient is bounded by the same order (`phiProd_conj_coeff_eq_zero_of_le`).
-  Together with T9's integrality (`FLTForHuman/ModularCurve/PhiGenIntegrality.lean`,
-  the first half of (b)) this makes the descended family `c` a degree-`(ℓ + 1)`
-  integer datum of pole order `≤ ℓ + 1` — what (d) assembles.
-
-  ## The shared prelude
-
-  The `TPoleOrderLE` closure this module consumes (`.mono`, `.zero`, `.one`,
-  `.neg`, `.add`, `.mul`, `.qTwist`, `.qExpand`, `of_jSimplePole`, the conjugate
-  bounds and the coefficient bounds) is **not** written here: it is public in
-  `Defs/PhiGen.lean`, because the pin copies it into six files and T11's 328 block
-  imports it too. This module is the distinctive part only: the leading-coefficient
-  computation of the product and the sharp pole bound for `k ≠ 0`.
-
-  ## Source
-
-  FLT `anthropics/fermats-last-theorem@aa2d8b3`:
-  `P2M/Sol/S_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean` (391
-  lines; its twin `…_phiProd_conj_coeff_zero_lead.lean` is a byte-equivalent copy
-  with the exported name flipped). The two public statements are verbatim from
-  their `Theorems/` wrappers. The pin's ~180-line `TPoleOrderLE` prelude is not
-  ported here (see above).
-
-  ## Assumptions
-
-  `LaurentSeries`, `HahnSeries`, `Polynomial`, `Finset`/`Fin` are mathlib's;
-  `TPoleOrderLE`, `JSimplePole`, `phiProd`, `conj`, `conj_zero`, `conj_succ`,
-  `jSimplePole_jqK` and the coefficient/order lemmas are the port's
-  `Defs/PhiGen`; `qExpand`, `coeffEmb`, `qTwist` are the port's
-  `Defs/Laurent`/`Defs/Twist`; `jq`, `coeff_jq_neg_one` the port's `Defs/Jq`.
-  Wired here, not in the frozen registry: the module left `PORT_FILES`
-  (`spec/old_check_stmts.py`) on 2026-11-06 and carries its own `spec-pin:` wire.
-
-  spec-pin: Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean
-  spec-pin: Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_zero_lead.lean
+  Each conjugate `conj i` has a simple pole at `q = 0` with residue one: the extra conjugate
+  `conj 0 = j(q ^ (ℓ * ℓ))` at order `ℓ * ℓ`, the twisted ones `conj (b + 1) = j(ζ ^ b q)` at order
+  one. Multiplying the `ℓ + 1` linear factors therefore puts the constant coefficient of `phiProd`
+  at exactly `q ^ (-(ℓ * ℓ + ℓ))` with residue one, and every other coefficient strictly below it,
+  while every non-constant coefficient vanishes at and below that exponent.
 -/
-import FLTForHuman.ModularCurve.Defs.PhiGen
+
 import Mathlib.Algebra.BigOperators.Intervals
+import Mathlib.Basic.Complex.Basic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.Tactic.Linarith
-import Mathlib.Basic.Complex.Basic
+
+import FLTForHuman.ModularCurve.Defs.PhiGen
 
 set_option autoImplicit false
 
@@ -57,8 +26,7 @@ namespace PhiGen
 
 /-! ## The leading coefficient of the product -/
 
-/-- The pin's `phiProd_def`, restated here because the pin keeps it `private` in
-the shared prelude and this module's proofs unfold `phiProd` through it. -/
+/-- `phiProd` as the iterated product, the shape the pole-bound proofs unfold. -/
 private theorem phiProd_def {K : Type*} [Field K] (ℓ : ℕ)
     (conj : Fin (ℓ + 1) → LaurentSeries K) :
     phiProd ℓ conj = ∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (conj i)) := rfl
@@ -108,10 +76,8 @@ private theorem coeff_prod_lead {K : Type*} [Field K] {ι : Type*} (s : Finset �
         (tPoleOrderLE_prod s f n fun i hi => hf i (Finset.mem_cons_of_mem hi)),
       ih fun i hi => hf i (Finset.mem_cons_of_mem hi)]
 
-/-- The product of the powers of a primitive `ℓ`-th root: the pin's *product*
-fact. Mathlib has the *sum* fact (`IsPrimitiveRoot.geom_sum_eq_zero`); this is a
-different statement, so the pin's case split on `ℓ = 2` versus `ℓ` odd is ported
-whole. -/
+/-- The product of the powers of a primitive `ℓ`-th root: the product companion of
+mathlib's sum fact `IsPrimitiveRoot.geom_sum_eq_zero`, split on `ℓ = 2` versus `ℓ` odd. -/
 private theorem pow_sum_range_isPrimitiveRoot {K : Type*} [Field K] {ℓ : ℕ}
     (hℓ : Nat.Prime ℓ) {z : K} (hz : IsPrimitiveRoot z ℓ) :
     z ^ (∑ i ∈ Finset.range ℓ, i) = (-1) ^ (ℓ + 1) := by
@@ -259,8 +225,7 @@ private theorem tPoleOrderLE_phiProd_coeff_of_ne_zero {K : Type*} [Field K] {ℓ
 
 /-- The leading coefficient of the constant term of `phiProd`: the pole of the
 degree-`0` coefficient is exactly `q ^ (-(ℓ * ℓ + ℓ))`, with residue `1`.
-Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_zero_lead.lean`. -/
+-/
 theorem phiProd_conj_coeff_zero_lead {K : Type*} [Field K] [Algebra ℚ K]
     (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
     ((phiProd ℓ (conj ℓ ζ)).coeff 0).coeff (-((ℓ * ℓ + ℓ : ℕ) : ℤ)) = 1 :=
@@ -274,9 +239,7 @@ private theorem tPoleOrderLE_phiProd_conj_of_ne_zero {K : Type*} [Field K] [Alge
     (jSimplePole_jqK (K := K)) k hk
 
 /-- Every non-constant coefficient of `phiProd` has pole order at most
-`ℓ * ℓ + ℓ`, so its coefficients below `q ^ (-(ℓ * ℓ + ℓ))` vanish. Verbatim from
-the pin wrapper
-`Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean`. -/
+`ℓ * ℓ + ℓ`, so its coefficients below `q ^ (-(ℓ * ℓ + ℓ))` vanish. -/
 theorem phiProd_conj_coeff_eq_zero_of_le {K : Type*} [Field K] [Algebra ℚ K]
     (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ) (k : ℕ) (hk : k ≠ 0) (m : ℕ)
     (hm : ℓ * ℓ + ℓ ≤ m) : ((phiProd ℓ (conj ℓ ζ)).coeff k).coeff (-(m : ℤ)) = 0 := by
@@ -285,6 +248,3 @@ theorem phiProd_conj_coeff_eq_zero_of_le {K : Type*} [Field K] [Algebra ℚ K]
 
 end PhiGen
 end ModularCurve
-
-end
-

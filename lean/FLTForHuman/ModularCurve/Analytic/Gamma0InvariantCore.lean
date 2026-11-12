@@ -27,8 +27,8 @@ import FLTForHuman.ModularCurve.Defs.AtkinLehner
 import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Defs.PhiGen
-import FLTForHuman.ModularCurve.PhiGenDescent
-import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
+import FLTForHuman.ModularCurve.ModularEquation.Construction
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.Analytic.QParamUnique
 import FLTForHuman.ModularCurve.Analytic.Gamma0Cosets
 import FLTForHuman.ModularForms.JqAnalyticModel

@@ -134,9 +134,10 @@ with.
 | `evalAtJK_def`, `evalAtJK_X` | its defining equation, and its value on `X` (`qExpand K N (coeffEmb K jq)`) |
 | `adjoinEmbedT K N` (**private**) | the same substitution on the coefficient ring `ℚ[j(q)]`, which is where the irreducibility half reads it; `adjoinEmbedT_comp_evalAtJAdj` (private) makes its two rows agree |
 
-Inside `eval_swap_eq_zero_of_splits` the identity used is one level further:
-`(qEmbedT K N).comp (evalAtJqN N) = (qExpand K N).comp (evalAtJK K N)` — on `X`,
-`j(q ^ (N * N))` on both sides.
+Inside `eval_swap_eq_zero_of_splits` the comparison used is one level **below** `qEmbedT`:
+`(coeffEmb K).comp (evalAtJqN N) = evalAtJK K N` — both send `X` to `qExpand K N (coeffEmb K jq)`,
+and `coeffEmb` keeps the index, so it reads the vanishing in `K((q))` back to `ℚ((q))` without a
+level change.
 
 ### 2.4 Twist `q ↦ u * q`, and the coset substitution
 
@@ -173,7 +174,8 @@ be decided in `ℚ(j(q))` and then transported down.
 
 `evalAtJqN N` is **not** `qEmbedT K N` composed with anything: its target is `ℚ((q))`. The
 composite `qEmbedT K N ∘ evalAtJ` is `evalAtJK K N`, with target `K((q))`; the identity that
-compares them one level up is the `hhom` inside `eval_swap_eq_zero_of_splits` (§2.3).
+transports a vanishing down is `(coeffEmb K) ∘ evalAtJqN N = evalAtJK K N` (§2.3), and `coeffEmb`
+is injective, so no level change is needed for the descent.
 
 ## 4. The coefficient dictionary
 
@@ -347,7 +349,7 @@ hypotheses are the transpose's monic and degree facts. See
 | `qExpand ℚ N` / `qExpand K N` | the same action on exponents, different coefficient ring; only the `K` version occurs alone, inside `qEmbedT` |
 | `qEmbedT K ℓ` / `iota` (`Analytic/Gamma0InvariantCore.lean`) | the same map under two names, one per layer: `iota` is T4's `(coeffEmb K).comp (qExpand ℚ ℓ)`, and `qEmbedT_eq_coeffEmb_qExpand` is the equality. They cannot be one name yet because T4 sits below this module |
 | `qEmbedT K N` / `(coeffEmb K).comp (qExpand ℚ N)` | equal, by `qEmbedT_eq_coeffEmb_qExpand`; `qExpand K N` alone is neither |
-| `evalAtJK K N` / `(qEmbedT K N).comp evalAtJ` / `(coeffEmb K).comp (evalAtJqN N)` | the same map three ways: the first is the port's name, the second is its definition (`evalAtJK_def`), the third is the reading through `evalAtJqN`; only the first occurs in statements |
+| `evalAtJK K N` / `(qEmbedT K N).comp evalAtJ` / `(coeffEmb K).comp (evalAtJqN N)` | the same map three ways: the first is the port's name, the second is its definition (`evalAtJK_def`), the third is `hcomp` inside `eval_swap_eq_zero_of_splits`; only the first occurs in statements |
 | `coeffEmb_qExpand` / `coeffMap_qExpand` | the same square (§2.3); the first is the `ℚ`-into-`L` case, the second the general one |
 | `evalAtJqN N` / `evalAtJK K N` | different codomains (`ℚ((q))` / `K((q))`), same value on `X` |
 | `ΦT` / `swapBivar data.Φ`, `T` / `(swapBivar data.Φ).map evalAtJGen` | the same, one being the proof's local `set` name and the other its value (`hΦT`, `hT`) |

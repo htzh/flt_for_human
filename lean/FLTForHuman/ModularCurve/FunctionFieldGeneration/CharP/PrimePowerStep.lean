@@ -154,8 +154,8 @@ import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Degree.JqCyclotomicConjugates
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.CharP.PrimeStep
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.CharP.Nonmembership
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
-import FLTForHuman.ModularCurve.PhiGenSplitsAnyField
+import FLTForHuman.ModularCurve.ModularEquation.Existence
+import FLTForHuman.ModularCurve.ModularEquation.Split
 import FLTForHuman.ModularCurve.X0.FunctionFieldFull
 
 set_option autoImplicit false

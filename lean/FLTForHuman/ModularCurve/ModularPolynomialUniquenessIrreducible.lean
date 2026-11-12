@@ -59,7 +59,7 @@ spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_natDegree_coeff_le.lean
 spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_eq_all.lean   -- comparable copy: homes `toAdjoin_eq_minpoly_all`
 spec-pin: P2M/Sol/S_ModularCurve_phiIrreducible_all.lean   -- comparable copy
 -/
-import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
+import FLTForHuman.ModularCurve.ModularEquation.Split
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 import FLTForHuman.ModularCurve.Degree.PhiData
 import Mathlib.FieldTheory.Minpoly.Field
@@ -111,14 +111,6 @@ theorem eq_all (N : ℕ) [NeZero N] (d d' : ModularPolynomialData N) : d = d' :=
   cases d'
   cases h
   rfl
-
-/-- At a prime `p` the datum is symmetric. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean`. -/
-theorem evalSymm_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)] (data : ModularPolynomialData p) :
-    EvalSymm data.Φ := by
-  obtain ⟨d, hd⟩ := exists_modularPolynomialData_evalSymm p
-  rw [ModularPolynomialData.eq_of_prime p data d]
-  exact hd
 
 end ModularPolynomialData
 
@@ -249,73 +241,6 @@ theorem dvd_resultant_of_mul
   rw [map_zero, hθ, Polynomial.coe_mapRingHom, Polynomial.map_modByMonic _ dN.monic,
     Polynomial.modByMonic_eq_zero_iff_dvd (dN.monic.map _)]
   exact hdvd
-
-end ModularPolynomialData
-
-/-! ## The transpose of `Φ_p` and its coefficient-degree bound
-
-`natDegree_coeff_le`: every `Y`-coefficient of `Φ_p` has `Y`-degree at most `p + 1`. The
-proof transports the bound through `swapBivar` (`swapInner_eq_map`,
-`swapBivar_C_mul_X_pow`, `coeff_coeff_swapBivar`) and then reads
-`swapBivar Φ = Φ` off the two ported premises, `evalSymm_of_prime` and
-`swapBivar_eq_of_evalSymm`. The three `swapBivar` bookkeeping lemmas are `private`: they
-are the pin's local helpers, used only by the headline below. -/
-
-/-- The inner map of the swap is the coefficient map `c ↦ c.map C`: both send
-`X` to the constant polynomial `X`. -/
-private theorem swapInner_eq_map (c : Polynomial ℤ) :
-    swapInner c = c.map (Polynomial.C : ℤ →+* Polynomial ℤ) := by
-  show Polynomial.aeval (R := ℤ) (Polynomial.X : Polynomial (Polynomial ℤ)) c = _
-  rw [Polynomial.aeval_def, Polynomial.map]
-  congr 1
-
-/-- The swap of `C c * X ^ b` is the transpose monomial `c.map C * C (X ^ b)`. -/
-private theorem swapBivar_C_mul_X_pow (c : Polynomial ℤ) (b : ℕ) :
-    swapBivar (Polynomial.C c * Polynomial.X ^ b)
-      = c.map (Polynomial.C : ℤ →+* Polynomial ℤ) * Polynomial.C (Polynomial.X ^ b) := by
-  rw [map_mul, map_pow, swapBivar_X, ← map_pow]
-  congr 1
-  show Polynomial.eval₂ swapInner (Polynomial.C Polynomial.X) (Polynomial.C c) = _
-  rw [Polynomial.eval₂_C, swapInner_eq_map]
-
-/-- The swap exchanges the two coefficient indices: the `a`-th coefficient of the `k`-th
-coefficient of `swapBivar Φ` is the `k`-th coefficient of the `a`-th coefficient of `Φ`. -/
-private theorem coeff_coeff_swapBivar (Φ : Polynomial (Polynomial ℤ)) (k a : ℕ) :
-    ((swapBivar Φ).coeff k).coeff a = (Φ.coeff a).coeff k := by
-  induction Φ using Polynomial.induction_on' with
-  | add p q hp hq => simp only [map_add, coeff_add, hp, hq]
-  | monomial b c =>
-    rw [← Polynomial.C_mul_X_pow_eq_monomial, swapBivar_C_mul_X_pow, Polynomial.coeff_mul_C,
-      Polynomial.coeff_map, Polynomial.coeff_C_mul, Polynomial.coeff_X_pow,
-      Polynomial.coeff_C_mul, Polynomial.coeff_X_pow]
-    by_cases h : a = b
-    · subst h; simp
-    · simp [h]
-
-namespace ModularPolynomialData
-
-/-- The pin's stronger form of the coefficient-degree bound: with `k` the
-`Y`-index, every `X`-coefficient of `Φ_p` has `Y`-degree at most `p + 1`. The
-bound comes from `swapBivar Φ_p = Φ_p` (`swapBivar_eq_of_evalSymm` at
-`evalSymm_of_prime`) and `natDegree Φ_p = p + 1`. -/
-theorem natDegree_coeff_le_of_swapBivar (p : ℕ) [Fact p.Prime]
-    (data : ModularPolynomialData p) (k : ℕ) : (data.Φ.coeff k).natDegree ≤ p + 1 := by
-  have hsymm := swapBivar_eq_of_evalSymm (ModularPolynomialData.evalSymm_of_prime p data)
-  have hdeg : data.Φ.natDegree = p + 1 := by
-    rw [data.natDegree_eq, dedekindPsi_prime (Fact.out : p.Prime)]
-  rw [Polynomial.natDegree_le_iff_coeff_eq_zero]
-  intro a ha
-  rw [← hsymm, coeff_coeff_swapBivar]
-  have : data.Φ.coeff a = 0 :=
-    Polynomial.coeff_eq_zero_of_natDegree_lt (by rw [hdeg]; exact_mod_cast ha)
-  rw [this, Polynomial.coeff_zero]
-
-/-- **The coefficient-degree bound.** Every `Y`-coefficient of `Φ_p` has `Y`-degree at
-most `p + 1`. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_ModularPolynomialData_natDegree_coeff_le.lean`. -/
-theorem natDegree_coeff_le (p : ℕ) [Fact p.Prime]
-    (data : ModularPolynomialData p) (k : ℕ) : (data.Φ.coeff k).natDegree ≤ p + 1 :=
-  natDegree_coeff_le_of_swapBivar p data k
 
 end ModularPolynomialData
 

@@ -68,19 +68,16 @@ import FLTForHuman.ModularForms.Hauptmodul
 import FLTForHuman.ModularForms.PhiGenDescends
 -- T9: the cone's (b) integrality, `PhiGenDescends.intCoeffs` and
 -- `aeval_jq_intCoeffs_descent`, in the `ModularCurve` algebraic layer.
-import FLTForHuman.ModularCurve.PhiGenIntegrality
+import FLTForHuman.ModularCurve.ModularEquation.Construction
 -- T10: the cone's (b) pole bounds, `phiProd_conj_coeff_{zero_lead,eq_zero_of_le}`,
 -- plus the shared `TPoleOrderLE` prelude now public in `Defs/PhiGen.lean`.
-import FLTForHuman.ModularCurve.PhiGenPoleBounds
+import FLTForHuman.ModularCurve.ModularEquation.Support.PoleBounds
 -- T11: the construction — (a)'s descent, the 328 block, and (d)'s assembly.
-import FLTForHuman.ModularCurve.PhiGenDescent
-import FLTForHuman.ModularCurve.ModularPolynomialAssembly
 -- T12: the properties — coefficient positivity, the 895 block, and existence.
 import FLTForHuman.ModularCurve.JqCoeffPositivity
-import FLTForHuman.ModularCurve.ModularPolynomialProperties
+import FLTForHuman.ModularCurve.ModularEquation.Existence
 -- T13: the consequence — uniqueness, the degree, and the cone's headline.
-import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
-import FLTForHuman.ModularCurve.PhiGenSplits
+import FLTForHuman.ModularCurve.ModularEquation.Split
 -- T14: the shared slot prelude — the upstream vocabulary and the downstream
 -- at-slot roots API.
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
