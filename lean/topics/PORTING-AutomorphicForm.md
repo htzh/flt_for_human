@@ -935,6 +935,33 @@ seventh row is `ModularForm`-namespaced and was subtracted from `CuspForm`, so `
 `CuspForm.exists_qCoeff_eq_sum_primeFactors_of_forall_coprime_qCoeff_eq_zero`, one premise away from this
 set's A1.
 
+The forty-fourth **is landed** (2026-11-12): [automorphicForm/SET-AF44.md](automorphicForm/SET-AF44.md),
+the **valuation approximation toolkit** — cut on the **leaves** block, as the recipe's §1 says to read it,
+and the best return-per-silo cut the column has measured. Four premise-free `ValuationSubring` leaves
+(2,004 silo: the normalization of a sum by `A`-coefficient conditions, partial fractions at infinity
+`p(f)/t(f) = p₁(f)/t₁(f) + q(f⁻¹)/s(f⁻¹)`, the constancy criterion, and strong approximation for an
+antichain of valuation subrings) readying **five rows / 1,848 silo** — 0.92 of the set's own cost, against
+637 for the `CuspidalConstituent` leaf block, 199 for the Dedekind Euler product, 106 for the idèle/Haar
+quotient and **0** for `NumberField.AdelicBox`. Landed in two orders over three mathlib-supplement modules
+in the port's `FieldTheory/`: `ValuationSubringPolynomial.lean` (**1,058 lines, 69 ok**),
+`…PartialFraction.lean` (**709, 62 ok**) and `…Approximation.lean` (**339, 17 ok**) — **148 public
+statements verified verbatim, 134 proofs**, every module silent, all four headlines axiom-clean, 0 dead
+declarations. The pin files all carry `import Mathlib`, which the port does not: the three modules are
+built from thirteen specific mathlib modules, and the one that had to be discovered by search is
+`RingTheory/Valuation/LocalSubring` (the sole v4.34 home of `iInf_valuationSubring_superset`). Two findings
+came out and are recorded: the **namespace-shadowing trap** (FR-0170 — inside `namespace ValuationSubring`,
+mathlib's own `ValuationSubring.add_mem`/`neg_mem`/`mul_mem` shadow `Subring`'s, so ten pin-transcribed
+sites had to name the points; a general hazard for any port that nests a pin label namespace under a
+mathlib namespace) and the **consumer-instance lesson** (FR-0171 — both orders' suggested instances, `t = X`
+and `t = 1 + X`, were *impossible mathematics*, not name mismatches, and were replaced by the pin's own
+`1 - C c * X`). The re-read is exact on all eight cells: `needed` **726 / 305,262 → 722 / 303,258**, ready
+45 / 8,744 → **50 / 10,592**, leaves 194 / 48,760 → **190 / 46,756**, `ValuationSubring` demand
+24 / 6,218 → **20 / 4,214**, and the five readied rows to the line (870 + 427 + 337 + 138 + 76). Named
+next: the two rows the 427 unlocks (1,082 + 848), the rest of the `ValuationSubring` block
+(20 rows / 4,214, including `isPrincipalIdealRing_of_finiteDimensional_adjoin` at **36 project
+consumers**), and — outside any story — `M4aTorus.completedRayL_fe`, **12,126 silo**, the shelf's largest
+node by a factor of three, which is a mechanical-transcription set on the AF7 pattern rather than a story.
+
 
 ## 6. Verification and wiring
 

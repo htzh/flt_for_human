@@ -3628,3 +3628,42 @@ round promotes what generalizes.
   a timeout that survives a 10× heartbeat raise is an elaboration divergence and must be reported as one,
   not silenced by an override (which is what the wave's heartbeat gate forbids anyway).
 - **seen**: 2026-11-12, AF43BC order C.
+
+## FR-0170 [lean] — inside `namespace ValuationSubring`, mathlib's own `add_mem`/`neg_mem`/`mul_mem` shadow `Subring`'s
+
+- **where**: the AF44 wave, both orders. Seven sites in `ValuationSubringPolynomial.lean`, three in
+  `ValuationSubringPartialFraction.lean`.
+- **symptom**: a proof transcribed verbatim from the pin fails at `add_mem (hp j) (hq j)` with a type
+  mismatch, although the same text compiles at the pin.
+- **cause**: mathlib v4.34 declares `ValuationSubring.add_mem`/`neg_mem`/`mul_mem` (`Mathlib/RingTheory/
+  Valuation/ValuationSubring.lean:70,72,74`) with explicit `(x y : K)` — they are the *structure's* closure
+  lemmas, not `Subring`'s `AddMemClass` instances. The pin states its declarations inside
+  `namespace P2MW.S_…`, where the bare name resolves to `Subring.add_mem`; the port nests them inside
+  `namespace ValuationSubring` (the pin's mathematical namespace), so the bare name resolves to the
+  projected one, which wants its two points.
+- **fix / rule**: pass the points (`A.add_mem _ _`) or spell the class form
+  (`AddMemClass.add_mem`/`NegMemClass.neg_mem`/`MulMemClass.mul_mem`). More generally: **when a port nests
+  a pin's task-label namespace under a mathlib namespace, re-check every unqualified lemma name the pin's
+  proofs use** — the nesting can change resolution. A probe (`#check`) inside the real namespace settles it
+  in one line.
+- **seen**: 2026-11-12, AF44A (7 sites) and AF44B (3).
+
+## FR-0171 [process] — an order's consumer suggestion must be checked against the *hypotheses*, not only against the statement
+
+- **where**: the consumer zones of AF44A and AF44B (a suggested `t = X` and a suggested `t = 1 + X`).
+- **symptom**: both suggestions are untypeable, and not because of a name or a shape: they are *instances
+  that cannot exist*. The constancy criterion needs `A.valuation (t.coeff 0) = 1`, and `X.coeff 0 = 0`, so
+  no valuation subring admits `t = X`; the partial-fraction criterion needs a unit at `0` with all higher
+  coefficients *small* (`valuation < 1`), and `(1 + X).coeff 1 = 1` has valuation `1`, which no valuation
+  subring of a field can make small. Both orders' workers replaced them with the pin's own good shape
+  `t = 1 - C c * X` (`A.valuation c < 1`), recorded in the consumer files.
+- **cause**: an order's suggested composition is a *mathematical* claim about the theorem's hypotheses, and
+  the manager writes it from the statement's shape; the AF36 §6.2 lesson covered a different failure (a
+  name that does not exist in the port yet) and this one is its sibling.
+- **fix / rule**: when suggesting a consumer instance, check the instantiation against each hypothesis's
+  own side condition (`valuation (coeff 0) = 1`, `< 1`, a positivity, a support condition) before writing
+  it into an order — or state it as "read the theorem at the pin's own `IsGood`/base shape" and let the
+  worker pick the instance. A substitution is legitimate and cheap (two in this wave, both one line of
+  documentation), but the order should not spend a worker's judgment on an impossible instance.
+- **seen**: 2026-11-12, AF44A and AF44B (the wave's third and fourth such substitutions: AF41A's arithmetic
+  slip and AF42's `S = {2}` were the first two).
