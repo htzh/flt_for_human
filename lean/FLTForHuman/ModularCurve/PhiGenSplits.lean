@@ -112,15 +112,15 @@ private theorem splits_of_prime_cyclotomicField (p : ℕ) [hp : Fact p.Prime]
   have : IsGalois ℚ (CyclotomicField p ℚ) :=
     IsCyclotomicExtension.isGalois {p} ℚ (CyclotomicField p ℚ)
   have hζ := cycUnit_spec p
-  obtain ⟨c, hc⟩ := exists_phiGenDescends p (cycUnit p) hζ
-  have hIntCoeffs : ∀ k, IntCoeffs (c k) := fun k => hc.intCoeffs (cycUnit_pow p) k
+  obtain ⟨c, hdescend⟩ := exists_phiGenDescends p (cycUnit p) hζ
+  have hIntCoeffs : ∀ k, IntCoeffs (c k) := fun k => hdescend.intCoeffs (cycUnit_pow p) k
   have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
-    fun k => mem_adjoin_jq_of_phiGenDescends p (cycUnit p) hζ c hc k
-  obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hc hIntCoeffs hmem
+    fun k => mem_adjoin_jq_of_phiGenDescends p (cycUnit p) hζ c hdescend k
+  obtain ⟨data₀, hdata₀⟩ := exists_modularPolynomialData_coeff_eq hdescend hIntCoeffs hmem
   rw [ModularPolynomialData.eq_of_prime p data data₀]
   refine Polynomial.ext fun k => ?_
   rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hdata₀ k,
-    qEmbedT_eq_coeffEmb_qExpand, ← hc k]
+    qEmbedT_eq_coeffEmb_qExpand, ← hdescend k]
 
 /-- The modular polynomial splits into its `p + 1` conjugates. The pin wrapper's statement
 `Theorems/Thm_ModularCurve_PhiGen_splits_of_prime.lean`, with the splitting stated with

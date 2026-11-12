@@ -725,6 +725,15 @@ and the capstone's main line must display the argument's dependencies — irredu
   and `coeff_poleBounds_of_splits` (splitting + T10 ⟹ the three coefficient bounds, all index
   arithmetic inside). Both are the port's, recorded as `own:` in `spec/decl_markers.tsv`, as are the
   four statements whose splitting hypothesis changed spelling.
+- **The descent certificate is `hdescend`.** It was `hc` at three sites (the capstone,
+  `splits_of_descends`'s binder, and T13's cyclic-field proof); `hcoeff` keeps its meaning as the
+  identification `evalAtJ (Φ.coeff k) = c k`. T11's `exists_modularPolynomialData_coeff_eq` keeps the
+  pin's binder name, since that statement is not the port's.
+- **`hζ1` is not a proof step.** `units_pow_eq_one_of_isPrimitiveRoot`
+  (`Defs/Cyclotomic.lean`) already states that a unit whose underlying element is a primitive `N`-th
+  root has `ζ ^ N = 1`; the capstone's four-line `Units.ext` reduction of it is gone, the fact is not
+  even bound (one consumer, so it is passed at that call site), and T13's `cycUnit_pow` is the same
+  fact at the chosen root.
 - **Guises are named locally.** The capstone names `ΦT := swapBivar data.Φ` and
   `T := ΦT.map evalAtJGen` with `set … with h…`, as the irreducibility headline names `Φ₀`/`Φ₁`;
   the main line then has no long `map` expression and no `hTmonic`/`hTdeg` threaded into a helper.

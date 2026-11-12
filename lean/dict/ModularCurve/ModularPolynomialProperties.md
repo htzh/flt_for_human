@@ -48,6 +48,31 @@ Module: [ModularPolynomialProperties.lean](../../FLTForHuman/ModularCurve/Modula
 The subalgebra `ℚ[j(q)]` (`adjoinJq`) is not named here: it occurs only inside T8's membership
 statement `c k ∈ Algebra.adjoin ℚ {jq}`, which the main line passes to the assembly.
 
+### 1.1 The transpose engine
+
+| name | statement |
+|---|---|
+| `swapBivar` | the `X ↔ Y` swap of `ℤ[X][Y]` (`Defs/PhiGen.lean`); `swapBivar Φ = Bivariate.swap Φ` is the private bridge `swapBivar_eq_swap`, the module's only door to mathlib's bivariate API |
+| `swapBivar_eval₂` (**private**) | `(swapBivar Φ).eval₂ (aeval x) y = Φ.eval₂ (aeval y) x` — the two slots trade places |
+| `swapBivar_C`, `degree_swapBivar_lt` (**private**) | the transpose of a constant, and the degree bound that keeps the transpose's leading term in its `Y ^ 0` coefficient |
+| `swapBivar_monic_of_coeff_bounds` | a polynomial whose `Y ^ 0` coefficient is monic of degree `d`, and whose higher coefficients have degree `< d`, has a monic transpose of degree `d` |
+| `EvalSymm Φ` | `∀ x y : ℚ((q)), Φ(x, y) = Φ(y, x)`, the evaluated form of the symmetry — the module's target |
+| `evalSymm_of_swapBivar_eq` | `swapBivar Φ = Φ` gives `EvalSymm Φ` |
+| `swapBivar_eq_of_evalSymm` | the converse, `EvalSymm Φ` gives `swapBivar Φ = Φ`; T13's uniqueness step uses this one |
+| `degree_lt_of_evalAtJ_coeff_eq_zero`, `natDegree_le_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one` | the dictionary: pole bounds on a polynomial's `q`-expansion read as its degree and monicity |
+| `ModularPolynomialData.aeval_jqN_transposeToAdjoin` | the transposed datum annihilates `j(q ^ N)` in `ℚ(j(q))[Y]` as soon as the datum does under the swapped evaluation |
+
+The two symmetry forms are **equivalent**, and that is a theorem, not a definition. `EvalSymm Φ` is
+an identity of the evaluated function, with both slots instantiated in the same ring, whereas
+`swapBivar Φ = Φ` is the coefficient statement `∀ i j, (Φ.coeff i).coeff j = (Φ.coeff j).coeff i`:
+writing `Φ = Σ_{i,j} a_{ij} X^j Y^i`, the transpose carries `a_{ij}` at `X^i Y^j`, so the equality is
+`a_{ij} = a_{ji}`. The direction the capstone concludes with is the easy one, one line from
+`swapBivar_eval₂`; the hard one evaluates `Φᵀ - Φ` at integer points (`ev_int`), which turns the
+vanishing into an identity of integer polynomials that two rounds of
+`Polynomial.eq_zero_of_infinite_isRoot` over `ℤ` upgrade to `Φᵀ - Φ = 0`. The test ring has to
+contain an infinite ring: over `𝔽_p` the two are not equivalent (`X ^ p * Y - X * Y ^ p` vanishes on
+all of `𝔽_p²` and is not symmetric).
+
 ## 2. The maps
 
 All of them are `→+*`.
@@ -102,7 +127,7 @@ with.
 | `qEmbedT K N` | `(qExpand K N).comp (coeffMap (algebraMap ℚ K))`, `ℚ((q)) → K((q))` |
 | `qEmbedT_apply` (**private**) | `qEmbedT K N x = qExpand K N (coeffMap (algebraMap ℚ K) x)` |
 | `qEmbedT_injective` | injective; transports a vanishing in `K((q))` back to `ℚ((q))` |
-| `qEmbedT_eq_coeffEmb_qExpand` | `qEmbedT K N x = coeffEmb K (qExpand ℚ N x)` — the shape the descent's own statements (`hc`) are written in |
+| `qEmbedT_eq_coeffEmb_qExpand` | `qEmbedT K N x = coeffEmb K (qExpand ℚ N x)` — the shape the descent's own statements (`hdescend k`) are written in |
 | `qEmbedT_jq` | `qEmbedT K N jq = qExpand K N (coeffEmb K jq)` — the `X`-slot image of `j(q)` |
 | `qEmbedT_jqN` | `qEmbedT K N (jqN N) = conj N ζ 0`: the `X`-slot image of `j(q ^ N)` is the `(N, 0)` conjugate `j(q ^ (N * N))` |
 | `evalAtJK K N` | `(qEmbedT K N).comp evalAtJ`, `ℤ[X] → K((q))`, `X ↦ j(q ^ N)` |
@@ -171,7 +196,7 @@ is a vanishing on the left, and a value `1` on either side is the same value.
 
 | name | statement |
 |---|---|
-| `splits_of_descends` | `hc : PhiGenDescends ℓ ζ c` and `hΦ : ∀ k, evalAtJ (Φ.coeff k) = c k` give the splitting `Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)` |
+| `splits_of_descends` | `hdescend : PhiGenDescends ℓ ζ c` and `hΦ : ∀ k, evalAtJ (Φ.coeff k) = c k` give the splitting `Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)` |
 | `coeff_poleBounds_of_splits` | from `hζ` and the splitting: the three coefficient bounds of §5, in the shapes `monic_of_evalAtJ_coeff_eq_one`, `natDegree_le_of_evalAtJ_coeff_eq_zero` and `degree_lt_of_evalAtJ_coeff_eq_zero` consume |
 
 ## 5. The exponents
@@ -197,6 +222,42 @@ vanishing *at and below* it (so `degree_lt_of_evalAtJ_coeff_eq_zero` gives `< ψ
 
 ## 6. `Φ` in eleven guises
 
+### 6.1 Which slot is evaluated?
+
+`Φ` is `Polynomial (Polynomial ℤ)`, i.e. `ℤ[X][Y]`: the outer variable is `Y` and `X` lives inside the
+coefficients. That is why the two slots are instantiated differently — the `Y`-slot by a **value** in
+the target ring, the `X`-slot by a **ring hom out of the coefficient ring** `ℤ[X]` (equivalently by
+the image of `X`, since a hom out of `ℤ[X]` is determined by it, in the target viewed as a
+`ℤ[X]`-algebra). `evalAtJ`, `evalAtJqN`, `evalAtJK`, `evalAtJAdj`, `evalAtJGen` are exactly those
+algebra structures, one per target. The presentation is not symmetric because the symmetry argument
+needs the `Y`-polynomial itself — monic, of degree `ψ(ℓ)`, `dvd`-comparable, with `minpoly` — so
+`Y` must stay the polynomial variable while `X` becomes coefficients.
+
+`Polynomial.map` and `Polynomial.eval₂` differ in what they do with the **outer** variable `Y`:
+
+| form | `X` | `Y` | result |
+|---|---|---|---|
+| `Φ.map f` | replaced by the evaluation `f` | kept symbolic | `Polynomial (LaurentSeries K)` |
+| `Φ.eval₂ f y` | replaced by `f` | replaced by the value `y` | a series (`LaurentSeries K`, or `ℚ((q))` when `f` lands there) |
+| `Φ.eval y` | kept | replaced by `y` | `eval₂` with the identity coefficient map, for `Φ` whose coefficients are already series |
+| `Polynomial.aeval a q` | — | replaced by `a` | `eval₂ C a`, on a polynomial whose `X` is already gone |
+
+The module's instances, with both slots spelled out:
+
+| form | `X` | `Y` | where |
+|---|---|---|---|
+| `Φ.map (evalAtJK K ℓ)` | `j(q ^ ℓ)` | — (symbolic) | `hsplit`, `splits_of_descends`, `coeff_poleBounds_of_splits` |
+| `Φ.eval₂ evalAtJ (jqN ℓ)` | `j(q)` | `j(q ^ ℓ)` | the datum's relation `eval_eq_zero` |
+| `Φ.eval₂ (evalAtJqN ℓ) jq` | `j(q ^ ℓ)` | `j(q)` | `hswap`, from `eval_swap_eq_zero_of_splits` |
+| `aeval (jqN ℓ) T` | already `j(q)`, inside the coefficients (`T = ΦT.map evalAtJGen`) | `j(q ^ ℓ)` | `hann`, `hTeq` |
+| `(phiProd ℓ (conj ℓ ζ)).eval (coeffEmb K jq)` | — (`phiProd`'s coefficients are already series) | `j(q)` | the one-line vanishing inside `eval_swap_eq_zero_of_splits` |
+
+The two `eval₂` rows are the points `(j(q), j(q ^ ℓ))` and `(j(q ^ ℓ), j(q))`: the first is the
+datum's own relation, the second is the *swapped* one the symmetry argument needs, and it is the
+splitting — not the datum — that supplies it.
+
+### 6.2 The eleven guises
+
 | form | type | reading |
 |---|---|---|
 | `data.Φ` | `Polynomial (Polynomial ℤ)` | the bivariate; `Y` outer, `X` inner |
@@ -221,8 +282,9 @@ The proof names two guises with `set … with h…`; the equations `hΦT : ΦT =
 
 | name | fact |
 |---|---|
-| `hζ1` | `ζ ^ ℓ = 1`, from primitivity; only T9's integrality consumes it |
-| `hcoeff` | `∀ k, evalAtJ (data.Φ.coeff k) = c k` — the only bridge between the datum and the descended family |
+| `c` | the descended family `ℕ → LaurentSeries ℚ` (T11) |
+| `hdescend` | its `PhiGenDescends ℓ ζ c` certificate (T11) — the fact that `phiProd`'s coefficients are the level images of `c` |
+| `hcoeff` | `∀ k, evalAtJ (data.Φ.coeff k) = c k` — the only bridge between the datum and the descended family; `ζ ^ ℓ = 1` is not bound at all, `units_pow_eq_one_of_isPrimitiveRoot hζ` is passed at its one call site (T9's `intCoeffs`) |
 | `hsplit` | `splits_of_descends hc hcoeff`, in the `evalAtJK` spelling |
 | `hirr` | `PhiIrreducible data`, from `phiIrreducible_of_splits` |
 | `hswap` | `Φ(j(q ^ ℓ), j(q)) = 0`, from `eval_swap_eq_zero_of_splits` |
@@ -290,6 +352,7 @@ hypotheses are the transpose's monic and degree facts. See
 | `evalAtJqN N` / `evalAtJK K N` | different codomains (`ℚ((q))` / `K((q))`), same value on `X` |
 | `ΦT` / `swapBivar data.Φ`, `T` / `(swapBivar data.Φ).map evalAtJGen` | the same, one being the proof's local `set` name and the other its value (`hΦT`, `hT`) |
 | `evalAtJ` / `evalAtJGen` | same formula, codomain `ℚ((q))` / `ℚ(j(q))`; `algebraMap_comp_evalAtJGen` relates them |
+| `EvalSymm Φ` / `swapBivar Φ = Φ` | equivalent (§1.1), but one is an identity of the evaluated function on `ℚ((q))²` and the other a coefficient identity; the bridge runs through integer points |
 | `jqN ℓ` / `conj 0` / `conj 1` | `j(q ^ ℓ)`, `j(q ^ (ℓ * ℓ))`, `j(q)`: the finite slots are `conj (b.succ)`, the extra one is `conj 0` |
 | `Φ.coeff k` / `(evalAtJ (Φ.coeff k)).coeff m` | a polynomial in `X` / a rational number |
 | `Φ.eval₂ evalAtJ (jqN ℓ)` / `Φ.eval₂ (evalAtJqN ℓ) jq` | the datum's relation / the transposed one; only the second comes from the splitting |

@@ -111,7 +111,8 @@ namespace ModularPolynomialData
 variable {N : ℕ} [NeZero N] (data : ModularPolynomialData N)
 
 /-- The transposed `Φ` annihilates `j(q ^ N)` in `ℚ(j(q))[Y]` as soon as `Φ` does
-under the swapped evaluation. -/
+under the swapped evaluation: `aeval (jqN N)` evaluates the transposed polynomial's `Y`-slot at
+`j(q ^ N)`, and `swapBivar_eval₂` moves that vanishing back to the datum. -/
 theorem aeval_jqN_transposeToAdjoin (hswap : data.Φ.eval₂ (evalAtJqN N) jq = 0) :
     Polynomial.aeval (jqN N) ((swapBivar data.Φ).map evalAtJGen) = 0 := by
   rw [Polynomial.aeval_def, Polynomial.eval₂_map, algebraMap_comp_evalAtJGen,
@@ -248,7 +249,9 @@ namespace PhiGen
 variable {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
 
 /-- The datum annihilates `j(q ^ ℓ)` under the swapped evaluation, read off the
-splitting: the product has the root `j(q)` with multiplicity one. -/
+splitting: the product has the root `j(q)` with multiplicity one. The vanishing is
+`Φ.eval₂ (evalAtJqN ℓ) jq = 0`, i.e. `X = j(q ^ ℓ)` and `Y = j(q)`, the datum's own relation
+being the same with the two slots exchanged. -/
 theorem eval_swap_eq_zero_of_splits (data : ModularPolynomialData ℓ)
     (hsplit : data.Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)) :
     data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 := by
@@ -285,12 +288,12 @@ private theorem coeff_qEmbedT (f : LaurentSeries ℚ) (m : ℤ) :
 
 /-- **A descent is a splitting**: a polynomial whose `X`-coefficients are the descended family's
 is annihilated by the conjugates of `j(q)`. -/
-theorem splits_of_descends (hc : PhiGenDescends ℓ ζ c) {Φ : Polynomial (Polynomial ℤ)}
+theorem splits_of_descends (hdescend : PhiGenDescends ℓ ζ c) {Φ : Polynomial (Polynomial ℤ)}
     (hΦ : ∀ k, evalAtJ (Φ.coeff k) = c k) :
     Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ) := by
   refine Polynomial.ext fun k => ?_
   rw [Polynomial.coeff_map, evalAtJK_def, RingHom.comp_apply, hΦ k,
-    qEmbedT_eq_coeffEmb_qExpand, ← hc k]
+    qEmbedT_eq_coeffEmb_qExpand, ← hdescend k]
 
 /-- The coefficient dictionary of a level substitution: a `q ↦ q ^ ℓ` substitution moves the
 index by `ℓ` and nothing else, so the `m`-th coefficient of `Φ`'s `k`-th coefficient is the
@@ -381,14 +384,11 @@ theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
   have : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
     IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
   obtain ⟨ζ, hζ⟩ := exists_primitiveRoot_cyclotomic ℓ
-  obtain ⟨c, hc⟩ := PhiGen.exists_phiGenDescends ℓ ζ hζ
-  have hζ1 : ζ ^ ℓ = 1 := by
-    refine Units.ext ?_
-    rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
-  obtain ⟨data, hcoeff⟩ := PhiGen.exists_modularPolynomialData_coeff_eq hc
-    (fun k => hc.intCoeffs hζ1 k)
-    (fun k => PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hc k)
-  have hsplit := PhiGen.splits_of_descends hc hcoeff
+  obtain ⟨c, hdescend⟩ := PhiGen.exists_phiGenDescends ℓ ζ hζ
+  obtain ⟨data, hcoeff⟩ := PhiGen.exists_modularPolynomialData_coeff_eq hdescend
+    (fun k => hdescend.intCoeffs (units_pow_eq_one_of_isPrimitiveRoot hζ) k)
+    (fun k => PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hdescend k)
+  have hsplit := PhiGen.splits_of_descends hdescend hcoeff
   have hirr : PhiIrreducible data := PhiGen.phiIrreducible_of_splits ℓ ζ hζ data hsplit
   have hswap : data.Φ.eval₂ (evalAtJqN ℓ) jq = 0 :=
     PhiGen.eval_swap_eq_zero_of_splits ℓ ζ data hsplit

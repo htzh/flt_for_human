@@ -38,7 +38,8 @@ Two identities collapse the spellings, so the picture is smaller than the table:
 
 - `qEmbedT_eq_coeffEmb_qExpand` — `qEmbedT K N x = coeffEmb K (qExpand ℚ N x)`. The pin's composite
   `(coeffEmb K) ∘ (qExpand ℚ ℓ)` **is** `qEmbedT K ℓ`, not a second map, and this is the one bridge
-  between the two spellings; the descent's own statements (`hc`) are written on the right-hand side.
+  between the two spellings; the descent's own statements (`hdescend k`) are written on the
+  right-hand side.
 - `evalAtJK_def` — `evalAtJK K N = (qEmbedT K N).comp evalAtJ`. So the two rows below end at the
   same map.
 - `adjoinEmbedT_comp_evalAtJAdj` — `(adjoinEmbedT K ℓ).comp evalAtJAdj = (qEmbedT K ℓ).comp evalAtJ`:
