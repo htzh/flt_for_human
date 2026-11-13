@@ -55,7 +55,7 @@ Two theories, then, with the seam above: **A = the modular equation at a prime**
 
 ## 3. Theory A's shape
 
-`FLTForHuman/ModularCurve/ModularEquation/` holds seven modules in two layers plus support.
+`FLTForHuman/ModularCurve/ModularEquation/` holds five subject modules over four support modules.
 
 | module | lines | role |
 |---|---|---|
@@ -64,7 +64,7 @@ Two theories, then, with the seam above: **A = the modular equation at a prime**
 | `Support/PoleBounds` | 250 | the product's pole bounds at the cusp: the leading `1` at `q ^ -(l*l + l)` and the vanishing at and below it |
 | `Support/Permutation` | 267 | three sections: *products under a permutation* (`map_prod_of_perm`: any finite family, any permutation of it, any coefficient endomorphism); *the twist's permutation* (`twistPerm`, its label formula and only fixed point, `qTwist_conj`, and its factorwise form); *the Galois permutation* (`galExp`, the value of the cyclotomic character, `galLabelPerm` — labels multiplied by it, `galPerm`, `coeffMap_conj`, and its factorwise form); also `Fin.succEquivOfEquiv` |
 | `Transpose` | 240 | subject: the transpose engine (`swapBivar` against mathlib's `Bivariate.swap`), the monic/degree bookkeeping, the pole-bound-to-degree dictionary, and the transposed evaluation |
-| `Construction` | 545 | subject: descent to `Q((q))`, the descended family's shape, integrality, the assembly of the datum, and the public constructor `exists_modularPolynomialData_splits` that consumes the whole chain |
+| `Construction` | 438 | subject: descent to `Q((q))`, the integrality of the descended family, and the assembly of the datum; one public constructor `exists_modularPolynomialData_splits` |
 | `Existence` | 782 | main result: distinct conjugates, `j(q ^ l)` not a polynomial in `j(q)`, the minimal polynomial, irreducibility, the two read-offs of the descent (private), and `exists_phiIrreducible_evalSymm` |
 | `Split` | 697 | main result and the seam: prime-level uniqueness and degree, the split over `Q` and over any field, the slot root API, the coefficient-degree bound, and the symmetry corollary |
 | `LevelTwo` | 440 | main result: `Φ = Φ₂` |
@@ -200,8 +200,7 @@ The rest of the old problems are still there, in rough order of how much they co
   `[IsGalois]`/`[FiniteDimensional]` because they are stated over an arbitrary field `K`.
   `Split.splits_of_prime` keeps one local `IsCyclotomicExtension`, because mathlib's
   `IsPrimitiveRoot.embeddingsEquivPrimitiveRoots` takes that instance as a section variable.
-  The contraction `qContract` is private in `Support/Descent`;
-  `coeffEmb_qExpand_injective` stays with the shape lemmas. The permutation work is split into
+  The contraction `qContract` is private in `Support/Descent`. The permutation work is split into
   two levels: the generic fact (`Polynomial.map_prod_of_perm`: any finite family, any permutation, any
   coefficient endomorphism) and the exhibited pairs for the two symmetries (`twistPerm` with
   `qTwist_X_sub_C_conj`; `galPerm` with `coeffMap_X_sub_C_conj`, the latter through the value `galExp`
@@ -210,8 +209,21 @@ The rest of the old problems are still there, in rough order of how much they co
   hypothesis at all. What is left in that module is the cycle structure: the iteration `b ↦ b + n` on
   the labels, order `ℓ`, and transitivity on the finite cusps (the arithmetic form of "`twistPerm` is
   one `ℓ`-cycle"); the iteration needs the `Fin ℓ`-level rotation lemma, which is the missing piece.
-  The assembly (`exists_intPoly`, `exists_modularPolynomialData_coeff_eq`) still has its old helpers
-  and is the next delayer target; `splits_of_descends` is private in `Construction`, while
+  **The assembly has since been written, not moved.** Its shape now is: for each `k` an integer
+  polynomial `Q k` with `Q k (jq) = c k`, obtained from the *polar* part of `c k`
+  (`IntPoleCoeffs`, the private sharpening of `IntCoeffs` — the triangularity of `j` reads only the
+  nonpositive exponents, so no pole bound is threaded); the sum `Φ = ∑ Q k (X) Y^k`; and one
+  coefficientwise identity `Φ.map (evalAtJK K ℓ) = phiProd ℓ (conj ℓ ζ)`. Monicity, degree `ψ(ℓ)`
+  and vanishing at `j(q^ℓ)` are the *product's* properties, pulled back along the injective level
+  embedding by three one-line transports (`monic_of_map_eq_phiProd`,
+  `natDegree_of_map_eq_phiProd`, `eval₂_eq_zero_of_map_eq_phiProd`), so the module no longer states
+  the descended family's own shape: `PhiGenDescends.c_top`, `.c_eq_zero`, `.poleOrderLE`,
+  `.sum_mul_jqN_pow_eq_zero`, the intermediate `exists_modularPolynomialData_coeff_eq`, the private
+  `exists_intPoly`/`splits_of_descends`/`coeffEmb_qExpand_injective` and the old assembly haves are
+  gone. The public surface is four statements (`exists_phiGenDescends`,
+  `PhiGenDescends.intCoeffs`, `evalAtJ_injective`, `exists_modularPolynomialData_splits`); the
+  dictionary entry is [ModularEquation/Constructions.md](../dict/ModularCurve/ModularEquation/Constructions.md)
+  — one entry for the whole theory.
   `coeff_poleBounds_of_splits` is private in `Existence`.
 * `Transpose` still bridges to mathlib's bivariate API through one private `swapBivar_eq_swap` because
   `swapBivar` is the port's own ring hom. Using mathlib's `Bivariate.swap` directly would delete the
@@ -234,7 +246,7 @@ question for later.
 | | modules | lines |
 |---|---|---|
 | old cluster, retired | 11 | 3984 |
-| theory A, new | 8 | 3411 |
+| theory A, now | 9 | 3332 |
 
 Retarget touched 21 library modules and 2 spec consumers; 4 modules needed more than an import swap;
 12 marker rows were removed; 11 modules moved to `Reserve`.

@@ -705,10 +705,14 @@ renaming $`q = q'^p`$ of §3's table.
    (the table in §3). The cover picture in §3 says why these are the right two
    symmetries: the twist is the local monodromy at the cusp, the diamond is the
    arithmetic action on the coefficients.
-3. **Pole bound.** The product's pole order at the cusp bounds the degree, which
-   together with holomorphy makes each coefficient a *polynomial* in $`j(q)`$
-   rather than a rational function; and the residue-$`1`$ pole of $`j`$ converts
-   integral $`q`$-coefficients into integral polynomial coefficients (§2). This is
+3. **Membership in $`\mathbb{Q}[j]`$, and the pole bound.** These are two facts of different
+   kind, and only the second is about poles. The pole bound at the cusp bounds the *degree*
+   of the polynomial that represents $`c_k`$; the *membership* $`c_k \in \mathbb{Q}[j(q)]`$
+   is the level-one $`q`$-expansion principle, whose invariance hypothesis is supplied by the
+   Hecke-coset construction — see
+   [013 §4.3, §6](013-riemann-existence-and-the-q-expansion-principle.md) and
+   [014 §4.5](014-hecke-operators.md). The residue-$`1`$ pole of $`j`$ then converts integral
+   $`q`$-coefficients into integral polynomial coefficients (§2). This is
    `exists_modularPolynomialData_coeff_eq`
    ([S file, lines 130–177](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean#L130-L177)).
 4. **Uniqueness.** Both the given datum and the constructed one are monic of degree

@@ -4,10 +4,12 @@ One file per Lean module, holding that module's **vocabulary**: which objects ex
 of them lives over, which map goes where, and what the names inside the main proof stand for. The
 point is that a reader of a proof should not have to reconstruct the dictionary from the proof.
 
-- **Mirror the module path.** A module `FLTForHuman/<A>/<B>/<C>.lean` has its entry at
-  `lean/dict/<A>/<B>/<C>.md` (the library root `FLTForHuman/` is dropped). The entry for
-  `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` is therefore
-  `ModularCurve/ModularPolynomialIrreducible.md`.
+- **Mirror the module path, or the theory's.** A module `FLTForHuman/<A>/<B>/<C>.lean` has its entry
+  at `lean/dict/<A>/<B>/<C>.md` (the library root `FLTForHuman/` is dropped): the entry for
+  `FLTForHuman/ModularForms/Hauptmodul.lean` would be `ModularForms/Hauptmodul.md`. Where a cluster's modules trade lemmas with each
+  other often enough that a per-module entry would be re-homed on every refactor, one entry covers
+  the whole theory instead — `ModularCurve/ModularEquation/Constructions.md` is the vocabulary of
+  every module in that directory, and is the entry for all nine of them.
 - **A dictionary, not a note.** No proofs, no re-derivation, no plan or history: names, types,
   images, and one-line statements of what each named step says. The mathematics lives in
   [math/](../../math/) and the porting records in [topics/](../topics/); the Lean docstrings

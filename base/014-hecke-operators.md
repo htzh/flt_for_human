@@ -171,7 +171,7 @@ The port's `Defs/HeckeOperator.lean` keeps exactly the two substitutions, as
 elements of `GL (Fin 2) ℝ` built from an upper-triangular matrix:
 
 ```lean
--- FLTForHuman/ModularForms/Defs/HeckeOperator.lean, lines 53 and 57
+-- FLTForHuman/ModularForms/Defs/HeckeOperator.lean
 def heckeMatrix (p j : ℕ) : GL (Fin 2) ℝ := ...    -- !![1, j; 0, p]
 def heckeDiagMatrix (p : ℕ) : GL (Fin 2) ℝ := ...  -- !![p, 0; 0, 1]
 ```
@@ -363,11 +363,11 @@ of the nome are used, and it is why `RealL` is stated for a general period.
   $`q(\tau') = e^{2\pi i b/\ell}q^{1/\ell}`$, so the translate's $`q`$-expansion
   is the coefficient twist $`A_m \mapsto e^{2\pi i bm/\ell}A_m`$ at **period
   $`\ell`$**. This is `hasSum_qParam_heckeMatrix_smul`
-  ([port, line 37](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean)).
+  ([the port's `HeckeQExpansion.lean`](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean)).
 - **`heckeDiagMatrix`**: $`\tau \mapsto \ell\tau`$. Then $`q(\tau') = q^{\ell}`$,
   which in the period-$`\ell`$ nome is $`q \mapsto q^{\ell^2}`$ — the ring map
   `qExpand ℂ (ℓ*ℓ)`. This is `hasSum_qParam_heckeDiagMatrix_smul`
-  ([port, line 69](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean)).
+  ([the port's `HeckeQExpansion.lean`](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean)).
 
 These are the "analytic face of the Hecke action"
 ([base/013 §5.2](013-riemann-existence-and-the-q-expansion-principle.md)), and
@@ -403,8 +403,7 @@ $`\mathrm{SL}_2(\mathbb{Z})`$, so its coefficients are level-one invariant and
 R1 applies directly. The Hecke operator is thus the device that buys the whole
 cone the right to use the cheap, already-isolated analytic input.
 
-This also resolves the compression flagged in
-[PORTING-PhiGen §7](../lean/topics/PORTING-PhiGen.md): base/006 §6.3's "the pole bound
+This also resolves the compression in base/006 §6.3, whose "the pole bound
 together with holomorphy makes each coefficient a polynomial in $`j(q)`$" is
 really two facts. The pole bound bounds the *degree* of the witnessing polynomial;
 the *membership* $`c_k \in \mathbb{Q}[j]`$ is R1, and R1's hypothesis is
@@ -505,10 +504,10 @@ which is where the operator of this note and the correspondence meet.
 | Mathematics | Lean declaration | Location |
 |---|---|---|
 | slash action, $`f \mid_k g`$ | `SlashAction.map`, `ModularForm.slash_apply` | [mathlib v4.33.0, line 143](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/SlashActions.lean#L143) |
-| the diagonal Hecke matrix $`\mathrm{diag}(p,1)`$ | `heckeDiagMatrix` | [port line 57](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
-| the unipotent Hecke matrices $`[[1,j],[0,p]]`$ | `heckeMatrix` | [port line 53](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
-| $`\mathrm{diag}(p,1) \cdot \tau = p\tau`$ | `coe_heckeDiagMatrix_smul` | [port line 107](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
-| $`[[1,j],[0,p]] \cdot \tau = (\tau+j)/p`$ | `coe_heckeMatrix_smul` | [port line 101](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
+| the diagonal Hecke matrix $`\mathrm{diag}(p,1)`$ | `heckeDiagMatrix` | [the port module](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
+| the unipotent Hecke matrices $`[[1,j],[0,p]]`$ | `heckeMatrix` | [the port module](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
+| $`\mathrm{diag}(p,1) \cdot \tau = p\tau`$ | `coe_heckeDiagMatrix_smul` | [the port module](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
+| $`[[1,j],[0,p]] \cdot \tau = (\tau+j)/p`$ | `coe_heckeMatrix_smul` | [the port module](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
 | the average defining $`U_p`$ | `heckeU` | [FLT line 93](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularForm_HeckeOperator.lean#L93) |
 | $`T_p = U_p + [\mathrm{diag}(p,1)]`$ | `heckeT` | [FLT line 96](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularForm_HeckeOperator.lean#L96) |
 | $`U_p`$ on coefficients: $`a_{mp}`$ | `coeffHeckeU` | [FLT line 165](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularForm_HeckeOperator.lean#L165) |
@@ -519,12 +518,12 @@ which is where the operator of this note and the correspondence meet.
 | it is commutative | `heckeAlgebra.instIsMulCommutative` | [FLT line 59](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_CuspForm_HeckeAlgebra.lean#L59) |
 | eigenform as four coefficient recursions | `IsNormalizedEigenform` | [FLT lines 28–40](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L28-L40) |
 | abstract Hecke algebra $`\mathbb{T}`$ | `HeckeAlg`, `heckeGen` | [FLT lines 14, 16](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L14-L16) |
-| the coset polynomial is $`\mathrm{SL}_2(\mathbb{Z})`$-invariant | `cosetPoly_smul` | [port line 298](../lean/FLTForHuman/ModularForms/PhiGenDescends.lean) |
-| the $`(\tau+b)/\ell`$ translate at period $`\ell`$ | `hasSum_qParam_heckeMatrix_smul` | [port line 37](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean) |
-| the $`\ell\tau`$ translate gives $`q \mapsto q^{\ell^2}`$ | `hasSum_qParam_heckeDiagMatrix_smul` | [port line 69](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean) |
-| realization predicate with general period | `RealL` | [port line 230](../lean/FLTForHuman/ModularForms/Hauptmodul.lean) |
-| R1: level-one invariant realisation lies in $`\mathbb{Q}[j]`$ | `mem_adjoin_jq_of_hasSum_of_slash_invariant` | [port line 452](../lean/FLTForHuman/ModularForms/Hauptmodul.lean) |
-| the cone's (c): descended coefficients lie in $`\mathbb{Q}[j]`$ | `mem_adjoin_jq_of_phiGenDescends` | [port line 498](../lean/FLTForHuman/ModularForms/PhiGenDescends.lean) |
+| the coset polynomial is $`\mathrm{SL}_2(\mathbb{Z})`$-invariant | `cosetPoly_smul` | [the port module](../lean/FLTForHuman/ModularForms/PhiGenDescends.lean) |
+| the $`(\tau+b)/\ell`$ translate at period $`\ell`$ | `hasSum_qParam_heckeMatrix_smul` | [the port module](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean) |
+| the $`\ell\tau`$ translate gives $`q \mapsto q^{\ell^2}`$ | `hasSum_qParam_heckeDiagMatrix_smul` | [the port module](../lean/FLTForHuman/ModularForms/HeckeQExpansion.lean) |
+| realization predicate with general period | `RealL` | [the port module](../lean/FLTForHuman/ModularForms/Hauptmodul.lean) |
+| R1: level-one invariant realisation lies in $`\mathbb{Q}[j]`$ | `mem_adjoin_jq_of_hasSum_of_slash_invariant` | [the port module](../lean/FLTForHuman/ModularForms/Hauptmodul.lean) |
+| the cone's (c): descended coefficients lie in $`\mathbb{Q}[j]`$ | `mem_adjoin_jq_of_phiGenDescends` | [the port module](../lean/FLTForHuman/ModularForms/PhiGenDescends.lean) |
 | $`T_\ell = \alpha_\ast\beta^\ast`$ on $`J_0(N)`$ | `heckeOperatorBar` | [FLT lines 16–18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_HeckeModule.lean#L16-L18) |
 | all $`T_\ell`$ commute on $`J_0(N)`$ | `heckeOperatorsCommuteBar` | [FLT line 9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_heckeOperatorsCommuteBar.lean#L9) |
 

@@ -66,8 +66,7 @@ import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularForms.Hauptmodul
 -- T8: the cone's (c), `mem_adjoin_jq_of_phiGenDescends`, and the Hecke layer.
 import FLTForHuman.ModularForms.PhiGenDescends
--- T9: the cone's (b) integrality, `PhiGenDescends.intCoeffs` and
--- `aeval_jq_intCoeffs_descent`, in the `ModularCurve` algebraic layer.
+-- T9: the cone's (b) integrality, `PhiGenDescends.intCoeffs`.
 import FLTForHuman.ModularCurve.ModularEquation.Construction
 -- T10: the cone's (b) pole bounds, `phiProd_conj_coeff_{zero_lead,eq_zero_of_le}`,
 -- plus the shared `TPoleOrderLE` prelude now public in `Defs/PhiGen.lean`.
@@ -332,8 +331,7 @@ consumes it, the two Hecke lemmas feed the former), but its hypothesis
 `hc : PhiGenDescends ℓ ζ c` is the cone's piece **(a)**, which is *not* ported, so
 no concrete `hc` exists to instantiate. The zone therefore binds the exported
 statement, the T8 interface T8's siblings use, and the correspondence; the node's
-real consumer is the cone's (d) `exists_modularPolynomialData_coeff_eq`, which is
-also not ported.
+real consumer is the cone's (d), inlined into `exists_modularPolynomialData_splits`.
 -/
 
 #check @ModularCurve.PhiGen.mem_adjoin_jq_of_phiGenDescends
@@ -353,26 +351,20 @@ example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : (CyclotomicField ℓ ℚ
 
 /-! ## Zone G — [T9] the cone's (b) integrality: descended coefficients are integral
 
-`FLTForHuman/ModularCurve/PhiGenIntegrality.lean` proves the first half of the
-cone's piece (b): `PhiGenDescends.intCoeffs` says the descended family `c` has
-integer `q`-expansion coefficients, and `aeval_jq_intCoeffs_descent` turns that
-triangularity into "a rational `P` with `IntCoeffs (P(jq))` lies in `ℤ[X]`".
-Route A (the deviation) shipped: `LaurentSeries 𝒪` + `coeffMap` + mathlib's
-integral closure, replacing FLT's `CoeffsIntegral` closure machinery.
+`FLTForHuman/ModularCurve/ModularEquation/Construction.lean` proves the first
+half of the cone's piece (b): `PhiGenDescends.intCoeffs` says the descended
+family `c` has integer `q`-expansion coefficients. Route A (the deviation)
+shipped: `LaurentSeries 𝒪` + `coeffMap` + mathlib's integral closure, replacing
+FLT's `CoeffsIntegral` closure machinery.
 
-**The wire test is a binding plus a hypothesis-form instance.** As with Zone F,
-`PhiGenDescends.intCoeffs`'s hypothesis `hc : PhiGenDescends ℓ ζ c` is the cone's
-piece (a), which is not ported, so no concrete `hc` exists and none is invented.
-Its real consumer is the cone's (d) `exists_modularPolynomialData_coeff_eq`, not
-yet ported. `aeval_jq_intCoeffs_descent` *does* have a concrete instance
-(`P = X`, `hP` the port's `intCoeffs_jq`); it is proved and named
-`aeval_jq_intCoeffs_descent_X` inside the module, where the private
-`intCoeffs_jq` is in scope. Zone G binds the exported statement and its
-hypothesis form.
+**The wire test is a binding.** As with Zone F, `PhiGenDescends.intCoeffs`'s
+hypothesis `hc : PhiGenDescends ℓ ζ c` is the cone's piece (a), which is not
+ported, so no concrete `hc` exists and none is invented. Its real consumer is the
+cone's (d), inlined into `exists_modularPolynomialData_splits`. Zone G binds the
+exported statement and its hypothesis form.
 -/
 
 #check @ModularCurve.PhiGen.PhiGenDescends.intCoeffs
-#check @ModularCurve.PhiGen.aeval_jq_intCoeffs_descent
 
 -- The statement in hypothesis form: the full `intCoeffs` signature, including
 -- the `PhiGenDescends` descent hypothesis, elaborates against the port's `Defs/`.
@@ -380,11 +372,6 @@ example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prim
     (ζ : Kˣ) (c : ℕ → LaurentSeries ℚ) (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c)
     (hζ1 : ζ ^ ℓ = 1) (k : ℕ) : ModularCurve.PhiGen.IntCoeffs (c k) :=
   ModularCurve.PhiGen.PhiGenDescends.intCoeffs hc hζ1 k
-
--- The statement in hypothesis form for the descent.
-example (P : Polynomial ℚ) (hP : ModularCurve.PhiGen.IntCoeffs (Polynomial.aeval jq P))
-    (k : ℕ) : ∃ z : ℤ, P.coeff k = (z : ℚ) :=
-  ModularCurve.PhiGen.aeval_jq_intCoeffs_descent P hP k
 
 /-! ## Zone H — [T10] the cone's (b) pole bounds: the product's coefficients
 
@@ -423,90 +410,24 @@ example {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prim
 
 /-! ## Zone I — [T11] the construction: descent, the 328 block, the datum
 
-`FLTForHuman/ModularCurve/PhiGenDescent.lean` proves (a),
+`FLTForHuman/ModularCurve/ModularEquation/Construction.lean` proves (a),
 `PhiGen.exists_phiGenDescends`: the coefficients of the conjugate product descend
-to `ℚ((q))`. `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` proves the
-328 block's shape exports (`c_top`, `c_eq_zero`, `poleOrderLE`,
-`sum_mul_jqN_pow_eq_zero`, `evalAtJ_injective`), the last by the mathlib route
-through the public `transcendental_jq`. `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean`
-proves (d): `exists_modularPolynomialData_coeff_eq` assembles the datum; the
-coefficient comparison that turns it back into the product is inlined where the
-product is consumed. Together with T9's integrality and T8's membership they
+to `ℚ((q))`, and `evalAtJ_injective`, by the mathlib route through the public
+`transcendental_jq`. The same module proves (d):
+`exists_modularPolynomialData_splits` assembles the datum as the level-`ℓ` image
+of the conjugate product. Together with T9's integrality and T8's membership they
 compose into the cone's construction.
 
-**The wire test is end-to-end.** Unlike Zones F/G, (a) is now ported, so the whole
-chain can be run on a concrete field: `K = CyclotomicField ℓ ℚ` with mathlib's
-primitive root (the instances are set up as the pin's
-`exists_phiIrreducible_evalSymm` does). The example below produces a descended
-family `c`, verifies its integrality (T9), membership in `ℚ[jq]` (T8) and pole
-bound (T11), and assembles `data` with `evalAtJ (data.Φ.coeff k) = c k` — (a) +
-(b) + (c) + (d) in one instance. `evalAtJ_injective` is unconditional and also
-bound.
+`evalAtJ_injective` is unconditional and also bound.
 -/
 
 #check @ModularCurve.PhiGen.exists_phiGenDescends
-#check @ModularCurve.PhiGen.PhiGenDescends.c_top
-#check @ModularCurve.PhiGen.PhiGenDescends.c_eq_zero
-#check @ModularCurve.PhiGen.PhiGenDescends.poleOrderLE
-#check @ModularCurve.PhiGen.PhiGenDescends.sum_mul_jqN_pow_eq_zero
 #check @ModularCurve.PhiGen.evalAtJ_injective
-#check @ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq
 #check @ModularCurve.PhiGen.exists_modularPolynomialData_splits
-
--- The 328 block in hypothesis form.
-example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
-    {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ} (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c) :
-    c (ℓ + 1) = 1 :=
-  ModularCurve.PhiGen.PhiGenDescends.c_top hc
-
-example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
-    {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ} (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c)
-    (k : ℕ) : PoleOrderLE (c k) (ℓ + 1) :=
-  ModularCurve.PhiGen.PhiGenDescends.poleOrderLE hc k
 
 example : Function.Injective evalAtJ :=
   ModularCurve.PhiGen.evalAtJ_injective
 
--- The assembly in hypothesis form.
-example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
-    {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ} (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c)
-    (hint : ∀ k, ModularCurve.PhiGen.IntCoeffs (c k))
-    (hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq}) :
-    ∃ data : ModularCurve.ModularPolynomialData ℓ,
-      ∀ k, evalAtJ (data.Φ.coeff k) = c k :=
-  ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq hc hint hmem
-
--- The end-to-end wire test: (a) + (b) + (c) + (d) on `K = CyclotomicField ℓ ℚ`.
-set_option linter.style.haveILetI false in
-example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
-    ∃ c : ℕ → LaurentSeries ℚ, ∃ data : ModularCurve.ModularPolynomialData ℓ,
-      (∀ k, evalAtJ (data.Φ.coeff k) = c k) ∧
-      (∀ k, ModularCurve.PhiGen.IntCoeffs (c k)) ∧
-      (∀ k, c k ∈ Algebra.adjoin ℚ {jq}) ∧
-      (∀ k, PoleOrderLE (c k) (ℓ + 1)) := by
-  haveI : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
-  haveI : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
-    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
-  haveI : FiniteDimensional ℚ (CyclotomicField ℓ ℚ) :=
-    IsCyclotomicExtension.finiteDimensional {ℓ} ℚ (CyclotomicField ℓ ℚ)
-  haveI : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
-    IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
-  obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
-    (Set.mem_singleton ℓ) hℓ.out.ne_zero
-  have hzu : IsUnit z := hz.isUnit hℓ.out.ne_zero
-  have hζ : IsPrimitiveRoot ((hzu.unit : (CyclotomicField ℓ ℚ)ˣ) : CyclotomicField ℓ ℚ) ℓ := by
-    rw [hzu.unit_spec]
-    exact hz
-  have hζ1 : hzu.unit ^ ℓ = 1 := by
-    refine Units.ext ?_
-    rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
-  obtain ⟨c, hc⟩ := ModularCurve.PhiGen.exists_phiGenDescends ℓ hzu.unit hζ
-  have hint : ∀ k, ModularCurve.PhiGen.IntCoeffs (c k) := fun k => hc.intCoeffs hζ1 k
-  have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
-    fun k => ModularCurve.PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ hzu.unit hζ c hc k
-  obtain ⟨data, hcoeff⟩ :=
-    ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq hc hint hmem
-  exact ⟨c, data, hcoeff, hint, hmem, fun k => hc.poleOrderLE k⟩
 
 /-! ## Zone J — [T12] the properties: irreducibility, symmetry, existence
 
@@ -1188,8 +1109,6 @@ cone's (b) by **Route A** (`LaurentSeries 𝒪` + `coeffMap` + mathlib's integra
 closure, replacing FLT's `CoeffsIntegral` closure machinery).
 `PhiGenDescends.intCoeffs` is a binding whose hypothesis `hc` is the cone's (a)
 (not ported), so — as in Zone F — no concrete instance is invented;
-`aeval_jq_intCoeffs_descent`'s concrete `P = X` instance is the module's private
-`aeval_jq_intCoeffs_descent_X`, and Zone G binds its hypothesis form. Still
 **0 errors**, one `sorry`.
 
 **Pole-bounds result (2026-09-22).** Zone H is added and bound:
@@ -1205,8 +1124,8 @@ modules build the cone's object end-to-end. `PhiGenDescent.lean` proves (a)
 `exists_phiGenDescends`; `PhiGenDescendsStructure.lean` the 328 block's five shape
 exports (`evalAtJ_injective` by the mathlib `transcendental_jq` route, so T12
 imports it rather than carrying the pin's private copy);
-`ModularPolynomialAssembly.lean` (d) `exists_modularPolynomialData_coeff_eq`,
-whose coefficient comparison is inlined at its two consumers. The Zone I wire
+`ModularPolynomialAssembly.lean` (d), whose assembly and coefficient comparison
+are inlined into `exists_modularPolynomialData_splits`. The Zone I wire
 test is **end-to-end** —
 `K = CyclotomicField ℓ ℚ` produces a descended family, verifies its T9
 integrality, T8 membership and T10/T11 pole bound, and assembles the datum — the
