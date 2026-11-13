@@ -56,6 +56,32 @@ and `Split` consume one constructor, `exists_modularPolynomialData_splits`, and 
 they do not see the descended family, the assembly, or the coefficient equality. `LevelTwo`'s helpers
 are `private`; its only public declaration is `phi_eq_phiTwo`.
 
+### 2.1 The analytic input
+
+`Construction` is not purely algebraic. The descent gives the coefficients `c k` of the conjugate
+product as `q`-series; to assemble a bivariate `Φ ∈ ℤ[X][Y]` it needs, for each `k`, an integer
+polynomial `Q k` with `evalAtJ Q k = c k`, i.e. `c k ∈ ℚ[jq]`. That membership is the one cross-area
+input of the theory, from `FLTForHuman/ModularForms/PhiGenDescends.lean`:
+
+```lean
+mem_adjoin_jq_of_phiGenDescends :
+    PhiGenDescends ℓ ζ c → c k ∈ Algebra.adjoin ℚ {jq}
+```
+
+It is analytic, not a modular-equation statement: the coset polynomial
+`(X - F(ℓτ)) · ∏_{b < ℓ} (X - F((τ + b)/ℓ))` is `SL₂(ℤ)`-invariant when `F` is, its coefficients are
+realized by Hecke translates of `jq`, and T7's level-one `q`-expansion principle
+(`mem_adjoin_jq_of_hasSum_of_slash_invariant`) puts them in `ℚ[jq]`. The level-`N` `q`-expansion
+principle is never needed.
+
+`Construction` consumes it at the assembly: `mem_adjoin_jq_of_phiGenDescends` gives
+`c k ∈ ℚ[jq]`, `Algebra.adjoin_singleton_eq_range_aeval` turns that into `P(jq) = c k` for some
+`P : ℚ[X]`, and `exists_intPoly_of_intPoleCoeffs` — with the integer coefficients of
+`PhiGenDescends.intCoeffs` — produces `Q k : ℤ[X]`. The datum is
+`Φ = ∑_{k ≤ ℓ+1} C (Q k) · X^k`, and its level-`ℓ` image is the conjugate product. Without this
+membership there is no `Q k`, hence no `Φ` and no prime-level datum; the rest of A (transpose,
+irreducibility, splitting) is algebraic.
+
 ## 3. Theory B
 
 B is written at three layers over the same mathematics:
