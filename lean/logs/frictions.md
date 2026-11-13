@@ -3777,3 +3777,103 @@ round promotes what generalizes.
   `attribute [-instance]` shim, which names pin instances the port does not have. The mechanical pass
   dropped that shim, and this is the correct replacement, not a workaround.
 - **seen**: 2026-11-12, AF46B.
+
+## FR-0178 [tool] — `--selfcheck`'s source tier is a *ported* tier, so a deliberate future-promote `SOURCES` row reads as ported
+
+- **where**: the D–S shelf's scoping read (SET-AF47 §0), ten `ModularCurve` rows.
+- **symptom**: `frontier.py --selfcheck` fails "source tier covered by the name tier" with ten
+  `PhiGen`/`ModularPolynomialData` nodes that no port declaration carries; the shelf's frontier is
+  1,704 / 827,574 instead of 1,694 / 823,223, and `needed [literal]` 724 / 303,267 instead of
+  733 / 306,724 (`needed [F terminal]` is unchanged — none of the ten reaches the terminal mask).
+- **cause**: `spec/old_check_stmts.py` lists those `Thm_` rows on purpose — the comments say the `S_`
+  files are there so a later topic *would* verify the block's promoted declarations — but the source
+  tier is used as evidence of porting, so a pin side that is not ported reads as ported. `twin_scan
+  --node` reports `new` for each: the mathematics is not in the port under another name either.
+- **fix / rule**: read the shelf with `--unport NAME` for each (the documented correction), quote both
+  columns and say which marker set produced the corrected one. Register the inventory in
+  `spec/METADATA-ISSUES.md` (MD-005) rather than deleting the rows in another column's wave — the
+  correction is either a promotion or a wire close, and both are the phi workstream's call.
+- **seen**: 2026-11-12, SET-AF47 §0 (ten rows; the first five were recorded in SET-AF41 §0 without an
+  MD entry).
+
+## FR-0179 [lean] — the pin's task-label namespaces (`W9OComposite`, `IndepMember`, `CompleteSplittingE`) are rectified in a new module, and the checker does not care
+
+- **where**: SET-AF47's four scaffolds, all generated from the pin's text.
+- **symptom**: copying the pin's `namespace W9OComposite` / `IndepMember` / `CompleteSplittingE` into a
+  new module would put machine tokens in the public API (`ValuationSubring.W9OComposite.composite`), and
+  `end ValuationSubring.IndepMember` does not even resolve once the block is re-nested (FR-0172).
+- **cause**: the pin nests its proof-search labels *under* the mathematical namespace; the port's
+  earlier valuation-subring modules kept them (AF44 §3.2), which is legal but carries the token.
+- **fix / rule**: rename the label to a descriptive one (`Composite`, `Independent`,
+  `CompleteSplitting`), close it with the **bare** `end <Label>`, and leave every declaration's last
+  name unchanged — the checker matches last names, so no `spec/decl_markers.tsv` row is needed and the
+  surface counts are unaffected (measured: 8 / 2 / 8 / 23 `ok`, 0 mismatch, 0 missing before a proof was
+  written). This is a *scaffold-generation* rule: apply it when the module is first written, not as a
+  later rename (a rename moves the checker key and costs a cascade).
+- **seen**: 2026-11-12, SET-AF47 §2.
+
+## FR-0180 [lean] — the pinned *def bodies* carry v4.34 deprecations the statements do not, and a mechanical scaffold inherits them
+
+- **where**: SET-AF47's `locAt` (pin `S_ValuationSubring_exists_valuation_mul_eq_one_of_forall_sup_eq_top.lean:347–424`)
+  and two more sites in the same block.
+- **symptom**: the generated module elaborated with `Set.mem_setOf_eq has been deprecated: Use
+  Set.mem_ofPred_eq` and `zero_le' has been deprecated: Use zero_le`, inside a `def` the manager
+  transcribed verbatim; a `def` cannot be left `sorry`-closed, so the deprecation is the manager's to
+  fix, not a worker's.
+- **cause**: only *proof bodies* are stubbed in a scaffold, so any deprecation inside a transcribed
+  `def` survives; the AF46 drift orders never saw this because their defs were already in the tree.
+- **fix / rule**: keep a small `DRIFT` table in the generation script and apply it to every generated
+  body (`Set.mem_setOf_eq` → `Set.mem_ofPred_eq`, `zero_le'` → `zero_le`, …), then elaborate the
+  scaffold before it is dispatched — a scaffold that warns is not landed, and the worker's gate is
+  silence.
+- **seen**: 2026-11-12, SET-AF47 §2.
+
+## FR-0181 [process] — a scaffold's imports must be closed over the *port* modules, not only over the pin's import lines
+
+- **where**: SET-AF47's module `FieldTheory/ValuationSubringCompleteSplitting.lean`; the worker added
+  the missing edge and reported it, the manager kept it.
+- **symptom**: `bar_sup_bar_eq_top` (pin `S_…finrank_le_card.lean:583`, call at `:586`) applies
+  `ValuationSubring.exists_le_forall_mem_iff_apply_mem`, whose home is `ValuationSubringComposite.lean`;
+  the scaffold imported `Independent`, `Finrank` and `Approximation` but not `Composite`, so the proof
+  could not be written — the lemma is a *sibling's*, not reachable through the three frozen imports.
+- **cause**: the scaffold's import block was derived from the pinned file's own `import` lines, which
+  point at `Theorems/Thm_*.lean` wrappers and `P2M.Util`, not at the port's modules. The pin's premise is
+  therefore visible in the *inventory* (the order named A1's home) but absent from the *header*.
+- **fix / rule**: when generating a scaffold, translate every pin-side premise into its port home and
+  close the import block over those modules — the pin's `Theorems/` imports are the list to translate,
+  not to drop. Cheap check before dispatch: for each declaration in the module, `#check` its premises
+  from the scaffold's imports only.
+- **seen**: 2026-11-12, SET-AF47 (one edge, 47C).
+
+## FR-0182 [lean] — a `local instance` does not travel through `import`: the consumer must re-install it
+
+- **where**: `lean/spec/FieldTheorySetAF47CConsumer.lean`, consuming
+  `ValuationSubring.CompleteSplitting.card_add_card_le_finrank`.
+- **symptom**: the theorem's hypothesis carries `Module (ResidueField ↥(R.comap …)) (ResidueField ↥R)`;
+  in a consumer that imports the module, that instance is not synthesizable and the hypothesis cannot be
+  stated — although inside the module it is, because the module writes
+  `attribute [local instance] residueAlgebra` twice.
+- **cause**: `attribute [local instance]` scopes to the file (the section) it is written in; an importing
+  file does not inherit it. With `ResidueField` a `def` in v4.34 (FR-0177) instance search does not
+  unfold it either, so there is no fallback.
+- **fix / rule**: the consumer repeats `attribute [local instance] <Module>.residueAlgebra` (the
+  module's existing definition — do not invent a new named instance, and do not make it global). This is
+  the consumer-side face of FR-0177 and belongs in the order's consumer instructions whenever a headline's
+  *hypotheses* are stated over `ResidueField`.
+- **seen**: 2026-11-12, SET-AF47 (47C consumer).
+
+## FR-0183 [process] — a consumer instance must also be checked against the *lattice*, not only against the hypotheses (FR-0171, fifth instance)
+
+- **where**: SET-AF47's 47A consumer zone (the composite criterion at `W = ⊥`).
+- **symptom**: the suggested instance `W = ⊥` — and its reading `O' = ⊥` — is untypeable:
+  `ValuationSubring` has `OrderTop` (`Mathlib/RingTheory/Valuation/ValuationSubring.lean:118`) but **no
+  `OrderBot`**, and the bottom candidate `{0}` is not a valuation subring of a nontrivial field
+  (`mem_or_inv_mem'` fails at `x = 1`).
+- **cause**: the order's suggestion was written from the statement's shape (an order-theoretic
+  "cut down"), and the hypothesis side was checked but not the *object* side: whether the lattice has the
+  element at all.
+- **fix / rule**: before writing an instantiation into an order, `#check` the *element* it names (here
+  `(⊥ : ValuationSubring ℚ)`) as well as the hypotheses; when the lattice is one-sided, read the theorem
+  at the side that exists. The substitution is legitimate and cheap (two readings: `W = ⊤` giving
+  `O' = O`, and `O = ⊤` with `W = ℤ_(2)` giving the cut-down), but it should not be a worker's discovery.
+- **seen**: 2026-11-12, SET-AF47 (47A consumer); FR-0171 recorded the hypothesis side of the same class.

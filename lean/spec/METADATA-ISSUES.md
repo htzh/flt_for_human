@@ -28,7 +28,8 @@ MD-002 for the measurement).
 
 `frontier.py --selfcheck` prints `source node not covered by the name scan` for every
 node the source tier claims (a `Thm_` source in `SOURCES` or a `spec-pin:` line) that no
-port declaration carries by last name.  On 2026-10-27 the inventory was MD-001..003 below;
+port declaration carries by last name.  **The live inventory is MD-005** (ten phi-refactor
+`ModularCurve` rows, open since 2026-11-12).  On 2026-10-27 the inventory was MD-001..003 below;
 SET 7 fixed MD-002 and MD-003, and SET MC-7 fixed MD-001, so the live inventory was
 **empty** (`--selfcheck` PASSes).  MD-004 was the mirror case — a node the port does not
 declare at all, read as ported — and was found and resolved by SET-AF18 (2026-11-07); with
@@ -228,6 +229,43 @@ for the next edit of their module.
   * the read moves `needed` 838/344,897 → **836/344,831** and the shelf goes 61 / 16,105 → **64 / 17,200**
     (four rows in: the leaf is ported and three rows become ready).
 - **status**: **resolved (2026-11-07, SET-AF18 §3.1)**. Recorded in `logs/frictions.md` as FR-0138.
+
+## MD-005 — ten `ModularCurve` `SOURCES` rows name `PhiGen`/`ModularPolynomialData` nodes the port does not declare
+
+- **module**: `FLTForHuman/ModularCurve/ModularEquation/Construction.lean` and its neighbours — the
+  rows sit in the `SOURCES` list of the module that carries the phi construction.
+- **metadata**: ten `Theorems/Thm_…` rows (and the `P2M/Sol/S_…` rows beside them) whose pin nodes no
+  port declaration matches:
+  `ModularCurve.ModularPolynomialData.evalSymm_of_irreducible`,
+  `ModularCurve.ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion`,
+  `ModularCurve.PhiGen.evalSymm_of_coeff_evalAtJ_eq`, `ModularCurve.PhiGen.evalSymm_of_splits`,
+  `ModularCurve.PhiGen.splits_of_coeff_evalAtJ_eq`, `ModularCurve.PhiGen.PhiGenDescends.c_eq_zero`,
+  `ModularCurve.PhiGen.PhiGenDescends.c_top`, `ModularCurve.PhiGen.PhiGenDescends.poleOrderLE`,
+  `ModularCurve.PhiGen.PhiGenDescends.sum_mul_jqN_pow_eq_zero`,
+  `ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq`.
+  The rows are **deliberate pin sides for a future promote** — the comments above them say so ("would
+  verify the block's `c_top` etc. if a later topic promotes more of it") — not stale wires, and the
+  mathematics is not in the port under another name (`twin_scan --node` reports `new` for each).
+- **symptom**: `frontier.py --selfcheck` fails its "source tier covered by name tier" line with these
+  ten, and `frontier.py`'s source tier — which is a **ported** tier — therefore counts ten unported
+  nodes as ported.
+- **effect** (the D–S read, 2026-11-12, SET-AF47 §0): `needed [F terminal]` is unchanged
+  (**712 / 299,802** — none of the ten is in the terminal mask) but the literal column reads
+  724 / 303,267 instead of **733 / 306,724**, and the frontier reads 1,704 / 827,574 instead of
+  **1,694 / 823,223**. A row whose premise were one of the ten would read ready falsely; on this read
+  none is.
+- **correction (the phi workstream's, not this column's)** — one of two, per node:
+  (a) **promote** the declaration (the topic the row was listed for), or
+  (b) **close the wire** by deleting its `Theorems/` row (the `S_` row still serves the private
+  originals the checker's dotted fallback reads — the MD-001 distinction, so delete only the `Thm_`
+  side, and only if no `S_`-side private declaration needs it).
+  Do not "fix" it with a `decl_markers.tsv` row: there is no declaration to mark.
+- **verify**: `python3 frontier.py --selfcheck` → PASSes; `python3 frontier.py --ds --ready
+  --include-leaves` → `needed [literal]` **733 / 306,724** as a plain (uncorrected) read;
+  `python3 spec/check_port.py --force FLTForHuman/ModularCurve/ModularEquation/Construction.lean` →
+  unchanged.
+- **status**: **open (recorded 2026-11-12, SET-AF47)**. The workaround for planning reads is
+  `--unport` on each of the ten; the SET-AF47 brief's corrected column is that read.
 
 ## Resolved / not metadata
 

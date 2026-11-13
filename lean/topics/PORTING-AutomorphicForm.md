@@ -1023,6 +1023,31 @@ AF45 moved to one premise (`ValuationSubring.exists_valuation_mul_eq_one_of_finr
 complete** — the regular prolongation's bound, its Gauss basis, its rank equality and the `L²` comparison
 are all in the port.
 
+The forty-seventh **is landed** (2026-11-12): [automorphicForm/SET-AF47.md](automorphicForm/SET-AF47.md),
+the **value group of a complete splitting** and the **residue field of a valuation subring** — the chain
+AF46 §4 named as next, taken whole with the two small nodes that gate the residue-field side of the same
+cone. **5 rows / 2,153 silo / 1,475 net**, a *scaffolded* set (the AF44 shape, not the AF46 mechanical
+one): four new `FieldTheory/ValuationSubring*.lean` modules, **42 declarations and 41 checker-green
+statements written before a single proof**, 630 → 1,652 lines, the five data definitions (`composite`,
+`locAt`, `coarsen`, `bar`, `resHom`) transcribed, the pin's ~500-line duplicated prelude imported from the
+two modules that already held it (**18 declarations, ≈331 lines**, the largest dedup the column has
+measured in absolute terms), and the pin's task-label namespaces rectified. Three orders landed with
+**zero `sorry`**: 41 ok / 0 mismatch / 0 missing (unchanged from the scaffold, so no statement moved), all
+eight probed declarations (the five headlines and the three engines) axiom-clean, all silent at the project
+cap, `dedup`/`move_dead` empty, three consumer zones at 0 errors. The re-read: `needed` **712 / 299,802 → 707 / 297,649**, leaves 187 → 185, `ValuationSubring`
+demand 16 / 3,380 → **11 / 1,227**, and **three** rows readied (1,083 + 1,090 + 613) rather than the two
+the brief forecast — D2's 200 in-graph consumers produce one more. The set's instrument finding: **the
+scaffold moves the shelf, the proof does not** (the read taken with the scaffolds and the read taken after
+landing are identical in all eight cells, FR-0114 at set scale). Findings: a scaffold's imports must be
+closed over the *port* modules, not the pin's `Theorems/` lines (FR-0181); a `local instance` does not
+travel through `import`, so a `ResidueField`-hypothesis consumer must re-install `residueAlgebra`
+(FR-0182, the FR-0177 trap from the consumer side); and a consumer instantiation must be checked against
+the *lattice* too — `ValuationSubring` has no `OrderBot` (FR-0183, FR-0171's fifth instance). Named next:
+the three readied rows (`existsUnique_place_forall_residue_sub_mem_nonunits` 1,083,
+`ord_residue_le_sum_ord_of_isIntegral_adjoin` 1,090, `exists_prolongation_of_card_roots_eq` 613 — the
+prolongation of regular local data), then `M4aTorus.completedRayL_fe` (12,126 silo, four unported `Def_`
+modules) and the `EisensteinGeneral.Piece` factorization story (890, six `Def_` wrappers).
+
 
 ## 6. Verification and wiring
 
