@@ -1263,6 +1263,34 @@ manager added the one import, deleted the helper and its call sites were replace
 lines shorter. A private re-proof that exists only because of a frozen import list is a debt the manager
 pays at review.
 
+The sixtieth **is the `Kf`-smooth predicate** (**landed 2026-11-13**):
+[automorphicForm/SET-AF60.md](automorphicForm/SET-AF60.md) — 2 rows / 317 silo / ≈300 net in one new
+module: the away-from-maximal-compact reduction (209) and the compact-open factorization (108), the last
+`AutomorphicForm` *pair* on the shelf. Both scaffolded, elaborated, built and checker-green before
+dispatch (`Adelic/KfSmoothReduction.lean` 169 lines / 16 `sorry` / **17 ok** — fifteen of the rows are
+public prelude API; the pin's `RS22` token rectified to `KfSmoothReduction`). The set also **records why
+the Tate-local modulus pair is not taken**: those two rows share a premise and are the next story, but
+`TateLocal.measureReal_setOf_valued_le_exp`'s pin opens with `set_option maxHeartbeats 4000000` and
+`synthInstance.maxHeartbeats 400000` (the port forbids a per-file cap), while the 305-line sibling was
+scaffolded and withdrawn at SET-AF61 for FR-0198's overlapping-instance reason. SET-AF60 **landed the
+same day**: 195 written proof lines (169 → 348), 16 → 0 `sorry`s, 17 ok, both headlines axiom-clean,
+consumer zone at 0 errors; the one `dedup` cluster is the pin's own wrapper-over-engine pair and stays,
+with the reason recorded.
+
+The sixty-first **is the level-one obstruction** (**landed 2026-11-13**, dispatched in parallel with SET-AF60):
+[automorphicForm/SET-AF61.md](automorphicForm/SET-AF61.md) — 1 row / 229 silo in one new module
+(`Adelic/Cusp/LevelBotObstruction.lean`, 135 lines / 12 `sorry` / **14 ok**): a Hecke coset eigenfunction
+at trivial level is zero, proved through the mirabolic reduction and the Hecke coset system. The set is
+the *re-cut* of the day: the Tate-local modulus row was scaffolded first and **withdrawn** — its prelude
+row `integral_comp_inv` carries two overlapping instance parameters (`[μ.IsAddHaarMeasure] [μ.Regular]`)
+and Lean 4.34's `linter.overlappingInstances` fires, so under (statement frozen, never silence, zero
+warnings) there is no legal exit; that row needs a reviewer's decision and is registered as FR-0198. It **landed the same day**: 135 written proof lines
+(135 → 270), 12 → 0 `sorry`s, 14 ok, headline axiom-clean, consumer zone at 0 errors — its sharpest
+reading turns the row on the zero function to conclude that *no* Hecke coset system exists at trivial
+level. The scaffold also readied `isotypicCuspSubmodule_bot_eq_bot_of_productionPinsOf`, and the landing's
+one environment drift is FR-0199 (the pin's `Nat.card`/`Fintype` tail leans on a `Finite → Fintype`
+instance the port does not register).
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

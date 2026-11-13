@@ -4224,3 +4224,54 @@ round promotes what generalizes.
   `AutomorphicForm.Adelic` modules had made it reachable), and the pin's two `haveI`s in
   `scoped instance instCountableΓ` are `have`s at v4.34 (FR-0173's family).
 - **seen**: 2026-11-13, SET-AF58 (one generator round; the fix is in `tmp/af5{6,7,8}/gen.py`).
+
+## FR-0198 [statement/gate] — a pin row with two overlapping instance parameters has no legal exit under (statement frozen, no silencer, zero warnings)
+
+- **where**: SET-AF61's first attempt, `LanglandsTunnell.TateLocal.integral_comp_inv_eq_integral_modulus_inv_sq_mul_adicCompletion`
+  (305 silo, lev 1/7). Scaffolded, elaborated, **withdrawn at the scaffold**; no proof effort spent.
+- **symptom**: the module elaborates, `check_port` is clean, and the only diagnostic is
+  `linter.overlappingInstances` on a **prelude** row:
+  `integral_comp_inv` inherits the section binders `variable (μ : Measure K) [μ.IsAddHaarMeasure] [μ.Regular]`,
+  and `[μ.Regular]` implies `[IsFiniteMeasureOnCompacts μ]`, which `[μ.IsAddHaarMeasure]` already implies.
+  Lean's suggestion is "may be removed".
+- **why the obvious fixes are all illegal here**:
+  (a) *remove* `[μ.Regular]` — changes the declaration's type, so `check_port` reads a MISMATCH against
+  the pin, and the row is no longer a faithful transcription;
+  (b) `omit [μ.Regular] in` — same thing, it drops the binder from the declaration;
+  (c) `set_option linter.overlappingInstances false in` (or any linter `set_option`) — the port forbids
+  silencing, and this is exactly the silencer the rule names;
+  (d) leave the warning — the per-module gate is zero warnings.
+  The triple (statement frozen by the checker) + (never silence a linter) + (zero warnings) has no exit
+  when the pin's *own* statement is the redundant shape.
+- **rule / what a set should do**: such a row is a **reviewer's** decision, not a wave's — either an
+  accepted-warning class is declared for statements the pin spells redundantly (with the gate text
+  amended in the same touch), or the checker gets a marker for it, or the row is ported with its type
+  repaired and a `decl_markers.tsv` `own:` row recording the one-binder repair. Until one of those is
+  chosen, cut the row and register it here; do not quietly silence, and do not weaken the statement.
+- **corroboration**: the sibling row of the same pair (`TateLocal.measureReal_setOf_valued_le_exp`, 100)
+  is separately blocked by a pin `set_option maxHeartbeats 4000000`, which is the other half of the same
+  phenomenon — the pin's local Tate module is where its instance friction lives.
+- **seen**: 2026-11-13, SET-AF61 (scaffold round only).
+
+## FR-0199 [instance] — the pin's `Nat.card`-vs-`Fintype` route leans on a `Finite → Fintype` instance this port does not register
+
+- **where**: SET-AF61's headline tail
+  (`AutomorphicForm.SmoothCusp.not_isHeckeCosetEigenfunctionAt_levelOne_bot_inf_finiteAdelicGL2Subgroup`,
+  pin `S_…:223`–`:228`).
+- **symptom**: the pin closes with `haveI : Finite (𝓞 F ⧸ v.asIdeal)` and then
+  `rw [Nat.card_eq_fintype_card, Fintype.card_fin, hcard]`. Transcribed, the `rw` finds neither lemma:
+  `Nat.card_eq_fintype_card` needs a `Fintype` instance, and `inferInstance : Fintype (𝓞 F ⧸ v.asIdeal)`
+  fails (`synthInstanceFailed`) even with `Finite` in scope — the port does not register the
+  `Finite → Fintype` bridge that the pin's environment (or its `P2M.Util`) carries. Separately, `haveI`
+  on a `Prop`-class fires `linter.style.haveILetI`, and a silencer is forbidden.
+- **fix / rule**: do the cardinal comparison on `Nat.card` and pass the instance *explicitly*:
+  `have hfin : Finite (𝓞 F ⧸ v.asIdeal) := Nat.finite_of_card_ne_zero (by rw [hcard]; exact hN)`, then
+  `have hle : Nat.card (Fin (absNorm + 1)) ≤ Nat.card (𝓞 F ⧸ v.asIdeal) :=
+  @Nat.card_le_card_of_injective _ _ hfin f hfinj`, then `rw [Nat.card_fin, hcard] at hle; omega`. Same
+  conclusion, no `haveI`, no `Fintype`, no `set_option`.
+- **rule, generalized** (this is the second case this session, after FR-0194/FR-0196's adele-ring
+  instance layer): when a pin tail's `rw` "cannot find the lemma" but the lemma exists, suspect a
+  **`Finite`/`Fintype`/`Nonempty` bridge** or a scoped instance the port pins per module. The tells are
+  a `synthInstanceFailed` for a class the statement does not mention, and a *proof-local* `haveI` in the
+  pin — which is the pin carrying an instance the port declares elsewhere.
+- **seen**: 2026-11-13, SET-AF61 (three lines; no statement change).
