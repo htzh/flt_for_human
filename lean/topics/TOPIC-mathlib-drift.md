@@ -14,7 +14,8 @@ API drift is the recurring real cost. **The pin is not on this line**:
 | `if_pos h`, `if_neg h` | `ite_eq_left h`, `ite_eq_right h` |
 | `dif_neg h`, `dif_pos h` | `dite_eq_right h`, `dite_eq_left h` (the four are `@[deprecated]` since 2026-07-21; 14 sites in `RegularProlongationFinrank`) |
 | `Polynomial.finite_setOf_isRoot` | `Polynomial.finite_setOfPred_isRoot` |
-| `Polynomial.finset_sum_coeff` | `Polynomial.finsetSum_coeff` (v4.34 rename; the old name is a `@[deprecated]` alias — `DeuringNormResidue:193`) |
+| `Polynomial.finset_sum_coeff` | `Polynomial.finsetSum_coeff` (v4.34 rename; the old name is a `@[deprecated]` alias — `DeuringNormResidue:193`, and SET-AF49's `RegularProlongationGaussDegree` :98, :109) |
+| `Polynomial.eval₂_finset_sum` | `Polynomial.eval₂_finsetSum` (same v4.34 `_sum` → `Sum` family; one site, SET-AF49's `RegularProlongationGaussDegree` :159) |
 | `Set.mem_setOf_eq` | `Set.mem_ofPred_eq` |
 | `Affine.Nonsingular x y` | `W.toAffine.Nonsingular x y` (curve explicit) |
 | `Submodule.card_bot` | does not exist — `AddSubgroup.card_bot` |
@@ -46,7 +47,7 @@ API drift is the recurring real cost. **The pin is not on this line**:
 | a "statement-identical" substitute offered by `port_advise` | check the **direction**: the port's `RealIwasawa.rot θ` is the transpose of the pin's local `rotMat θ` (= `rot (-θ)`). Substituting at `+θ` compiles and silently flips every downstream character identity; substitute at `-θ` and let the pin's statements stay verbatim |
 | a short last name (`add`, `smul`, `zero`, `sum`) on a pin-**public** declaration | a pin source that carries an unrelated `add` of its own makes it a `MISMATCH`, and an `own:` row would only hide the collision: keep those `private` (they are structure lemmas of a local namespace) and say so in the note |
 | `exists_subset_nhds_of_isCompact'` with a pointwise `(hU : ∀ x ∈ ⋂ i, V i, U ∈ 𝓝 x)` | v4.34 takes set-relative `(hU : U ∈ 𝓝ˢ (⋂ i, V i))`; wrap the pin's lambda in `mem_nhdsSet_iff_forall.mpr` — the proof content is unchanged |
-| `zero_le'`, `not_lt_zero'` | `zero_le`, `not_lt_zero` (the primed forms are deprecated aliases) |
+| `zero_le'`, `not_lt_zero'` | `zero_le`, `not_lt_zero` (the primed forms are deprecated aliases; SET-AF47's `locAt` body and its two siblings, SET-AF47 §2) |
 | a literal pair passed where `AdeleRing R K` is expected, and `.1`/`.2` of it taken by `rfl` | `AdeleRing` is a plain `def` (`InfiniteAdeleRing K × FiniteAdeleRing R K`), so the pair is an adele only at *default* transparency: `rw`/`simp` fail with "not type-correct under the implicit transparency level". Bind it once — `set x : AdeleRing R K := (…) with hx` — then rewrite on `x.1`/`x.2` via `show … from by rw [hx]` (`by rw [hx]` already closes it). `erw` is a trap: it unfolds far enough to also unfold the definition under study, and the following projection rewrites then find nothing |
 | `⟨dConjMat ℓ γ, ⋯⟩` as an `SL(2, ℤ)` element inside a `Subgroup` membership goal | `Matrix.SpecialLinearGroup` is a semireducible `def` (a `Subtype`) in v4.34, so the anonymous constructor elaborates at `{A // A.det = 1}` and the following `rw [Gamma_mem]` fails with "target expression is not type-correct under the implicit transparency level". Bind it first — `let x : SL(2, ℤ) := ⟨…, h⟩` — then `rw [Gamma_mem]` (or `mem_Lam0`) and `show` the entrywise conjunction; it also removes the pin's `simp only [Matrix.SpecialLinearGroup.coe_mk, …]` blocks |
 | `TensorProduct.induction_on` (with a `| zero =>` branch) | `TensorProduct.inductionOn`, and it has **no `zero` case** — drop the branch (that case is the internal `tmul 0 0`), so the pin's case split loses an arm, not only a name |

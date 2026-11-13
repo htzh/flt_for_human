@@ -267,6 +267,37 @@ for the next edit of their module.
 - **status**: **open (recorded 2026-11-12, SET-AF47)**. The workaround for planning reads is
   `--unport` on each of the ten; the SET-AF47 brief's corrected column is that read.
 
+## MD-006 — a name-tier shadow now *inflates* the frontier by 176 lines: `ValuationSubring.isIntegral_of_forall_mem`
+
+- **module**: none — this one is created by two new modules (`AlgebraicCurve/RegularProlongationReducedPlace.lean`
+  and `AlgebraicCurve/DeuringMultiplicity.lean`), which declare `AlgebraicCurve.RegularProlongation.ReducedPlace.isIntegral_of_forall_mem`
+  and `…DeuringMultiplicity.isIntegral_of_forall_mem` (both transcriptions of the *same* pin `S_` declaration,
+  the 1,083-line file's `:103`).
+- **metadata**: the frontier's *name tier* maps the pin node **`ValuationSubring.isIntegral_of_forall_mem`**
+  (176 silo) to those declarations by last name. `twin_scan --node ValuationSubring.isIntegral_of_forall_mem`
+  → **`relative=1`** — same last name, **different statement**, so the pin node is *not* ported.
+- **symptom**: `frontier.py --ds ... ` after SET-AF48+AF49 reads frontier **1,704 / 828,508**, while the four
+  ported rows account for 2,956 lines: the extra **176** is this node. Every other cell closes exactly
+  (`needed` 707 → 703 / 297,649 → 294,693, literal −2,956, ready 52 → 50 with −4 cut +2 entered, AC demand
+  −4 nodes / −2,956 lines).
+- **cause**: the FR-0047 limitation, seen from the other side. The known cases hid a *missing* node (a
+  same-last-name declaration in another namespace made the node read ported); here it *adds* a node the port
+  does not have. The direction changes which column moves — a hidden node inflates `needed`, an inflated one
+  inflates the frontier and the `literal` count would too if the node were on the target closure (it is not).
+- **effect**: benign on this read (`needed` is untouched, the node is off-path), but the frontier figure is
+  176 lines too high and a future shelf that wanted that node would not show it. Nothing else moves.
+- **correction**: two options, and the next scoping read does not need to wait for either —
+  1. **read** with `--unport ValuationSubring.isIntegral_of_forall_mem` (alongside MD-005's ten), or
+  2. **port the node** (176 silo, `ValuationSubring.isIntegral_of_forall_mem`) if a later story wants it —
+     it is a valuation-subring integrality criterion, a plausible `FieldTheory/ValuationSubring*.lean` row.
+  Do not rename the port's two copies to "free" the name: they are the pin's own declarations at the AC
+  namespaces, and a rename is a statement-level change for a metadata artefact.
+- **verify**: `python3 frontier.py --ds --ready --include-leaves --unport ValuationSubring.isIntegral_of_forall_mem`
+  (plus MD-005's ten) → frontier **1,703 / 828,332**, i.e. 825,376 + the four rows' 2,956 exactly, one
+  node and 176 lines below the uncorrected **1,704 / 828,508**;
+  `python3 spec/check_port.py --force` on the two modules → unchanged (44 and 35 `ok`).
+- **status**: **open (recorded 2026-11-12, SET-AF48 §6.2)**.
+
 ## Resolved / not metadata
 
 * **FR-0044** (`--ready` blind to a prune-set premise): fixed in `frontier.py` on

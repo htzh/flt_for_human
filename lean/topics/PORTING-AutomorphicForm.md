@@ -1049,6 +1049,36 @@ prolongation of regular local data), then `M4aTorus.completedRayL_fe` (12,126 si
 modules) and the `EisensteinGeneral.Piece` factorization story (890, six `Def_` wrappers).
 
 
+The forty-eighth **is landed** (2026-11-12): [automorphicForm/SET-AF48.md](automorphicForm/SET-AF48.md),
+the **reduced place on a chart** and **Deuring's multiplicity inequality** — the two rows AF47's landing
+readied and named first. **2 rows / 2,173 silo / ≈2,105 net in 81 declaration groups**, two new modules
+(`AlgebraicCurve/RegularProlongationReducedPlace.lean` 390 → **1,108** lines / 43 declarations /
+**44 ok** / 43 → 0 `sorry`, `AlgebraicCurve/DeuringMultiplicity.lean` 351 → **1,124** / 36 / **35 ok** /
+35 → 0), the pin's namespace/section structure verbatim, its `p2m_open` translated to `open`, the 84-line
+`attribute [-]` shim and the pin's `set_option maxHeartbeats` dropped, and the pin's machine labels
+rectified (`ExUniqPlace` → `ReducedPlace`, `ORLS` → `DeuringMultiplicity`). Two concurrent orders, both
+silent, axiom-clean, `dedup`/`move_dead` empty, two consumer zones at 0 errors. **The two sets together
+(AF48+AF49) moved `needed` 707 / 297,649 → 703 / 294,693** (the four rows' 2,956 lines exactly), the
+`AlgebraicCurve` demand 42 / 16,769 → **38 / 13,813**, and readied **two rows / 1,303 silo**
+(`sum_ord_eq_sum_ord_residue_of_isIntegral_adjoin` 758, lev 1/1; `residue_integralClosure_surjective_of_genusFF_eq`
+545, lev 1/10 with **17 premises** — the next order's risk node). One instrument finding: the frontier needed
+an eleventh `--unport`, **MD-006** (`ValuationSubring.isIntegral_of_forall_mem`, a 176-line pin node the port
+does not have, read as ported because two new modules declare a same-last-name lemma) — the FR-0047 shadow
+in the *inflating* direction; corrected, the frontier is 1,703 / 828,332 and every cell closes.
+
+The forty-ninth **is landed** (2026-11-12): [automorphicForm/SET-AF49.md](automorphicForm/SET-AF49.md),
+**Kummer splitting** and the **Gauss degree bound** — **2 rows / 783 silo / ≈740 net in 57 groups**,
+`AlgebraicCurve/RegularProlongationKummer.lean` (397 → **630** lines, 55 ok, 47 → 0 `sorry`, the pin's nine
+data definitions transcribed) and `AlgebraicCurve/RegularProlongationGaussDegree.lean` (72 → **212**, 1 ok,
+1 → 0 — the whole 170-line pin file, whose `set_option maxHeartbeats 4000000` the port deliberately does not
+carry; measured, that proof costs **27,000–28,000 heartbeats**, ~14 % of the gate, so the pin's override was
+never needed). One order, both modules silent, axiom-clean, consumer at 0 errors. **Not** the
+`exists_pow_eq_of_residue_eq_pow_of_finrank_eq_of_*` pair those rows look like they ready: that pair is
+gated on A1 *and* on three further unported premises (193 + 216 + 262 silo), so it enters a later set as its
+own story. Two instrument findings recorded on the way: a scaffold must price **before** it is written
+(FR-0184 — `port_plan` reads the scaffold as "already in the port", 2,100 lines of AF48 collapsed to
+"net 13"), and the pin's per-file `maxHeartbeats` is a risk marker to be probed, not carried.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

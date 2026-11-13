@@ -3877,3 +3877,38 @@ round promotes what generalizes.
   at the side that exists. The substitution is legitimate and cheap (two readings: `W = ⊤` giving
   `O' = O`, and `O = ⊤` with `W = ℤ_(2)` giving the cut-down), but it should not be a worker's discovery.
 - **seen**: 2026-11-12, SET-AF47 (47A consumer); FR-0171 recorded the hypothesis side of the same class.
+
+## FR-0184 [tool] — `port_plan`/`port_advise` price against the *tree*, so a scaffold already in it reads as "already in the port"
+
+- **where**: SET-AF48 and SET-AF49 (2026-11-12), both scaffolded before their briefs' price line was written.
+- **symptom**: for AF48's two rows, `port_plan` on the scaffolded tree reads
+  `already in the port (vetted) 2100` / **net new math lines 13** — for a set whose pin files are 2,173
+  lines — and for AF49 it reads **20**. The briefs' real figures are ≈2,105 and ≈740.
+- **cause**: `port_advise`'s substitute test is name/shape-anchored against **the port tree** (its own
+  `PortIndex`), so the manager's freshly written scaffold statements *are* the substitute: the tool answers
+  "how much of this is not yet declared anywhere", which after scaffolding is very little, and that is not
+  the porting budget. (This is the pre-port tool meeting the post-scaffold tree — the mirror image of
+  FR-0114, where a skeleton wire makes the *shelf* read the node as ported.)
+- **fix / rule**: **price before you scaffold, or price a scratch tree.** Concretely: run
+  `port_advise`/`port_plan` on the target nodes first, keep the JSON, and write the brief's budget table
+  from it; a later re-run is meaningful only for a different node set. If a price must be taken after the
+  scaffold exists, say so and label the number a lower bound.
+- **seen**: 2026-11-12, SET-AF48 §1 and SET-AF49 §1.
+
+## FR-0185 [tooling] — a declaration-inventory regex without Unicode subscripts truncates pin names, and the work order then states a wrong name
+
+- **where**: SET-AF48's order for `RegularProlongationReducedPlace` (the manager's own inventory table).
+- **symptom**: the table listed `coe_eval :173`, `residue_eval :181`, `residue_eval :188` — and, since two
+  `residue_eval`s cannot coexist, the order told the worker they were "the pin's two copies in different
+  namespaces". The pin's actual declarations are `coe_eval₂_constHom` (:173), `residue_eval₂_constHom`
+  (:181), `residue_eval₂_ne_zero` (:188): the inventory's regex
+  `[A-Za-z0-9_'.]+` stopped at the subscript `₂`, so three distinct names came out as two, one truncated
+  and one duplicated.
+- **cause**: the pin's auto-generated identifiers use Unicode subscripts (`₂`, `₀`, `₁`) — normal in this
+  pin's `eval₂`-family names — and an ASCII-only name class silently truncates rather than failing.
+- **fix / rule**: a name regex for pin inventories must accept the whole identifier alphabet
+  (`[^\s(:]+` up to the declaration's binder, or explicitly `₂₀₁` etc.). Verify a generated inventory against
+  the pin's own file once (`grep -c` of declarations) before pasting it into an order: the count must match,
+  and a repeated name is the signal.
+- **seen**: 2026-11-12, SET-AF48A's order; the worker followed the pin and reported the discrepancy (correct
+  behaviour — the pin's text wins over a manager's table).
