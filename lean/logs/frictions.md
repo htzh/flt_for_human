@@ -3965,3 +3965,32 @@ round promotes what generalizes.
   rows), with the specific tell that the *pin* proof is one line: a one-line pin proof that needs a
   seven-figure budget is always a defeq trap, never a long proof.
 - **seen**: 2026-11-12, SET-AF50A (one declaration; measured with a probe ladder, no cap raised).
+
+## FR-0188 [tooling] — four ways a mechanical scaffold generator fails silently, and the checks that catch each
+
+- **where**: the SET-AF47→AF53 generator (`tmp/af4*/gen.py`, one script evolved across seven sets).
+- **symptom / cause / check**, in the order they bit:
+  1. **Name regex without Unicode subscripts** truncates pin names and manufactures a duplicate
+     (`coe_eval₂_constHom` → `coe_eval`, two `residue_eval₂_*` → one repeated `residue_eval`). Check: the
+     declaration count and the name list against the pin file (`grep -c '^theorem\|^def'`), and a repeated
+     name is the signal. (FR-0185.)
+  2. **A slice that starts at the pin's file-level `namespace P2MW.S_…`** leaves the wrapper's
+     fully-qualified headline *inside* it; the checker reads `1 ok` and the consumer compiles against the
+     mangled name. Check: the slice starts at the first *label* namespace, and `#check` each wrapper's
+     qualified name after `lake build`. (FR-0186.)
+  3. **`stub_theorem` cutting at the first `:=`** breaks any statement that contains a `letI := …` term
+     (the adelic Haar `main`: `(letI := glBorel … , … = c • μa.prod μf) := by`), producing a parse error
+     deep in the statement. Check: cut at `:= by`, fall back to the first `:=` only when the declaration's
+     body is a term.
+  4. **A slice that stops before the label namespace's `end`** (or carries the pin's `open <Label>` after
+     it) leaves the headline nested one namespace too deep, or an `unknown namespace` error. Check: every
+     slice boundary is a line of the pin's own `end`-list, and the generated file's `namespace`/`end`
+     balance is asserted.
+  Two more that are not the generator's fault but the *order's*: a frozen import block derived from the
+  pin's `Theorems/` lines rather than from the port's homes (FR-0181), and a `lake build` that replays
+  dependency warnings into the gate's log (grep for the module's own filename before reporting silence).
+- **rule**: **elaborate the scaffold before dispatching it, and run `check_port` plus a `#check` of every
+  headline.** All four generator failures above are caught by those two commands; none is caught by the
+  statement checker alone.
+- **seen**: 2026-11-12, SET-AF47→AF53 (each failure cost at most one iteration because the scaffold was
+  always elaborated before dispatch).

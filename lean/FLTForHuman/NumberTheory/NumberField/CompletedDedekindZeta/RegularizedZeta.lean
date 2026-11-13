@@ -34,16 +34,6 @@ noncomputable section
 
 open IsDedekindDomain NumberField
 
-
-set_option autoImplicit false
-
-open IsDedekindDomain NumberField
-
-
-set_option autoImplicit false
-
-open IsDedekindDomain NumberField
-
 theorem NumberField.exists_differentiable_eq_sub_one_mul_dedekindZeta_and_apply_neg_two_mul_add_one_eq_zero
     (K : Type) [Field K] [NumberField K] :
     ∃ R : ℂ → ℂ, Differentiable ℂ R ∧ R 1 ≠ 0 ∧

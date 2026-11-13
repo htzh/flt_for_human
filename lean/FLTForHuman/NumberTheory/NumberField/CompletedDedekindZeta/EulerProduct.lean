@@ -595,8 +595,6 @@ theorem exists_continuation (T : Finset (HeightOneSpectrum (𝓞 K))) :
 
 end EulerProduct.ArchimedeanNormalization
 
-set_option autoImplicit false
-
 open IsDedekindDomain NumberField Filter Topology
 
 theorem NumberField.exists_differentiableOn_eq_tprod_inv_one_sub_absNorm_cpow_neg_and_tendsto_sub_one_mul (K : Type) [Field K] [NumberField K]

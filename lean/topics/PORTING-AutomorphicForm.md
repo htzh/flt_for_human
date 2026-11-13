@@ -1109,6 +1109,39 @@ column's cheapest high-leverage row in a long time). The pin's machine label `Ws
 at ≈1,100 and ≈630 net, and both briefs state the FR-0184 caveat explicitly: `port_plan` on the scaffolded
 tree reads "net 19" and "net 8" because the scaffolds themselves are in the port.
 
+The fifty-second **is landed** (2026-11-12): [automorphicForm/SET-AF52.md](automorphicForm/SET-AF52.md),
+the **ord equality from residue surjectivity** and the **residue basis** — 3 rows / 686 silo / ≈660 net,
+closing the chart's residue dictionary that AF45–AF51 built. Two sibling modules, scaffolded and
+checker-green before dispatch and landed by one order: `RegularProlongationOrdResidueEquality.lean`
+192 → **428** lines / 13 declarations / **12 ok** / 11 → 0 `sorry`, `RegularProlongationResidueBasis.lean`
+179 → **326** / 13 / **13 ok** / 12 → 0, the pin's labels rectified (`AJDM` → `OrdResidueEquality`,
+`E78MVfree` → `ResidueBasis`), **not one import added** (the first set in the recent run whose manager cone
+was actually complete), both silent with ≥8× heartbeat margin and 25 ok / 0 / 0 between them.
+
+The fifty-third **is landed** (2026-11-12): [automorphicForm/SET-AF53.md](automorphicForm/SET-AF53.md),
+the **adelic Haar measure**: the product formula and the two coordinate hyperplane measures — 3 rows /
+462 silo / ≈430 net, the column's first `NumberTheory/AdelicHaar` set since that layer landed.
+`NumberTheory/AdelicHaar/ProductMeasure.lean` landed at 310 → **492** lines, 54 declarations, **23 ok**,
+42 → 0 `sorry` (the rest are `private` in the pin), the labels `Ws1.L1`/`NULLW`/`NULLV` rectified to
+`ProductMeasure.L1`/`FstHyperplane`/`SndHyperplane`, and `AdelicDock/Splice` imported for the hyperplane
+arguments — one order, silent, axiom-clean, consumer at 0 errors. **AF52+AF53 together moved `needed`
+699 / 292,705 → 693 / 291,557** (the six rows' 1,148 lines exactly), `AC` demand 36 / 12,510 → **33 / 11,824**,
+`NumberField` demand 97 / 33,513 → **94 / 33,051**, and readied **five rows / 1,269 silo** — the best return
+of the session by row count
+(`exists_nonunit_smul_eq_of_forall_residue_eq_zero_of_sum_finrank_eq` 172,
+`exists_placeMap_mapDomain_eq_ord_of_residue_integralClosure_surjective` 375,
+`exists_pos_forall_rightConv_integral_prod_mul_indicator_eq_mul_integral_of_forall_integral_mul_apply_mul_eq`
+437, `exists_integral_glArch_mul_glFin_eq_mul_integral_mul_integral` 201,
+`isMulRightInvariant_of_isHaarMeasure_generalLinearGroup_infiniteAdeleRing` 84). Five generator failure
+modes are now recorded in FR-0188, with the standing rule that a scaffold is elaborated **and** every
+headline `#check`ed by its wrapper name before dispatch.
+**The adelic-box pair (129 + 122) was cut at scoping**: its statement layer needs `adelicAddHaar`/
+`AdeleRing.principalSubgroup` and the `AutomorphicForm/Adelic` cone, so its home is a pricing question for
+the next scoping (recorded in the brief). Two more generator failure modes were found and fixed on the way
+(a `letI :=` inside a statement defeats a stubber that cuts at the first `:=`; a slice that omits the
+label's `end` leaves the headline one namespace too deep) — both now in FR-0188 with the standing rule
+that a scaffold is elaborated **and** `#check`ed by name before dispatch.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /
