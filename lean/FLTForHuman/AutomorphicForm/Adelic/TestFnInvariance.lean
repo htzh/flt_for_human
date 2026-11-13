@@ -34,6 +34,8 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_isFactorizableTestFn_sum_mul_comp_mul_mul.lean
   spec-pin: Theorems/Thm_AutomorphicForm_isFactorizableTestFn_comp_inv_mul_of_isFactorizableTestFn.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_isFactorizableTestFn_comp_inv_mul_of_isFactorizableTestFn.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_isFactorizableTestFn_comp_inv_mul.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_isFactorizableTestFn_comp_inv_mul.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFn
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmooth
@@ -241,3 +243,142 @@ theorem isFactorizableTestFn_sum_mul_comp_mul_mul
 end AutomorphicForm
 
 end
+
+
+/-
+  `IsArchBiFinite` is stable under conjugation by a finite element and a row isometry.
+
+  `y ↦ f ((g * k)⁻¹ * y)` keeps the archimedean bi-finiteness of `f` for `g` finite and `k` a
+  row isometry: the `archCut` half pushes the right translate by the row isometry through the
+  cut (`comp_mul_rowIsometryInclAt₀_mem_archCutSubmodule`) and the left translate by the
+  finite `g` through the commuting dictionary, and the `archDualCut` half is the left translate
+  alone.  The four generic rows the pin's prelude restates are the port's — `comp_mem_typeSubmodule_of_map`,
+  `comp_mem_iSup_of_forall` and `commute_of_glArch_eq_one_of_glFin_eq_one`
+  (`Adelic/RightConvIntegral.lean`) and `eq_of_glArch_eq_of_glFin_eq`
+  (`CuspidalSpectrum.eq_of_glArch_eq_of_glFin_eq`) — so only the four new rows are transcribed,
+  in the rectified label namespace `ArchCutConjugation`.
+-/
+namespace ArchCutConjugation
+
+open NumberField.AdelicLevel IsDedekindDomain
+
+
+open NumberField.AdelicLevel IsDedekindDomain
+
+variable (F : Type) [Field F] [NumberField F]
+
+theorem comp_mul_left_mem_archDualCutSubmodule (tys : ArchTypeFamily F) (c : AdelicGL2 (𝓞 F) F)
+    {h : AdelicGL2 (𝓞 F) F → ℂ} (hh : h ∈ archDualCutSubmodule F tys) :
+    (fun z => h (c * z)) ∈ archDualCutSubmodule F tys := by
+  have comp_map : ∀ {H G G' W : Type} [Group H] [Group G] [Group G'] [AddCommGroup W] [Module ℂ W]
+      {ι : H →* G} {ι' : H →* G'} {ρ : Representation ℂ H W} (θ : G' → G),
+      (∀ (x : G') (k : H), θ (x * ι' k) = θ x * ι k) → ∀ {f : G → ℂ}, f ∈ typeSubmodule ι ρ →
+        (fun x => f (θ x)) ∈ typeSubmodule ι' ρ := by
+    intro H G G' W _ _ _ _ _ ι ι' ρ θ hθ f hf
+    refine Submodule.span_induction (p := fun f _ => (fun x => f (θ x)) ∈ typeSubmodule ι' ρ) ?_ ?_ ?_ ?_ hf
+    · rintro _ ⟨T, hT, v, rfl⟩
+      have hS : IsRightEquivariant ι' ρ ((LinearMap.funLeft ℂ ℂ θ) ∘ₗ T) := by
+        intro k v' x
+        show T (ρ k v') (θ x) = T v' (θ (x * ι' k))
+        rw [hT k v' (θ x), hθ]
+      exact mem_typeSubmodule_of_isRightEquivariant hS v
+    · exact (typeSubmodule ι' ρ).zero_mem
+    · exact fun _ _ _ _ hu hw => (typeSubmodule ι' ρ).add_mem hu hw
+    · exact fun c _ _ hu => (typeSubmodule ι' ρ).smul_mem c hu
+  have comp_iSup : ∀ {G G' I : Type} (θ : G' → G) (p : I → Submodule ℂ (G → ℂ))
+      (q : I → Submodule ℂ (G' → ℂ)), (∀ i, ∀ f ∈ p i, (fun x => f (θ x)) ∈ q i) →
+      ∀ {f : G → ℂ}, f ∈ ⨆ i, p i → (fun x => f (θ x)) ∈ ⨆ i, q i := by
+    intro G G' I θ p q h f hf
+    refine Submodule.iSup_induction _ (motive := fun f => (fun x => f (θ x)) ∈ ⨆ i, q i) hf ?_ ?_ ?_
+    · intro i f hfi
+      exact Submodule.mem_iSup_of_mem i (h i f hfi)
+    · exact Submodule.zero_mem _
+    · intro a b ha hb
+      exact Submodule.add_mem _ ha hb
+  rw [mem_archDualCutSubmodule_iff] at hh ⊢
+  intro w
+  refine comp_iSup (fun z => c * z) _ _ (fun i f hf => ?_) (hh w)
+  exact comp_map (fun z => c * z) (fun x k => (mul_assoc c x _).symm) hf
+
+theorem comp_mul_right_mem_archCutSubmodule_of_glArch_eq_one (tys : ArchTypeFamily F) {c : AdelicGL2 (𝓞 F) F}
+    (hc : glArch (𝓞 F) F c = 1) {h : AdelicGL2 (𝓞 F) F → ℂ} (hh : h ∈ archCutSubmodule F tys) :
+    (fun x => h (x * c)) ∈ archCutSubmodule F tys := by
+  have eq_of_glArch_eq_of_glFin_eq : ∀ {a b : AdelicGL2 (𝓞 F) F},
+      glArch (𝓞 F) F a = glArch (𝓞 F) F b → glFin (𝓞 F) F a = glFin (𝓞 F) F b → a = b := by
+    intro a b h1 h2
+    refine Units.ext (Matrix.ext fun i j => ?_)
+    have e1 := congrArg
+      (fun m : GL (Fin 2) (InfiniteAdeleRing F) => (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j) h1
+    have e2 := congrArg
+      (fun m : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) => (m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F)) i j) h2
+    simp only [glArch_apply, glFin_apply] at e1 e2
+    exact Prod.ext e1 e2
+  have commute_of_glArch_eq_one_of_glFin_eq_one : ∀ {g k : AdelicGL2 (𝓞 F) F},
+      glArch (𝓞 F) F g = 1 → glFin (𝓞 F) F k = 1 → Commute g k := by
+    intro g k hg hk
+    show g * k = k * g
+    apply eq_of_glArch_eq_of_glFin_eq
+    · rw [map_mul, map_mul, hg, one_mul, mul_one]
+    · rw [map_mul, map_mul, hk, one_mul, mul_one]
+  have comp_iSup : ∀ {G G' I : Type} (θ : G' → G) (p : I → Submodule ℂ (G → ℂ))
+      (q : I → Submodule ℂ (G' → ℂ)), (∀ i, ∀ f ∈ p i, (fun x => f (θ x)) ∈ q i) →
+      ∀ {f : G → ℂ}, f ∈ ⨆ i, p i → (fun x => f (θ x)) ∈ ⨆ i, q i := by
+    intro G G' I θ p q h f hf
+    refine Submodule.iSup_induction _ (motive := fun f => (fun x => f (θ x)) ∈ ⨆ i, q i) hf ?_ ?_ ?_
+    · intro i f hfi
+      exact Submodule.mem_iSup_of_mem i (h i f hfi)
+    · exact Submodule.zero_mem _
+    · intro a b ha hb
+      exact Submodule.add_mem _ ha hb
+  rw [mem_archCutSubmodule_iff] at hh ⊢
+  intro w
+  refine comp_iSup (fun x => x * c) _ _ (fun i f hf => ?_) (hh w)
+  exact comp_mul_mem_typeSubmodule_of_commute hf c fun k =>
+    commute_of_glArch_eq_one_of_glFin_eq_one hc (glFin_rowIsometryInclAt₀ F w k)
+
+theorem comp_mul_right_mem_archCutSubmodule_of_mem_iSup (tys : ArchTypeFamily F) {c : AdelicGL2 (𝓞 F) F}
+    (hc : c ∈ ⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range)
+    {h : AdelicGL2 (𝓞 F) F → ℂ} (hh : h ∈ archCutSubmodule F tys) :
+    (fun x => h (x * c)) ∈ archCutSubmodule F tys := by
+  have key : ∀ (h' : AdelicGL2 (𝓞 F) F → ℂ), h' ∈ archCutSubmodule F tys →
+      (fun x => h' (x * c)) ∈ archCutSubmodule F tys := by
+    refine Subgroup.iSup_induction _
+      (C := fun c => ∀ (h' : AdelicGL2 (𝓞 F) F → ℂ), h' ∈ archCutSubmodule F tys →
+        (fun x => h' (x * c)) ∈ archCutSubmodule F tys) hc ?_ ?_ ?_
+    · rintro w _ ⟨κ, rfl⟩ h' hh'
+      exact comp_mul_rowIsometryInclAt₀_mem_archCutSubmodule F hh' w κ
+    · intro h' hh'
+      simpa only [mul_one] using hh'
+    · intro a b ha hb h' hh'
+      have hab := ha _ (hb h' hh')
+      simpa only [mul_assoc] using hab
+  exact key h hh
+
+theorem isArchBiFinite_comp_inv_mul (tys : ArchTypeFamily F) {h : AdelicGL2 (𝓞 F) F → ℂ}
+    (hbf : IsArchBiFinite F tys h) {g : AdelicGL2 (𝓞 F) F} (hg : glArch (𝓞 F) F g = 1)
+    {k : AdelicGL2 (𝓞 F) F} (hk : k ∈ ⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range) :
+    IsArchBiFinite F tys (fun z => h ((g * k)⁻¹ * z)) := by
+  refine ⟨?_, ?_⟩
+  · show (fun x => h ((g * k)⁻¹ * x⁻¹)) ∈ archCutSubmodule F tys
+    have hfun : (fun x => h ((g * k)⁻¹ * x⁻¹)) = fun x => (fun y => h y⁻¹) (x * g * k) := by
+      funext x
+      simp only [mul_inv_rev, mul_assoc]
+    rw [hfun]
+    exact comp_mul_right_mem_archCutSubmodule_of_glArch_eq_one F tys hg
+      (comp_mul_right_mem_archCutSubmodule_of_mem_iSup F tys hk hbf.1)
+  · exact comp_mul_left_mem_archDualCutSubmodule F tys (g * k)⁻¹ hbf.2
+
+end ArchCutConjugation
+
+open AutomorphicForm
+open MeasureTheory NumberField NumberField.AdelicHaar NumberField.AdelicLevel NumberField.AdelicBox IsDedekindDomain
+open scoped BigOperators
+
+theorem AutomorphicForm.isFactorizableTestFn_comp_inv_mul
+    (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F)
+    {f : AdelicGL2 (𝓞 F) F → ℂ} (hf : IsFactorizableTestFn F f) (hbf : IsArchBiFinite F tys f)
+    {g : AdelicGL2 (𝓞 F) F} (hg : g ∈ finiteAdelicGL2Subgroup F)
+    {k : AdelicGL2 (𝓞 F) F} (hk : k ∈ (⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range)) :
+    IsFactorizableTestFn F (fun z => f ((g * k)⁻¹ * z)) ∧ IsArchBiFinite F tys (fun z => f ((g * k)⁻¹ * z)) :=
+  ⟨AutomorphicForm.isFactorizableTestFn_comp_inv_mul_of_isFactorizableTestFn F f hf (g * k),
+    ArchCutConjugation.isArchBiFinite_comp_inv_mul F tys hbf ((mem_finiteAdelicGL2Subgroup_iff F g).mp hg) hk⟩

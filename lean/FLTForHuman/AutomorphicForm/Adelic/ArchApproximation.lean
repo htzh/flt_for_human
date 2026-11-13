@@ -39,6 +39,8 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_isArchTestFactor_and_isArchFactorBiFinite_integral_prod_of_continuous_of_mem_iSup_typeSubmodule.lean
   spec-pin: Theorems/Thm_AutomorphicForm_exists_rightConv_eq_of_archCutProjector.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_exists_rightConv_eq_of_archCutProjector.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_linearMap_archCutProjector.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_linearMap_archCutProjector.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchCutProjector
 import FLTForHuman.AutomorphicForm.Adelic.TestFnInvariance
@@ -1227,3 +1229,32 @@ theorem exists_rightConv_eq_of_archCutProjector
 end AutomorphicForm
 
 end
+
+
+/-
+  The projector's three properties, without the translate commutation.
+
+  The pin's shorter companion to the headline above: the same `Q`, the same first two properties,
+  and the `rightConv` property read through `exists_rightConv_eq_of_archCutProjector`
+  (`Adelic/ArchApproximation.lean`), which is the shape the cusp constituent's rows consume.
+-/
+open AutomorphicForm
+open MeasureTheory NumberField AutomorphicForm AutomorphicForm.CuspidalConstituent
+open scoped BigOperators
+
+theorem AutomorphicForm.exists_linearMap_archCutProjector
+    (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F) :
+    ∃ Q : (AdelicGL2 (𝓞 F) F → ℂ) →ₗ[ℂ] (AdelicGL2 (𝓞 F) F → ℂ),
+      (∀ φ : AdelicGL2 (𝓞 F) F → ℂ, Continuous φ → φ ∈ archCutSubmodule F tys → Q φ = φ) ∧
+      (∀ φ : AdelicGL2 (𝓞 F) F → ℂ, Continuous φ →
+        FiniteDimensional ℂ (Submodule.span ℂ
+          {ψ : AdelicGL2 (𝓞 F) F → ℂ | ∃ k ∈ (⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range), ψ = rightTranslate F k φ}) →
+        Q φ ∈ archCutSubmodule F tys ⊓ Submodule.span ℂ
+          {ψ : AdelicGL2 (𝓞 F) F → ℂ | ∃ k ∈ (⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range), ψ = rightTranslate F k φ}) ∧
+      (∀ y : AdelicGL2 (𝓞 F) F → ℂ, Continuous y → y ∈ archCutSubmodule F tys →
+        ∀ (f : AdelicGL2 (𝓞 F) F → ℂ) (tys' : ArchTypeFamily F), IsFactorizableTestFn F f → IsArchBiFinite F tys' f →
+          ∃ f' : AdelicGL2 (𝓞 F) F → ℂ, IsFactorizableTestFn F f' ∧ IsArchBiFinite F tys f' ∧
+            Q (rightConv F y f) = rightConv F y f') := by
+  obtain ⟨Q, h1, h2, h3⟩ := AutomorphicForm.exists_linearMap_archCutProjector_comm_rightTranslate F tys
+  exact ⟨Q, h1, h2, fun y hyc hy f tys' hf hbf =>
+    AutomorphicForm.exists_rightConv_eq_of_archCutProjector F tys Q ⟨h1, h2, h3⟩ hyc hy tys' hf hbf⟩

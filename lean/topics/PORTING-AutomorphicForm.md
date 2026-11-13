@@ -1142,6 +1142,73 @@ the next scoping (recorded in the brief). Two more generator failure modes were 
 label's `end` leaves the headline one namespace too deep) — both now in FR-0188 with the standing rule
 that a scaffold is elaborated **and** `#check`ed by name before dispatch.
 
+The fifty-fourth **is landed** (2026-11-12): [automorphicForm/SET-AF54.md](automorphicForm/SET-AF54.md),
+the **place map's ord dictionary** and the **non-unit multiple** — 2 rows / 547 silo / ≈530 net, the two
+rows AF52 readied and the last step of the `RegularProlongation` residue chain this column has climbed since
+AF45. Two sibling modules, both scaffolded and checker-green before dispatch
+(`RegularProlongationPlaceMapOrd.lean` 187 → **398** lines / 14 declarations / **14 ok** / 13 → 0 `sorry`;
+`RegularProlongationNonunitSmul.lean` 143 → **212** / 10 / **10 ok** / 9 → 0), the pin's labels rectified
+(`AJDFXC` → `PlaceMapOrd`, `E81QM` → `NonunitSmul`), **zero imports added** (the second set in a row whose
+manager cone was complete), two in-file substitutes imported rather than copied (`Red` from
+AF52's `OrdResidueEquality`, `inv_adjoin_eq` from AF48's `ReducedPlace`), and the `172` file's nine-declaration
+prelude **deliberately kept** with the ruling recorded (the pin states it publicly in its own namespace and
+the checker diffs it there — the SET-AF50 `ord_*` precedent, not a silent duplication). One order.
+**B1 is an ingredient of the Kummer family** (`exists_forall_residue_eq_algebraMap_of_mem_residueSpan_inf_of_krullDimLE_one`,
+783), so this set brings that chain one node closer. The re-read closes exactly: `needed`
+693 / 291,557 → **691 / 291,010**, `AlgebraicCurve` demand 33 / 11,824 → **31 / 11,277**, one row readied
+(`exists_placeMap_mapDomain_eq_ord_of_good_constantReduction`, 59). Recorded on the way: **the `EisensteinGeneral.Piece`
+row's definition gate is not ported** (`Def_EisensteinGeneral_FactorizationDatum` plus five
+`Def_AutomorphicForm_*` modules have no port declarations), so that story needs a definition wave before an
+order — the reason it is not this set.
+
+The fifty-fifth **is the archimedean cut's closure calculus, and the cuspidal carrier's window**
+(**landed 2026-11-13**): [automorphicForm/SET-AF55.md](automorphicForm/SET-AF55.md) — 13 rows /
+1,197 silo / 923 net, the first set of the recent run cut out of the `AutomorphicForm` ready block
+rather than the `AlgebraicCurve` residue chain. Three appends and five new modules, **all scaffolded,
+elaborated, built and checker-green before dispatch** (35 declarations, 31 `sorry`s, **180 ok / 0
+mismatch / 0 missing** across the eight files): the general-type Casimir dictionary at a real and a
+complex place (beside the ported `_ofChar` twins, whose proofs they are), the test-factor algebra
+(closure under `(g k)⁻¹`-conjugation and under integration against a compactly supported factor at
+both kinds of place — the pin's twin pair, one finite row and one leaf), the projector's three
+properties, the constituent's `levelInvariantSubmodule ⊓ archCutSubmodule` membership, a constituent
+meeting the character-typed cut, and then the carrier's `d₁`-monotonicity, the constituent's modulus,
+its twisted finite test factor and the level-subcarrier orthogonality. The two `Siegel` `L²`-transfer
+rows of SET-AF30/AF31 acquire their first consumer. One legacy ruling is recorded (§3.3 of the set
+note, and [../CARRY-FORWARD.md](../CARRY-FORWARD.md)): A8's subject home is the still-legacy
+`Cusp/CutWeightDecomposition.lean`, so it is homed one import above it. It **landed the same day**: 695 written proof lines over 3,378 scaffold lines, 0 `sorry`, 0 imports
+and 0 `set_option`s added, 13/13 headlines axiom-clean, both consumer zones at 0 errors, `dedup` clean
+on all eight files. The shelf moved 691 / 291,010 → **678 / 289,813** and readied two rows
+(295 + 63) — on the scaffolds, not on the proofs (FR-0114). Five frictions are recorded in
+[../logs/frictions.md](../logs/frictions.md): FR-0189 (the pin's `open scoped Classical` is
+load-bearing for `NormedAddCommGroup (mixedSpace K)`), FR-0190 (the legacy-home ruling), FR-0191 (a
+home must be above its premises' **modules** — the three re-homed rows, and the three-line check that
+decides it), FR-0192 (`inner_toCarrier`: a `have` over `a ∈ memberSubmodule` cannot be rewritten into a
+goal over its subtype) and FR-0193 (a `scoped instance` is inactive unless its namespace is `open`ed on
+the headline; `omit`, not a silencer, is what the unused-section-variable linter asks for).
+
+The fifty-sixth **is the flat level-spherical test functions** (**landed 2026-11-13**):
+[automorphicForm/SET-AF56.md](automorphicForm/SET-AF56.md) — 3 rows / 795 silo / ≈700 net in two new
+modules, and the story SET-AF55's landing readied: `isFactorizableTestFn_flat` (63) and
+`exists_commute_lift_heckeCosetSum_of_isLevelSphericalOfType` (295, whose tenth premise is AF55's B5)
+are two of the three rows, the third being the product-integral constant that the same family's five
+approximate-identity consumers spend
+(`exists_pos_forall_rightConv_integral_prod_mul_indicator_…`, 437). Both modules are scaffolded,
+elaborated, built and checker-green before dispatch (`Adelic/RightConvProductIntegral.lean` 159 lines
+/ 9 `sorry` / **1 ok**, its eight helpers `private` in the pin; `Cusp/LevelSphericalTestFn.lean` 120
+lines / 3 `sorry` / **2 ok**), the pin's proof-search labels rectified to words
+(`ReproConvProof` → `RightConvProduct`, `FlatFactProof` → `FlatFactorizability`). The set **dropped
+its planned second order** — the cuspidal unfolding
+(`integral_mul_eq_integral_mul_weight_mul_tsum_sub_average_of_isCuspidalFn`, 635) — at the scaffold:
+its statement layer needs the adele ring's `MeasurableSpace`/`SecondCountableTopology` instances
+settled, and the pin derives them privately with one derivation that has no v4.34 counterpart (FR-0194,
+[../logs/frictions.md](../logs/frictions.md)); that row is a definition-layer job, the same shape of
+deferral SET-AF53 gave the adelic-box pair. It **landed the same day**: 584 written proof lines over
+279 scaffold lines, 12 `sorry`s → 0, 3/3 headlines axiom-clean, `dedup`/`move_dead` clean, consumer zone
+at 0 errors; the shelf moved 678 / 289,813 → **675 / 289,018** on the scaffolds. One friction is worth
+the column: FR-0195, `Finset.map_noncommProd` cannot be used inside `rw` at v4.34 (the rule's
+`comm.forall₂` needs unfolding and `rw` elaborates at implicit transparency) — state the map step as a
+closed `have` instead, with no silencer and no cap.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

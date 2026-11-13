@@ -41,6 +41,12 @@
   spec-pin: P2M/Sol/S_AutomorphicForm_isFactorizableTestFn_leftCasimirComplex_and_rightConv_mem_of_isArchBiFinite.lean
   spec-pin: Theorems/Thm_AutomorphicForm_exists_isFactorizableTestFn_isArchBiFinite_rightConv_eq_smul_of_rightConv_eq_smul.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_exists_isFactorizableTestFn_isArchBiFinite_rightConv_eq_smul_of_rightConv_eq_smul.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_CuspidalConstituent_rightConv_mem_levelInvariantSubmodule_inf_archCutSubmodule_of_isArchBiFinite.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalConstituent_rightConv_mem_levelInvariantSubmodule_inf_archCutSubmodule_of_isArchBiFinite.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_isArchSmoothAt_rightConv_and_exists_archCasimirAt_rightConv_eq_of_isArchBiFinite.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_isArchSmoothAt_rightConv_and_exists_archCasimirAt_rightConv_eq_of_isArchBiFinite.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_isArchSmoothAtComplex_rightConv_and_exists_archCasimirAtComplex_rightConv_eq_of_isArchBiFinite.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_isArchSmoothAtComplex_rightConv_and_exists_archCasimirAtComplex_rightConv_eq_of_isArchBiFinite.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimir
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimirComplex
@@ -1172,3 +1178,287 @@ theorem exists_isFactorizableTestFn_isArchBiFinite_rightConv_eq_smul_of_rightCon
   exact heig' g
 
 end AutomorphicForm
+
+
+/-
+  The constituent's own level-invariant cut.
+
+  `rightConv` of a level-invariant continuous `φ` against a test factor whose support is a
+  product `a * k` (`glFin a = 1`, `k` in the level `U N`) stays in
+  `levelInvariantSubmodule ⊓ archCutSubmodule`.  The `archCut` half is
+  `rightConv_mem_archCutSubmodule_of_isArchBiFinite`; the level half is the support condition —
+  on a product of that shape the right translate of `φ` agrees with the left translate by the
+  finite part, which is what the pin's `hφU` rewrites compute.
+-/
+open AutomorphicForm
+open MeasureTheory NumberField NumberField.AdelicHaar NumberField.AdelicLevel NumberField.AdelicBox IsDedekindDomain
+open AutomorphicForm.CuspidalConstituent
+open scoped BigOperators
+
+attribute [local instance] NumberField.AdelicHaar.glBorel
+
+theorem AutomorphicForm.CuspidalConstituent.rightConv_mem_levelInvariantSubmodule_inf_archCutSubmodule_of_isArchBiFinite
+    (F : Type) [Field F] [NumberField F] (D : Set (AdelicGL2 (𝓞 F) F)) (N : Ideal (𝓞 F))
+    (tys : AutomorphicForm.ArchTypeFamily F)
+    (f : AdelicGL2 (𝓞 F) F → ℂ) (hf : IsFactorizableTestFn F f) (hbf : IsArchBiFinite F tys f)
+    (hfs : ∀ x, f x ≠ 0 → ∃ a k : AdelicGL2 (𝓞 F) F,
+      glFin (𝓞 F) F a = 1 ∧ k ∈ (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)).U N ∧ x = a * k)
+    (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφc : Continuous φ)
+    (hφU : φ ∈ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N) :
+    rightConv F φ f ∈ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N ⊓ archCutSubmodule F tys := by
+  classical
+  refine Submodule.mem_inf.mpr
+    ⟨?_, AutomorphicForm.rightConv_mem_archCutSubmodule_of_isArchBiFinite F tys φ hφc f hf hbf⟩
+
+  have hcomm : ∀ a u : AdelicGL2 (𝓞 F) F, glFin (𝓞 F) F a = 1 → u ∈ finiteAdelicGL2Subgroup F → u * a = a * u := by
+    intro a u ha hu
+    have hu' := (mem_finiteAdelicGL2Subgroup_iff F u).mp hu
+    refine Matrix.GeneralLinearGroup.ext fun i j => Prod.ext ?_ ?_
+    · have h := congrArg (fun m : GL (Fin 2) (InfiniteAdeleRing F) =>
+          (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j)
+        (show glArch (𝓞 F) F (u * a) = glArch (𝓞 F) F (a * u) by rw [map_mul, map_mul, hu', one_mul, mul_one])
+      simpa only [glArch_apply] using h
+    · have h := congrArg (fun m : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) =>
+          (m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F)) i j)
+        (show glFin (𝓞 F) F (u * a) = glFin (𝓞 F) F (a * u) by rw [map_mul, map_mul, ha, one_mul, mul_one])
+      simpa only [glFin_apply] using h
+  intro x u hu
+  have huKf : u ∈ finiteAdelicGL2Subgroup F := (Subgroup.mem_inf.mp hu).2
+  simp only [rightConv_apply]
+  refine integral_congr_ae (ae_of_all _ fun y => ?_)
+  by_cases hy : f y = 0
+  · simp only [hy, mul_zero]
+  · obtain ⟨a, k, ha, hk, rfl⟩ := hfs y hy
+    show φ (x * u * (a * k)) * f (a * k) = φ (x * (a * k)) * f (a * k)
+    congr 1
+    have e1 : x * u * (a * k) = x * a * u * k := by
+      rw [mul_assoc x u, ← mul_assoc u a k, hcomm a u ha huKf, mul_assoc, mul_assoc, mul_assoc]
+    rw [e1, hφU (x * a * u) k hk, hφU (x * a) u hu, ← mul_assoc, hφU (x * a) k hk]
+
+
+/-
+  The general archimedean type family, at a real place: the Casimir dictionary of the `_ofChar`
+  headline above with `tys` in place of the character type family `ArchTypeFamily.ofChar K χ`.
+
+  The pin proves the two side by side from the same three premises
+  (`archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn`,
+  `continuous_rightConv_and_contDiff_of_isFactorizableTestFn`, and the general
+  `isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite`, which this module
+  already holds), so the proof is the `_ofChar` one with `tys` read for `ArchTypeFamily.ofChar K χ`.
+  Neither statement is an instance of the other — they are the pin's two statements of one
+  theorem — and the general one is what the cusp constituent's rows cite.
+-/
+open AutomorphicForm
+open MeasureTheory NumberField NumberField.AdelicHaar NumberField.AdelicLevel NumberField.AdelicBox IsDedekindDomain
+open AutomorphicForm.CuspidalConstituent
+open scoped BigOperators
+
+theorem AutomorphicForm.isArchSmoothAt_rightConv_and_exists_archCasimirAt_rightConv_eq_of_isArchBiFinite
+    (K : Type) [Field K] [NumberField K]
+    (D : Set (AdelicGL2 (𝓞 K) K))
+    (w : InfinitePlace K) (hw : w.IsReal)
+    (N : Ideal (𝓞 K)) (tys : AutomorphicForm.ArchTypeFamily K)
+    (x' : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x')
+    (hxl : x' ∈ levelInvariantSubmodule K (productionPinsOf K D
+        (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N)
+    (hxt : x' ∈ archCutSubmodule K tys)
+    (α : AdelicGL2 (𝓞 K) K → ℂ) (hαf : IsFactorizableTestFn K α) (hαb : IsArchBiFinite K tys α)
+    (hαU : ∀ g : AdelicGL2 (𝓞 K) K, ∀ k ∈ (levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K), α (k * g) = α g ∧ α (g * k) = α g) :
+    IsArchSmoothAt hw (rightConv K x' α) ∧
+    (∀ d : ArchDir, Continuous (archDerivAt hw d (rightConv K x' α))) ∧
+    (∀ d d' : ArchDir, Continuous (archDerivAt hw d (archDerivAt hw d' (rightConv K x' α)))) ∧
+    (∃ β : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K β ∧ IsArchBiFinite K tys β ∧
+        archCasimirAt hw (rightConv K x' α) = rightConv K x' β) ∧
+    archCasimirAt hw (rightConv K x' α) ∈ levelInvariantSubmodule K (productionPinsOf K D
+        (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N ⊓
+      archCutSubmodule K tys := by
+  classical
+
+  set L : ArchDir → (AdelicGL2 (𝓞 K) K → ℂ) → (AdelicGL2 (𝓞 K) K → ℂ) :=
+    fun d γ y => deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0 with hL
+  have hcalc := fun d : ArchDir =>
+    AutomorphicForm.archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d
+  have hLfact : ∀ (d : ArchDir) (γ : AdelicGL2 (𝓞 K) K → ℂ), IsFactorizableTestFn K γ → IsFactorizableTestFn K (L d γ) := by
+    intro d γ hγ
+    obtain ⟨fa, ff, hfa, hff, hγ'⟩ := hγ
+    obtain ⟨fa', hfa', heq⟩ := (hcalc d).2.1 fa ff hfa
+    refine ⟨fa', ff, hfa', hff, fun y => ?_⟩
+    have hfun : (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) =
+        fun t : ℝ => fa (glArch (𝓞 K) K (archFlowAt hw d (-t) * y)) * ff (glFin (𝓞 K) K (archFlowAt hw d (-t) * y)) := by
+      funext t; rw [hγ']
+    show deriv (fun t : ℝ => γ (archFlowAt hw d (-t) * y)) 0 = fa' (glArch (𝓞 K) K y) * ff (glFin (𝓞 K) K y)
+    rw [hfun]
+    exact congrFun heq y
+
+  have hD1 : ∀ d : ArchDir, IsArchSmoothAt hw (rightConv K x' α) ∧
+      archDerivAt hw d (rightConv K x' α) = rightConv K x' (L d α) := fun d => (hcalc d).1 x' α hxc hαf
+  have hcontL : ∀ γ : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K γ → Continuous (rightConv K x' γ) := fun γ hγ =>
+    (AutomorphicForm.continuous_rightConv_and_contDiff_of_isFactorizableTestFn K x' hxc γ hγ).1
+  have hsmooth : IsArchSmoothAt hw (rightConv K x' α) := (hD1 .H).1
+  have hder1 : ∀ d : ArchDir, archDerivAt hw d (rightConv K x' α) = rightConv K x' (L d α) := fun d => (hD1 d).2
+  have hder2 : ∀ d d' : ArchDir, archDerivAt hw d (archDerivAt hw d' (rightConv K x' α)) = rightConv K x' (L d (L d' α)) := by
+    intro d d'
+    rw [hder1 d']
+    exact ((hcalc d).1 x' (L d' α) hxc (hLfact d' α hαf)).2
+
+  obtain ⟨⟨hβf, hβb⟩, hlin, hmem⟩ :=
+    AutomorphicForm.isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite K D w hw N tys α hαf hαb hαU
+  have hΩ : archCasimirAt hw (rightConv K x' α) =
+      rightConv K x' (fun y => -((1 / 4 : ℂ) * L .H (L .H α) y - (1 / 2 : ℂ) * L .H α y + L .E (L .Fm α) y)) := by
+    rw [hlin x' hxc]
+    funext g
+    simp only [archCasimirAt, Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul]
+    rw [hder2 .H .H, hder1 .H, hder2 .E .Fm]
+  refine ⟨hsmooth, fun d => ?_, fun d d' => ?_, ⟨_, hβf, hβb, hΩ⟩, ?_⟩
+  · rw [hder1 d]; exact hcontL _ (hLfact d α hαf)
+  · rw [hder2 d d']; exact hcontL _ (hLfact d _ (hLfact d' α hαf))
+  · rw [hΩ]; exact hmem x' hxc hxl hxt
+
+
+/-
+  The complex place: the Casimir dictionary of a right convolution, for both `del` and
+  `delbar`.
+
+  The pin file carries a five-declaration prelude (`CasimirRightConv`) and the headline.  The
+  prelude is the *pointwise* form of the `archDelAt`/`archDelBarAt` dictionary: the port already
+  holds the function-equality forms (`ArchCxGL.archDerivAtComplex_archDelAt`,
+  `ArchCxGL.archDelAt_apply`, `ArchCxGL.archDerivAtComplex_sub'`), and the two `archDelBarAt`
+  rows are new, so the block is transcribed once here in the pin's own label namespace (the
+  AF50/AF54 rule for a prelude the pin states publicly in its own file) and the headline is
+  written at the wrapper's name.
+-/
+namespace CasimirRightConv
+
+variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K} (hw : w.IsComplex)
+
+theorem archDerivAtComplex_sub' {φ ψ : AdelicGL2 (𝓞 K) K → ℂ}
+    (hφ : IsArchSmoothAtComplex hw φ) (hψ : IsArchSmoothAtComplex hw ψ) (d : ArchDirComplex) :
+    archDerivAtComplex hw d (φ - ψ) = archDerivAtComplex hw d φ - archDerivAtComplex hw d ψ := by
+  rw [sub_eq_add_neg, archDerivAtComplex_add hφ hψ.neg, ← neg_one_smul ℂ ψ,
+    archDerivAtComplex_smul, neg_one_smul, ← sub_eq_add_neg]
+
+theorem archDelAt_apply {ψ : AdelicGL2 (𝓞 K) K → ℂ} (d : ArchDir) (g : AdelicGL2 (𝓞 K) K) :
+    archDelAt hw d ψ g = (1 / 2 : ℂ) * (archDerivAtComplex hw d.toComplex ψ g - Complex.I * archDerivAtComplex hw d.toComplexI ψ g) := by
+  simp only [archDelAt, Pi.smul_apply, Pi.sub_apply, smul_eq_mul]
+
+theorem archDelBarAt_apply {ψ : AdelicGL2 (𝓞 K) K → ℂ} (d : ArchDir) (g : AdelicGL2 (𝓞 K) K) :
+    archDelBarAt hw d ψ g = (1 / 2 : ℂ) * (archDerivAtComplex hw d.toComplex ψ g + Complex.I * archDerivAtComplex hw d.toComplexI ψ g) := by
+  simp only [archDelBarAt, Pi.smul_apply, Pi.add_apply, smul_eq_mul]
+
+theorem archDerivAtComplex_archDelAt {ψ : AdelicGL2 (𝓞 K) K → ℂ} (hψ : IsArchSmoothAtComplex hw ψ)
+    (d : ArchDirComplex) (d' : ArchDir) (g : AdelicGL2 (𝓞 K) K) :
+    archDerivAtComplex hw d (archDelAt hw d' ψ) g =
+      (1 / 2 : ℂ) * (archDerivAtComplex hw d (archDerivAtComplex hw d'.toComplex ψ) g -
+        Complex.I * archDerivAtComplex hw d (archDerivAtComplex hw d'.toComplexI ψ) g) := by
+  unfold AutomorphicForm.archDelAt
+  rw [archDerivAtComplex_smul, archDerivAtComplex_sub' hw (hψ.archDerivAtComplex _)
+    ((hψ.archDerivAtComplex _).smul _), archDerivAtComplex_smul]
+  simp only [Pi.smul_apply, Pi.sub_apply, smul_eq_mul]
+
+theorem archDerivAtComplex_archDelBarAt {ψ : AdelicGL2 (𝓞 K) K → ℂ} (hψ : IsArchSmoothAtComplex hw ψ)
+    (d : ArchDirComplex) (d' : ArchDir) (g : AdelicGL2 (𝓞 K) K) :
+    archDerivAtComplex hw d (archDelBarAt hw d' ψ) g =
+      (1 / 2 : ℂ) * (archDerivAtComplex hw d (archDerivAtComplex hw d'.toComplex ψ) g +
+        Complex.I * archDerivAtComplex hw d (archDerivAtComplex hw d'.toComplexI ψ) g) := by
+  unfold AutomorphicForm.archDelBarAt
+  rw [archDerivAtComplex_smul, archDerivAtComplex_add (hψ.archDerivAtComplex _)
+    ((hψ.archDerivAtComplex _).smul _), archDerivAtComplex_smul]
+  simp only [Pi.smul_apply, Pi.add_apply, smul_eq_mul]
+
+end CasimirRightConv
+
+open AutomorphicForm
+open MeasureTheory NumberField NumberField.AdelicHaar NumberField.AdelicLevel NumberField.AdelicBox IsDedekindDomain
+open AutomorphicForm.CuspidalConstituent
+open scoped ComplexConjugate ENNReal InnerProductSpace
+
+theorem AutomorphicForm.isArchSmoothAtComplex_rightConv_and_exists_archCasimirAtComplex_rightConv_eq_of_isArchBiFinite
+    (K : Type) [Field K] [NumberField K]
+    (D : Set (AdelicGL2 (𝓞 K) K))
+    (w : InfinitePlace K) (hw : w.IsComplex)
+    (N : Ideal (𝓞 K)) (tys : AutomorphicForm.ArchTypeFamily K)
+    (x' : AdelicGL2 (𝓞 K) K → ℂ) (hxc : Continuous x')
+    (hxl : x' ∈ levelInvariantSubmodule K (productionPinsOf K D
+        (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N)
+    (hxt : x' ∈ archCutSubmodule K tys)
+    (α : AdelicGL2 (𝓞 K) K → ℂ) (hαf : IsFactorizableTestFn K α) (hαb : IsArchBiFinite K tys α)
+    (hαU : ∀ g : AdelicGL2 (𝓞 K) K, ∀ k ∈ (levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K), α (k * g) = α g ∧ α (g * k) = α g) :
+    IsArchSmoothAtComplex hw (rightConv K x' α) ∧
+    (∀ d : ArchDirComplex, Continuous (archDerivAtComplex hw d (rightConv K x' α))) ∧
+    (∀ d d' : ArchDirComplex, Continuous (archDerivAtComplex hw d (archDerivAtComplex hw d' (rightConv K x' α)))) ∧
+    (∃ β : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K β ∧ IsArchBiFinite K tys β ∧
+        archCasimirAtComplex hw (rightConv K x' α) = rightConv K x' β) ∧
+    (∃ βb : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K βb ∧ IsArchBiFinite K tys βb ∧
+        archCasimirBarAtComplex hw (rightConv K x' α) = rightConv K x' βb) ∧
+    archCasimirAtComplex hw (rightConv K x' α) ∈ levelInvariantSubmodule K (productionPinsOf K D
+        (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N ⊓
+      archCutSubmodule K tys ∧
+    archCasimirBarAtComplex hw (rightConv K x' α) ∈ levelInvariantSubmodule K (productionPinsOf K D
+        (fun N => levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K) (fun v => heckeGen (𝓞 K) K v) (adelicBox K)) N ⊓
+      archCutSubmodule K tys := by
+  classical
+
+  set L : ArchDirComplex → (AdelicGL2 (𝓞 K) K → ℂ) → (AdelicGL2 (𝓞 K) K → ℂ) :=
+    fun d γ y => deriv (fun t : ℝ => γ (archFlowAtComplex hw d (-t) * y)) 0 with hL
+  have hcalc := fun d : ArchDirComplex =>
+    AutomorphicForm.archDerivAtComplex_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn K hw d
+  have hLfact : ∀ (d : ArchDirComplex) (γ : AdelicGL2 (𝓞 K) K → ℂ), IsFactorizableTestFn K γ → IsFactorizableTestFn K (L d γ) := by
+    intro d γ hγ
+    obtain ⟨fa, ff, hfa, hff, hγ'⟩ := hγ
+    obtain ⟨fa', hfa', heq⟩ := (hcalc d).2.1 fa ff hfa
+    refine ⟨fa', ff, hfa', hff, fun y => ?_⟩
+    have hfun : (fun t : ℝ => γ (archFlowAtComplex hw d (-t) * y)) =
+        fun t : ℝ => fa (glArch (𝓞 K) K (archFlowAtComplex hw d (-t) * y)) * ff (glFin (𝓞 K) K (archFlowAtComplex hw d (-t) * y)) := by
+      funext t; rw [hγ']
+    show deriv (fun t : ℝ => γ (archFlowAtComplex hw d (-t) * y)) 0 = fa' (glArch (𝓞 K) K y) * ff (glFin (𝓞 K) K y)
+    rw [hfun]
+    exact congrFun heq y
+  have hD1 : ∀ d : ArchDirComplex, IsArchSmoothAtComplex hw (rightConv K x' α) ∧
+      archDerivAtComplex hw d (rightConv K x' α) = rightConv K x' (L d α) := fun d => (hcalc d).1 x' α hxc hαf
+  have hcontL : ∀ γ : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K γ → Continuous (rightConv K x' γ) := fun γ hγ =>
+    (AutomorphicForm.continuous_rightConv_and_contDiff_of_isFactorizableTestFn K x' hxc γ hγ).1
+  have hsmooth : IsArchSmoothAtComplex hw (rightConv K x' α) := (hD1 .H).1
+  have hsmoothγ : ∀ γ : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K γ → IsArchSmoothAtComplex hw (rightConv K x' γ) :=
+    fun γ hγ => ((hcalc .H).1 x' γ hxc hγ).1
+  have hder1 : ∀ d : ArchDirComplex, archDerivAtComplex hw d (rightConv K x' α) = rightConv K x' (L d α) := fun d => (hD1 d).2
+  have hder2 : ∀ d d' : ArchDirComplex, archDerivAtComplex hw d (archDerivAtComplex hw d' (rightConv K x' α)) = rightConv K x' (L d (L d' α)) := by
+    intro d d'
+    rw [hder1 d']
+    exact ((hcalc d).1 x' (L d' α) hxc (hLfact d' α hαf)).2
+
+  obtain ⟨⟨hβf, hβb, hβbf, hβbb⟩, -, hlin, hmem⟩ :=
+    AutomorphicForm.isFactorizableTestFn_leftCasimirComplex_and_rightConv_mem_of_isArchBiFinite K D w hw N tys α hαf hαb hαU
+  have hΩ : archCasimirAtComplex hw (rightConv K x' α) = rightConv K x' (fun y =>
+      -((1 / 4 : ℂ) * ((1 / 4 : ℂ) * ((1 : ℂ) * L .H (L .H (α)) y + ((-Complex.I) : ℂ) * L .H (L .iH (α)) y + ((-Complex.I) : ℂ) * L .iH (L .H (α)) y + (-1 : ℂ) * L .iH (L .iH (α)) y)) - (1 / 2 : ℂ) * ((1 / 2 : ℂ) * ((1 : ℂ) * L .H (α) y + ((-Complex.I) : ℂ) * L .iH (α) y)) + (1 / 4 : ℂ) * ((1 : ℂ) * L .E (L .Fm (α)) y + ((-Complex.I) : ℂ) * L .E (L .iFm (α)) y + ((-Complex.I) : ℂ) * L .iE (L .Fm (α)) y + (-1 : ℂ) * L .iE (L .iFm (α)) y))) := by
+    rw [(hlin x' hxc).1]
+    funext g
+    simp only [archCasimirAtComplex, Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul]
+    simp only [CasimirRightConv.archDelAt_apply hw, CasimirRightConv.archDerivAtComplex_archDelAt hw hsmooth]
+    simp only [ArchDir.toComplex, ArchDir.toComplexI]
+    simp only [hder2]
+    simp only [hder1]
+    simp only [hL]
+    ring_nf
+    simp only [Complex.I_sq]
+    ring
+  have hΩb : archCasimirBarAtComplex hw (rightConv K x' α) = rightConv K x' (fun y =>
+      -((1 / 4 : ℂ) * ((1 / 4 : ℂ) * ((1 : ℂ) * L .H (L .H (α)) y + (Complex.I : ℂ) * L .H (L .iH (α)) y + (Complex.I : ℂ) * L .iH (L .H (α)) y + (-1 : ℂ) * L .iH (L .iH (α)) y)) - (1 / 2 : ℂ) * ((1 / 2 : ℂ) * ((1 : ℂ) * L .H (α) y + (Complex.I : ℂ) * L .iH (α) y)) + (1 / 4 : ℂ) * ((1 : ℂ) * L .E (L .Fm (α)) y + (Complex.I : ℂ) * L .E (L .iFm (α)) y + (Complex.I : ℂ) * L .iE (L .Fm (α)) y + (-1 : ℂ) * L .iE (L .iFm (α)) y))) := by
+    rw [(hlin x' hxc).2]
+    funext g
+    simp only [archCasimirBarAtComplex, Pi.neg_apply, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul]
+    simp only [CasimirRightConv.archDelBarAt_apply hw, CasimirRightConv.archDerivAtComplex_archDelBarAt hw hsmooth]
+    simp only [ArchDir.toComplex, ArchDir.toComplexI]
+    simp only [hder2]
+    simp only [hder1]
+    simp only [hL]
+    ring_nf
+    simp only [Complex.I_sq]
+    ring
+  refine ⟨hsmooth, fun d => ?_, fun d d' => ?_, ⟨_, hβf, hβb, hΩ⟩, ⟨_, hβbf, hβbb, hΩb⟩, ?_, ?_⟩
+  · rw [hder1 d]; exact hcontL _ (hLfact d α hαf)
+  · rw [hder2 d d']; exact hcontL _ (hLfact d _ (hLfact d' α hαf))
+  · rw [hΩ]; exact (hmem x' hxc hxl hxt).1
+  · rw [hΩb]; exact (hmem x' hxc hxl hxt).2

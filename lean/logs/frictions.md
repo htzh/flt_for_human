@@ -3994,3 +3994,182 @@ round promotes what generalizes.
   statement checker alone.
 - **seen**: 2026-11-12, SET-AF47→AF53 (each failure cost at most one iteration because the scaffold was
   always elaborated before dispatch).
+
+## FR-0189 [instance] — `NormedAddCommGroup (NumberField.mixedEmbedding.mixedSpace K)` needs `open scoped Classical`
+
+- **where**: `AutomorphicForm/Adelic/TestFactorIntegral.lean` (SET-AF55, the pin's `ARCHCONV` prelude
+  rectified to `ArchConvIntegral`).
+- **symptom**: with `open scoped Topology Pointwise ContDiff` — the pin's line minus one word —
+  `scoped instance : NormedAddCommGroup (PP F) := Prod.normedAddCommGroup` fails with
+  `failed to synthesize instance of type class NormedAddCommGroup (Xm F)`, then a cascade
+  (`NormedSpace ℝ (PP F)`, `ContDiff ℝ ∞` on `Xm F × PP F`). The statement is fine; the *instances* are
+  what is missing.
+- **cause**: `mixedSpace K` is a mathlib `abbrev` for
+  `({w : InfinitePlace K // IsReal w} → ℝ) × ({w : InfinitePlace K // IsComplex w} → ℂ)`. The `Pi`
+  normed-group instance needs `Fintype` of each index, and `Fintype` of a *subtype* needs
+  `DecidablePred` — which is `Classical.propDecidable`, hence only in scope under `open scoped Classical`.
+  `mathlib`'s own `NumberField.InfinitePlace.fintype` is declared `open scoped Classical in … protected
+  noncomputable instance`, so the `Fintype (InfinitePlace K)` half is there either way; the subtype half
+  is not.
+- **fix / rule**: keep the pin's `open scoped` line verbatim — in particular the `Classical`, which reads
+  as boilerplate and is load-bearing. The tell is that an *instance* search fails on a type the file's
+  statements use verbatim; the cure is to compare the file's `open scoped` line with the pin's, not to
+  start a `show`/`change` round.
+- **corroboration**: `AutomorphicForm/Adelic/RightConvRegularity.lean:224` does the same
+  `inferInstance` successfully because that file opens `Classical` elsewhere — a probe copied from it
+  fails unless the `open scoped Classical` travels with it.
+- **seen**: 2026-11-13, SET-AF55's scaffold pass (one elaboration round, no proof effort spent).
+
+## FR-0190 [homing] — the subject home is a *legacy* module: home one import above it, and record the debt
+
+- **where**: SET-AF55's A8 (`AutomorphicForm.CuspidalConstituent.exists_inf_archCutSubmodule_ofChar_ne_bot_of_ne_bot`,
+  56 silo). Its only premise and its whole subject are `Cusp/CutWeightDecomposition.lean`.
+- **symptom / cost**: appending it there requires migrating that module *in this wave* — the module is
+  still wired through the frozen `spec/old_check_stmts.py` (`PORT_FILES`), so "touch it and bring it up to
+  standards" means a `spec-pin:` wire over a 906-line pin source, deletion of the `PORT_FILES` row, and a
+  public-surface diff of ~76 declarations (most of them the pin's private prelude, transcribed private and
+  therefore `MISSING` in the checker's reading) — a set-sized piece of work for a 56-line row.
+- **rule** (a refinement of the scoping recipe's §4 "if the subject demands that module, put the
+  declaration there and migrate in the same touch"): the rule presumes the migration is *proportionate*.
+  When the row is small and the legacy module's public surface is large, home the row **one import above**
+  the legacy module, state in the module header that the subject home is the legacy module, and register
+  the move as a debt to be paid when that module is next opened. Do **not** silently duplicate the
+  subject into a new module as if the legacy module did not exist, and do not stretch the wave to pay a
+  migration the row does not need.
+- **seen**: 2026-11-13, SET-AF55 A8; the debt is recorded in that set's brief §3.3.
+
+## FR-0191 [homing] — a home is "above its premises" only if it is above their **modules**; the three-line check that decides it
+
+- **where**: SET-AF55's first cut. A1/A2 were appended to `ArchDerivRightConv.lean` /
+  `ArchDerivRightConvComplex.lean` beside their `_ofChar` twins, and A6 to `ArchCutProjector.lean`
+  beside the projector engine it extends.
+- **symptom**: all three rows are *unwritable* in those modules. `ArchDerivRightConv` is **below**
+  `LeftCasimirTestFn`, which is where the general `isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite`
+  (`:552`) and its complex twin (`:1022`) live — so A1/A2's key premise is unreachable and the
+  `_ofChar` twin's proof cannot be replayed. `ArchCutProjector` is below `ArchApproximation`, which
+  holds `exists_rightConv_eq_of_archCutProjector` and the `lamData` helpers its proof needs.
+- **cause**: the scoping audit asked two questions — "is the premise *ported*?" (yes) and "is the
+  home's *subject* right?" (yes) — and not the third: **"is the home above the premise's module?"**
+  The recipe's §4 step 3 asks for it; the plan checked it for order B's new modules and took it for
+  granted for the appends, because the twin's *statement* sits in the same file as the home and the
+  premise's *name* appears in the same module's source. Both are the false positives §4 already lists.
+- **check** (run it before scaffolding, not after): build `module -> imports` over `FLTForHuman` and
+  require `premise_module ∈ closure(home)` for **every** premise of **every** row. Three lines of
+  Python over `grep '^import FLTForHuman'`; it is the whole test. Watch the direction — `closure(home)`
+  must *contain* the premise's module, not the other way round (the first version of this check here
+  printed the verdict inverted, and the worker's report is what caught it).
+- **fix taken**: re-home, do not refactor. A1/A2 → `LeftCasimirTestFn` (which holds the general
+  engines and A7), A6 → `ArchApproximation` (which holds the reformulation its statement uses). No
+  statement changed; the three first homes are restored to their pre-set state.
+- **the same failure in miniature, and the ruling it forced**: four of A3's prelude rows *are* ported
+  (`comp_mem_typeSubmodule_of_map`, `comp_mem_iSup_of_forall`, `commute_of_glArch_eq_one_of_glFin_eq_one`
+  in `RightConvIntegral`; `eq_of_glArch_eq_of_glFin_eq` in `Cusp/SpectrumLift`) but those modules are
+  above `TestFnInvariance`, so importing is the same cycle. The four generic proofs are transcribed
+  in `TestFnInvariance` — what the pin itself does — and their `shape` clusters in `dedup.py` are the
+  recorded ruling (their real home is a `RepTheory` module below both; registered in
+  [../CARRY-FORWARD.md](../CARRY-FORWARD.md)). Do not delete either side.
+- **second half, the build-side tell**: restoring a source file without rebuilding it leaves a **stale
+  `.olean` that exports the removed declarations**, and the next elaboration of an importer fails with
+  `` `X` has already been declared `` — the mirror of the playbook's "a stale `.olean` reads as a
+  missing declaration". After any re-home, build the vacated modules **before** elaborating the new
+  homes: `lake build <vacated> <vacated>` then `lake env lean <new home>`.
+- **seen**: 2026-11-13, SET-AF55 (worker report at first pass; no proof effort spent on the three rows
+  before the fix).
+
+## FR-0192 [defeq] — a `have` stated over `a ∈ memberSubmodule` cannot be rewritten into a goal over its subtype
+
+- **where**: SET-AF55 order B, the orthogonality row
+  (`AutomorphicForm.CuspidalSpectrum.apply_eq_zero_of_mem_orthogonal_cuspLevelSubcarrier_of_isLift_rightConv_of_rightInvariant`),
+  the pin's `inner_toCarrier` (`S_…:108`).
+- **symptom**: the pin states `inner_toCarrier` over `(a b : GL₂(𝔸) → ℂ)` with
+  `(ha : a ∈ memberSubmodule Φ₀ ξ)` and rewrites it into a goal whose `toCarrier` arguments are the
+  *subtypes* `⟨↑ψ, ⋯⟩`. At v4.34 the rewrite fails at **application elaboration** — not at `rw`'s
+  matching: `Application type mismatch: The argument ξ …`. The pattern unfolds the carrier to
+  `IsAutomorphicFnAt F (fdPins F Φ₀) ξ ?a` and then demands `↥⊤ ≡ ↥(fdPins F Φ₀).Z`, which is false.
+- **cause**: FR-0187's family — a `Subtype` coercion over `pins.Z` against a raw `⊤` — but here the
+  unfold happens while *elaborating the lemma's type at its use site*, so no `congrArg Subtype.val`
+  rewrite is available (there is no `h : … = …` to rewrite; the terms are being unified).
+- **fix / rule**: restate the *local* `have` over the subtype, `∀ (A B : ↥(memberSubmodule F Φ₀ ξ)),
+  ⟪toCarrier … A, toCarrier … B⟫ = pairing F Φ₀ σ (B : _) (A : _)`, and use the identical proof body
+  (`rintro ⟨a, ha⟩ ⟨b, hb⟩`). The headline's statement is untouched — this is a `have`, not a
+  declaration. The general rule: **when a pin `have` is used with subtype arguments, state it over the
+  subtype from the start**; do not try to make the `∈`-form match.
+- **seen**: 2026-11-13, SET-AF55 order B (one round; the proof body was unchanged after the restatement).
+- **corroboration**: the same session's B5 heartbeat profile (~46–50k for the 259-line declaration,
+  cumulative) is *not* this trap — it fails at a different line each time, which is the tell that a
+  cost is cumulative rather than one pathological unification.
+
+## FR-0193 [instance/scope] — a `scoped instance` is not active in a wrapper statement unless its namespace is opened there, and `omit` is not available until the body is real
+
+- **where**: SET-AF55's A5 (`AutomorphicForm.isArchTestFactor_integral_mul_of_isArchTestFactor_of_hasCompactSupport`)
+  in `AutomorphicForm/Adelic/TestFactorIntegral.lean`.
+- **symptom 1**: with the prelude's `scoped instance : NormedAddCommGroup (PP F)` in
+  `namespace ArchConvIntegral` and the headline written at top level, the headline's own statement
+  fails to elaborate: `NormedAddCommGroup (Xm F × PP F)` does not synthesize. `Xm F` alone is fine —
+  a three-level product loses the instance search that the two-level one wins.
+- **cause**: `scoped instance` is only active where its namespace is **opened**; the pin writes
+  `open ARCHCONV in` immediately above the same headline for exactly this reason, and the manager's
+  scaffold dropped the prefix as boilerplate.
+- **fix / rule**: keep the pin's `open <Label> in` prefix on any headline whose statement mentions a
+  type whose instances are `scoped` in the prelude's namespace. The tell: an instance-search failure
+  in the *statement* of a headline whose prelude defines the type — not in its proof.
+- **symptom 2**: once A4/A5's bodies stopped being `sorry`, Lean 4.34's `linter.unusedSectionVars`
+  fired on auto-bound instance binders (`[NumberField F]`, `[TopologicalSpace Y]`, …) that the
+  statements do not mention. `sorry` bodies hide the linter, so this class of problem appears only at
+  the very end of a wave.
+- **fix / rule**: `omit [binder] in` is the linter's prescription and is **not** a silencer — it drops
+  a binder the statement does not carry, and `check_port` cannot see the difference. Forbidden is
+  `set_option linter.…`; `omit` is the intended tool. Expect the omit set to change the moment the last
+  `sorry` goes, and check the statement text against the pin afterwards.
+- **seen**: 2026-11-13, SET-AF55 order A (two deviations, both statement-preserving; the second is the
+  general "the gates can only be run once the bodies are real" point).
+
+## FR-0194 [definition-gate] — a pin prelude that derives `private scoped instance`s has no v4.34 counterpart, and the port pins those instances per module
+
+- **where**: SET-AF56's planned second order, the cuspidal unfolding
+  (`AutomorphicForm.integral_mul_eq_integral_mul_weight_mul_tsum_sub_average_of_isCuspidalFn`, 635;
+  see `SET-AF56.md` §1.1). Cut at the scaffold, so no proof effort was spent.
+- **symptom**: the pin's prelude (`S_…:35–68`) opens with five `private scoped instance`s —
+  `Countable K`, `Countable (𝓞 K)`, `SecondCountableTopology (FiniteAdeleRing …)`,
+  `SecondCountableTopology (InfiniteAdeleRing K)`, `SecondCountableTopology (AdeleRing …)` and
+  `SecondCountableTopology (GL (Fin 2) (AdeleRing …))`. Transcribed as they stand, the module fails
+  at the *statements*: `RestrictedProduct.secondCountableTopology` no longer exists at v4.34
+  (`unknown constant`), and `MeasurableSpace (AdeleRing (𝓞 K) K)` does not synthesize even with the
+  port's `AdelicHaar/PlaceMeasure` and `AdelicHaar/ProductMeasure` imported.
+- **cause**: the port does not carry the adele ring's measurability as a global instance. It is pinned
+  per module as a `local instance` — `attribute [local instance] NumberField.AdelicHaar.adeleBorel`
+  (and `borelSpace_adeleBorel`) — which is why `NumberTheory/AdelicBox.lean:350` and
+  `NumberTheory/AdelicModulus.lean:107` each carry that line, and why every `AutomorphicForm` wrapper
+  that touches the adele ring carries it too. The pin instead *derives* the instances privately inside
+  the proof file, so the file is self-contained in a way a v4.34 transcription is not.
+- **fix / rule**: before scaffolding an `AutomorphicForm` row whose statement mentions
+  `AdeleRing (𝓞 K) K` (or a `GL`/`Matrix` over it), check three things in the *statement* round trip:
+  (a) `attribute [local instance] NumberField.AdelicHaar.adeleBorel` present, (b) the port's
+  second-countability is `NumberField.AdelicHaar.ProductMeasure.L1.secondCountableTopology_finiteAdeleRing`
+  (a theorem, not the old `RestrictedProduct` lemma), (c) the pin's `private scoped instance` block
+  dropped in favour of the port's. If those do not close the statement, the row is a
+  **definition-layer** item: register it and cut it, do not spend a proof wave on it.
+- **seen**: 2026-11-13, SET-AF56 (one scaffold round, ~10 minutes; the row is deferred with its price
+  in the set note).
+
+## FR-0195 [tactic/elaboration] — `Finset.map_noncommProd` cannot be used inside `rw` at v4.34 (implicit transparency)
+
+- **where**: SET-AF56's row A, `RightConvProduct.iota_mulSingle`
+  (`AutomorphicForm/Adelic/RightConvProductIntegral.lean`), from the pin
+  `S_…exists_pos_forall_rightConv_integral_prod_mul_indicator_…:73`.
+- **symptom**: `rw [← Finset.noncommProd_mulSingle κ, Finset.map_noncommProd]` fails with
+  "target expression is not type-correct under the `implicit` transparency level". The pin's line
+  reads as a two-step rewrite.
+- **cause**: `Finset.map_noncommProd`'s right-hand side is
+  `fun _ hx _ hy _ => (comm.forall₂ hx hy).map g`. Elaborating that pattern needs `Set.Pairwise`/
+  `Function.onFun` unfolded, which `rw`'s **implicit** transparency will not do. It is not about the
+  `let`-bound subgroup or the `noncommProd` index that the pin's line appears to touch; a minimal
+  repro outside this project reproduces it, and the same lemma is fine as a term-mode `have`.
+- **fix / rule**: state the map step as a **closed `have`**, which elaborates at default transparency,
+  and `rw` with it:
+  `have h2 : ι (univ.noncommProd f comm) = univ.noncommProd (fun i => ι (f i)) (fun i _ j _ _ => (comm_ij).map ι) := Finset.map_noncommProd _ _ _ _`
+  then `rw [← h1, h2]`. No `set_option`, no cap: the general rule is the playbook's "spell the terms /
+  name the bridge" family — when `rw`'s pattern needs a transparency the tactic does not use, give the
+  instance as a `have` and rewrite with the name.
+- **seen**: 2026-11-13, SET-AF56 row A (one round). Carried into
+  [../CARRY-FORWARD.md](../CARRY-FORWARD.md) for the next port that touches `noncommProd`.

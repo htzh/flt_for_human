@@ -77,6 +77,64 @@ docstrings), no statement of an existing module changes, so the checker is unaff
 when one of those modules is opened for another reason. Until then the two results are public and
 checked where they are.
 
+### SET-AF55's A8 — homed one import above its subject, to be moved into `CutWeightDecomposition` when that module is migrated
+
+Landed 2026-11-13 ([automorphicForm/SET-AF55.md](automorphicForm/SET-AF55.md) §3.3). The row
+`AutomorphicForm.CuspidalConstituent.exists_inf_archCutSubmodule_ofChar_ne_bot_of_ne_bot` (56 silo,
+pin `P2M/Sol/S_AutomorphicForm_CuspidalConstituent_exists_inf_archCutSubmodule_ofChar_ne_bot_of_ne_bot.lean`)
+is homed in `AutomorphicForm/Adelic/Cusp/ConstituentCharCut.lean` — a one-headline module — only
+because its subject home, `AutomorphicForm/Adelic/Cusp/CutWeightDecomposition.lean` (which holds the
+row's single premise), is still wired through the frozen `spec/old_check_stmts.py` `PORT_FILES`, and
+appending there would have dragged that module's whole legacy migration (a `spec-pin:` wire over a
+906-line pin source, the `PORT_FILES` deletion, a ~76-declaration public-surface diff) into the wave.
+
+**The debt**: when `CutWeightDecomposition` is next opened, move the declaration down into it, delete
+`ConstituentCharCut.lean`, and (if it is then the only declaration with that subject) keep the
+`spec-pin:` pair with the moved declaration. The statement does not change and the checker's reading
+of the declaration moves with it. Price: one file deletion plus a wire line; no mathematics.
+
+### The four generic type-submodule lemmas — transcribed twice, one home still owed
+
+`comp_mem_typeSubmodule_of_map`, `comp_mem_iSup_of_forall`,
+`commute_of_glArch_eq_one_of_glFin_eq_one` and `eq_of_glArch_eq_of_glFin_eq` are generic
+representation-theory rows (`{H G G' W} [Group …] [AddCommGroup W] [Module ℂ W]`, no automorphic-form
+content). The port holds the first three in `AutomorphicForm/Adelic/RightConvIntegral.lean` and the
+fourth as `CuspidalSpectrum.eq_of_glArch_eq_of_glFin_eq` in `AutomorphicForm/Adelic/Cusp/SpectrumLift.lean`;
+SET-AF55's A3 transcribes all four again in `AutomorphicForm/Adelic/TestFnInvariance.lean`, because
+both holding modules sit **above** it and importing is a cycle (FR-0191).
+
+**The debt**: their home is a `RepTheory` module below `RightConvIntegral` and below `TestFnInvariance`
+(`RepTheory/TypeSpan.lean` is the natural owner of the type-submodule span induction). Move them
+there, then delete the `RightConvIntegral` and `TestFnInvariance` copies and let `SpectrumLift` import
+the generic one. Price: four declarations (~47 lines) plus the three call sites' imports; no statement
+changes in the consuming modules. Until then both copies are public, checked where they are, and
+`dedup.py`'s `shape` clusters between them are the recorded ruling (SET-AF55 §3.4).
+
+### The cuspidal unfolding (`integral_mul_eq_integral_mul_weight_mul_tsum_sub_average_of_isCuspidalFn`, 635) — deferred at SET-AF56's scaffold
+
+Read off the D–S shelf and cut at the scaffold, not by preference: the row's **statement** needs the
+adele ring's `MeasurableSpace`/`SecondCountableTopology` instances, which the pin derives privately in
+the proof file and the port does not carry globally (FR-0194). The three things a definition-layer set
+has to settle first: the `attribute [local instance] NumberField.AdelicHaar.adeleBorel` convention (a
+per-module pin, not an instance), the v4.34 spelling of the finite-adeles second-countability
+(`NumberField.AdelicHaar.ProductMeasure.L1.secondCountableTopology_finiteAdeleRing`, a theorem), and
+whether the pin's `private scoped instance` block can be dropped wholesale against the port's
+`AdelicHaar/PlaceMeasure` scoped instances. Once that is settled the row is a straight transcription:
+31 declarations (30 `private` helpers plus one headline, 635 pin lines) over a single module, in the
+`AutomorphicForm` namespace at the pin's name. Its one premise
+(`NumberField.AdeleRing.finite_setOf_algebraMap_mem_of_isCompact`) is already ported
+(`NumberTheory/AdelicDiscreteness.lean`).
+
+### `Finset.map_noncommProd` inside `rw` — a v4.34 elaboration trap with a written cure (FR-0195)
+
+Not a debt but a recipe to reuse: `rw [Finset.map_noncommProd]` fails at v4.34 with "target expression
+is not type-correct under the `implicit` transparency level", because the lemma's right-hand side is
+`fun _ hx _ hy _ => (comm.forall₂ hx hy).map g` and `rw` elaborates patterns at *implicit*
+transparency. State the step as a closed `have` (default transparency) and `rw` with it. Found and
+cured in SET-AF56's row A (`RightConvProduct.iota_mulSingle`); the worked line pair is in
+[logs/frictions.md](logs/frictions.md) FR-0195. Any future port of a `noncommProd`/`noncommSum`
+argument (the Hecke-coset and `Finset.map` families) should expect it.
+
 ### Two dead prelude lemmas of the dual-cut node — dropped, not ported
 
 `orbitSpan_le_Ecf` (pin `S_ …archDualCutSubmodule_and_rightConv_eq.lean:268`) and
