@@ -1228,6 +1228,19 @@ consumer zone at 0 errors; the shelf moved 675 / 289,018 → **673 / 288,239** o
 readies its own consumer, `norm_integral_mul_le_mul_setIntegral_norm_of_isCuspidalFn` (210, lev 4/4) —
 the cuspidality bound U feeds, and the next cut of this chain.
 
+The fifty-eighth **is the cuspidality bound, and the global points' fundamental domain**
+(dispatched 2026-11-13): [automorphicForm/SET-AF58.md](automorphicForm/SET-AF58.md) — 3 rows / 567
+silo / ≈520 net in three new modules. It takes the row SET-AF57 readied (the cuspidality bound, 210,
+lev 4/4, the direct consumer of that set's unfolding) with the two rows of the story beside it — the
+global points' fundamental domain (165) and the Petersson self-pairing stated over it (192, lev 5/8,
+**16 public prelude rows**, the pairing's own toolkit). All three scaffolded, elaborated, built and
+checker-green before dispatch (`CuspidalityBound.lean` 141 lines / 14 `sorry` / **1 ok**;
+`PeterssonSelfPairing.lean` 175 / 14 / **17 ok**; `GlobalPointsDomain.lean` 109 / 9 / **1 ok**), the pin's
+`PetNe17` token rectified to `PeterssonSelfPairing`, no token left in a name. Two orders, disjoint files.
+One scaffold friction, FR-0197: a **`where`-bodied** declaration must be stubbed at its `where` — the
+pin's two `IsFundamentalDomain` structure literals were silently losing `ae_covers`/`aedisjoint` under
+the old "cut at the first `:=`" rule, which reads exactly like a mathlib-version field drift and is not.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

@@ -4200,3 +4200,27 @@ round promotes what generalizes.
   with those lines; its pin prelude's derived-instance block is dropped, and the drop is recorded in
   the module header as a prelude substitution (not a statement change).
 - **seen**: 2026-11-13, SET-AF57 (the deferral of SET-AF56 was resolved in one scaffold round).
+
+## FR-0197 [tooling/defeq] — a `where`-bodied declaration is stubbed at its `where`, not at its first `:=`; and `IsFundamentalDomain`'s field set at v4.34
+
+- **where**: SET-AF58's scaffold of C (`Adelic/GlobalPointsDomain.lean`), the pin's
+  `private theorem isFundamentalDomain_inter_restrict` and `…_iUnion_of_restrict`
+  (`S_AutomorphicForm_exists_isFundamentalDomain_globalPoints_range.lean:31`, `:54`).
+- **symptom**: after a mechanical stub, the module fails with `Fields missing: ae_covers, aedisjoint`
+  at the `IsFundamentalDomain` structure literal, then a cascade of "unsolved goals" in the same
+  declaration. It reads like a statement drift between the pin's mathlib (`v4.33.1`) and the port's
+  (`v4.34.0`).
+- **cause**: the pin writes the literal as
+  `IsFundamentalDomain G (⋃ k, S k) μ where` / `  nullMeasurableSet := …` / `  ae_covers := …` /
+  `  aedisjoint := …`. A stubber that cuts at the **first `:=`** cuts *inside* the literal: the first
+  field survives as `nullMeasurableSet := by sorry` and the remaining two are silently dropped, which
+  the elaborator reports as missing fields. The fields themselves are the same at both versions.
+- **fix / rule**: cut at the ` where` that ends the statement line (`re.search(r"[ \t]+where[ \t]*\n", …)`
+  and replace it by ` := by\n  sorry`), so the whole structure literal becomes one `sorry` body — the
+  same rule as FR-0188's "cut at `:= by`, fall back to the first `:=` only when the body is a term",
+  with the missing case now named. A `where`-bodied declaration is *never* a term body.
+- **also recorded here**: the same scaffold needed `open NumberField.TateGlobal` for `ideleNorm` in
+  `PeterssonSelfPairing` (the pin opens it at file level, and nothing in the port's
+  `AutomorphicForm.Adelic` modules had made it reachable), and the pin's two `haveI`s in
+  `scoped instance instCountableΓ` are `have`s at v4.34 (FR-0173's family).
+- **seen**: 2026-11-13, SET-AF58 (one generator round; the fix is in `tmp/af5{6,7,8}/gen.py`).
