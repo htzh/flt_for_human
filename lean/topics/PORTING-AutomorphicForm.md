@@ -1291,6 +1291,25 @@ level. The scaffold also readied `isotypicCuspSubmodule_bot_eq_bot_of_production
 one environment drift is FR-0199 (the pin's `Nat.card`/`Fintype` tail leans on a `Finite → Fintype`
 instance the port does not register).
 
+The sixty-second **is the adelic box's periodic integral and the arch × finite factorization**
+(**landed 2026-11-13**): [automorphicForm/SET-AF62.md](automorphicForm/SET-AF62.md) — 3 rows / 452 silo
+/ ≈430 net in two new modules, and the column's first **`NumberField` measure-theory** set: the
+adelic-box pair that SET-AF53 cut at its scoping ("its statement layer needs a further import
+investigation") is now on the shelf, and goes with the arch × finite factorization of the adelic integral.
+Both scaffolded, elaborated, built and checker-green before dispatch
+(`NumberTheory/AdelicBoxPeriodicIntegral.lean` 193 lines / 11 `sorry` / **13 ok**;
+`NumberTheory/AdelicHaar/ArchFiniteFactorization.lean` 156 / 14 / **19 ok**), the pin's `C7B17`,
+`FltWs24` and `Ws1`/`Ts` tokens rectified to word namespaces. It **landed the same day**: 169 written proof
+lines over 349 scaffold lines, 25 → 0 `sorry`s, all three headlines axiom-clean, `move_dead` clean, the
+two `dedup` clusters pin-inherent (each module's headline against its `main`, both public API), both
+consumer zones at 0 errors; `needed` moved 665 / 286,436 → **662 / 285,984**. The box module applies
+FR-0194/FR-0196's per-module `adeleBorel` pinning again, and the set readied
+`AutomorphicForm.constantTerm_adelicBox_globalPoints_mul_of_mem_borelSubgroup`. **One finding worth the
+column**: a pin binder its own proof never spends (`hh : Measurable h` in the box `main`) can be *spent*
+instead of silenced — replace the pin's measurability-free `setLIntegral_comp_emb` step by the
+`Measurable`-taking sibling `setLIntegral_comp_preimage`. That is the answer this class needed where
+FR-0198 had none: look for a sibling lemma that takes the unused hypothesis.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /
