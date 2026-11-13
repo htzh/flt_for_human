@@ -29,6 +29,7 @@
 import FLTForHuman.ModularCurve.Analytic.CuspBookkeeping
 import FLTForHuman.ModularCurve.Analytic.FrickeAut
 import FLTForHuman.ModularCurve.Degree.PhiDegree
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.ModularPolynomialExistence
 import FLTForHuman.ModularCurve.Defs.GeometricBaseChange
 import FLTForHuman.AlgebraicCurve.WeilExchange.FiberOverCount
 import FLTForHuman.AlgebraicCurve.WeilExchange.GaloisRamification
@@ -194,8 +195,7 @@ theorem he_compat :
   rw [φ_apply, AlgEquiv.apply_symm_apply]
 
 theorem finite_ratFunc : Module.Finite (RatFunc 𝕂) (modularFunctionFieldBar ℓ) := by
-  have hℓ : ℓ.Prime := Fact.out
-  obtain ⟨data⟩ := nonempty_modularPolynomialData_of_squarefree ℓ hℓ.squarefree hℓ.one_lt
+  obtain ⟨data⟩ := nonempty_modularPolynomialData ℓ
   have := finiteDimensional_adjoin_jqNModC 𝕂 data
   exact Module.Finite.of_equiv_equiv (σa.symm.toRingEquiv : 𝕂⟮jqModC 𝕂⟯ ≃+* RatFunc 𝕂) (jTr ℓ)
     (he_compat ℓ)
@@ -203,8 +203,7 @@ theorem finite_ratFunc : Module.Finite (RatFunc 𝕂) (modularFunctionFieldBar �
 attribute [local instance] finite_ratFunc
 
 theorem finrank_le : Module.finrank (RatFunc 𝕂) (modularFunctionFieldBar ℓ) ≤ ℓ + 1 := by
-  have hℓ : ℓ.Prime := Fact.out
-  obtain ⟨data⟩ := nonempty_modularPolynomialData_of_squarefree ℓ hℓ.squarefree hℓ.one_lt
+  obtain ⟨data⟩ := nonempty_modularPolynomialData ℓ
   rw [← Algebra.finrank_eq_of_equiv_equiv (σa.symm.toRingEquiv : 𝕂⟮jqModC 𝕂⟯ ≃+* RatFunc 𝕂) (jTr ℓ)
     (he_compat ℓ), ← dedekindPsi_prime ℓ]
   exact finrank_adjoin_jqNModC_le 𝕂 data
@@ -348,8 +347,7 @@ theorem finrank_adjoin_jqNModC_eq_of_prime (ℓ : ℕ) [Fact ℓ.Prime] :
           ({jqModC (AlgebraicClosure ℚ)} : Set (LaurentSeries (AlgebraicClosure ℚ))))
         ({jqNModC (AlgebraicClosure ℚ) ℓ} : Set (LaurentSeries (AlgebraicClosure ℚ)))) = ℓ + 1 := by
   apply le_antisymm
-  · have hℓ : ℓ.Prime := Fact.out
-    obtain ⟨data⟩ := nonempty_modularPolynomialData_of_squarefree ℓ hℓ.squarefree hℓ.one_lt
+  · obtain ⟨data⟩ := nonempty_modularPolynomialData ℓ
     simpa [TwoCuspAux.dedekindPsi_prime ℓ] using finrank_adjoin_jqNModC_le (AlgebraicClosure ℚ) data
   · have h := TwoCuspAux.le_finrank ℓ
     rw [← TwoCuspAux.finrank_tower_eq ℓ] at h

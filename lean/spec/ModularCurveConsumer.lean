@@ -780,8 +780,8 @@ example (N : ℕ) [NeZero N] : FunctionFieldGeneration N := ModularCurve.functio
 capstone by FLT's own strong induction: `ModularCurve.functionFieldGeneration` is
 unconditional, and the corollary layer (`modularFunctionField_eq_full`,
 `finrank_adjoin_jqN_eq_dedekindPsi`, `relfinrank_full_eq_dedekindPsi`) is public.
-The interface tail (`exists_monic_evalAtJ_jqN_eq_zero`,
-`exists_phiIrreducible_of_finrank_eq`, `exists_phiIrreducible`) lives in
+The interface tail (`exists_monic_evalAtJ_jqN_eq_zero`, `dataMinpoly`,
+`nonempty_modularPolynomialData`) lives in
 `ModularPolynomialExistence.lean`. The Zone A example above is the same theorem.
 The file carries no `sorry`. -/
 
@@ -789,15 +789,13 @@ The file carries no `sorry`. -/
 #check @ModularCurve.finrank_adjoin_jqN_eq_dedekindPsi
 #check @ModularCurve.relfinrank_full_eq_dedekindPsi
 #check @ModularCurve.exists_monic_evalAtJ_jqN_eq_zero
-#check @ModularCurve.exists_phiIrreducible_of_finrank_eq
-#check @ModularCurve.exists_phiIrreducible
+#check @ModularCurve.dataMinpoly
 
-example (N : ℕ) [NeZero N] : ∃ data : ModularPolynomialData N, PhiIrreducible data :=
-  ModularCurve.exists_phiIrreducible N
+example (N : ℕ) [NeZero N] : ModularPolynomialData N :=
+  ModularCurve.dataMinpoly N
 
--- The pin's existence corollary, taken from the port's stronger irreducible
--- statement instead of FLT's `minpoly` block (see `Capstone.lean`). The second
--- example composes it with the datum's fields from `Defs/Polynomial.lean`.
+-- The pin's existence corollary, now the canonical datum. The example below
+-- composes it with the datum's fields from `Defs/Polynomial.lean`.
 #check @ModularCurve.nonempty_modularPolynomialData
 example (N : ℕ) [NeZero N] : Nonempty (ModularPolynomialData N) :=
   ModularCurve.nonempty_modularPolynomialData N

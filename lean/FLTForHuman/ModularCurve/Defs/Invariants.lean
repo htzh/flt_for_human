@@ -1,14 +1,8 @@
 /-
   Layer 0c \u2014 the strong induction's invariants: the port's own consequences.
 
-  Two port-own packagings, stated once because two modules need each:
+  Two port-own packagings, stated once because more than one module needs each:
 
-  * `isIntegral_adjoin_jqN`, `natDegree_minpoly_jqN` \u2014 from `Tight M` (the adjoin of
-    `jqN M` has finite positive dimension) to the integrality of `jqN M` and the degree
-    of its minimal polynomial. The slot argument and the non-membership argument each
-    used to write these out; the pin has them inline in its slot files and under
-    `ModularPolynomialData` hypotheses, never from `Tight`, so there is no pin
-    declaration to diff against.
   * `mff_congr`, `full_congr` \u2014 transport of `modularFunctionField`/`modularFunctionFieldFull`
     along an equality of levels, `subst`-based so that the `NeZero` instances travel with the
     level. Both were `private` copies in two modules (the degree data and the capstone); the
@@ -46,33 +40,6 @@ theorem mff_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
 theorem full_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
     modularFunctionFieldFull n = modularFunctionFieldFull m := by
   subst h; rfl
-
-/-- **Integrality of `jqN M` over the base field**: `hall` gives the adjoin of `jqN M` the
-positive finite dimension `ψ(M)`, so `jqN M` is integral over `ℚ⟮jq⟯`. -/
-theorem isIntegral_adjoin_jqN {M : ℕ} [NeZero M]
-    (htM : Module.finrank ℚ⟮jq⟯
-      (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ))) = dedekindPsi M) :
-    IsIntegral ℚ⟮jq⟯ (jqN M) := by
-  have hfd : FiniteDimensional ℚ⟮jq⟯
-      (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ))) :=
-    FiniteDimensional.of_finrank_pos (htM ▸ dedekindPsi_pos _ (NeZero.ne M))
-  exact IntermediateField.isIntegral_iff.mp (IsIntegral.of_finite ℚ⟮jq⟯
-    (⟨jqN M, IntermediateField.subset_adjoin ℚ⟮jq⟯ _ rfl⟩ :
-      IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ))))
-
-/-- **The degree of the minimal polynomial**: `minpoly ℚ⟮jq⟯ (jqN M)` has degree `ψ(M)`,
-the dimension of the adjoin. -/
-theorem natDegree_minpoly_jqN {M : ℕ} [NeZero M]
-    (htM : Module.finrank ℚ⟮jq⟯
-      (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ))) = dedekindPsi M) :
-    (minpoly ℚ⟮jq⟯ (jqN M)).natDegree = dedekindPsi M := by
-  have hfd : FiniteDimensional ℚ⟮jq⟯
-      (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN M} : Set (LaurentSeries ℚ))) :=
-    FiniteDimensional.of_finrank_pos (htM ▸ dedekindPsi_pos _ (NeZero.ne M))
-  rw [← IntermediateField.adjoin.finrank (isIntegral_adjoin_jqN htM)]
-  exact htM
-
-
 
 /-- **`Gen` at a prime is definitional**: `modularFunctionField p =
 modularFunctionFieldFull p = ℚ(j, j(q ^ p))`. This is T19's substitution: it

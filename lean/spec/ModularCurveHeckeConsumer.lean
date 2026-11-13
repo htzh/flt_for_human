@@ -261,13 +261,13 @@ example (hmem : modularUnitSeries 2 ∈ modularFunctionFieldFull 2) :
 /-! ## Zone D — `[degree]` m6's Φ datum family and degree tail -/
 
 -- The pinned statements.
-#check @nonempty_modularPolynomialData_of_squarefree
+#check @nonempty_modularPolynomialData
 #check @finrank_adjoin_jqNModC_le
 #check @transcendental_jqModC
 
 -- The Φ datum at `N = 2`, its degree bound, and `jqModC`'s transcendence.
 example : Nonempty (ModularPolynomialData 2) :=
-  nonempty_modularPolynomialData_of_squarefree 2 Nat.squarefree_two (by norm_num)
+  nonempty_modularPolynomialData 2
 example (data : ModularPolynomialData 2) : Module.finrank
     (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
     (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))

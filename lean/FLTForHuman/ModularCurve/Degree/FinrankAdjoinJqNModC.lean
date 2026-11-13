@@ -278,7 +278,7 @@ theorem finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket {K : Type*} [Field K] (d
     fun (p : ℕ) [Fact (Nat.Prime p)] hp =>
       jqNModC_prime_not_mem_adjoin_of_ringHom (algebraMap K (AlgebraicClosure K)) p (hbase p hp)
   have htight' := (ModularCurve.package_of_socket d _ hζ hbase' d dvd_rfl).1
-  obtain ⟨data, -⟩ := ModularCurve.exists_phiIrreducible d
+  obtain ⟨data⟩ := ModularCurve.nonempty_modularPolynomialData d
   exact finrank_adjoin_jqNModC_eq_of_map (algebraMap K (AlgebraicClosure K)) d data htight'
 
 /-- **The socket's degree formula, unconditionally in characteristic zero**:
