@@ -3843,7 +3843,18 @@ round promotes what generalizes.
   close the import block over those modules — the pin's `Theorems/` imports are the list to translate,
   not to drop. Cheap check before dispatch: for each declaration in the module, `#check` its premises
   from the scaffold's imports only.
-- **seen**: 2026-11-12, SET-AF47 (one edge, 47C).
+- **seen**: 2026-11-12, SET-AF47 (one edge, 47C); SET-AF49 (`Mathlib.FieldTheory.KummerExtension` and
+  `ValuationSubringCompleteSplitting`); and — the worst instance so far — SET-AF50A, where **two** port
+  modules were missing (`AlgebraicCurve/Genus/DegreeIdentity` for the divisor-degree identity,
+  `AlgebraicCurve/ResidueTheorem/RRAssembly` for `constantsAreBase_of_deg_eq_one`), blocking a whole
+  dependency chain (`zsum_sub_algebraMap` → `zsum_phi_le` → `zsum_eq_zsum_residue` → the headline) while 42
+  independent `sorry`s were unblocked. The worker computed the import closure of all 14 frozen project
+  imports (32 modules) to prove the lemma was unreachable and asked; the manager granted the imports.
+  **The rule, stated sharply**: translate *every* pin `Theorems/Thm_*` import a file cites into the port
+  module that declares it — the audit's premise list gives the names, `tools/deps/build/af47-audit.py`-style
+  scripts or a name→module index give the homes — and check *that* closure, not the pin's own import list.
+  When the closure is uncertain, the order should say "add the specific project import you need and record
+  it", instead of freezing a list the manager is not sure of.
 
 ## FR-0182 [lean] — a `local instance` does not travel through `import`: the consumer must re-install it
 
@@ -3912,3 +3923,45 @@ round promotes what generalizes.
   and a repeated name is the signal.
 - **seen**: 2026-11-12, SET-AF48A's order; the worker followed the pin and reported the discrepancy (correct
   behaviour — the pin's text wins over a manager's table).
+
+## FR-0186 [checker] — a headline that lands inside the pin's file-level `P2MW.S_…` namespace reads `1 ok`, because the checker matches *content*, not the name a consumer uses
+
+- **where**: SET-AF51's `NumberTheory/NumberField/CompletedDedekindZeta/RegularizedZeta.lean` (found by the
+  manager at the landing, after the worker's gates were green).
+- **symptom**: the module's single headline was declared at
+  `P2MW.S_NumberField_exists_differentiable_eq_sub_one_mul_dedekindZeta_and_apply_neg_two_mul_add_one_eq_zero.NumberField.exists_differentiable_eq_sub_one_mul_dedekindZeta_and_apply_neg_two_mul_add_one_eq_zero`
+  instead of `NumberField.exists_differentiable_eq_sub_one_mul_dedekindZeta_and_apply_neg_two_mul_add_one_eq_zero`
+  (the wrapper's name). `check_port --force` read **1 ok, 0 mismatch, 0 missing** in both cases, the module
+  elaborated silently, `#print axioms` on the *mangled* name was clean, and the consumer zone compiled —
+  because the worker had qualified the call with the mangled name.
+- **cause**: the scaffold's slice for that pin file started at its `namespace P2MW.S_…` line (the other
+  scaffolds start at the label namespace below it), so the wrapper's fully-qualified `theorem NumberField.…`
+  was appended *inside* the pin's file-level namespace. The checker hashes normalised statement text and
+  matches by name *tier*, so a declaration one namespace too deep is still "the same statement"; and the
+  consumer zone, written against the same (wrong) name, cannot see the defect either.
+- **fix / rule**: **assert the headline's name, not only its statement.** In the generation script, drop the
+  pin's file-level `namespace P2MW.S_…` (it is tooling, like `p2m_*`); in the landing check, `#check` each
+  wrapper's qualified name in a scratch probe **after the module's `lake build`** (`#check` reads the olean,
+  so an unbuilt edit hides the defect — this cost one round trip here), and require the consumer zone to
+  call the wrapper's name with no namespace prefix beyond it. A consumer that needs a `P2MW.`-prefixed name
+  is the signal.
+- **seen**: 2026-11-12, SET-AF51 (one module, one headline, fixed by deleting one line and one consumer
+  qualification).
+
+## FR-0187 [lean] — a `P.ord` argument that mixes a subtype coercion with a raw term costs ≥2,000,000 heartbeats; the pin's one-line `exact` does not fit in the port
+
+- **where**: SET-AF50A, `AlgebraicCurve/RegularProlongationSumOrdResidue.lean`, the proof of
+  `ord_add_algebraMap_eq_zero` (pin `S_…sum_ord_eq_sum_ord_residue…:101`).
+- **symptom**: the pin's proof — `have := ord_eq_zero_of_isUnit P (isUnit_nonunit_add_algebraMap P hm hc); exact this`
+  — times out at the 200,000-heartbeat gate (`whnf` timeout), and the worker measured that it needs
+  **≥ 2,000,000** (probes `lean/tmp/af50/probe{7,9,11}.lean`). The statement is untouched and the module's
+  other 459 lines fit at 100,000.
+- **cause**: the `P.ord` argument is `↑(⟨m, _⟩ + ⟨algebraMap …, _⟩)` on one side and the raw
+  `m + algebraMap K F c` on the other; `isDefEq` will not take the syntactic path and unfolds the
+  `Subtype`/`Submonoid` coercion and the `ord` definition to compare them.
+- **fix / rule**: never ask for that defeq — rewrite *through* the coercion instead of unifying under it.
+  The replacement used: `obtain ⟨w, hw⟩ := …; have hwF := congrArg Subtype.val hw; rw [← hwF]; exact
+  P.ord_coe_unit w`. This is the §6 "spell the terms / name the bridge" family (the zeta and `Subtype.val`
+  rows), with the specific tell that the *pin* proof is one line: a one-line pin proof that needs a
+  seven-figure budget is always a defeq trap, never a long proof.
+- **seen**: 2026-11-12, SET-AF50A (one declaration; measured with a probe ladder, no cap raised).

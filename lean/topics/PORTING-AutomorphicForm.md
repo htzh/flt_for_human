@@ -1079,6 +1079,36 @@ own story. Two instrument findings recorded on the way: a scaffold must price **
 (FR-0184 — `port_plan` reads the scaffold as "already in the port", 2,100 lines of AF48 collapsed to
 "net 13"), and the pin's per-file `maxHeartbeats` is a risk marker to be probed, not carried.
 
+The fiftieth **is landed** (2026-11-12): [automorphicForm/SET-AF50.md](automorphicForm/SET-AF50.md), the
+**ord equality of a chart** and the **residue map's surjectivity at equal genus** — the two rows AF48's
+landing readied. **2 rows / 1,303 silo / ≈1,100 net in 80 declaration groups**, two new modules
+(`AlgebraicCurve/RegularProlongationSumOrdResidue.lean` 355 → **798** lines / 53 declarations /
+**54 ok** / 46 → 0 `sorry`, `AlgebraicCurve/RegularProlongationResidueIntegralClosure.lean` 252 → **573** /
+24 / **26 ok** / 23 → 0), the pin's structure verbatim and its labels rectified (`SOSR` →
+`SumOrdResidue`, `CbPrime` → `ResidueIntegralClosure`). Two concurrent orders; B1 is the set's
+**seventeen-premise** row and got its own order and wall time — and it closed positive (all seventeen
+premises strong enough for the pin's proof verbatim; the only gap was the scaffold's import cone). **AF50+AF51
+together moved `needed` 703 / 294,693 → 699 / 292,705** (the four rows' 1,988 lines exactly), `AC` demand
+38 / 13,813 → **36 / 12,510**, `NumberField` demand 99 / 34,198 → **97 / 33,513**, and readied **one row /
+398**. Findings: the manager's import cone omitted two port modules that block a whole chain (FR-0181,
+third and worst instance — the worker proved the lemmas unreachable by computing the closure of all 14
+frozen imports before asking); a one-line pin proof needing ≥2,000,000 heartbeats is a `Subtype.val`-under-
+`ord` defeq trap, rewritten rather than budgeted (FR-0187); and one headline landed in the pin's
+file-level `P2MW` namespace with the checker reading `1 ok` (FR-0186 — the checker matches content, so a
+headline's *name* must be asserted too).
+
+The fifty-first **is landed** (2026-11-12): [automorphicForm/SET-AF51.md](automorphicForm/SET-AF51.md),
+the **Euler product of the Dedekind zeta** and the **regularized zeta** — the column's first
+`NumberField.CompletedDedekindZeta` set since that package landed. **2 rows / 685 silo / ≈630 net in 44
+groups**: `…/CompletedDedekindZeta/EulerProduct.lean` (252 lines, 43 declarations, **43 ok**, 38 `sorry`s,
+the nine data definitions incl. the scoped `finite_fiber` instance) and `…/CompletedDedekindZeta/RegularizedZeta.lean`
+(54 lines, 1 declaration, **1 ok**, 1 `sorry` — the whole 105 pin lines, and **18 in-graph consumers**, the
+column's cheapest high-leverage row in a long time). The pin's machine label `Ws41` is rectified to
+`EulerProduct`, `N1bProof` to `ArchimedeanNormalization`; one v4.34 deprecation applied at generation
+(`Ideal.finite_setOf_absNorm_eq` → `…setOfPred_absNorm_eq`, now a drift-table row). The two rows are priced
+at ≈1,100 and ≈630 net, and both briefs state the FR-0184 caveat explicitly: `port_plan` on the scaffolded
+tree reads "net 19" and "net 8" because the scaffolds themselves are in the port.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

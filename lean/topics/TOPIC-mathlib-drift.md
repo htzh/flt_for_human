@@ -16,7 +16,10 @@ API drift is the recurring real cost. **The pin is not on this line**:
 | `Polynomial.finite_setOf_isRoot` | `Polynomial.finite_setOfPred_isRoot` |
 | `Polynomial.finset_sum_coeff` | `Polynomial.finsetSum_coeff` (v4.34 rename; the old name is a `@[deprecated]` alias — `DeuringNormResidue:193`, and SET-AF49's `RegularProlongationGaussDegree` :98, :109) |
 | `Polynomial.eval₂_finset_sum` | `Polynomial.eval₂_finsetSum` (same v4.34 `_sum` → `Sum` family; one site, SET-AF49's `RegularProlongationGaussDegree` :159) |
+| `Finset.prod_le_prod (nonneg) (bound)` | `Finset.prod_le_prod₀ (nonneg) (bound)` — **not** a rename to skip: v4.34's `prod_le_prod` now requires `[MulLeftMono N]`, which is false for `ℝ`/`ℂ`, so the old spelling is a *type* error, not a deprecation. One site, SET-AF51's `EulerProduct` :442 |
+| `Prime.not_unit` | `Prime.not_isUnit` (three sites, SET-AF51's `EulerProduct` :142, :148, :207) |
 | `Set.mem_setOf_eq` | `Set.mem_ofPred_eq` |
+| `Ideal.finite_setOf_absNorm_eq` | `Ideal.finite_setOfPred_absNorm_eq` (the same `setOf` → `setOfPred` family; one site, SET-AF51's `EulerProduct` `finite_fiber` instance) |
 | `Affine.Nonsingular x y` | `W.toAffine.Nonsingular x y` (curve explicit) |
 | `Submodule.card_bot` | does not exist — `AddSubgroup.card_bot` |
 | `Submodule.mem_torsionBy_iff.mp` | takes explicit args: `(… _ _).mp` |
