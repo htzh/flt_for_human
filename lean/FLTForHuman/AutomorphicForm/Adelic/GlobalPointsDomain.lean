@@ -44,7 +44,6 @@ attribute [local instance] NumberField.AdelicHaar.glBorel NumberField.AdelicHaar
 
 namespace GlobalPointsDomain
 
-set_option autoImplicit false
 
 open MeasureTheory NumberField
 open NumberField.AdelicHaar

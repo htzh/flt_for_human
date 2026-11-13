@@ -1229,7 +1229,7 @@ readies its own consumer, `norm_integral_mul_le_mul_setIntegral_norm_of_isCuspid
 the cuspidality bound U feeds, and the next cut of this chain.
 
 The fifty-eighth **is the cuspidality bound, and the global points' fundamental domain**
-(dispatched 2026-11-13): [automorphicForm/SET-AF58.md](automorphicForm/SET-AF58.md) — 3 rows / 567
+(**landed 2026-11-13**): [automorphicForm/SET-AF58.md](automorphicForm/SET-AF58.md) — 3 rows / 567
 silo / ≈520 net in three new modules. It takes the row SET-AF57 readied (the cuspidality bound, 210,
 lev 4/4, the direct consumer of that set's unfolding) with the two rows of the story beside it — the
 global points' fundamental domain (165) and the Petersson self-pairing stated over it (192, lev 5/8,
@@ -1237,9 +1237,31 @@ global points' fundamental domain (165) and the Petersson self-pairing stated ov
 checker-green before dispatch (`CuspidalityBound.lean` 141 lines / 14 `sorry` / **1 ok**;
 `PeterssonSelfPairing.lean` 175 / 14 / **17 ok**; `GlobalPointsDomain.lean` 109 / 9 / **1 ok**), the pin's
 `PetNe17` token rectified to `PeterssonSelfPairing`, no token left in a name. Two orders, disjoint files.
-One scaffold friction, FR-0197: a **`where`-bodied** declaration must be stubbed at its `where` — the
-pin's two `IsFundamentalDomain` structure literals were silently losing `ae_covers`/`aedisjoint` under
-the old "cut at the first `:=`" rule, which reads exactly like a mathlib-version field drift and is not.
+It **landed the same day**: 249 written proof lines over 425 scaffold lines, 37 → 0 `sorry`s, all three
+headlines axiom-clean, `dedup`/`move_dead` clean, both consumer zones at 0 errors; `needed` moved
+673 / 288,239 → **670 / 287,672**. One scaffold friction, FR-0197: a **`where`-bodied** declaration must
+be stubbed at its `where` — the pin's two `IsFundamentalDomain` structure literals were silently losing
+`ae_covers`/`aedisjoint` under the old "cut at the first `:=`" rule, which reads exactly like a
+mathlib-version field drift and is not. One dedup candidate registered: `PeterssonSelfPairing`'s prelude
+restates a `dn`/`slab` block the port already has in `PeterssonSlabPairing` (the pin's own duplication,
+kept as landed).
+
+The fifty-ninth **is the Whittaker ODE's string linear dependence and the tower's `rpow` bound**
+(**landed 2026-11-13**): [automorphicForm/SET-AF59.md](automorphicForm/SET-AF59.md) — 2 rows / 690 silo
+/ ≈640 net, the column's first **`LanglandsTunnell`** set: the string form of the linear dependence the
+`WhittakerODELinearDependence` module already carries (361, appended beside its premise) and the
+near-zero `rpow` bound of the discrete polynomial tower (329), which the port's two near-zero modules
+**cannot** host because both sit below the linear-dependence row (FR-0191) — so it is a new module
+importing them. Both scaffolded, elaborated, built and checker-green before dispatch
+(`WhittakerODELinearDependence.lean` 754 → 869 lines / 7 `sorry` / **3 ok**;
+`WhittakerODETowerBound.lean` 187 / 30 / **41 ok**, its `RS11HW` token rectified to `TowerBound`).
+It **landed the same day**: 445 written proof lines over 548 scaffold lines, 37 → 0 `sorry`s, both
+headlines axiom-clean, `dedup`/`move_dead` clean, two consumer zones at 0 errors; `needed` moved
+670 / 287,672 → **668 / 286,982**. One review-level improvement worth the column's rule: the worker,
+whose imports were frozen, re-proved mathlib's `Polynomial.hasDerivAt` as a private 16-line helper; the
+manager added the one import, deleted the helper and its call sites were replaced — the file came out 14
+lines shorter. A private re-proof that exists only because of a frozen import list is a debt the manager
+pays at review.
 
 ## 6. Verification and wiring
 

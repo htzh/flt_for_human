@@ -1,6 +1,6 @@
 # SET-AF58 — the cuspidality bound, and the global points' fundamental domain
 
-**Status: order A landed, order B in flight (2026-11-13).** Read off the D–S shelf after SET-AF57. The
+**Status: LANDED (2026-11-13).** Read off the D–S shelf after SET-AF57. The
 fifty-eighth set of the column, and it takes the row AF57 readied (the cuspidality bound, the direct
 consumer of that set's unfolding) together with the two rows of the story beside it — the global
 points' fundamental domain and the Petersson self-pairing built on it.
@@ -148,9 +148,39 @@ do resolve qualified within the file at v4.34); and the pin's `haveI : OpensMeas
 as redundant under the module's own `attribute [local instance] … glBorel` block — which is exactly
 FR-0194/FR-0196's per-module instance policy, and the `haveI` would also trip the style linter.
 
-### 6.2 Order B — the fundamental domain and the Petersson self-pairing
+### 6.2 Order B — the fundamental domain and the Petersson self-pairing (landed 2026-11-13)
 
-In flight at the time of writing; appended here when it reports.
+Two rows, two modules, **146 written proof lines** (101 + 45), 23 `sorry`s → **0**, no imports and no
+`set_option` added (the one duplicate `autoImplicit false` the generator carried from the pin's prelude
+was removed at review), statements untouched.
+
+| file | lines | decls | `sorry` | build | `check_port` | axioms |
+|---|---:|---:|---:|---|---|---|
+| `Adelic/GlobalPointsDomain.lean` | 109 → **210** | 10 | 9 → **0** | 4,065 jobs, silent | **1 ok / 0 / 0** | clean |
+| `Adelic/PeterssonSelfPairing.lean` | 175 → **220** | 19 | 14 → **0** | 4,066 jobs, 4.2 s, silent | **17 ok / 0 / 0** | clean |
+
+`dedup --within` (all tiers): 0 clusters, 0 removable, on both. `move_dead --dry-run`: 0 declarations,
+0 lines, on both. Consumer zone `spec/AutomorphicFormSetAF58BConsumer.lean` (92 lines, two executed
+compositions: C's `D` spent on `IsFundamentalDomain.measure_eq_tsum`, B's headline on
+`0 < (peterssonIntegral …).re`): **0 errors**, no `#check`, no `sorry`.
+
+**FR-0197 paid off**: C's two restriction lemmas are the pin's `where` structure literals with all three
+fields — the field set had not drifted, exactly as the friction entry says.
+
+Five body-level deviations, all recorded by the worker: the pin's term-mode proofs written as `:= by …`;
+`mem_setOf_eq`/`diff_*`/`mem_diff` → `Set.mem_ofPred_eq`/`Set.sdiff_*`/`Set.mem_sdiff` (v4.34
+deprecations that would otherwise break the zero-warning gate); C's headline referring to the private
+helpers as `GlobalPointsDomain.<name>` (it sits outside their namespace and no `open` may be added);
+B's positivity row supplying the slab `SMulInvariantMeasure` **positionally** through `@` because the
+pin's `haveI` trips the style linter and the instance binder is anonymous (a silencer is forbidden); and
+B's four genuinely unused frozen binders referenced by `have _ := …` to keep `unusedVariables` silent.
+
+**Cross-check worth noting**: the worker found that the port's existing
+`AutomorphicForm/Adelic/PeterssonSlabPairing.lean` already carries port-shaped proofs of the same
+`dn_*`/`slab` rows — so `PeterssonSelfPairing`'s prelude duplicates a ported block. That is the **pin's**
+duplication (its file restates the toolkit), and the two modules were kept as landed;
+`dedup.py`'s cross-module scan reports 0 clusters because the statements differ by the `dn`/`slab`
+abbreviations' binder spelling. Registered as a dedup candidate rather than cut here.
 
 ## 7. Reproduce
 
