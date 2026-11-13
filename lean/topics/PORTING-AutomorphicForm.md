@@ -1209,6 +1209,25 @@ the column: FR-0195, `Finset.map_noncommProd` cannot be used inside `rw` at v4.3
 `comm.forall₂` needs unfolding and `rw` elaborates at implicit transparency) — state the map step as a
 closed `have` instead, with no silencer and no cap.
 
+The fifty-seventh **is the cuspidal unfolding and the constant term's unipotent invariance**
+(**landed 2026-11-13**): [automorphicForm/SET-AF57.md](automorphicForm/SET-AF57.md) — 2 rows / 779
+silo / ≈700 net in two new modules, and the **deferral SET-AF56 recorded gets paid**: the cuspidal
+unfolding (635) was cut there because its statement layer needed the adele ring's instance layer; the
+manager's definition-layer work is FR-0196's three steps (pin `adeleBorel`/`glBorel` **inside** the
+section — before the `variable` they name no `K` and do nothing — and `open scoped ProbabilityTheory`
+for the `μ[|s]` macro), with the pin's eight derived `private scoped instance`s **dropped** in favour of
+the port's per-module convention. With them the 635-line statement elaborates in one probe, and the set
+is scaffolded, elaborated, built and checker-green before dispatch
+(`Adelic/CuspidalUnfolding.lean` 274 lines / 31 `sorry` / **1 ok**, its 30 helpers `private` in the pin;
+`Adelic/ConstantTermUnipotent.lean` 110 lines / 6 `sorry` / **6 ok**, the pin's five prelude rows being
+public — its label token `M4aP3B.Rows` rectified to the word namespace `UnipotentInvariance`). The second
+row is a leaf with **14 project consumers**, the constant-term invariance U's proof spends. It **landed the same day**: 406 written proof lines over 384 scaffold lines, 37 `sorry`s → 0, both
+headlines axiom-clean, `dedup` clean and `move_dead` clean apart from one tool false positive
+(`regular_adelicAddHaar` is live through `attribute [local instance]`, which the tool does not model),
+consumer zone at 0 errors; the shelf moved 675 / 289,018 → **673 / 288,239** on the scaffolds. The set
+readies its own consumer, `norm_integral_mul_le_mul_setIntegral_norm_of_isCuspidalFn` (210, lev 4/4) —
+the cuspidality bound U feeds, and the next cut of this chain.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

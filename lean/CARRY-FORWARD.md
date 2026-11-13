@@ -110,7 +110,7 @@ the generic one. Price: four declarations (~47 lines) plus the three call sites'
 changes in the consuming modules. Until then both copies are public, checked where they are, and
 `dedup.py`'s `shape` clusters between them are the recorded ruling (SET-AF55 §3.4).
 
-### The cuspidal unfolding (`integral_mul_eq_integral_mul_weight_mul_tsum_sub_average_of_isCuspidalFn`, 635) — deferred at SET-AF56's scaffold
+### The cuspidal unfolding (`integral_mul_eq_integral_mul_weight_mul_tsum_sub_average_of_isCuspidalFn`, 635) — deferred at SET-AF56's scaffold, **homed at SET-AF57**
 
 Read off the D–S shelf and cut at the scaffold, not by preference: the row's **statement** needs the
 adele ring's `MeasurableSpace`/`SecondCountableTopology` instances, which the pin derives privately in
@@ -119,11 +119,13 @@ has to settle first: the `attribute [local instance] NumberField.AdelicHaar.adel
 per-module pin, not an instance), the v4.34 spelling of the finite-adeles second-countability
 (`NumberField.AdelicHaar.ProductMeasure.L1.secondCountableTopology_finiteAdeleRing`, a theorem), and
 whether the pin's `private scoped instance` block can be dropped wholesale against the port's
-`AdelicHaar/PlaceMeasure` scoped instances. Once that is settled the row is a straight transcription:
-31 declarations (30 `private` helpers plus one headline, 635 pin lines) over a single module, in the
-`AutomorphicForm` namespace at the pin's name. Its one premise
-(`NumberField.AdeleRing.finite_setOf_algebraMap_mem_of_isCompact`) is already ported
-(`NumberTheory/AdelicDiscreteness.lean`).
+`AdelicHaar/PlaceMeasure` scoped instances. **Resolved the next day.** The three things are FR-0196's three steps (`adeleBorel`/`glBorel` pinned
+**inside** the section, and `open scoped ProbabilityTheory` for `μ[|s]`), and with them the 635-line
+statement elaborates in one probe — the pin's derived-instance block is simply dropped. The row is now
+homed in `AutomorphicForm/Adelic/CuspidalUnfolding.lean` (31 declarations at the pin's names, 30 of them
+`private`), scaffolded and checker-green under SET-AF57, with its leaf neighbour
+`constantTerm_adelicBox_unipotentGL2_mul` (144, 14 project consumers) in
+`AutomorphicForm/Adelic/ConstantTermUnipotent.lean`.
 
 ### `Finset.map_noncommProd` inside `rw` — a v4.34 elaboration trap with a written cure (FR-0195)
 

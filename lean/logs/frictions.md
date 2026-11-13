@@ -4173,3 +4173,30 @@ round promotes what generalizes.
   instance as a `have` and rewrite with the name.
 - **seen**: 2026-11-13, SET-AF56 row A (one round). Carried into
   [../CARRY-FORWARD.md](../CARRY-FORWARD.md) for the next port that touches `noncommProd`.
+
+## FR-0196 [instance/scope] — the cure for the adele ring's instance layer: pin `adeleBorel`/`glBorel` **inside** the section, and open `ProbabilityTheory`
+
+- **where**: SET-AF57's row U (`AutomorphicForm/Adelic/CuspidalUnfolding.lean`), the row FR-0194
+  diagnosed and cut at SET-AF56.
+- **the three steps, in the order they matter**:
+  1. `attribute [local instance] NumberField.AdelicHaar.adeleBorel NumberField.AdelicHaar.borelSpace_adeleBorel`
+     **after** `variable (K : Type) [Field K] [NumberField K]`, not at the top of the file: the attribute
+     names an instance whose `K` is implicit, and before the `variable` there is no `K` to pin, so the
+     line is accepted and does nothing. This is the whole difference between the two attempts.
+  2. `attribute [local instance] NumberField.AdelicHaar.glBorel NumberField.AdelicHaar.borelSpace_glBorel`
+     for `MeasurableSpace (GL (Fin 2) (AdeleRing …))`.
+  3. `open scoped ProbabilityTheory` for the `μ[|s]` notation — it is a
+     `scoped[ProbabilityTheory] macro` in `Mathlib/Probability/ConditionalProbability.lean`, not a
+     `MeasureTheory` notation, so a file that writes `adelicAddHaar[|adelicBox K]` and does not open it
+     fails at the *statement* with `unexpected token ']'`.
+  Plus `open scoped NumberField.AdelicHaar` if the port's scoped second-countability instances are wanted.
+- **what is *not* needed**: none of the pin's eight `private scoped instance`s. Drop the block. Two of
+  them cannot even be transcribed (`RestrictedProduct.secondCountableTopology` is gone at v4.34), and
+  `Countable K`/`Countable (𝓞 K)` come from mathlib for a `NumberField`. Verified: the 635-line
+  statement elaborates with only the three fixes above, in one probe.
+- **rule**: the port's convention is that the adele ring's measurable space is a **per-module local
+  instance** (`NumberTheory/AdelicBox.lean:350`, `NumberTheory/AdelicModulus.lean:107`). Any
+  `AutomorphicForm` row that mentions `AdeleRing (𝓞 K) K`, `GL (Fin 2) (AdeleRing …)` or `μ[|s]` opens
+  with those lines; its pin prelude's derived-instance block is dropped, and the drop is recorded in
+  the module header as a prelude substitution (not a statement change).
+- **seen**: 2026-11-13, SET-AF57 (the deferral of SET-AF56 was resolved in one scaffold round).
