@@ -4551,3 +4551,47 @@ round promotes what generalizes.
   drift table's `beta_reduce` row. Deleting a no-op `change` is statement-neutral; do not replace it
   with `show`.
 - **seen**: 2026-11-14, SET-AF68 orders B and A.
+
+## FR-0213 [linter/gate] — the scaffold's silence gate is blind to every linter item that a `sorry` body hides
+
+- **where**: any scaffold produced by the `af63/gen.py` recipe with theorem bodies stubbed to `sorry`;
+  SET-AF69 module B is the worked case.
+- **symptom**: the scaffold's "zero warnings apart from `declaration uses sorry`" gate passes, yet once
+  the proofs are filled the same file reports `linter.unusedSectionVars` on **seven** declarations, not
+  the two the scaffold showed (`AverageConvolution.continuous_integrand`'s six dead instances and one
+  more, then five more in the `AverageOperator` block, each different).
+- **cause**: most linters run on the *elaborated declaration*, and a `sorry` body makes the linter bail or
+  stay quiet — `unusedSectionVars` in particular cannot see which section variables the proof body would
+  have used, so it reports only the declarations whose *type* alone is enough to judge. The manager's
+  scaffold gate (FR-0206's `error`-only grep, and even an `error|warning` grep) therefore prices the
+  linter surface of a module at a strict lower bound.
+- **fix / rule**: a work order must say "spend the witnesses, and expect *more* of these than the scaffold
+  shows", not quote the scaffold's count as the list; and the manager's scaffold figure for FR-0208-class
+  work is a floor. Spending is still the answer (`have _ := …`), never `omit` for a variable the pin does
+  not omit, never a `set_option linter.*`.
+- **corroboration**: the same wave's module A had exactly one such item at scaffold time (the dead `hν`
+  binder) and it survived filling — so the undercount is invisible, not systematic.
+- **seen**: 2026-11-14, SET-AF69 order B (7 declarations, all spent, module silent).
+
+## FR-0214 [checker] — the statement hash includes binder *names*: a dead binder in a frozen statement cannot be renamed
+
+- **where**: SET-AF70 order B, `WeightTwoCohomology.lean` — the three `linter.unusedVariables` warnings on
+  the pin's `(hqM : q ∣ M)` binders (nested inside a `∀` in the statement, so no proof can spend them).
+- **symptom**: the linter's own suggested fix (`_hqM`) silences the warning but takes `check_port` from
+  **2 ok / 0 mismatch** to **1 ok / 1 mismatch**.
+- **cause**: `check_port`'s `nhash` is a hash of the checker-**normalised source text** of the statement,
+  and that normalisation does not alpha-convert binder names. So a binder name is part of the wire, and
+  the checker's "the comparison is on the statement, not on the name" means the *declaration* name, not
+  the bound-variable names inside the statement.
+- **fix / rule**: for a dead binder **inside the statement**, there are exactly three exits and only one
+  is legal: (i) spend it — impossible when the binder is a `∀`-bound hypothesis the type does not use;
+  (ii) rename it `_x` — a checker mismatch, so **not available**; (iii) `omit` — available only for a
+  *section variable*, not for a `∀`-bound binder. A section variable that is dead in both type and proof
+  *is* `omit`-able without moving the hash (`NeZero M` in `Ψ_apply_E`/`Ψ_injective`), and that is the one
+  legal exit. A remaining dead `∀`-binder warning is then a permanent, pin-inherited diagnostic: record it
+  in the module's brief and leave it (the pin's own file disables `unusedSectionVars` there, so the port is
+  strictly less intrusive than the pin).
+- **corroboration**: the same experiment *worked* for the `hν` binder of SET-AF69's
+  `le_norm_sub_of_mem_eigenspace` — not because renaming is legal but because that binder *was* spendable
+  (a `mul_self_le_mul_self` chain), so no rename was needed.
+- **seen**: 2026-11-14, SET-AF70 order B (applied, measured 1 mismatch, reverted).
