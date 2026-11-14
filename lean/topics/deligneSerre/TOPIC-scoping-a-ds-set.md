@@ -66,6 +66,12 @@ The things about this command, each learned the hard way.
   for the hidden 58. Quote both figures and say which marker set produced the corrected one;
   the delta between two passes means one thing only on the same marker set (SET 8's §0 uses
   SET 7's two-marker baseline).
+- **Price a chain with `--port`, never with `--also`.** `--also` populates the *pruned* set R, so a
+  chain read that way has its own consumer withheld by the FR-0044 guard and looks like it readies
+  nothing (FR-0211); `--port NAME` (repeatable, the dual of `--unport`, added for SET-AF68) adds the
+  rows to `F` and reads the shelf as if they had landed. Reproduce a post-landing forecast with
+  `--port`; reproduce a *pre-scaffold* one by pairing it with `--unport` on anything already declared
+  by a scaffold on disk (the name tier reads a `sorry`-bodied headline as ported).
 - **`needed = 1` is a premise claim, not a statement claim.** The readiness test reads the
   graph premises of the row's `S_` file; the **statement's own vocabulary** (a structure from a
   `Definitions/Def_*.lean` module the wrapper imports) is not a graph node and is not read. A

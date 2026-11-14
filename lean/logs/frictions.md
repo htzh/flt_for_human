@@ -4490,3 +4490,64 @@ round promotes what generalizes.
   tree-state class as FR-0207, and the reason a work order says "build the single target, report it, never a
   tree build".
 - **seen**: 2026-11-14, SET-AF67 order A (found at first belief, one import, no rework).
+
+## FR-0210 [scaffolding] — the statement itself may contain a depth-0 `:=`, and the scaffold generator cut it in half
+
+- **where**: `lean/tmp/af63/gen.py`'s `stub_theorem`/`top_level_assign`, on two statements of SET-AF68
+  row B (pin `S_CuspForm_exists_isPrimitiveForm_basis_gammaH_and_…_apply.lean:339` and `:90`).
+- **symptom**: the generated scaffold fails to elaborate with a pair of errors that name the *next*
+  declaration — `unexpected token 'theorem'; expected ':=', 'where' or '|'` plus `unsolved goals` — at
+  the two sites, and nothing else in the file is wrong.
+- **cause**: the recipe stubs a theorem by cutting at the **first `:=` at bracket depth 0**, which is the
+  declaration's own `:=` for every pin statement of the first sixty-seven sets. A statement may carry a
+  `haveI : NeZero ℓ := ⟨hℓ.ne_zero⟩` binder in *type* position (the `T_ℓ`/`U_q` action lemmas do), and
+  that `:=` is also at depth 0: the stub then replaces the rest of the *statement* by `sorry` and the
+  next declaration lands in a malformed chunk.
+- **fix**: `top_level_assign` now skips a depth-0 `:=` whose line begins with `haveI`/`have`/`letI`/
+  `let`/`show`/`obtain` (those introduce a witness, not the body). Verify with the FR-0206 gate on the
+  freshly generated module — the two errors are absent and the checker is unchanged (`check_port`
+  cannot see this class: the statement is right in the *pin*, wrong in the scaffold).
+- **seen**: 2026-11-14, SET-AF68 scaffold (`lean/tmp/af68/gen68.py`, first run).
+
+## FR-0211 [instrument] — `--also` is not a "what if this were ported" probe: it withholds the consumer under the FR-0044 guard
+
+- **where**: `tools/deps/frontier.py` when scoping a *chain* (SET-AF68: the 277 readies the 492, which
+  readies the 176 and the 539).
+- **symptom**: `--ready --also <the three chain rows>` returns the shelf with **no** new row, and the
+  consumer (here the 539) shows up in the `withheld` block instead: the tool reads the chain rows as
+  *pruned* (R), and a candidate whose own proof directly cites an unpruned-but-absent R premise is
+  withheld by FR-0044's guard. The reading looks like "porting the chain readies nothing".
+- **cause**: `--also` populates `avoided` (the prune set R), not `ported` (the frontier F). For
+  readiness the two are not interchangeable even though both make the premise uncounted.
+- **fix / rule**: to price a chain, add the rows to `ported` through the API and call `analyze` on that
+  set (the SET-AF68 §0 probe: `ported = fr.frontier("union") | {ids}`, then `analyze(..., ready=True)`),
+  and read the `withheld` block as the readiness return. **Resolved in the same set**: `frontier.py` now
+  has the `--port NAME` dual of `--unport`, so pricing a chain (and reproducing the forecast after the
+  landing) is one command.
+- **corroboration**: the same run also showed that once a module declares the headline (even with
+  `sorry`), the **name tier** marks the node ported, so a scaffold on disk changes the next shelf read
+  — the read must be taken before the scaffold (FR-0201), and a post-scaffold read is not comparable
+  with a pre-scaffold one.
+- **seen**: 2026-11-14, SET-AF68 §0/§4.
+
+## FR-0212 [mathlib] — v4.34's `Module.Basis` is `repr`-based: the pin's `simp [basis, vec]` on a `Basis.mk` is dead
+
+- **where**: SET-AF68 order B, `WeightTwoEigenformSpace.basis_apply` (pin
+  `S_CuspForm_nonempty_basis_fin_one_gammaH_and_finrank_eigenspace_eq_one.lean:82`), and any proof that
+  unfolds a `Module.Basis.mk`.
+- **symptom**: `simp [basis, vec]` no longer closes the goal; after the unfold, `Basis.mk_apply` /
+  `coe_mk` cannot infer the basis vector `v` from the goal (the expected `v` is not syntactically the one
+  in the goal), and `simp` reports `vec` as an unused argument.
+- **cause**: `Module.Basis` is now `repr`-based — `Basis.mk` is `.ofRepr …`, so the coercion of a `Basis`
+  goes through `repr` and the `mk_apply` rewrite is no longer a syntactic match. (This is a different
+  class from the rename table: no name changed, the *shape* did.)
+- **fix**: state the lemma as the term the old `simp` was reaching for —
+  `Module.Basis.mk_apply 𝒟.hli _ x`, where the `_` is the `⊤ ≤ span` proof, discharged by proof
+  irrelevance (the statement's `hspan` is `= ⊤`, `mk_apply` wants `≤`). Statement untouched, checker
+  green.
+- **sibling in the same wave**: five `change (⇑(…) : UpperHalfPlane → ℂ) = …` lines at the head of the
+  `heckeT_GH`/`diamond_GH`/`heckeU_GH` branches are **no-ops** at v4.34 (the goal already has that shape
+  after `apply DFunLike.ext'`), so `linter.unusedTactic` fires and the line must be *deleted* — the
+  drift table's `beta_reduce` row. Deleting a no-op `change` is statement-neutral; do not replace it
+  with `show`.
+- **seen**: 2026-11-14, SET-AF68 orders B and A.
