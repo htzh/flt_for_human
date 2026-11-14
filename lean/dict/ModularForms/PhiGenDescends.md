@@ -45,7 +45,7 @@ Every map in the table is a `→+*`; the τ-side has no ring maps, only `jt` and
 | `coeffMap f` | `R((q)) → S((q))` | coefficients through `f`, `q`-exponent untouched: `coeffMap_coeff` is `rfl` |
 | `coeffEmb L` | `ℚ((q)) → L((q))` | `coeffMap (algebraMap ℚ L)` — the base field moving up |
 | `castC` | `ℚ →+* ℂ` | `Rat.castHom ℂ`; the coefficient map of `jqC` |
-| `sigma ℓ ζ hζ` | `K →+* ℂ` | the embedding `ζ ↦ expRoot ℓ` (`sigma_zeta`), fixing `ℚ` (`sigma_ratCast'`) |
+| `sigma ℓ ζ hζ` | `K →+* ℂ` | the embedding `ζ ↦ expRoot ℓ` (`sigma_zeta`), fixing `ℚ` (`map_ratCast`) |
 | `qExpand R N` | `R((q)) → R((q))` | `q ↦ q ^ N`: coefficient `m` moves to `N * m` (`qExpand_coeff_mul`), and vanishes elsewhere (`qExpand_coeff_of_not_dvd`) |
 | `qTwist u` | `R((q)) → R((q))` | `q ↦ u * q`: coefficient `m` is multiplied by `u ^ m` (`qTwist_coeff`) |
 | `cosetSubst ζ a b` | `R((q)) → R((q))` | `(qExpand R (a * a)).comp (qTwist (ζ ^ (a * b)))` — the conjugate family's uniform spelling |
@@ -85,7 +85,7 @@ Two instances occur, and they are different:
 | instance | `h` | `N` | result | where |
 |---|---|---|---|---|
 | the descent's drop | `ℓ` | `ℓ` | `RealL 1 x F` — a level-one reading | `realL_one_of_realL_qExpand` |
-| the diagonal translate | `ℓ` | `ℓ * ℓ` | `RealL (1/ℓ) x F` — *not* level one | `realL_conjC_zero`, via `heckeDiagMatrix` |
+| the diagonal translate | `ℓ` | `ℓ * ℓ` | `RealL (1/ℓ) x F` — *not* level one | `hconj_zero`, via `heckeDiagMatrix` |
 
 So the drop lemma works precisely because the descent's expansion exponent equals the Hecke period.
 The reverse direction, `realL_qExpand_of_realL_one`, exists too
@@ -100,9 +100,10 @@ Which statement sits at which period:
 | `realL_jqC` | `jqC` | `1` | `jt` |
 | `hasSum_qParam_heckeDiagMatrix_smul` | `qExpand ℂ (ℓ * ℓ) jqC` | `ℓ` | `jt (ℓτ)` |
 | `hasSum_qParam_heckeMatrix_smul b` | `e^{2πibm/ℓ} · jqC(m)` | `ℓ` | `jt ((τ + b)/ℓ)` |
-| `realL_conjC_zero` | `conjC 0` (`= qExpand ℂ (ℓ * ℓ) jqC`) | `ℓ` | `jt ∘ heckeDiagMatrix` |
-| `realL_conjC_succ b` | `conjC (b + 1)` (`= σ`-image of `qTwist (ζ ^ b) jq`) | `ℓ` | `jt ∘ heckeMatrix ℓ b` |
-| `realL_phiProd_coeff k` | `(phiProdC).coeff k` | `ℓ` | the coset polynomial at `τ` |
+| `hconj_zero` | `conjC 0` (`= qExpand ℂ (ℓ * ℓ) jqC`) | `ℓ` | `jt ∘ heckeDiagMatrix` |
+| `hconj_succ b` | `conjC (b + 1)` (`= σ`-image of `qTwist (ζ ^ b) jq`) | `ℓ` | `jt ∘ heckeMatrix ℓ b` |
+| `hconj` | the two rows above, indexed by `rep` | `ℓ` | `jt ∘ (rep i • ·)` |
+| the `have h` of the headline | `(phiProdC).coeff k` | `ℓ` | the coset polynomial at `τ` (`RealL.coeff_prod_X_sub_C`) |
 | `hreal` in the headline | `c k` | `1` | `F`, the coset polynomial's `k`-th coefficient |
 
 ## 4. The Hecke side: matrices, cosets, roots
@@ -122,7 +123,7 @@ The same `ℓ + 1` cosets carry two labellings, and each reindexing has a name:
 
 | labelling | used for | reindexing |
 |---|---|---|
-| `Fin (ℓ + 1)` (`rep`, `rep_zero`, `rep_succ`) | the product and its coefficients, on both sides of `RealL` | `Fin.prod_univ_succ` + `rep_zero`/`rep_succ` splits diagonal slot from the `ℓ` translates |
+| `Fin (ℓ + 1)` (`rep`, `rep_zero`, `rep_succ`) | the product and its coefficients, on **both** sides of `RealL` (`hconj` and `F`) | `Fin.prod_univ_succ` + `rep_zero`/`rep_succ` splits diagonal slot from the `ℓ` translates (`cosetPoly_smul_fin`); the realization side needs no reindexing, since `F` carries the same index |
 | `ℙ¹(𝔽_ℓ)` (`heckeRep`, `redMatrix`) | `SL₂(ℤ)`-invariance of the coset polynomial | `cosetPoly_eq_prod_onePoint`, then `Equiv.prod_comp` along `MulAction.toPerm (redMatrix γ)` |
 
 `apply_heckeRep_smul_smul` (private) is the bridge: it moves `γ` across a coset representative by
@@ -137,6 +138,7 @@ Roots of unity, and the two spellings of one number:
 | `expRoot ℓ` | `Complex.exp (2 * π * I / ℓ)` | the same root in `ℂ` (`isPrimitiveRoot_expRoot`) |
 | `sigma ℓ ζ hζ` | `K →+* ℂ` | the embedding matching them: `sigma ζ = expRoot ℓ` (`sigma_zeta`) |
 | twist exponent | `Complex.exp (2 * π * I * b * m / ℓ)` | the coefficient twist at index `m`, i.e. `sigma (ζ ^ b) ^ m` (`expRoot_pow_zpow`) |
+| `conjC_succ_coeff b m` | the coefficient of `conjC (b + 1)` at `m` | the twist exponent times `jqC.coeff m`, i.e. the shape of the `b`-th Hecke summand |
 
 ## 5. One number in several positions
 
@@ -168,7 +170,7 @@ two hypotheses:
 | hypothesis | statement | where it comes from here |
 |---|---|---|
 | `hF` | `RealL 1 (coeffEmb ℂ f) F` — the realization at period `1`, `ℤ`-indexed, **no pole bound**; unfolding it gives `∀ τ, HasSum (fun m : ℤ => ↑(f.coeff m) * 𝕢 1 τ ^ m) (F τ)` | `hreal`, the `have` in the headline |
-| `hinv` | `∀ γ τ, F (γ • τ) = F τ` — `SL₂(ℤ)`-invariance on `ℍ` | `cosetPoly_smul ℓ hℓ.out jt jt_smul γ τ`, applied under `coeff k` |
+| `hinv` | `∀ γ τ, F (γ • τ) = F τ` — `SL₂(ℤ)`-invariance on `ℍ` | `cosetPoly_smul_fin ℓ jt jt_smul γ τ`, applied under `coeff k` |
 
 The pole bound is not a hypothesis: T7 recovers it from `f`'s own order, then applies
 `exists_aeval_jq_sub_holomorphicAtInfty` (subtract the polynomial in `jq` matching the pole,
@@ -207,12 +209,14 @@ The realization is a `have` inside `mem_adjoin_jq_of_phiGenDescends`, so these a
 
 | name | fact |
 |---|---|
-| `F`, `hF` | the coset polynomial's `k`-th coefficient as a function of `τ` (`set` from its expression; `hF` is the resulting equation, used to rewrite `F` in the invariance step) |
-| `hreal` | `RealL 1 (coeffEmb ℂ (c k)) F` — the period-`1` realization T7's headline consumes |
-| `h` | `RealL ℓ ((phiProdC).coeff k)` realized by the coset polynomial (`realL_phiProd_coeff`); after the four-step `rw` chain it is the same fact at `qExpand ℂ ℓ (coeffMap castC (c k))` |
-| `h'` | `h` after `realL_one_of_realL_qExpand` and the `Fin (ℓ + 1)` split: the period-`1` statement at a point |
+| `F`, `hF` | the coset polynomial's `k`-th coefficient as a function of `τ`, indexed by `rep`; `hF` is the resulting equation, used to rewrite `F` in the invariance step |
+| `hconj_zero` | the diagonal slot realized: `conjC 0` by `jt ∘ heckeDiagMatrix`, through `conjC_zero` |
+| `hconj_succ` | the `b`-th slot realized: `conjC (b + 1)` by `jt ∘ heckeMatrix ℓ b`, the summand match being `conjC_succ_coeff` |
+| `hconj` | the two assembled under `rep` (`Fin.cases` + `rep_zero`/`rep_succ`): the family that `RealL.coeff_prod_X_sub_C` consumes |
+| `hreal` | `RealL 1 (coeffEmb ℂ (c k)) F` — the period-`1` realization T7's headline consumes, closed by `realL_one_of_realL_qExpand` |
+| `h` | `RealL ℓ ((phiProdC).coeff k)` realized by the coset polynomial; after the five-step `rw` chain (`← map_phiProd`, `Polynomial.coeff_map`, `hc k`, `coeffMap_sigma_coeffEmb`, `coeffMap_qExpand`) it is the same fact at `qExpand ℂ ℓ (coeffMap castC (c k))` |
 | `hc k` | the descent: `(phiProd …).coeff k = coeffEmb K (qExpand ℚ ℓ (c k))` |
-| `γ`, `τ` | the `SL₂(ℤ)`-invariance step, `cosetPoly_smul` under `Polynomial.coeff k` |
+| `γ`, `τ` | the `SL₂(ℤ)`-invariance step, `cosetPoly_smul_fin` under `Polynomial.coeff k` |
 
 ## 9. Look-alikes
 
@@ -249,8 +253,8 @@ out; those modules have names for them. Where a reader meets one of the long spe
 | `∏ i : Fin (ℓ + 1), (X - C (H i))` (the shape of `phiProd`) | `conjPoly H` (`Gamma0InvariantCore:98`) | `Analytic/Gamma0InvariantCore.lean` |
 | `∏ i, (X - C (jt (rep ℓ i • τ)))` | `conjPoly (fun i => slotJ ℓ i τ)`, the polynomial behind `conjFun ℓ F k` (`:551`) | same |
 | `rep ℓ i`, a `GL(2,ℝ)` matrix | `cosetRep ℓ i`, an `SL(2,ℤ)` element (`cosetRep 0 = 1`, `cosetRep (b + 1) = S * T ^ b`), with `jtN τ = jt (heckeDiagMatrix ℓ • τ)` and `slotF`/`slotJ` | same, `:446`–`:457` |
-| `realL_conjC i` | `realL_conj`, `realL_slotH` | same |
-| `realL_phiProd_coeff` | `RealL.conjPoly_coeff`; weighted variant `RealL.interpPoly_coeff` (`interpPoly H Y = ∑ i, C (H i) * ∏ m ≠ i, (X - C (Y m))`) | same, `:341`, `:323` |
+| `hconj_zero`, `hconj_succ` | `realL_conj` (consumer), `realL_slotH` (weighted slot) | same |
+| `RealL.coeff_prod_X_sub_C` (the headline's `h`) | `RealL.conjPoly_coeff`; weighted variant `RealL.interpPoly_coeff` (`interpPoly H Y = ∑ i, C (H i) * ∏ m ≠ i, (X - C (Y m))`) | same, `:341`, `:323` |
 | `map_phiProd` | `interpPoly_map`, `conjPoly_map` | same, `:106`, `:111` |
 | `Equiv.prod_comp` inside `cosetPoly_smul'` | `interpPoly_perm`, `conjPoly_perm` | same, `:116`, `:125` |
 | `sigma ℓ ζ hζ` (constructed from `hζ`) | a variable `σ : K →+* ℂ` with `hσ : σ ζ = expRoot ℓ` | the module's assembly section |
