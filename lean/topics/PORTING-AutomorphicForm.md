@@ -1342,6 +1342,67 @@ declaration that carries a `omit … in` prefix leaves the prefix on the next su
 cannot see because its regex starts at `theorem` — the generator now binds such a prefix to its
 declaration.
 
+The sixty-fourth **is the nebentypus eigenbasis and the character separation of a sum**
+(**landed 2026-11-14**): [automorphicForm/SET-AF64.md](automorphicForm/SET-AF64.md) — 4 rows / 2,037
+silo / 723 written proof lines in two new modules, and the set that paid SET-AF63's forward reference.
+Two chains: `heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0` → `exists_basis_hasNebentypus_qCoeff_hecke_eigen`
+(`T_p` on a `Γ₀(N)`-nebentypus eigenspace, then the simultaneous eigenbasis of the whole `Γ₁(N)` cusp
+space, in `ModularForms/NebentypusEigenbasis.lean`, 801 → 1,164 lines, 84 decls, **121 ok**), and
+`HasNebentypus.sum_filter_eq_of_sum_eq` → `HasNebentypus.qCoeff_eq_zero_of_coprime_of_apply_eq_sum_slash`
+(distinct characters separate a sum; the slash-sum trace preserves coefficient vanishing, in
+`ModularForms/NebentypusDirectSum.lean`, 390 → 750, 55 decls, **60 ok**). Both checker-green with `sorry`
+bodies before dispatch, both silent, all four headlines axiom-clean, both consumer zones at 0 errors;
+`needed` 656 / 283,999 → **652 / 281,962**, exactly the cut. One row readied
+(`exists_hasNebentypus_qCoeff_eq_sum_primeFactors_…`, 201) — **the brief forecast three and was wrong by
+two**, which is the wave's method lesson: a row that needs a row the set only *readies* is not readied by
+it, and the forecast must apply the same `unported ⊆ cut` test the scoping script does, never "one of its
+premises is readied". What the set bought is a straight chain `201 → {733, 499}` for the next cut.
+
+Three findings came out of the wave. **A recorded non-dedup can be honoured by the proof instead of the
+declaration**: 33 of row A's 36 prelude declarations already exist public in the port under other
+namespaces, and the worker proved twelve of them by `exact ModularForm.HeckeRepresentatives.…` — the
+statement stays the pin's, the body calls the twin (the same shape AF64B used across *sets*, delegating
+`sum_exp_two_pi_mul` to AF63's `Depletion` copy). **A name-anchored premise audit misses twins**: the row
+needs the `Γ₁` `finiteDimensional_Gamma1` (`Gamma1CuspStructure.lean:242`), not the `Γ₀`
+`finiteDimensional_of_isArithmetic` (`WeightOne/Basic.lean:1567`) that the sweep surfaces (FR-0041's
+class), and the import that fixes it also carries the roots-of-unity instance the orthogonality sum needs —
+whose `NeZero` is the **ℂ-valued** cast, not the `ℕ`-valued one (FR-0205). And **`OnePoint` shadows
+`map_smul`** when the pin's `open` list is hoisted (FR-0204). Two imports were added on the worker's first
+report (`Mathlib.LinearAlgebra.Eigenspace.Pi` for the pin's 8-line simultaneous diagonalization, and the
+`FLTForHuman` `Gamma1CuspStructure`): both approved, because re-deriving 120–150 lines of spectral
+induction to save a mathlib import — or 40 lines of Sturm-bound machinery to save a build cone — is
+duplicated mathematics, and build time is not a homing consideration.
+
+The sixty-fifth **is the newform decomposition, the coefficient ring and the `Γ_H` dictionary**
+(**landed 2026-11-14**): [automorphicForm/SET-AF65.md](automorphicForm/SET-AF65.md) — 9 rows / 2,250 silo
+/ 1,252 written proof lines in three new modules, opening on the row SET-AF64 readied. **Order A** is the
+newform theory in `ModularForms/NewformDecomposition.lean` (598 → 1,449 lines, 76 decls, **88 ok**): the
+Atkin–Lehner lowering along a nebentypus (`exists_hasNebentypus_qCoeff_eq_sum_primeFactors_…`, the AF64-readied
+201), the newform decomposition into primitive forms (733) and multiplicity one (499) — and its 3.2 M-heartbeat
+pin file transcribes at the 200,000 gate with nothing near the cap, the **third** measurement of that class.
+**Order B** is the `Γ_H`/coefficient vocabulary: `ModularForms/CoefficientRing.lean` (190 → 316, **31 ok**) with
+the weight-two coefficient ring `fg_adjoin_qCoeff` and its `Module.Finite` form, and
+`ModularForms/GammaHDictionary.lean` (299 → 500, **4 ok**, the pin writes everything else `private`) with the
+`Γ₁ ≤ Γ_H` dictionary, the `Γ_H` Hecke-operator functions and the `Γ_H`-nebentypus decomposition. All nine
+headlines axiom-clean, both consumer zones at 0 errors; `needed` 652 / 281,962 → **644 / 279,728**, i.e.
+−2,234 over eight of the nine rows (the ninth, `finite_adjoin_qCoeff`, is in `F` and not in the target
+closure — it moved the frontier's +2,250 exactly and not `needed`). **Two rows readied, 507 silo, exactly as
+forecast**: the honest `unported ⊆ cut` rule AF64's mis-forecast introduced now holds.
+
+Three findings. **The dedup that pays is the set's own premise reuse**: order A's three rows are a chain over
+AF63's and AF64's ported theorems, and the only duplication left in the module is the pin's own (7 clusters /
+88 lines, with `exists_packet_eq` stated *differently* in two namespaces), recorded and kept because merging
+would respell frozen statements. **FR-0167's trade was not needed**: `HeckeStability`'s `stableD`/`stableU`/
+`stableT` were usable as imported, so the `Γ_H` row transcribed; and the wave's headroom is the largest the
+column has (silent at 5,000 heartbeats, ≥40×). **And one gate failure was mine** (FR-0206): the third scaffold
+did not elaborate, because `check_port` is a *textual* checker and I summarised the compiler's output as a
+count of `warning|error` lines. The three defects were scaffold-side (`open scoped` after an `open … in`
+chain, a missing `open Classical in` on a `Decidable` instance, one extra `end`), the worker repaired them
+inside its dispatch, and the practice is now a command: `lake env lean … 2>&1 | grep -E "error"` must be
+empty **before** `check_port` is believed. One worker claim was checked and is wrong — AF63's level-lowering
+row is *not* weaker than the pin's; the disjunct it reported belongs to the nebentypus row (this set's own
+headline), whose ported text carries it verbatim.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

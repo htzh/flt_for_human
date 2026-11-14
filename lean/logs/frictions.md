@@ -4364,3 +4364,59 @@ round promotes what generalizes.
 - **cost when missed**: this is the only proof-level adaptation the order needed (two sites); both
   proofs are otherwise verbatim.
 - **seen**: 2026-11-14, SET-AF63 order A.
+
+## FR-0204 [namespace/shadow] — opening `OnePoint` shadows `map_smul`, and the port's own `OnePoint.map_smul` then wins the elaboration
+
+- **where**: SET-AF64 order A's scaffold, `ModularForms/NebentypusEigenbasis.lean` — the pin's `open
+  CongruenceSubgroup ModularForm UpperHalfPlane Filter Function` (plus `OnePoint` from its `p2m_open`
+  line) is carried into the module.
+- **symptom**: four sites (`ker_sq`, `qCoeff_heckeFun` twice, `mem_eigenSet_of_eigen`) report
+  "ambiguous" for a bare `map_smul` rewrite; the goal's `SMul` is the function/module one, but
+  `OnePoint.map_smul` (the `OnePoint` API's own) is in scope with equal priority.
+- **fix / rule**: write `_root_.map_smul` at those sites. The general rule: when the pin's `p2m_open`
+  list is hoisted to a module-level `open`, a name as generic as `map_smul`/`coe_*`/`mul_*` can be
+  shadowed by a namespace the pin happened to open; qualify with `_root_.` rather than dropping the
+  `open` (dropping it breaks the other nine sites that need it).
+- **seen**: 2026-11-14, SET-AF64 order A.
+
+## FR-0205 [instance] — the Dirichlet orthogonality sum needs `NeZero ((Monoid.exponent (ZMod N)ˣ : ℕ) : ℂ)`, not `NeZero (Monoid.exponent …)`
+
+- **where**: SET-AF64 order A, `SSbasis.sum_proj` (pin `S_…eigen.lean:329–393`), the
+  `∑ ε : DirichletCharacter ℂ N, proj ε g = g` decomposition.
+- **symptom**: the pin's `haveI : NeZero (Monoid.exponent (ZMod N)ˣ)` does not satisfy
+  `DirichletCharacter.sum_char_inv_mul_char_eq`, and `Fintype (DirichletCharacter ℂ N)` alone is not
+  enough either: the lemma's `HasEnoughRootsOfUnity ℂ (Monoid.exponent (ZMod N)ˣ)` instance is what
+  carries the sum, and mathlib builds it from the **ℂ-valued** `NeZero ((Monoid.exponent (ZMod N)ˣ : ℕ) : ℂ)`
+  (`NeZero` of a cast into the ring), not from the `ℕ`-valued one.
+- **fix / rule**: install the ℂ-valued one — the port already builds it at
+  `ModularForms/WeightOne/IntegralWeightOneForm.lean:86`, which is the copy to imitate. A `NeZero` whose
+  statement mentions the exponent is ambiguous between the two casts; read the instance's own statement in
+  mathlib before installing it.
+- **corroboration**: the same wave found the `Γ₀`/`Γ₁` twin problem in the premise audit — a second
+  instance-level near-miss in one order, both caught by the worker before the gate rather than after.
+- **seen**: 2026-11-14, SET-AF64 order A.
+
+## FR-0206 [scaffolding/gate] — `check_port` is not an elaboration gate, and counting `warning|error` lines is not reading them
+
+- **where**: SET-AF65's third scaffold, `ModularForms/GammaHDictionary.lean`. I reported all three scaffolds
+  "elaborating at the low cap with `sorry` warnings only, all checker-green before dispatch". The third one
+  **did not elaborate**: three defects (two real errors and one bogus `end`), repaired by the worker inside
+  its dispatch.
+- **what the defects were** (all scaffold-side, none a statement change): (a) the pin's persistent
+  `open scoped MatrixGroups ModularForm` sat *after* the two `open … in` chains, so the chain consumed it and
+  the final headline's `∣[k]` notation failed to parse; (b) a statement needing `Decidable (ε₀ = ε)` needs
+  `open Classical in` on that declaration (`Classical.propDecidable` is scoped; mathlib has no
+  `DecidableEq (DirichletCharacter ℂ M)`, so no import supplies it); (c) one `end` too many.
+- **how the gate missed it, twice**: `check_port.py` is a *textual* statement checker — it parses the module
+  and diffs signatures, and it reads `4 ok / 0 / 0` on a module that does not elaborate. Then my `lake env
+  lean | grep -v "declaration uses" | grep -c "warning\|error"` returned `6` — four warnings and two errors in
+  one number, which I read as "six warnings".
+- **rule for a scaffolder**: the scaffold gate is two commands, and the first is
+  `lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 <module> 2>&1 | grep -E "error"` — **grep for
+  `error`, print it, and require it empty**; the second is `check_port --force`. Never summarise the compiler's
+  output as a count, and never take `check_port ok` as evidence that a module compiles. (The `sorry` warnings
+  are the only diagnostics a scaffold may carry.)
+- **corroboration**: the same wave's other two scaffolds were verified the same way and *were* clean, which is
+  exactly why the practice must be a command and not a judgement — the failure was invisible in every
+  aggregate number.
+- **seen**: 2026-11-14, SET-AF65 order B (found and repaired by the worker at the start of its dispatch).
