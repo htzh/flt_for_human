@@ -132,8 +132,9 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean",
     # Topic 6, `FLTForHuman/ModularForms/JqAnalyticModel.lean`: the analytic model
     # of `jq`. Both public statements are the pin wrappers verbatim; the pin's
-    # intermediate `hasSum_jNum_qParam` is `private` in the port, so the checker
-    # never sees it (the two wrappers are the comparable copies).
+    # intermediate `hasSum_jNum_qParam` has no port declaration at all (it is
+    # inlined in `hasSum_jq_qParam`), so the checker has nothing to see there (the
+    # two wrappers are the comparable copies).
     "Theorems/Thm_ModularCurve_hasSum_jq_qParam.lean",
     "Theorems/Thm_ModularCurve_E4_cube_div_discriminant_smul.lean",
     # The η/`gfun` Taylor-series engine (`truncPoly`/`etaPow`/`gfun`/
@@ -148,12 +149,14 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit.lean",
     "Theorems/Thm_ModularCurve_qExpansion_E4_eq_map_eisenstein4.lean",
     # Topic 7, `FLTForHuman/ModularForms/Hauptmodul.lean`: the Hauptmodul form.
-    # The headline and the two Cauchy-product lemmas are the pin wrappers verbatim.
-    # `RealL` and its closure are *transcribed* rather than wrapper-declared (FLT
-    # has no `Thm_` file for them), so the `S_` file's own public block is the
-    # comparable copy. The `S_` file comes after the wrappers: it is the only
-    # source for `RealL`/`add`/`neg`/... , and those generic names do not occur in
-    # any earlier source.
+    # The two Cauchy-product lemmas are the pin wrappers verbatim. The headline is
+    # the wrapper's statement with the realization hypothesis folded as `RealL`,
+    # so it is exempted in `OWN_PROOFS` while the `S_` file stays listed for
+    # `RealL` and its closure, which are *transcribed* rather than
+    # wrapper-declared (FLT has no `Thm_` file for them), making the `S_` file's
+    # own public block the comparable copy. The `S_` file comes after the
+    # wrappers: it is the only source for `RealL`/`add`/`neg`/... , and those
+    # generic names do not occur in any earlier source.
     "Theorems/Thm_ModularCurve_hasSum_qParam_mul.lean",
     "Theorems/Thm_ModularCurve_hasSum_qParam_mul_laurent.lean",
     "Theorems/Thm_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean",
@@ -5244,6 +5247,17 @@ PORT_FILES = [
 # declaration still fails the check. Entries may be either a last name (the usual
 # form) or a dotted name, which exempts only that qualified declaration.
 OWN_PROOFS = {
+    # `ModularForms/JqAnalyticModel.lean`: the two directions of the Laurent ↔
+    # power-series index dictionary. The pin states the ℤ → ℕ restriction inline
+    # (inside `mem_adjoin_jq_of_poleOrderLE_zero` and the Hauptmodul form), so
+    # there is no pin declaration to diff the named form against.
+    "hasSum_powerSeries_of_laurent",
+    # `ModularForms/Hauptmodul.lean`'s headline: the pin wrapper spells the
+    # realization hypothesis out as a `HasSum`, the port states it with the
+    # `RealL` predicate (the same statement up to that definitional unfolding).
+    # The exemption is statement-level only; `RealL` and its closure stay
+    # diffed against `S_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant`.
+    "mem_adjoin_jq_of_hasSum_of_slash_invariant",
     # The WeightOne shared homes: these two are the port's own spellings, not
     # transcriptions -- `qExpansion_coeff_width_fn` is the function form of the
     # width formula (the pin has it only inlined), and `map_eq` is a local

@@ -90,9 +90,15 @@ theorem aeval_toRingHom_X (x : LaurentSeries ℚ) :
 end Symmetry
 
 /-- `f` has a pole of order at most `n` at `q = 0`: all coefficients below
-`q ^ (-n)` vanish. -/
-def PoleOrderLE (f : LaurentSeries ℚ) (n : ℕ) : Prop :=
+`q ^ (-n)` vanish. Nothing in the notion is specific to `ℚ`. -/
+def PoleOrderLE {R : Type*} [Zero R] (f : LaurentSeries R) (n : ℕ) : Prop :=
   ∀ k : ℤ, k < -(n : ℤ) → f.coeff k = 0
+
+/-- Every Laurent series has such a bound: its support is well ordered, hence
+bounded below, so the order itself is one. -/
+theorem exists_poleOrderLE {R : Type*} [Zero R] (f : LaurentSeries R) :
+    ∃ n : ℕ, PoleOrderLE f n :=
+  ⟨(-f.order).toNat, fun _ hk => HahnSeries.coeff_eq_zero_of_lt_order (by omega)⟩
 
 /-- Triangularity of `jq`'s pole: a polynomial in `jq` of degree `n` has pole
 order at most `n`. Promoted from T7's private copy (`Hauptmodul.lean`) so that the

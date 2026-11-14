@@ -675,7 +675,6 @@ ModularCurve/PhiGenIntegrality.lean:232                ModularCurve.PhiGen.intCo
 ModularCurve/PhiGenPoleBounds.lean:270                 ModularCurve.PhiGen.tPoleOrderLE_phiProd_conj_of_ne_zero
 ModularCurve/X1/IntegralityJqNModC.lean:99             ModularCurve.qExpansion_E6_eq_map_mk
 ModularForms/Hauptmodul.lean:342                       ModularCurve.exists_aeval_jq_sub_holomorphicAtInfty
-ModularForms/JqAnalyticModel.lean:570                  ModularCurve.hasSum_jNum_qParam
 WeierstrassCurve/IsogenyEndDatum/DualEndData.lean:63    WeierstrassCurve.finite_torsionBy_of_natCast_ne_zero
 ```
 

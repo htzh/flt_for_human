@@ -28,8 +28,11 @@ The formal `jq` of `Defs/Jq` is a `PowerSeries` built from `eisenstein4`, `etaPr
 `ModularForm.discriminant`. For every `τ : ℍ` the series `jq` sums coefficient by coefficient to
 `E₄(τ)^3 / Δ(τ)`, and that model is `SL₂(ℤ)`-invariant.
 
-`hasSum_jq_qParam` is the realization hypothesis the next module consumes; the `q ·` version
-`hasSum_jNum_qParam` stays private because its only consumer is `hasSum_jq_qParam` itself.
+`hasSum_jq_qParam` is the realization hypothesis the next module consumes. Its proof holds the
+whole chain: the pin's private `q ·` form and the coefficient identity `qExpansion 1 qJ = jNum.map`
+are inlined as its `hnum` and `hcoeff` steps rather than kept as separate declarations, and the
+Laurent reading (`q⁻¹` times a realized power series) is the generic, coefficient-free
+`hasSum_laurent_of_powerSeries`.
 
 ## 3. The Hauptmodul form — `ModularForms/Hauptmodul`
 

@@ -351,7 +351,8 @@ Laurent case is `ModularCurve.hasSum_qParam_mul_laurent`
 ([Thm file, line 6](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_hasSum_qParam_mul_laurent.lean#L6));
 the power-series case is `hasSum_qParam_mul`. From this, `RealL` inherits
 polynomial closure: for $`P \in \mathbb{Q}[X]`$, the series $`P(jq)`$ is
-realized by $`P(j(\tau))`$ (`realL_aeval_jq`).
+realized by $`P(j(\tau))`$ (`RealL.aeval`, whose statement takes the realization of
+the series as a hypothesis).
 
 Two Hecke translations change the period and the coefficients:
 

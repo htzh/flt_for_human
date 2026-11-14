@@ -6,8 +6,8 @@
   earlier topics: T5's kernel `coeff_eq_zero_of_hasSum_of_slash_invariant` is
   applied to the holomorphic remainder, and T6's
   `hasSum_jq_qParam`/`E4_cube_div_discriminant_smul` realize the polynomials in
-  `jq` used to kill the pole. The headline is stated verbatim from its `Theorems/`
-  wrapper.
+  `jq` used to kill the pole. The headline is its `Theorems/` wrapper's statement
+  with the realization hypothesis folded as `RealL`.
 
   ## Source
 
@@ -20,14 +20,15 @@
   - `P2M/Sol/S_ModularCurve_exists_aeval_jq_sub_holomorphicAtInfty.lean` (84) —
     pole killing: the triangularity of `j`'s powers;
   - `P2M/Sol/S_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean`
-    (214) — `RealL`, its closure, `realL_aeval_jq`, and the headline.
+    (214) — `RealL`, its closure, the polynomial-substitution lemma (the pin's
+    `jq`-specific form, here the general `RealL.aeval`), and the headline.
 
   ## The mathlib-first audit: this is the glue topic
 
   Unlike T5 and T6 there is almost nothing for mathlib to replace. The audit
   found **no** public mathlib statement for `RealL` or its closure (mathlib has
   `UpperHalfPlane.cuspFunction_mul` for the *cusp function*, not the pointwise
-  `HasSum` predicate), for `coeff_prod_X_sub_C`, for `realL_aeval_jq`, for the
+  `HasSum` predicate), for `coeff_prod_X_sub_C`, for `RealL.aeval`, for the
   pole-killing lemma, or for the headline. What mathlib supplies is the
   Cauchy-product **core** inside `hasSum_qParam_mul` (the
   `tsum_mul_tsum_eq_tsum_sum_antidiagonal_of_summable_norm` /
@@ -48,8 +49,8 @@
   defines it once, here, and exports it — `RealL` with its closure and the two
   `hasSum_qParam_mul{,_laurent}` lemmas are the interface T8 imports rather than
   copies (porting-playbook.md §2, "deduplicate at the source"). Everything else
-  in this module — the pole-killing block, `realL_aeval_jq`, the `jt`/`jqC` glue,
-  and `mem_adjoin_jq_of_realL_invariant` — is private.
+  in this module — the pole-killing block, `RealL.aeval`, the `jt`/`jqC` glue, and
+  the main line's own helpers — is private.
 
   ## Assumptions
 
@@ -320,13 +321,6 @@ The triangularity of `j`'s powers: `jq = q⁻¹(1 + ⋯)`, so subtracting a suit
 multiple of `jq^(n+1)` kills the `q^{-(n+1)}` coefficient without disturbing
 higher exponents. -/
 
-private theorem poleOrderLE_iff_le_order {f : LaurentSeries ℚ} (hf : f ≠ 0) {n : ℕ} :
-    PoleOrderLE f n ↔ -(n : ℤ) ≤ f.order :=
-  (HahnSeries.le_order_iff_forall hf).symm
-
-private theorem exists_poleOrderLE (f : LaurentSeries ℚ) : ∃ n : ℕ, PoleOrderLE f n :=
-  ⟨(-f.order).toNat, fun _ hk => HahnSeries.coeff_eq_zero_of_lt_order (by omega)⟩
-
 private theorem poleOrderLE_sub_aeval_jq_succ {f : LaurentSeries ℚ} {n : ℕ}
     (hf : PoleOrderLE f (n + 1)) :
     PoleOrderLE
@@ -372,11 +366,16 @@ private lemma realL_jqC : RealL 1 jqC jt := fun τ => hasSum_jq_qParam τ
 private lemma jt_smul (γ : SL(2, ℤ)) (τ : ℍ) : jt (γ • τ) = jt τ :=
   E4_cube_div_discriminant_smul γ τ
 
-private lemma realL_aeval_jq (P : Polynomial ℚ) :
-    RealL 1 (coeffMap castC (Polynomial.aeval jq P)) (fun τ => (P.map castC).eval (jt τ)) := by
+namespace RealL
+
+/-- Polynomial substitution in a realization: a `ℚ`-series realized by `g` has its
+`P`-image realized by `P(g)`. -/
+private theorem aeval {h : ℝ} (hh : 0 < h) {f : LaurentSeries ℚ} {g : ℍ → ℂ}
+    (hf : RealL h (coeffMap castC f) g) (P : Polynomial ℚ) :
+    RealL h (coeffMap castC (Polynomial.aeval f P)) (fun τ => (P.map castC).eval (g τ)) := by
   induction P using Polynomial.induction_on with
   | C a =>
-    refine (RealL.C 1 (a : ℂ)).congr ?_ fun τ => ?_
+    refine (C h (a : ℂ)).congr ?_ fun τ => ?_
     · rw [Polynomial.aeval_C, algebraMap_laurentSeries_eq_single, coeffMap_single]
       rfl
     · simp
@@ -385,31 +384,50 @@ private lemma realL_aeval_jq (P : Polynomial ℚ) :
     · rw [map_add, map_add]
     · simp
   | monomial n a ih =>
-    refine (ih.mul one_pos realL_jqC).congr ?_ fun τ => ?_
-    · rw [jqC, ← map_mul]
+    refine (ih.mul hh hf).congr ?_ fun τ => ?_
+    · rw [← map_mul]
       congr 1
       symm
       rw [pow_succ, ← mul_assoc, map_mul, Polynomial.aeval_X]
     · simp [pow_succ, mul_assoc]
 
+end RealL
+
+/-- A Laurent series with nothing below `0` and nothing at the positive integers is
+the single monomial at `0`: the reassembly step at the end of the Hauptmodul form. -/
+private theorem eq_single_of_coeff_eq_zero {f : LaurentSeries ℚ}
+    (hneg : ∀ m : ℤ, m < 0 → f.coeff m = 0)
+    (hpos : ∀ n : ℕ, n ≠ 0 → f.coeff (n : ℤ) = 0) :
+    f = HahnSeries.single 0 (f.coeff 0) := by
+  ext m
+  rcases lt_trichotomy m 0 with hm | rfl | hm
+  · rw [hneg m hm, HahnSeries.coeff_single_of_ne hm.ne]
+  · rw [HahnSeries.coeff_single_same]
+  · obtain ⟨n, rfl⟩ := Int.eq_ofNat_of_zero_le hm.le
+    rw [HahnSeries.coeff_single_of_ne (by exact_mod_cast hm.ne')]
+    exact hpos n (by exact_mod_cast hm.ne')
+
 /-! ## The Hauptmodul form -/
 
-private theorem mem_adjoin_jq_of_realL_invariant (f : LaurentSeries ℚ) (F : ℍ → ℂ)
-    (hF : ∀ τ : ℍ, HasSum (fun m : ℤ => ((f.coeff m : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ m) (F τ))
-    (hinv : ∀ (γ : SL(2, ℤ)) (τ : ℍ), F (γ • τ) = F τ) : f ∈ Algebra.adjoin ℚ {jq} := by
-  obtain ⟨n, hn⟩ : ∃ n : ℕ, PoleOrderLE f n := by
-    by_cases hf0 : f = 0
-    · exact ⟨0, fun m _ => by simp [hf0]⟩
-    refine ⟨(-f.order).toNat, fun m hm => HahnSeries.coeff_eq_zero_of_lt_order (lt_of_lt_of_le hm ?_)⟩
-    have := Int.self_le_toNat (-f.order)
-    omega
+/-- R1 in Hauptmodul form: a Laurent series realized by an `SL₂(ℤ)`-invariant
+`F : ℍ → ℂ` lies in `ℚ[jq]`. This is the completion of R1 and the form the
+Φ_p splitting cone consumes.
+
+The pin wrapper spells the realization hypothesis out as a `HasSum`; the port
+states it as the `RealL` predicate, which that spelling recovers definitionally. -/
+theorem mem_adjoin_jq_of_hasSum_of_slash_invariant (f : LaurentSeries ℚ)
+    (F : UpperHalfPlane → ℂ)
+    (hF : RealL 1 (coeffEmb ℂ f) F)
+    (hinv : ∀ (γ : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane), F (γ • τ) = F τ) :
+    f ∈ Algebra.adjoin ℚ {jq} := by
+  obtain ⟨n, hn⟩ := exists_poleOrderLE f
   obtain ⟨P, -, he⟩ := exists_aeval_jq_sub_holomorphicAtInfty n f hn
   set e : LaurentSeries ℚ := f - Polynomial.aeval jq P with he_def
   have he0 : ∀ m : ℤ, m < 0 → e.coeff m = 0 := fun m hm => he m (by simpa using hm)
   have hfR : RealL 1 (coeffMap castC f) F := hF
   have hE : RealL 1 (coeffMap castC e) (F - fun τ => (P.map castC).eval (jt τ)) := by
     rw [he_def, map_sub]
-    exact hfR.sub (realL_aeval_jq P)
+    exact hfR.sub (RealL.aeval one_pos realL_jqC P)
   have hEinv : ∀ (γ : SL(2, ℤ)) (τ : ℍ),
       (F - fun τ => (P.map castC).eval (jt τ)) (γ • τ) =
         (F - fun τ => (P.map castC).eval (jt τ)) τ := by
@@ -418,44 +436,17 @@ private theorem mem_adjoin_jq_of_realL_invariant (f : LaurentSeries ℚ) (F : �
   have hEN : ∀ τ : ℍ, HasSum (fun n : ℕ => ((e.coeff n : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ n)
       ((F - fun τ => (P.map castC).eval (jt τ)) τ) := by
     intro τ
-    have h := hE τ
-    rw [← (Nat.cast_injective (R := ℤ)).hasSum_iff] at h
-    · exact h
-    · intro m hm
-      have hm' : m < 0 := by
-        by_contra hge
-        push Not at hge
-        exact hm ⟨m.toNat, Int.toNat_of_nonneg hge⟩
-      rw [coeffMap_coeff, he0 m hm', map_zero, zero_mul]
+    refine (hasSum_powerSeries_of_laurent (c := fun m : ℤ => (coeffMap castC e).coeff m)
+      (fun m hm => by rw [coeffMap_coeff, he0 m hm, map_zero]) (hE τ)).congr_fun fun n => ?_
+    rw [coeffMap_coeff, eq_ratCast castC]
   have hvan : ∀ n : ℕ, n ≠ 0 → e.coeff n = 0 := fun n hn => by
     have := coeff_eq_zero_of_hasSum_of_slash_invariant hEN hEinv hn
     exact_mod_cast this
-  have heconst : e = HahnSeries.single 0 (e.coeff 0) := by
-    ext m
-    rcases lt_trichotomy m 0 with hm | rfl | hm
-    · rw [he0 m hm, HahnSeries.coeff_single_of_ne hm.ne]
-    · rw [HahnSeries.coeff_single_same]
-    · obtain ⟨n, rfl⟩ := Int.eq_ofNat_of_zero_le hm.le
-      rw [HahnSeries.coeff_single_of_ne (by exact_mod_cast hm.ne')]
-      exact hvan n (by exact_mod_cast hm.ne')
+  have heconst := eq_single_of_coeff_eq_zero he0 hvan
   have hck : f = algebraMap ℚ (LaurentSeries ℚ) (e.coeff 0) + Polynomial.aeval jq P := by
     rw [algebraMap_laurentSeries_eq_single, ← heconst, he_def, sub_add_cancel]
   rw [hck]
   exact Subalgebra.add_mem _ (Subalgebra.algebraMap_mem _ _) (Polynomial.aeval_mem_adjoin_singleton ℚ jq)
-
-/-- R1 in Hauptmodul form: a Laurent series realized by an `SL₂(ℤ)`-invariant
-`F : ℍ → ℂ` lies in `ℚ[jq]`. This is the completion of R1 and the form the
-Φ_p splitting cone consumes.
-
-Stated verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean`. -/
-theorem mem_adjoin_jq_of_hasSum_of_slash_invariant (f : LaurentSeries ℚ)
-    (F : UpperHalfPlane → ℂ)
-    (hF : ∀ τ : UpperHalfPlane, HasSum (fun m : ℤ => ((f.coeff m : ℚ) : ℂ) *
-        Function.Periodic.qParam 1 (τ : ℂ) ^ m) (F τ))
-    (hinv : ∀ (γ : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane), F (γ • τ) = F τ) :
-    f ∈ Algebra.adjoin ℚ {jq} :=
-  mem_adjoin_jq_of_realL_invariant f F hF hinv
 
 end ModularCurve
 

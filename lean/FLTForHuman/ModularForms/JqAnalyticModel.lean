@@ -10,8 +10,12 @@
   `SL₂(ℤ)`.
 
   `hasSum_jq_qParam` is the realization hypothesis the T7 Hauptmodul form
-  consumes; `hasSum_jNum_qParam` (the `q ·` version) stays private because its
-  only consumer is `hasSum_jq_qParam` itself.
+  consumes. The pin's intermediate `q ·` form (`hasSum_jNum_qParam`) and the
+  coefficient identity behind it (`qExpansion 1 qJ = jNum.map`) are inlined in its
+  proof as the `hnum` and `hcoeff` steps, and the Laurent reading of a realized
+  power series (`q⁻¹ · A`) is the generic `hasSum_laurent_of_powerSeries`, so the
+  whole chain from the `q`-expansions of `E₄` and `Δ` to `jq` is readable in one
+  place.
 
   ## Source
 
@@ -19,9 +23,10 @@
 
   - `P2M/Sol/S_ModularCurve_hasSum_jq_qParam.lean` (45) — the exported
     `hasSum_jq_qParam` and its `q⁻¹` step;
-  - `P2M/Sol/S_ModularCurve_hasSum_jNum_qParam.lean` (235) — the private
-    `hasSum_jNum_qParam` and the gluing helpers `qJ`, `Dq`, `cuspFunction_*`,
-    `qExpansion_{Dq,qJ}`, `periodic_qJ`, `mdiff_qJ`, `isBoundedAtImInfty_qJ`;
+  - `P2M/Sol/S_ModularCurve_hasSum_jNum_qParam.lean` (235) — the `q ·` form (the
+    port inlines it into `hasSum_jq_qParam`) and the gluing helpers `qJ`, `Dq`,
+    `cuspFunction_*`, `qExpansion_Dq'`, `periodic_qJ`, `mdiff_qJ`,
+    `isBoundedAtImInfty_qJ`;
   - `P2M/Sol/S_ModularCurve_qExpansion_discriminant_eq_X_mul_tprod.lean` (199)
     — the eta-product Taylor series, so that `qExpansion 1 Δ = X · ∏' (1-qⁿ)²⁴`;
   - `P2M/Sol/S_ModularCurve_qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit.lean`
@@ -56,7 +61,7 @@
   | `analyticAt_cuspFunction_Dq`, `analyticAt_cuspFunction_qJ` | **kept** (pin's `cuspFunction_eqOn` + `differentiableOn_gfun`); mathlib's public `analyticAt_cuspFunction_zero` was audited and would require re-deriving `Periodic`/`MDiff`/`IsBoundedAtImInfty` for `Dq` (for `qJ` those exist, but later) |
   | `tendsto_gfun_qParam` | **kept** (2 lines); mathlib's `ModularForm.tendsto_atImInfty_tprod_one_sub_eta_q_pow` is the `eta_q` form |
   | `solution` of the `qExpansion_*` files | `ModularFormClass.qExpansion_coeff_unique` on the bundled `CuspForm.discriminant` (this is also what the pin uses; the bundled form is what avoids T5's `FunLike` blow-up) |
-  | `hasSum_jNum_qParam`'s final engine | `UpperHalfPlane.hasSum_qExpansion` |
+  | the seed's convergence step (`hnum` in `hasSum_jq_qParam`) | `UpperHalfPlane.hasSum_qExpansion` |
   | gluing `qJ_eq`, `qJ_mul_Dq`, `cuspFunction_eqOn`, `cuspFunction_Dq`, `cuspFunction_qJ`, `qExpansion_qParam_fun`, `qExpansion_{Dq',qJ}`, `periodic_qJ`, `mdiff_qJ`, `isBoundedAtImInfty_qJ`, `gfun_ne_zero`, `continuousAt_gfun` | **ported** (no mathlib counterpart) |
   | `hasSum_jq_qParam` (`q⁻¹` step) | **ported** (`HasSum.mul_left` + `Function.Injective.hasSum_iff` + the port's `coeff_jq_of_lt`) |
   | `E4_cube_div_discriminant_smul` | `SlashInvariantForm.slash_action_eqn''` on `E₄` (weight 4) and `CuspForm.discriminant` (weight 12) |
@@ -361,7 +366,8 @@ theorem qExpansion_E4_eq_map_eisenstein4 :
 
 The pin's `hasSum_jNum_qParam` block. `qJ = q · E₄³/Δ` is realized by
 `qExpansion`, and `Dq = Δ/q` has the clean `q`-expansion `etaPow`; multiplying the
-two `q`-expansions gives `qExpansion 1 qJ = jNum.map`. -/
+two `q`-expansions gives `qExpansion 1 qJ = jNum.map`, which `hasSum_jq_qParam`
+carries as its `hcoeff` step. -/
 
 /-- `q(τ) · E₄(τ)³ / Δ(τ)`. -/
 private def qJ (τ : ℍ) : ℂ := 𝕢 1 (τ : ℂ) * (ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ)
@@ -486,27 +492,6 @@ private lemma qExpansion_Dq' : qExpansion 1 Dq = dedekindEtaUnit.map (Int.castRi
     PowerSeries.map_X] at hmul
   exact (mul_left_cancel₀ PowerSeries.X_ne_zero hmul).symm
 
-private lemma qExpansion_qJ : qExpansion 1 qJ = jNum.map (Int.castRingHom ℂ) := by
-  have hmul := qExpansion_mul analyticAt_cuspFunction_qJ analyticAt_cuspFunction_Dq
-  rw [qJ_mul_Dq, qExpansion_Dq'] at hmul
-  have hE3 : qExpansion 1 (fun τ => ModularForm.E₄ τ ^ 3) =
-      (eisenstein4.map (Int.castRingHom ℂ)) ^ 3 := by
-    rw [← qExpansion_E4_eq_map_eisenstein4,
-      ← ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL ModularForm.E₄ 3,
-      ModularForm.coe_pow]
-    rfl
-  rw [hE3] at hmul
-  have hinv : dedekindEtaUnit.map (Int.castRingHom ℂ) *
-      dedekindEtaUnitInv.map (Int.castRingHom ℂ) = 1 := by
-    rw [← map_mul, dedekindEtaUnit_mul_inv, map_one]
-  calc qExpansion 1 qJ
-      = qExpansion 1 qJ * (dedekindEtaUnit.map (Int.castRingHom ℂ) *
-          dedekindEtaUnitInv.map (Int.castRingHom ℂ)) := by rw [hinv, mul_one]
-    _ = (eisenstein4.map (Int.castRingHom ℂ)) ^ 3 *
-          dedekindEtaUnitInv.map (Int.castRingHom ℂ) := by
-          rw [← mul_assoc, ← hmul]
-    _ = jNum.map (Int.castRingHom ℂ) := by rw [jNum, map_mul, map_pow]
-
 private lemma periodic_qJ : Function.Periodic (qJ ∘ ofComplex) 1 := by
   intro w
   by_cases hw : 0 < w.im
@@ -565,42 +550,91 @@ private lemma isBoundedAtImInfty_qJ : IsBoundedAtImInfty qJ := by
   funext τ
   simp only [Pi.mul_apply, qJ_eq, div_eq_mul_inv]
 
-/-- The pin's intermediate `q ·` form of the model, kept private: its only
-consumer is `hasSum_jq_qParam`. -/
-private theorem hasSum_jNum_qParam (τ : UpperHalfPlane) :
-    HasSum (fun m : ℕ => ((PowerSeries.coeff m jNum : ℤ) : ℂ) *
-        Function.Periodic.qParam 1 (τ : ℂ) ^ m)
-      (Function.Periodic.qParam 1 (τ : ℂ) * (ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ)) := by
-  have h := hasSum_qExpansion one_pos periodic_qJ mdiff_qJ isBoundedAtImInfty_qJ τ
-  rw [qExpansion_qJ] at h
-  refine h.congr_fun fun m => ?_
-  rw [PowerSeries.coeff_map, smul_eq_mul, eq_intCast]
-
 /-! ## The exported statements -/
 
-theorem hasSum_jq_qParam (τ : UpperHalfPlane) :
-    HasSum (fun m : ℤ => ((jq.coeff m : ℚ) : ℂ) *
-        Function.Periodic.qParam 1 (τ : ℂ) ^ m)
-      (ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) := by
-  set q : ℂ := 𝕢 1 (τ : ℂ) with hqdef
-  have hq : q ≠ 0 := Function.Periodic.qParam_ne_zero _
-  have h := (hasSum_jNum_qParam τ).mul_left q⁻¹
-  rw [← hqdef, inv_mul_cancel_left₀ hq] at h
+/-- The Laurent-level reading of a realized `q`-series: if `q · F` is realized by the
+power series `A`, then `F` is realized by `q⁻¹ · A`, i.e. by the Laurent series
+`HahnSeries.single (-1) 1 * ofPowerSeries A` — the pattern by which `jq` is defined. -/
+private theorem hasSum_laurent_of_powerSeries (A : PowerSeries ℚ) (F : ℍ → ℂ) (τ : ℍ)
+    (hA : HasSum (fun n : ℕ => ((A.coeff n : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ n)
+      (𝕢 1 (τ : ℂ) * F τ)) :
+    HasSum (fun m : ℤ => (((HahnSeries.single (-1 : ℤ) 1 *
+      HahnSeries.ofPowerSeries ℤ ℚ A).coeff m : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ m) (F τ) := by
+  have hq : 𝕢 1 (τ : ℂ) ≠ 0 := Function.Periodic.qParam_ne_zero _
+  have h := hA.mul_left (𝕢 1 (τ : ℂ))⁻¹
+  rw [inv_mul_cancel_left₀ hq] at h
   have hinj : Function.Injective fun n : ℕ => (n : ℤ) - 1 := fun a b hab => by
     simpa using hab
   rw [← hinj.hasSum_iff]
   · refine h.congr_fun fun n => ?_
     simp only [Function.comp_apply]
-    rw [jq, HahnSeries.coeff_single_mul, one_mul, sub_neg_eq_add, sub_add_cancel, jNumQ,
-      HahnSeries.ofPowerSeries_apply_coeff, PowerSeries.coeff_map, eq_intCast, Rat.cast_intCast,
-      zpow_sub_one₀ hq, zpow_natCast]
+    rw [HahnSeries.coeff_single_mul, one_mul, sub_neg_eq_add, sub_add_cancel,
+      HahnSeries.ofPowerSeries_apply_coeff, zpow_sub_one₀ hq, zpow_natCast]
     ring
   · intro m hm
     have hm' : m < -1 := by
       by_contra hge
       push Not at hge
       exact hm ⟨(m + 1).toNat, by simp; omega⟩
-    rw [coeff_jq_of_lt hm', Rat.cast_zero, zero_mul]
+    rw [HahnSeries.coeff_single_mul, one_mul, ofPowerSeries_coeff_of_neg A (by omega)]
+    simp
+
+/-- The realization hypothesis T7 consumes: the `q`-series of `jq` sums to
+`E₄³/Δ` at every `τ`. The proof is the chain in one piece — the formal `ℤ`-series
+`jNum` is the `q`-expansion of `q · j` (`hcoeff`), that series converges to `q · j`
+(`hasSum_qExpansion`), and `hasSum_laurent_of_powerSeries` reads it at the Laurent
+level, where it is `q⁻¹ · jNum`, i.e. `jq`. -/
+theorem hasSum_jq_qParam (τ : UpperHalfPlane) :
+    HasSum (fun m : ℤ => ((jq.coeff m : ℚ) : ℂ) *
+        Function.Periodic.qParam 1 (τ : ℂ) ^ m)
+      (ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) := by
+  have hcoeff : qExpansion 1 qJ = jNum.map (Int.castRingHom ℂ) := by
+    have hmul := qExpansion_mul analyticAt_cuspFunction_qJ analyticAt_cuspFunction_Dq
+    rw [qJ_mul_Dq, qExpansion_Dq'] at hmul
+    have hE3 : qExpansion 1 (fun τ => ModularForm.E₄ τ ^ 3) =
+        (eisenstein4.map (Int.castRingHom ℂ)) ^ 3 := by
+      rw [← qExpansion_E4_eq_map_eisenstein4,
+        ← ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL ModularForm.E₄ 3,
+        ModularForm.coe_pow]
+      rfl
+    rw [hE3] at hmul
+    have hinv : dedekindEtaUnit.map (Int.castRingHom ℂ) *
+        dedekindEtaUnitInv.map (Int.castRingHom ℂ) = 1 := by
+      rw [← map_mul, dedekindEtaUnit_mul_inv, map_one]
+    calc qExpansion 1 qJ
+        = qExpansion 1 qJ * (dedekindEtaUnit.map (Int.castRingHom ℂ) *
+            dedekindEtaUnitInv.map (Int.castRingHom ℂ)) := by rw [hinv, mul_one]
+      _ = (eisenstein4.map (Int.castRingHom ℂ)) ^ 3 *
+            dedekindEtaUnitInv.map (Int.castRingHom ℂ) := by
+            rw [← mul_assoc, ← hmul]
+      _ = jNum.map (Int.castRingHom ℂ) := by rw [jNum, map_mul, map_pow]
+  have hnum : HasSum (fun m : ℕ => ((jNumQ.coeff m : ℚ) : ℂ) *
+        Function.Periodic.qParam 1 (τ : ℂ) ^ m)
+      (Function.Periodic.qParam 1 (τ : ℂ) *
+        (ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ)) := by
+    have h := hasSum_qExpansion one_pos periodic_qJ mdiff_qJ isBoundedAtImInfty_qJ τ
+    rw [hcoeff] at h
+    refine h.congr_fun fun m => ?_
+    rw [PowerSeries.coeff_map, smul_eq_mul, jNumQ, PowerSeries.coeff_map, eq_intCast]
+    norm_num
+  exact hasSum_laurent_of_powerSeries jNumQ
+    (fun τ => ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) τ hnum
+
+/-- The other direction of the index dictionary: a `ℤ`-indexed summation whose
+summand is supported on `ℕ` is a `ℕ`-indexed summation. The mirror of
+`hasSum_laurent_of_powerSeries`; the kernel of T5 is stated in this (power-series)
+shape, while a `RealL` hands out the `ℤ`-indexed one. -/
+theorem hasSum_powerSeries_of_laurent {c : ℤ → ℂ} {q v : ℂ}
+    (hc : ∀ m : ℤ, m < 0 → c m = 0) (h : HasSum (fun m : ℤ => c m * q ^ m) v) :
+    HasSum (fun n : ℕ => c n * q ^ n) v := by
+  rw [← (Nat.cast_injective (R := ℤ)).hasSum_iff] at h
+  · exact h
+  · intro m hm
+    have hm' : m < 0 := by
+      by_contra hge
+      push Not at hge
+      exact hm ⟨m.toNat, Int.toNat_of_nonneg hge⟩
+    simp [hc m hm']
 
 theorem E4_cube_div_discriminant_smul
     (γ : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane) :

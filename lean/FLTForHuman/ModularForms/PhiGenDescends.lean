@@ -64,8 +64,6 @@ noncomputable section
 open Matrix.SpecialLinearGroup UpperHalfPlane Complex Filter Topology Function Polynomial
 open scoped MatrixGroups ModularForm OnePoint
 
-local notation "𝕢" => Function.Periodic.qParam
-
 namespace ModularCurve
 
 /-! ## The coset polynomial is `SL₂(ℤ)`-invariant
@@ -222,6 +220,10 @@ variable (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : (CyclotomicField ℓ �
 private def conjC (i : Fin (ℓ + 1)) : LaurentSeries ℂ :=
   coeffMap (sigma ℓ ζ hζ) (PhiGen.conj ℓ ζ i)
 
+/-- The conjugate product with its coefficients pushed to `ℂ` along `σ`. -/
+private abbrev phiProdC : Polynomial (LaurentSeries ℂ) :=
+  (PhiGen.phiProd ℓ (PhiGen.conj ℓ ζ)).map (coeffMap (sigma ℓ ζ hζ))
+
 /-- The coset representative labelled by `i : Fin (ℓ+1)`: the diagonal matrix at
 `0` and the `b`-th Hecke matrix at `b+1`. -/
 private def rep (i : Fin (ℓ + 1)) : GL (Fin 2) ℝ :=
@@ -270,14 +272,13 @@ private lemma realL_conjC (i : Fin (ℓ + 1)) :
   · simpa only [rep_succ] using realL_conjC_succ ℓ ζ hζ b
 
 private lemma map_phiProd :
-    (PhiGen.phiProd ℓ (PhiGen.conj ℓ ζ)).map (coeffMap (sigma ℓ ζ hζ)) =
-      ∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (conjC ℓ ζ hζ i)) := by
-  rw [PhiGen.phiProd, ← Polynomial.coe_mapRingHom, map_prod]
+    phiProdC ℓ ζ hζ = ∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (conjC ℓ ζ hζ i)) := by
+  rw [phiProdC, PhiGen.phiProd, ← Polynomial.coe_mapRingHom, map_prod]
   refine Finset.prod_congr rfl fun i _ => ?_
   simp [conjC]
 
 private lemma realL_phiProd_coeff (k : ℕ) :
-    RealL ℓ (((PhiGen.phiProd ℓ (PhiGen.conj ℓ ζ)).map (coeffMap (sigma ℓ ζ hζ))).coeff k)
+    RealL ℓ ((phiProdC ℓ ζ hζ).coeff k)
       (fun τ => (∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (jt (rep ℓ i • τ)))).coeff k) := by
   rw [map_phiProd]
   exact RealL.coeff_prod_X_sub_C (by exact_mod_cast hℓ.out.pos) Finset.univ
@@ -324,19 +325,20 @@ theorem mem_adjoin_jq_of_phiGenDescends (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)
     (ζ : (CyclotomicField ℓ ℚ)ˣ) (hζ : IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ)
     (c : ℕ → LaurentSeries ℚ) (hc : PhiGenDescends ℓ ζ c) (k : ℕ) :
     c k ∈ Algebra.adjoin ℚ {jq} := by
-  have hreal (τ : ℍ) :
-      HasSum (fun m : ℤ => (((c k).coeff m : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ m)
-        (((Polynomial.X - Polynomial.C (jt (ModularForm.heckeDiagMatrix ℓ • τ))) *
-          ∏ b : Fin ℓ, (Polynomial.X -
-            Polynomial.C (jt (ModularForm.heckeMatrix ℓ (b : ℕ) • τ)))).coeff k) := by
+  set F : ℍ → ℂ := fun τ =>
+    ((Polynomial.X - Polynomial.C (jt (ModularForm.heckeDiagMatrix ℓ • τ))) *
+      ∏ b : Fin ℓ, (Polynomial.X -
+        Polynomial.C (jt (ModularForm.heckeMatrix ℓ (b : ℕ) • τ)))).coeff k with hF
+  have hreal : RealL 1 (coeffEmb ℂ (c k)) F := by
+    intro τ
     have h := realL_phiProd_coeff ℓ ζ hζ k
     rw [Polynomial.coeff_map, hc k, coeffMap_sigma_coeffEmb, coeffMap_qExpand] at h
     have h' := realL_one_of_realL_qExpand ℓ _ _ h τ
     rw [Fin.prod_univ_succ] at h'
     simp only [rep_zero, rep_succ] at h'
     exact h'
-  refine mem_adjoin_jq_of_hasSum_of_slash_invariant (c k) _ hreal fun γ τ => ?_
-  exact congrArg (fun p : Polynomial ℂ => p.coeff k)
+  refine mem_adjoin_jq_of_hasSum_of_slash_invariant (c k) F hreal fun γ τ => ?_
+  simpa only [hF] using congrArg (fun p : Polynomial ℂ => p.coeff k)
     (cosetPoly_smul ℓ hℓ.out jt jt_smul γ τ)
 
 end ModularCurve.PhiGen
