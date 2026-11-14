@@ -34,9 +34,9 @@
   stronger `S_ModularForm_heckeU_…_Gamma0` statements instead). The translates
   come from `FLTForHuman.ModularForms.HeckeQExpansion`.
 
-  The four public statements are verbatim from their `Theorems/` wrappers (so
-  they use the wrappers' spelling, per T7's log §7.3); `hasSum_coeff_of_phiGenDescends`
-  and all the internal group theory are private.
+  The two public statements are verbatim from their `Theorems/` wrappers (so
+  they use the wrappers' spelling, per T7's log §7.3); the realization is inlined
+  in its consumer and all the internal group theory is private.
 
   Assumes `PhiGen.conj`/`phiProd`/`PhiGenDescends`, `qTwist_coeff`, `coeffMap`,
   `coeffEmb`, `coeffMap_qExpand` and `qExpand_coeff_*` from the port's `Defs/`;
@@ -308,27 +308,6 @@ private lemma coeffMap_sigma_coeffEmb (x : LaurentSeries ℚ) :
   rw [coeffMap_coeff, coeffEmb_coeff, coeffMap_coeff, eq_ratCast, map_ratCast]
   rfl
 
-include hζ in
-/-- The intermediate that turns the descent hypothesis `hc` into the realization
-T7's headline consumes: the `k`-th coefficient of the coset polynomial is the
-`q`-expansion of `c k`. Kept private; the real consumer is the cone's (d). -/
-private theorem hasSum_coeff_of_phiGenDescends (c : ℕ → LaurentSeries ℚ)
-    (hc : PhiGen.PhiGenDescends ℓ ζ c) (k : ℕ) (τ : ℍ) :
-    HasSum (fun m : ℤ => (((c k).coeff m : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ m)
-      (((Polynomial.X - Polynomial.C (ModularForm.E₄ (ModularForm.heckeDiagMatrix ℓ • τ) ^ 3 /
-          ModularForm.discriminant (ModularForm.heckeDiagMatrix ℓ • τ))) *
-        ∏ b : Fin ℓ, (Polynomial.X - Polynomial.C (ModularForm.E₄ (ModularForm.heckeMatrix ℓ (b : ℕ) • τ) ^ 3 /
-          ModularForm.discriminant (ModularForm.heckeMatrix ℓ (b : ℕ) • τ)))).coeff k) := by
-  have h1 := realL_phiProd_coeff ℓ ζ hζ k
-  rw [Polynomial.coeff_map, hc k, coeffMap_sigma_coeffEmb, coeffMap_qExpand] at h1
-  have h2 := realL_one_of_realL_qExpand ℓ _ _ h1 τ
-  have hprod : (∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (jt (rep ℓ i • τ)))) =
-      (Polynomial.X - Polynomial.C (jt (ModularForm.heckeDiagMatrix ℓ • τ))) *
-        ∏ b : Fin ℓ, (Polynomial.X - Polynomial.C (jt (ModularForm.heckeMatrix ℓ (b : ℕ) • τ))) := by
-    rw [Fin.prod_univ_succ]; simp only [rep_zero, rep_succ]
-  rw [hprod] at h2
-  exact h2
-
 end Translates
 
 end ModularCurve
@@ -339,15 +318,24 @@ namespace ModularCurve.PhiGen
 in `ℚ[jq]`. Stated verbatim from
 `Theorems/Thm_ModularCurve_PhiGen_mem_adjoin_jq_of_phiGenDescends.lean`.
 
-The proof applies T7's headline `mem_adjoin_jq_of_hasSum_of_slash_invariant` to
-`c k`, whose realization is `hasSum_coeff_of_phiGenDescends` and whose
-`SL₂(ℤ)`-invariance is `cosetPoly_smul` applied to `jt`. -/
+The descent hypothesis realizes `c k` as the `k`-th coefficient of the coset
+polynomial in the `SL₂(ℤ)`-invariant `jt`; T7's headline puts it in `ℚ[jq]`. -/
 theorem mem_adjoin_jq_of_phiGenDescends (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
     (ζ : (CyclotomicField ℓ ℚ)ˣ) (hζ : IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ)
     (c : ℕ → LaurentSeries ℚ) (hc : PhiGenDescends ℓ ζ c) (k : ℕ) :
     c k ∈ Algebra.adjoin ℚ {jq} := by
-  refine mem_adjoin_jq_of_hasSum_of_slash_invariant (c k) _
-    (hasSum_coeff_of_phiGenDescends ℓ ζ hζ c hc k) fun γ τ => ?_
+  have hreal (τ : ℍ) :
+      HasSum (fun m : ℤ => (((c k).coeff m : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ m)
+        (((Polynomial.X - Polynomial.C (jt (ModularForm.heckeDiagMatrix ℓ • τ))) *
+          ∏ b : Fin ℓ, (Polynomial.X -
+            Polynomial.C (jt (ModularForm.heckeMatrix ℓ (b : ℕ) • τ)))).coeff k) := by
+    have h := realL_phiProd_coeff ℓ ζ hζ k
+    rw [Polynomial.coeff_map, hc k, coeffMap_sigma_coeffEmb, coeffMap_qExpand] at h
+    have h' := realL_one_of_realL_qExpand ℓ _ _ h τ
+    rw [Fin.prod_univ_succ] at h'
+    simp only [rep_zero, rep_succ] at h'
+    exact h'
+  refine mem_adjoin_jq_of_hasSum_of_slash_invariant (c k) _ hreal fun γ τ => ?_
   exact congrArg (fun p : Polynomial ℂ => p.coeff k)
     (cosetPoly_smul ℓ hℓ.out jt jt_smul γ τ)
 
