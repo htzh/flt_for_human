@@ -4621,3 +4621,27 @@ round promotes what generalizes.
   rows by accounting and say so; (iii) an orphan `Def_` module is the same hazard (its definition names
   shadow graph nodes), so a `Def_` layer lands only with the set that needs it.
 - **seen**: 2026-11-14, SET-AF71/AF72 landing (read corrected 605 → 610 with the four deletions).
+
+## FR-0216 [tooling] — `move_dead` orphans an `omit … in` prefix, and an `omit` is load-bearing for callers
+
+- **where**: SET-AF73's `move_dead --copy` sweep of `MeasureTheory/HaarQuotientFubini.lean`.
+- **symptom**: after the sweep the trimmed source failed with `cannot omit referenced section variable
+  inst✝¹` at an `omit … in` block whose declaration had moved to the shelf; deleting the block then gave
+  a *new* `failed to synthesize LocallyCompactSpace G` at a **call site** in a neighbouring declaration.
+- **cause**: (i) `move_dead.py`'s docstring names `@[...]`, docstrings and `open … in` as prefixes that
+  must travel with a declaration, but **`omit … in` is a declaration prefix too**, and the cut can leave
+  one behind — it then attaches to whatever follows (here to a declaration whose type references the very
+  instance the prefix omits). (ii) An `omit` on a *callee* is what lets a caller that omits the same
+  instance call it at all: once the instance is dropped from both sides' telescopes, a caller whose
+  section context has the variable in hand still cannot synthesize it, so the callee's `omit` must be
+  restored, not removed.
+- **fix / rule**: after any `move_dead` cut, (a) check every `omit … in` block at the cut boundary —
+  a prefix whose declaration left must be deleted; (b) then re-run the edit loop and let
+  `linter.unusedSectionVars` name the instances that are *now* unused, adding one `omit` at a time from
+  the linter's own message (this converges in one or two rounds; guessing the union of instances does
+  not — that was the `inst✝¹` error); (c) never remove an `omit` from a declaration that another
+  `omit`-bearing declaration calls.
+- **also**: the `--header-file` of a `Reserve/` shelf must not carry a `spec-pin:` line, or the shelf is
+  wired into `check_port` and its partial declaration set reads as a diff of the whole pin file.
+- **seen**: 2026-11-14, SET-AF73 landing (source 672 → 425 lines, shelf 649 lines, both silent, checker
+  and consumer unchanged, `move_dead` then 0).
