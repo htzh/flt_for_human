@@ -119,7 +119,7 @@ private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (c : ℂ)
   have hUT : U ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ ModularGroup.T) = U := by
     have hUeq : U = T' - gσ ∣[k] heckeDiagMatrix p := by rw [hT', add_sub_cancel_right]
     rw [hUeq, sub_eq_add_neg, SlashAction.add_slash, SlashAction.neg_slash,
-      hT'_inv _ (Subgroup.mem_map_of_mem _ (T_mem_Gamma1 M)), hgσδT]
+      hT'_inv _ (Subgroup.mem_map_of_mem _ (CuspForm.HeckeEigenNebentypus.T_mem_Gamma1 M)), hgσδT]
   have hUper : Periodic (U ∘ ofComplex) 1 := periodic_of_slash_T hUT
   have hDper : Periodic (D ∘ ofComplex) 1 := periodic_of_slash_T hDT
   have hUhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) U :=

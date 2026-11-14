@@ -1403,6 +1403,55 @@ empty **before** `check_port` is believed. One worker claim was checked and is w
 row is *not* weaker than the pin's; the disjunct it reported belongs to the nebentypus row (this set's own
 headline), whose ported text carries it verbatim.
 
+The sixty-sixth **is the coset-sum slash block and the existence of a primitive form** (**landed
+2026-11-14**): [automorphicForm/SET-AF66.md](automorphicForm/SET-AF66.md) — 9 rows / 1,600 silo / 738
+written proof lines in two new modules, and the first two links of the deepest chain the column has cut.
+**Order A** (`ModularForms/PrimitiveFormSlash.lean`, 630 → 1,031 lines, 104 decls, **104 ok**) is one chain:
+the conjugate form (A) → the Fricke action (B) → the primitive inverse (C) → the Fricke pseudo-eigenvalue (D)
+→ the two `S·T^z·S⁻¹` coset sums (E, F) — and E+F together **ready the 802-line `pow_dvd_…`**, which readies
+the 907, which readies the 277, which with AF65's four `Γ_H` rows readies the 492 and then the 176.
+**Order B** (`ModularForms/PrimitiveFormExistence.lean`, 235 → 572, **24 ok**) is the existence half: the two
+`exists_isPrimitiveForm_…` rows — whose consumers include the D–S cone's
+`DeligneSerre.exists_tsum_norm_qCoeff_sq_mul_rpow_le_log_of_weightOne_hecke_eigen` — and the `j`-conjugation
+leaf. `needed` 644 / 279,728 → **635 / 278,128**, exactly the cut; **one row readied, 802 silo, exactly as
+forecast** (the second exact return forecast running, on the `unported ⊆ cut` rule).
+
+Two findings, and the first is a tree-level one. **A latent build break at HEAD was found and repaired**
+(FR-0207): `HeckeNebentypusExistence.lean` did not compile — `Ambiguous term T_mem_Gamma1`, two namespaces
+both in scope through that file's own two `open`s — and its `.olean` was only ever a prebuilt cache; when
+another order's cascade rebuilt `HeckeEigenNebentypus.olean`, lake re-elaborated the module, the rebuild
+failed, lake deleted the olean and **every importer was blocked**. One line
+(`CuspForm.HeckeEigenNebentypus.T_mem_Gamma1 M`) restores it; the rule is that a port module must not `open`
+two namespaces that both declare a generic name, and the instrument lesson is that a green `lake build
+<module>` over cached oleans says nothing about the modules it did not re-elaborate (FR-0033's cousin). The
+same tree had **30 absent oleans**, so one order had to build `HeckeNebentypusFricke` as a single target
+before its own module could resolve — targeted, never tree-wide. **And the dead-binder class gained its
+third linter** (FR-0208): a pinned `qCoeff_sub` carries an unused `[NeZero M]`, `unusedSectionVars` fires,
+and the fix is to spend the witness (`NeZero.ne M`) rather than `omit`, whose binder edit is a statement
+change. Both modules are silent, all nine headlines axiom-clean, both consumer zones at 0 errors.
+
+The sixty-seventh **is the primitive-form level reduction** (**landed 2026-11-14**):
+[automorphicForm/SET-AF67.md](automorphicForm/SET-AF67.md) — 2 rows / 1,709 silo / 1,674 written proof lines
+in one new module, and the column's largest single dispatch: `ModularForms/PrimitiveFormLevelReduction.lean`
+(440 → **1,727** lines, 61 decls, **61 ok**), the two rows AF66's coset sums ready. Row A is the `q`-power
+divisibility criterion (802 silo; its 506-line `LiCaseOne.main` transcribed verbatim, the section structure
+`QCoeff`/`Neb`/`Beta`/`Main` kept), row B the primitive form's level and `q`-expansion (907 silo; `tower` and
+`keyStep`, the latter calling A). `needed` 635 / 278,128 → **633 / 276,419**, exactly the cut; **one row
+readied, the 277, exactly as forecast** — the third exact return forecast running — and the
+`IsPrimitiveForm` block is now one row from closed. Heartbeat headroom probed downward as a number: silent at
+70,000, first failures at 60,000 in row A's `main`, ≈2.9× under the gate.
+
+Two findings. **"Ported" is not "imported"** (FR-0209): three of the rows' premises were ported but lived in
+modules the new module's imports did not reach (`WeightOne/{PrimitiveQCoeffNorm,NebentypusQCoeffSq}`,
+`Analytic/NormSqLt`), and all three oleans were stale — three added imports and three targeted rebuilds, no
+rework. The frontier's name scan sees the whole tree, so `needed = 1` certifies that the statements exist,
+never that a row's home can reach them; the order now audits both the statement (`twin_scan`) and the module
+path. **And the premise audit became a gate**: twelve nodes, `12 TWIN-public / 0 relative / 0 private` — every
+premise of both rows is the pin node itself, statement-identical and public, so nothing was a weakened alias
+and no promotion was needed. The API drift was the column's standing list, plus one v4.34 goal-shape change
+(`rw [qExpansion_zero, map_zero]` no longer closes `qCoeff_zero_fun`) and the parse-error rule that a bare
+qualified term as a whole tactic block needs `exact`.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

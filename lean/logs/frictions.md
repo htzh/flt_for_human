@@ -4420,3 +4420,73 @@ round promotes what generalizes.
   exactly why the practice must be a command and not a judgement — the failure was invisible in every
   aggregate number.
 - **seen**: 2026-11-14, SET-AF65 order B (found and repaired by the worker at the start of its dispatch).
+
+## FR-0207 [namespace/collision] — two namespaces declaring `T_mem_Gamma1`, one module opening both: a **latent** build break that only a re-elaboration exposes
+
+- **where**: `FLTForHuman/ModularForms/HeckeNebentypusExistence.lean:122`, found by SET-AF66's order B at the
+  start of its dispatch (it could build nothing: the module's olean had just been deleted by `lake`).
+- **symptom**: `error: Ambiguous term T_mem_Gamma1` — `X1DiamondRational.T_mem_Gamma1`
+  (`ModularForms/WeightOne/Defs/GammaRational.lean:262`, `N` a section variable) and
+  `CuspForm.HeckeEigenNebentypus.T_mem_Gamma1` (`HeckeEigenNebentypus.lean:125`, `N` an explicit argument) are
+  both in scope through the file's own `open CuspForm.HeckeEigenNebentypus` and `open X1DiamondRational`.
+- **why it was invisible for weeks**: the module is unmodified at HEAD and its `.olean` was a **prebuilt
+  cache**. Nothing forces a re-elaboration until a *dependency* is rebuilt; SET-AF64's order A rebuilt 20
+  stale upstream modules, one of them `HeckeEigenNebentypus`, which made this module stale — and the rebuild
+  then failed and lake deleted the olean, so every importer became unbuildable at once. A cached `.olean` is
+  not evidence that a module compiles; the tree at HEAD could not build this module from scratch.
+- **fix / rule**: qualify the one site (`CuspForm.HeckeEigenNebentypus.T_mem_Gamma1 M`) — the same statement,
+  and the minimal edit; dropping one of the two `open`s would re-resolve every bare name in the module and a
+  `private` copy would duplicate mathematics. **The general rule**: a port module must not `open` two
+  namespaces that both declare a generic name like `T_mem_Gamma1`/`mapGL_apply`/`dd`; prefer the qualified
+  call at the site, or keep the copy `private` under a distinct name. The other two modules that open
+  `X1DiamondRational` and use a bare `T_mem_Gamma1` (`WeightOne/Gamma0Rationality.lean`,
+  `ModularCurve/X1/IsIntegralAtkinLehner.lean`) do **not** open the second namespace, so this is the only
+  site.
+- **also the reason a wave must not trust `lake build <module>` alone**: a green build over cached oleans says
+  nothing about the modules it did not re-elaborate. (Compare FR-0033's missing-olean rule.)
+- **seen**: 2026-11-14, SET-AF66 order B (repaired by the worker, reviewed and adopted by the manager).
+
+## FR-0208 [linter/statement] — `unusedSectionVars` on a frozen statement's dead `[NeZero M]`: spend the witness, do not `omit`
+
+- **where**: SET-AF66 order A, `OldFormCosetSum.qCoeff_sub` (pin `S_…comp_heckeDiagMatrix_apply_eq_of_not_dvd.lean:94`).
+- **symptom**: the pin's declaration carries `[NeZero M]` among its section variables and its proof never
+  uses the instance; v4.34's `linter.unusedSectionVars` fires, and the per-module gate is zero warnings.
+- **why the usual exits are illegal here**: `omit [NeZero M] in` (or `include`) travels with the declaration
+  and changes its binder set — for a wired module that is a statement change the checker would see as a
+  MISMATCH on the *next* declaration of the block; a `set_option linter.*` is the forbidden silencer; and
+  renaming/removing the variable is not available because it is the pin's own section structure.
+- **fix / rule**: make the proof *spend* the hypothesis that is already in the context — here a reference to
+  `NeZero.ne M` (and to `periodic f`, which the same proof also had in hand). The statement stays
+  byte-identical, the warning goes. This is FR-0198's family in a third linter (after
+  `linter.style.haveILetI` and `linter.overlappingInstances`), and the general answer is the same: the pin's
+  unused hypothesis is often spendable, and spending it is always cheaper than a silencer or a statement
+  change.
+- **corroboration**: the same wave's other dead-binder case was resolved the same way by a different worker
+  (`slashV_lowU_avgV`'s `hp`, AF63), so the class now has two independent instances and one rule.
+- **seen**: 2026-11-14, SET-AF66 order A.
+
+## FR-0209 [instrument] — "ported" is not "imported": the frontier's name scan sees the whole tree, so a ready row's premise may be unreachable from the row's home
+
+- **where**: SET-AF67 order A. Row A's premise
+  `CuspForm.norm_qCoeff_sq_eq_pow_of_isPrimitiveForm_of_not_sq_dvd` is ported in
+  `ModularForms/WeightOne/PrimitiveQCoeffNorm.lean`, which is **not** in the new module's import list; the
+  worker had to add `import FLTForHuman.ModularForms.WeightOne.PrimitiveQCoeffNorm` for the proof to reach
+  its premise at all.
+- **why the tools say nothing**: `frontier.py`'s name tier runs `scan_port_decls(port_roots)` over the whole
+  port tree, so a declaration counts as ported wherever it lives and however far its module is from the
+  row's home. `needed = 1` therefore means "the statements exist in the tree", **not** "they are usable from
+  the module this row belongs to". The recipe's §4 import-direction rule is the statement-level version of
+  this (`a module below the proof's premises cannot host it`); this is the *module-graph* version: the row's
+  home must be **above** its premises' homes, which the frontier does not measure.
+- **cost when missed**: one added import, and — the part that can hurt — the import may drag a large cone
+  into the row's build (here a 9 s target, benign; with `EichlerShimura`-bearing closures it is FR-0167's
+  trade).
+- **rule**: when a work order lists a premise as "ported per the graph", a worker must check the *import*
+  reachability too, and the manager's premise audit should name the module a premise lives in (not just the
+  fact that it exists). Both are now in the AF67 order: `twin_scan` for the statement, and the module path
+  for the import.
+- **corroboration**: the same dispatch also found `PrimitiveQCoeffNorm`'s olean **stale** (Oct 25 against
+  newer `HeckeQCoeff`/`AtkinLehnerSlash` oleans) and built that one target before the module — the same
+  tree-state class as FR-0207, and the reason a work order says "build the single target, report it, never a
+  tree build".
+- **seen**: 2026-11-14, SET-AF67 order A (found at first belief, one import, no rework).
