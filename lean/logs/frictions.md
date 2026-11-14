@@ -4583,15 +4583,41 @@ round promotes what generalizes.
   and that normalisation does not alpha-convert binder names. So a binder name is part of the wire, and
   the checker's "the comparison is on the statement, not on the name" means the *declaration* name, not
   the bound-variable names inside the statement.
-- **fix / rule**: for a dead binder **inside the statement**, there are exactly three exits and only one
-  is legal: (i) spend it — impossible when the binder is a `∀`-bound hypothesis the type does not use;
-  (ii) rename it `_x` — a checker mismatch, so **not available**; (iii) `omit` — available only for a
-  *section variable*, not for a `∀`-bound binder. A section variable that is dead in both type and proof
-  *is* `omit`-able without moving the hash (`NeZero M` in `Ψ_apply_E`/`Ψ_injective`), and that is the one
-  legal exit. A remaining dead `∀`-binder warning is then a permanent, pin-inherited diagnostic: record it
-  in the module's brief and leave it (the pin's own file disables `unusedSectionVars` there, so the port is
-  strictly less intrusive than the pin).
+- **fix / rule** (amended by the project's current instruction, "no silencing linters **without good
+  reason**"): for a dead binder **inside the statement** there are four exits. (i) Spend it — impossible
+  when the binder is a `∀`-bound hypothesis the type does not use. (ii) Rename it `_x` — a checker
+  mismatch, so **not available**. (iii) `omit` — available only for a *section variable*, not for a
+  `∀`-bound binder; a section variable dead in both type and proof is `omit`-able without moving the hash
+  (`NeZero M` in `Ψ_apply_E`/`Ψ_injective`). (iv) **A scoped, documented silencer** for the frozen API:
+  `set_option linter.unusedVariables false` with a header paragraph stating why (the public statement is
+  preserved byte-for-byte, the rename is a mismatch, the witness is unspendable) — this is the good reason
+  the instruction allows, and it is what `WeightTwoCohomology` now does. The pin's own file silences the
+  sibling linter for the same reason. Blanket silencers, or one without a reason in the module, remain
+  forbidden.
 - **corroboration**: the same experiment *worked* for the `hν` binder of SET-AF69's
   `le_norm_sub_of_mem_eigenspace` — not because renaming is legal but because that binder *was* spendable
   (a `mul_self_le_mul_self` chain), so no rename was needed.
 - **seen**: 2026-11-14, SET-AF70 order B (applied, measured 1 mismatch, reverted).
+
+## FR-0215 [instrument] — an abandoned scaffold contaminates the shelf read: delete it in the same touch
+
+- **where**: SET-AF71/AF72 scoping. Two candidate sets were scaffolded and then dropped before dispatch
+  (the `EisensteinGeneral.Piece` pair — blocked on a missing `AutomorphicForm/Adelic/WeilIntertwining`
+  module and the `mixedEmbedding` API — and a `WeierstrassCurve/Automorphism/Stabilizer` five-row set —
+  blocked on unported `IsCharTwoJNeZeroNF`/`IsCharThreeJNeZeroNF` classes), and an orphan
+  `EisensteinGeneral/Factorization/Datum.lean` was left behind.
+- **symptom**: the post-landing read came out **605 / 267,705 with ready 21 / 3,900**, five nodes and
+  ~3,050 lines away from the accounting figure (610 / 270,200, ready 22 / 4,790), and it "readied" rows
+  the wave had not cut. `--unport` on the names that looked suspicious did not move it, because the
+  culprits were not the rows but the *engines*.
+- **cause**: `frontier.py`'s name tier marks a graph node ported when **any declaration** of the port
+  carries its last name. A scaffold of a pin `S_` file declares the pin's whole engine, and generic or
+  distinctive engine names coincide with graph nodes (`add`, `inv`, `mul`,
+  `linearIndependent_coeffMap`, `hasseInvariant`, …); the pin's proof engines are large, so one abandoned
+  scaffold can hide five nodes. The same mechanism is what makes a *live* scaffold's probe read
+  optimistic (SET-AF71 §4).
+- **fix / rule**: (i) delete an abandoned scaffold in the same touch — never leave it "for the next
+  wave"; (ii) take the shelf read on the cleaned tree, and if a scaffold is still on disk, price its
+  rows by accounting and say so; (iii) an orphan `Def_` module is the same hazard (its definition names
+  shadow graph nodes), so a `Def_` layer lands only with the set that needs it.
+- **seen**: 2026-11-14, SET-AF71/AF72 landing (read corrected 605 → 610 with the four deletions).

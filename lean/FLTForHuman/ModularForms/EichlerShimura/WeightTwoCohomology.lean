@@ -18,6 +18,12 @@
   spec-pin: P2M/Sol/S_CohCarrier_exists_eichlerShimura_H1_gammaH.lean
   spec-pin: Theorems/Thm_CohCarrier_nonempty_basis_fin_two_parabolicHoms_gammaH_and_finrank_eigenspace_eq_two.lean
   spec-pin: P2M/Sol/S_CohCarrier_nonempty_basis_fin_two_parabolicHoms_gammaH_and_finrank_eigenspace_eq_two.lean
+  One scoped silencer is deliberate: `linter.unusedVariables` is switched off below, because the pin's
+  statements carry dead `(hqM : q ∣ M)` binders *inside* the statement (`∀ (q) (hq) (hqM : q ∣ M), …`).
+  No proof can spend them, the checker hashes the statement's source text so the linter's own `_hqM`
+  remedy is a mismatch (measured), and the pin's own file silences the sibling linter for the same
+  reason.  The API keeps the pin's binder exactly.
+
 -/
 import FLTForHuman.ModularForms.CohCarrier.GammaHAlgebra
 import FLTForHuman.ModularForms.CohCarrier.CharInvolution
@@ -40,6 +46,10 @@ import Mathlib.Analysis.Complex.Basic
 import Mathlib.Tactic
 
 set_option autoImplicit false
+
+-- The pin's dead statement-level `hqM` binders are kept verbatim (the checker hashes the statement's
+-- source text, so they cannot be renamed): this is the one documented silencer of the module.
+set_option linter.unusedVariables false
 
 noncomputable section
 

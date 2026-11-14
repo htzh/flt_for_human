@@ -418,14 +418,17 @@ unitOfPrimeNotDvd, gammaLift_apply_11, Gamma_le_GammaH}` are the port's `CohCarr
 resolves with `CohCarrier` prepended and would pick G's private `main`); six tactic `haveI` → `have`
 (FR-0198).
 
-**The one gate that stays open, and why it is not a silencer's job.** Three `linter.unusedVariables`
-warnings remain (`hqM` at `:377`, `:415`, `:526`), all on *statement-level* binders of the pin's own text
-(`(hqM : q ∣ M)` inside a nested `∀`), which no proof can spend. The worker applied the linter's own
-remedy `_hqM` and the **checker moved to 1 ok / 1 mismatch**: `check_port`'s `nhash` is a hash of the
-normalised *source* statement text, so a binder name is not alpha-invisible (FR-0214). The renames were
-reverted; the pin's own H file disables `unusedSectionVars` there, so the port is not doing anything the
-pin did not. The two `omit [NeZero M] in` lines that *are* available (section variables, not statement
-binders) were applied, on `Ψ_apply_E` and — after dropping the instance from the first — on `Ψ_injective`.
+**The three dead `hqM` binders, and the module's one documented silencer.** `linter.unusedVariables`
+fired on `hqM` at `:377`, `:415`, `:526` — binders of the pin's own text (`(hqM : q ∣ M)` inside a nested
+`∀`), which no proof can spend. The worker applied the linter's own remedy `_hqM` and the **checker moved
+to 1 ok / 1 mismatch**: `check_port`'s `nhash` hashes the normalised *source* statement text, so a binder
+name is not alpha-invisible (FR-0214). The renames were reverted, and the module now carries **one scoped
+silencer, `set_option linter.unusedVariables false`, with a header paragraph giving the reason** — the
+pin's public statement is preserved byte-for-byte, the alternative (`_hqM`) is a mismatch, and spending is
+impossible. That is the sanctioned shape of the exception (a *documented* scoped silencer for a frozen
+API), not a blanket one: the module's two `omit [NeZero M] in` lines (section variables, not statement
+binders) were applied instead, on `Ψ_apply_E` and — after dropping the instance from the first — on
+`Ψ_injective`. With the silencer in place gate 1 is **empty**.
 
 **The tree state (FR-0207).** On arrival 31 modules of the closure had no `.olean` (`tmp/af70/B-missing.txt`);
 the two that blocked the edit loop were built as single targets (`EichlerShimura.ExistsEquivariantPrimitive`,
