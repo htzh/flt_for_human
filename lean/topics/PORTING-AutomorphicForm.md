@@ -1310,6 +1310,38 @@ instead of silenced — replace the pin's measurability-free `setLIntegral_comp_
 `Measurable`-taking sibling `setLIntegral_comp_preimage`. That is the answer this class needed where
 FR-0198 had none: look for a sibling lemma that takes the unused hypothesis.
 
+The sixty-third **is the `Γ₁` depletion, Atkin–Lehner lowering and the Petersson product's
+definiteness** (**landed 2026-11-14**): [automorphicForm/SET-AF63.md](automorphicForm/SET-AF63.md) —
+6 rows / 1,985 silo / 793 written proof lines in two new modules, and the column's first cut into the
+**`CuspForm` / `ModularForms` block** that every set since SET-AF43 had listed and deferred. Two chains,
+not six rows: `exists_gamma1_qCoeff_eq_ite_coprime` → `qCoeff_eq_zero_of_coprime_level_…` →
+`exists_qCoeff_eq_sum_primeFactors_…` (the coefficient-vanishing ⇒ lower-level sequence, whose head is a
+premise of the D–S **weight-one** headline) in `ModularForms/AtkinLehnerLowering.lean` (578 → 1,099
+lines, 84 decls, **84 ok**), and `peterssonOn_self_re_nonneg_…` + `peterssonOn_add_smul_conj` →
+`conj_heckeEigenvalue_eq_of_hasNebentypus` (the definiteness that makes the conjugate eigenvalue a
+one-line cancellation, feeding the weight-two `GaloisRep` headline) in
+`ModularForms/Analytic/HeckeEigenvalueConj.lean` (375 → 597, 58 decls, **58 ok**). Both modules are
+checker-green with `sorry` bodies before dispatch, both silent, all six headlines axiom-clean, both
+consumer zones at 0 errors. `needed` moved 662 / 285,984 → **656 / 283,999**, exactly the cut — and the
+set **readied nothing**, which its brief forecast before dispatch (both consumers still owe two and
+three premises): the honest shape of a chain head.
+
+Three method findings came out of the set. **The checker resolves a prelude written once** (FR-0200):
+the pin copies its per-file prelude into every `S_` file, and the copies drift in spelling
+(`CuspForm (Gamma1 N) k` against `Γ₁(N)`); `check_port` indexes the wire by last name and then picks the
+copy whose statement hash agrees, so writing the block once — `open Depletion`, `open SelfPairing` — is
+legal and the other copy still reads `ok`. **The scaffold moves the instrument** (FR-0201): the frontier
+counts a `sorry`-bodied declaration as ported, so the six rows' 1,985 silo left `needed` before a proof
+existed; the opening read must be taken before the scaffolds and quoted as the baseline. **`@[expose]`
+is a statement-level trap** (FR-0203): v4.34 exposes `SpecialLinearGroup`, so the pin's anonymous
+`⟨!![…], hdet⟩` elaborates at the unfolded subtype and the following `mapGL`/`Gamma1_mem` steps stop
+unifying — name the element at `SL(2, ℤ)` and record its `Matrix` value as a `rfl`. The set also
+re-measured FR-0168 on a second 3.2 M-heartbeat pin file: silent at 15,000, first failure at 14,000, a
+13× margin. And one scaffolder defect was caught by a worker at first belief (FR-0202): dropping a
+declaration that carries a `omit … in` prefix leaves the prefix on the next survivor, which `check_port`
+cannot see because its regex starts at `theorem` — the generator now binds such a prefix to its
+declaration.
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

@@ -28,8 +28,9 @@ MD-002 for the measurement).
 
 `frontier.py --selfcheck` prints `source node not covered by the name scan` for every
 node the source tier claims (a `Thm_` source in `SOURCES` or a `spec-pin:` line) that no
-port declaration carries by last name.  **The live inventory is MD-005** (ten phi-refactor
-`ModularCurve` rows, open since 2026-11-12).  On 2026-10-27 the inventory was MD-001..003 below;
+port declaration carries by last name.  **The live inventory is MD-005** (fifteen phi-refactor
+`ModularCurve` rows — ten opened 2026-11-12, five more added by the `jq refactor` commit of
+2026-11-13).  On 2026-10-27 the inventory was MD-001..003 below;
 SET 7 fixed MD-002 and MD-003, and SET MC-7 fixed MD-001, so the live inventory was
 **empty** (`--selfcheck` PASSes).  MD-004 was the mirror case — a node the port does not
 declare at all, read as ported — and was found and resolved by SET-AF18 (2026-11-07); with
@@ -230,7 +231,7 @@ for the next edit of their module.
     (four rows in: the leaf is ported and three rows become ready).
 - **status**: **resolved (2026-11-07, SET-AF18 §3.1)**. Recorded in `logs/frictions.md` as FR-0138.
 
-## MD-005 — ten `ModularCurve` `SOURCES` rows name `PhiGen`/`ModularPolynomialData` nodes the port does not declare
+## MD-005 — fifteen `ModularCurve` `SOURCES` rows name `PhiGen`/`ModularPolynomialData` nodes the port does not declare
 
 - **module**: `FLTForHuman/ModularCurve/ModularEquation/Construction.lean` and its neighbours — the
   rows sit in the `SOURCES` list of the module that carries the phi construction.
@@ -246,6 +247,12 @@ for the next edit of their module.
   The rows are **deliberate pin sides for a future promote** — the comments above them say so ("would
   verify the block's `c_top` etc. if a later topic promotes more of it") — not stale wires, and the
   mathematics is not in the port under another name (`twin_scan --node` reports `new` for each).
+  **Five more rows of the same family were added on 2026-11-13** by the `jq refactor` commit
+  (`656567c`) in the `ModularCurve/ModularEquation/Construction` `SOURCES` block —
+  `ModularCurve.ModularPolynomialData.eq_all`, `ModularCurve.phiIrreducible_of_prime`,
+  `ModularCurve.exists_phiIrreducible`, `ModularCurve.exists_phiIrreducible_of_finrank_eq` and
+  `ModularCurve.phiIrreducible_all` (the `phiIrreducible` block's pin files, whose ported declarations
+  the refactor renamed). They are the same class: a `Thm_` row for a node no port declaration carries.
 - **symptom**: `frontier.py --selfcheck` fails its "source tier covered by name tier" line with these
   ten, and `frontier.py`'s source tier — which is a **ported** tier — therefore counts ten unported
   nodes as ported.
@@ -264,8 +271,16 @@ for the next edit of their module.
   --include-leaves` → `needed [literal]` **733 / 306,724** as a plain (uncorrected) read;
   `python3 spec/check_port.py --force FLTForHuman/ModularCurve/ModularEquation/Construction.lean` →
   unchanged.
-- **status**: **open (recorded 2026-11-12, SET-AF47)**. The workaround for planning reads is
-  `--unport` on each of the ten; the SET-AF47 brief's corrected column is that read.
+- **status**: **open (recorded 2026-11-12, SET-AF47; extended to fifteen 2026-11-14, SET-AF63)**. The
+  workaround for planning reads is `--unport` on each of the fifteen; the SET-AF47 brief's corrected
+  column is that read. **The 2026-11-14 measurement (the D–S read, SET-AF63 §0) is the first on which
+  the correction is not zero in `needed`**: un-porting all fifteen moves the terminal column by
+  **+1 node / +75 lines** — `ModularCurve.ModularPolynomialData.eq_all` is in the terminal demand, the
+  other fourteen are off-path — so on SET-AF63's opening tree the corrected read is
+  **663 / 286,059** against the plain **662 / 285,984**; `needed [literal]` moves **+14 / +4,947**
+  (675 / 289,684 → **689 / 294,631**) and the frontier **−8 / −3,568**
+  (1,754 / 841,333 → **1,746 / 837,765**). The deltas are the tree-independent part; the column
+  figures quoted here are SET-AF63's opening read.
 
 ## MD-006 — a name-tier shadow now *inflates* the frontier by 176 lines: `ValuationSubring.isIntegral_of_forall_mem`
 

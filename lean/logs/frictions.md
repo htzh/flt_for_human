@@ -4275,3 +4275,92 @@ round promotes what generalizes.
   a `synthInstanceFailed` for a class the statement does not mention, and a *proof-local* `haveI` in the
   pin — which is the pin carrying an instance the port declares elsewhere.
 - **seen**: 2026-11-13, SET-AF61 (three lines; no statement change).
+
+## FR-0200 [checker] — a prelude written **once** against two differently-spelled pin copies still checks `ok`: the tiers are name-first, *hash-second*
+
+- **where**: SET-AF63's two scaffolds. The pin copies its per-file prelude into every `S_` file that
+  needs it, and the copies drift in spelling: `S_CuspForm_exists_qCoeff_eq_sum_primeFactors_…:382–495`
+  re-states 25 of `S_CuspForm_exists_gamma1_qCoeff_eq_ite_coprime`'s declarations in the `Γ₁(N)`
+  notation while the first file writes `CuspForm (Gamma1 N) k`. The same happens between the two
+  Petersson files (12 declarations, byte-identical there) and between row F's file and
+  `WeightOne/PrimitiveQCoeffNorm.lean` (19 declarations).
+- **the question the manager had to answer before scaffolding**: does writing the block once make the
+  other copy report `MISMATCH` (its text is not in the module) or `missing`?
+- **answer, measured**: neither. `check_port.py` indexes the wire by last name and then *picks, among
+  those candidates, the one whose statement hash equals the port declaration's* (`Wire.by_last` +
+  `pick`). A port declaration matches the copy it transcribes, and a `MISMATCH` needs the statement to
+  match **no** copy. Measured on both AF63 scaffolds: 84 ok / 0 / 0 and 58 ok / 0 / 0, with every
+  deduped declaration `ok` against the copy whose spelling the port kept.
+- **rule**: a pin block copied into several `S_` files of one module is written **once**, in the
+  spelling of one copy (state which in the header, and `open` it from the other namespaces). The
+  checker resolves the rest; a local `local notation` inside the reusing namespace is free. This is
+  what `port_advise`'s *port once* block is reporting when it lists the same name twice from two pin
+  files.
+- **caveat**: the resolution is by *last name* first, so this is only safe when the copies carry the
+  **same** last name. A renamed copy needs a `pin:` row in `spec/decl_markers.tsv`.
+- **seen**: 2026-11-14, SET-AF63.
+
+## FR-0201 [tooling] — writing the scaffold *is* a port as far as the frontier is concerned: −1,985 silo before a proof is written
+
+- **where**: SET-AF63's §0 read, taken twice on the same tree: once before the two scaffolds were
+  written (`needed [F terminal]` **662 / 285,984**) and once after (`656 / 283,999`).
+- **the move is exactly the six cut rows' silo** (339 + 118 + 868 + 249 + 142 + 269 = 1,985 lines, six
+  nodes), because `frontier.py`'s name tier scans the port tree for *declarations* and a `sorry`-bodied
+  declaration is a declaration. Nothing about readiness changed: the six rows' proofs do not exist.
+- **rule (the FR-0114 rule, with the price attached)**: take the *opening* read of a set **before** its
+  scaffold is written, quote that figure in the brief, and never compare a post-landing read against a
+  read taken with the scaffolds in flight. If a read must be taken mid-wave, `--unport` the in-flight
+  rows — here six `--unport`s would have been needed, and it is cheaper to take the read first.
+- **corollary for the plan**: the scaffold also *inflates* the `--selfcheck` frontier figure by its
+  prelude declarations' last names, so a mid-wave `--selfcheck` is not comparable with the pre-wave one.
+- **seen**: 2026-11-14, SET-AF63.
+
+## FR-0202 [scaffolding/tooling] — dropping a declaration that carries a `omit … in` / `open … in` prefix leaves the prefix on the **next** survivor, and `check_port` cannot see it
+
+- **where**: SET-AF63's ORDER-B scaffold, `ModularForms/Analytic/HeckeEigenvalueConj.lean`. The pin's
+  `S_CuspForm_peterssonOn_add_smul_conj.lean` opens its prelude with `omit [Γ.FiniteIndex] in`
+  (pin `:76`) directly before `petersson_continuous'`; that declaration is one of the twelve the
+  manager deduped out of the second namespace. The scaffold's chunker splits on non-indented lines, so
+  `omit [Γ.FiniteIndex] in` became a chunk of its own — with no declaration name, so the
+  drop-by-name list did not remove it — and it landed immediately before the next surviving
+  declaration, `peterssonOn_add_right`.
+- **symptom**: the module elaborates, `check_port` reads **58 ok / 0 / 0**, and the affected row is
+  **unprovable**: `omit [Γ.FiniteIndex] in` removes the instance from the proof context, so
+  `integrand_eq`/`integrable_cosum` (whose signatures need `[Γ.FiniteIndex]`) cannot apply, and
+  additivity of the Bochner integral needs integrability. A worker reported it at the *first belief*
+  and fixed it by deleting the orphan line — which restores exactly the pin's public binder set.
+- **why the gate missed it**: `check_port`'s declaration regex starts at `theorem`/`def`/…, so a
+  non-indented prefix line is **not part of the compared signature**. The port can therefore carry a
+  *different binder set* from the pin and still read `ok`. The same is true of a misplaced
+  `variable … in`, `include … in` or `open … in` — a silent, checking-invisible statement change.
+- **rule for a scaffolder**: attach a non-indented prefix line (`omit`/`include`/`variable`/`open`/
+  `attribute` … ending in `in`) to the **chunk it modifies**, so that dropping the declaration drops
+  the prefix with it. `lean/tmp/af63/gen.py` now does this. And on the reading side: a scaffold is
+  not verified by `check_port` alone — the public binder set of every declaration must be diffed
+  against the pin's, which is what the worker's skeleton diff did here.
+- **seen**: 2026-11-14, SET-AF63 order B (found and fixed by the worker within the dispatch, not a
+  blocker).
+
+## FR-0203 [defeq/expose] — v4.34's `@[expose]` on `SpecialLinearGroup` makes an anonymous constructor elaborate at the **unfolded** subtype, and the pin's `mapGL`/`Gamma1_mem` steps then do not unify
+
+- **where**: SET-AF63 order A, `ModularForms/AtkinLehnerLowering.lean`, the two cocycle lemmas
+  `Depletion.exists_cocycle_trans` (pin `S_…ite_coprime.lean:48`) and
+  `AtkinLehnerMain.exists_cocycle_wGL` (pin `…_sum_primeFactors.lean:199`).
+- **symptom**: the pin's literal text
+  `let δ : SL(2, ℤ) := ⟨!![a, b; c, d], hdet⟩` / `exact ⟨⟨!![…], hdet⟩, …⟩` fails at v4.34 with
+  "Application type mismatch: … has type `{A // A.det = 1}` but expected `SL(2, ℤ)`" when the term is
+  then fed to `Matrix.SpecialLinearGroup.mapGL ℝ` or to `Gamma1_mem` — at `.implicit` transparency the
+  two are not identified. `SpecialLinearGroup` is `@[expose]` in this mathlib, so the anonymous
+  constructor is *seen through* to the subtype.
+- **fix / rule**: bind the element first and record its `Matrix` value as a `rfl` at the `SL(2, ℤ)`
+  type, then rewrite with that equation:
+  ```lean
+  let δ : SL(2, ℤ) := ⟨!![a, b; c, d], hdet⟩
+  have hδcoe : (δ : Matrix (Fin 2) (Fin 2) ℤ) = !![a, b; c, d] := rfl
+  ```
+  This is the "state the intermediate at the named type" rule of the playbook's §6 brick recipe, in its
+  `@[expose]`-induced form; a `show`/`change` at the unfolded type does **not** fix the downstream
+  application, because the failure is on the argument's type, not on the goal.
+- **cost when missed**: this is the only proof-level adaptation the order needed (two sites); both
+  proofs are otherwise verbatim.
+- **seen**: 2026-11-14, SET-AF63 order A.
