@@ -23,6 +23,7 @@
   `discriminant` are mathlib's `ModularForm.*`.
 -/
 import FLTForHuman.Elliptic.PeriodPair.Basic
+import FLTForHuman.ModularForms.Defs.JInvariant
 import Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass
 import Mathlib.NumberTheory.ModularForms.Discriminant
 import Mathlib.NumberTheory.ModularForms.LevelOne.Basic
@@ -46,7 +47,7 @@ def fricke (N : ℕ) (v : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
   -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * wp N v τ
 
 def jAnalytic (τ : ℍ) : ℂ :=
-  ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ
+  ModularForm.j τ
 
 def generators (N : ℕ) : Set (ℍ → ℂ) :=
   insert jAnalytic {g : ℍ → ℂ | ∃ v : Fin 2 → ZMod N, v ≠ 0 ∧ g = fricke N v}

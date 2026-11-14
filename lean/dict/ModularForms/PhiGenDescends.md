@@ -23,12 +23,12 @@ coset polynomial). The theory this is the analytic input *for*:
 | `K((q))`, `K = ℚ(ζ_ℓ)` | `LaurentSeries (CyclotomicField ℓ ℚ)` | `coeffEmb K jq`, the conjugates `PhiGen.conj i`, the product `phiProd ℓ (conj ℓ ζ)`, and the descent hypothesis `hc` |
 | `ℂ((q))` | `LaurentSeries ℂ` | `jqC`, `conjC i`, `castC`-images, and the coefficients of the coset polynomial |
 | `ℂ[X]` over `ℂ((q))` | `Polynomial (LaurentSeries ℂ)` | `phiProdC` (private: the σ-image of `phiProd`), i.e. the coset polynomial `∏ i, (X - C (conjC i))` — a polynomial whose *coefficients are series* |
-| `ℂ[X]` over `ℂ` | `Polynomial ℂ` | the same shape with every coefficient series evaluated at a point of `ℍ`: `∏ i, (X - C (jt (rep i • τ)))` — a polynomial whose coefficients are numbers |
-| functions `ℍ → ℂ` | `UpperHalfPlane → ℂ` | `jt`, the Hecke translates `jt ∘ (rep i • ·)`, and the coset polynomial's `k`-th coefficient as a function of `τ` |
+| `ℂ[X]` over `ℂ` | `Polynomial ℂ` | the same shape with every coefficient series evaluated at a point of `ℍ`: `∏ i, (X - C (j (rep i • τ)))` — a polynomial whose coefficients are numbers |
+| functions `ℍ → ℂ` | `UpperHalfPlane → ℂ` | `j` (public `ModularForm.j`, `ModularForms/Defs/JInvariant.lean`), the Hecke translates `j ∘ (rep i • ·)`, and the coset polynomial's `k`-th coefficient as a function of `τ` |
 
 The passage between the last two rows is `RealL.coeff_prod_X_sub_C`, and it is the only place where
 a *polynomial over series* becomes a *polynomial over numbers*: for each `i`, a realization of the
-series `conjC i` by the number `jt (rep i • τ)` gives a realization of the product's `k`-th coefficient
+series `conjC i` by the number `j (rep i • τ)` gives a realization of the product's `k`-th coefficient
 by the product's `k`-th coefficient at `τ`. Nothing else in the cone evaluates a coefficient at a
 point.
 
@@ -38,7 +38,7 @@ part.
 
 ## 2. The maps
 
-Every map in the table is a `→+*`; the τ-side has no ring maps, only `jt` and the action `•`.
+Every map in the table is a `→+*`; the τ-side has no ring maps, only `j` and the action `•`.
 
 | map | source → target | action |
 |---|---|---|
@@ -97,12 +97,12 @@ Which statement sits at which period:
 | statement | series | period | realized by |
 |---|---|---|---|
 | `hasSum_jq_qParam` | `jqC`'s coefficients | `1` | `E₄ τ ^ 3 / Δ τ` |
-| `realL_jqC` | `jqC` | `1` | `jt` |
-| `hasSum_qParam_heckeDiagMatrix_smul` | `qExpand ℂ (ℓ * ℓ) jqC` | `ℓ` | `jt (ℓτ)` |
-| `hasSum_qParam_heckeMatrix_smul b` | `e^{2πibm/ℓ} · jqC(m)` | `ℓ` | `jt ((τ + b)/ℓ)` |
-| `hconj_zero` | `conjC 0` (`= qExpand ℂ (ℓ * ℓ) jqC`) | `ℓ` | `jt ∘ heckeDiagMatrix` |
-| `hconj_succ b` | `conjC (b + 1)` (`= σ`-image of `qTwist (ζ ^ b) jq`) | `ℓ` | `jt ∘ heckeMatrix ℓ b` |
-| `hconj` | the two rows above, indexed by `rep` | `ℓ` | `jt ∘ (rep i • ·)` |
+| `realL_jqC` | `jqC` | `1` | `j` |
+| `hasSum_qParam_heckeDiagMatrix_smul` | `qExpand ℂ (ℓ * ℓ) jqC` | `ℓ` | `j (ℓτ)` |
+| `hasSum_qParam_heckeMatrix_smul b` | `e^{2πibm/ℓ} · jqC(m)` | `ℓ` | `j ((τ + b)/ℓ)` |
+| `hconj_zero` | `conjC 0` (`= qExpand ℂ (ℓ * ℓ) jqC`) | `ℓ` | `j ∘ heckeDiagMatrix` |
+| `hconj_succ b` | `conjC (b + 1)` (`= σ`-image of `qTwist (ζ ^ b) jq`) | `ℓ` | `j ∘ heckeMatrix ℓ b` |
+| `hconj` | the two rows above, indexed by `rep` | `ℓ` | `j ∘ (rep i • ·)` |
 | the `have h` of the headline | `(phiProdC).coeff k` | `ℓ` | the coset polynomial at `τ` (`RealL.coeff_prod_X_sub_C`) |
 | `hreal` in the headline | `c k` | `1` | `F`, the coset polynomial's `k`-th coefficient |
 
@@ -170,7 +170,7 @@ two hypotheses:
 | hypothesis | statement | where it comes from here |
 |---|---|---|
 | `hF` | `RealL 1 (coeffEmb ℂ f) F` — the realization at period `1`, `ℤ`-indexed, **no pole bound**; unfolding it gives `∀ τ, HasSum (fun m : ℤ => ↑(f.coeff m) * 𝕢 1 τ ^ m) (F τ)` | `hreal`, the `have` in the headline |
-| `hinv` | `∀ γ τ, F (γ • τ) = F τ` — `SL₂(ℤ)`-invariance on `ℍ` | `cosetPoly_smul_fin ℓ jt jt_smul γ τ`, applied under `coeff k` |
+| `hinv` | `∀ γ τ, F (γ • τ) = F τ` — `SL₂(ℤ)`-invariance on `ℍ` | `cosetPoly_smul_fin ℓ ModularForm.j ModularForm.j_smul γ τ`, applied under `coeff k` |
 
 The pole bound is not a hypothesis: T7 recovers it from `f`'s own order, then applies
 `exists_aeval_jq_sub_holomorphicAtInfty` (subtract the polynomial in `jq` matching the pole,
@@ -182,7 +182,7 @@ two indices is `hasSum_powerSeries_of_laurent` (`JqAnalyticModel`), the mirror o
 `ℕ`-index meet.
 
 `mem_adjoin_jq_of_phiGenDescends` fixes `f := c k` and `F := fun τ => (coset polynomial in
-jt (rep i • τ)).coeff k`, so the two hypotheses are supplied independently and the theorem is exactly
+j (rep i • τ)).coeff k`, so the two hypotheses are supplied independently and the theorem is exactly
 "realization + invariance ⇒ membership".
 
 ## 7. Where the convergence comes from
@@ -192,7 +192,7 @@ one closure**, and everything else in the chain is a converter:
 
 | kind | name | note |
 |---|---|---|
-| seed | `hasSum_jq_qParam`, read as `realL_jqC : RealL 1 jqC jt` | the only place a series is summed for the first time: `E₄³/Δ = ∑ jq(m) q^m` on `ℍ`; its anatomy is §11 |
+| seed | `hasSum_jq_qParam`, read as `realL_jqC : RealL 1 jqC j` | the only place a series is summed for the first time: `E₄³/Δ = ∑ jq(m) q^m` on `ℍ`; its anatomy is §11 |
 | product closure | `hasSum_qParam_mul`, `hasSum_qParam_mul_laurent`, `RealL.mul`, `RealL.prod`, `RealL.coeff_prod_X_sub_C` | genuinely new convergence: Cauchy product of two-sided series, side condition `0 < h` |
 | algebraic closure | `RealL.add`, `neg`, `sub`, `C`, `single`, `one`, `zero`, `aeval` | sums, differences, constants, polynomial substitution; no new analysis. `aeval` is the general form of the pin's `jq`-specific `realL_aeval_jq`: it takes `P` and a realization of the series, and returns the realization of `P` of it |
 | transport | `hasSum_qParam_heckeMatrix_smul`, `hasSum_qParam_heckeDiagMatrix_smul`, `realL_one_of_realL_qExpand`, `realL_qExpand_of_realL_one` | the summands are the same terms reindexed, closed by `hA _` or `hinj.hasSum_iff` |
@@ -210,8 +210,8 @@ The realization is a `have` inside `mem_adjoin_jq_of_phiGenDescends`, so these a
 | name | fact |
 |---|---|
 | `F`, `hF` | the coset polynomial's `k`-th coefficient as a function of `τ`, indexed by `rep`; `hF` is the resulting equation, used to rewrite `F` in the invariance step |
-| `hconj_zero` | the diagonal slot realized: `conjC 0` by `jt ∘ heckeDiagMatrix`, through `conjC_zero` |
-| `hconj_succ` | the `b`-th slot realized: `conjC (b + 1)` by `jt ∘ heckeMatrix ℓ b`, the summand match being `conjC_succ_coeff` |
+| `hconj_zero` | the diagonal slot realized: `conjC 0` by `j ∘ heckeDiagMatrix`, through `conjC_zero` |
+| `hconj_succ` | the `b`-th slot realized: `conjC (b + 1)` by `j ∘ heckeMatrix ℓ b`, the summand match being `conjC_succ_coeff` |
 | `hconj` | the two assembled under `rep` (`Fin.cases` + `rep_zero`/`rep_succ`): the family that `RealL.coeff_prod_X_sub_C` consumes |
 | `hreal` | `RealL 1 (coeffEmb ℂ (c k)) F` — the period-`1` realization T7's headline consumes, closed by `realL_one_of_realL_qExpand` |
 | `h` | `RealL ℓ ((phiProdC).coeff k)` realized by the coset polynomial; after the five-step `rw` chain (`← map_phiProd`, `Polynomial.coeff_map`, `hc k`, `coeffMap_sigma_coeffEmb`, `coeffMap_qExpand`) it is the same fact at `qExpand ℂ ℓ (coeffMap castC (c k))` |
@@ -222,7 +222,7 @@ The realization is a `have` inside `mem_adjoin_jq_of_phiGenDescends`, so these a
 
 | pair | the one fact that separates them |
 |---|---|
-| `jq` / `jt` | the formal series in `ℚ((q))` / its analytic model `E₄³/Δ` on `ℍ`; `realL_jqC` is the bridge |
+| `jq` / `j` | the formal series in `ℚ((q))` / its analytic model `E₄³/Δ` on `ℍ`; `realL_jqC` is the bridge |
 | `jqC` / `coeffMap castC jq` | the same series, the second spelling exposing the coefficient map |
 | `phiProdC` / `(PhiGen.phiProd ℓ (PhiGen.conj ℓ ζ)).map (coeffMap σ)` | the name / the term it abbreviates; `map_phiProd` moves between `phiProdC` and the product of `X - C (conjC i)` |
 | `conjC i` / `PhiGen.conj i` | the `ℂ` image along `sigma` / the `K`-series; related by `coeffMap` |
@@ -251,8 +251,8 @@ out; those modules have names for them. Where a reader meets one of the long spe
 | `phiProdC` (the σ-image of `phiProd`) | `conjK ℓ ζ f g`, `interpK ℓ ζ f g`; per factor `map_coeffMap_phiProd` (`phiProd ℓ (conj ℓ (σ ζ))`) and `coeffMap_X_sub_C_conj` | `Analytic/Gamma0InvariantCore.lean:257`, `ModularEquation/Split.lean:155` (private), `Support/Permutation.lean:259` |
 | `(p.map (coeffMap σ)).coeff k` | `coeffMap σ (p.coeff k)` — the consumers keep the coefficient outside the `map`, via `Polynomial.coeff_map` | everywhere downstream |
 | `∏ i : Fin (ℓ + 1), (X - C (H i))` (the shape of `phiProd`) | `conjPoly H` (`Gamma0InvariantCore:98`) | `Analytic/Gamma0InvariantCore.lean` |
-| `∏ i, (X - C (jt (rep ℓ i • τ)))` | `conjPoly (fun i => slotJ ℓ i τ)`, the polynomial behind `conjFun ℓ F k` (`:551`) | same |
-| `rep ℓ i`, a `GL(2,ℝ)` matrix | `cosetRep ℓ i`, an `SL(2,ℤ)` element (`cosetRep 0 = 1`, `cosetRep (b + 1) = S * T ^ b`), with `jtN τ = jt (heckeDiagMatrix ℓ • τ)` and `slotF`/`slotJ` | same, `:446`–`:457` |
+| `∏ i, (X - C (j (rep ℓ i • τ)))` | `conjPoly (fun i => slotJ ℓ i τ)`, the polynomial behind `conjFun ℓ F k` (`:551`) | same |
+| `rep ℓ i`, a `GL(2,ℝ)` matrix | `cosetRep ℓ i`, an `SL(2,ℤ)` element (`cosetRep 0 = 1`, `cosetRep (b + 1) = S * T ^ b`), with `jtN τ = j (heckeDiagMatrix ℓ • τ)` and `slotF`/`slotJ` | same, `:446`–`:457` |
 | `hconj_zero`, `hconj_succ` | `realL_conj` (consumer), `realL_slotH` (weighted slot) | same |
 | `RealL.coeff_prod_X_sub_C` (the headline's `h`) | `RealL.conjPoly_coeff`; weighted variant `RealL.interpPoly_coeff` (`interpPoly H Y = ∑ i, C (H i) * ∏ m ≠ i, (X - C (Y m))`) | same, `:341`, `:323` |
 | `map_phiProd` | `interpPoly_map`, `conjPoly_map` | same, `:106`, `:111` |
@@ -295,13 +295,13 @@ Two consequences worth stating plainly: the seed contains no pole cancellation (
 monomial `q⁻¹` in `jq`'s definition), and the `E₄` row is the only place the lattice sum appears at
 all.
 
-### 11.2 `jt`'s two borrowed properties
+### 11.2 `j`'s two borrowed properties
 
 | fact | Lean theorem | whose work |
 |---|---|---|
-| `jt (γ • τ) = jt τ` | `E4_cube_div_discriminant_smul` | **mathlib**: `SlashInvariantForm.slash_action_eqn''` for the weight-4 `E₄` and the weight-12 `CuspForm.discriminant`; the port only multiplies and cancels `denom ^ 12`. Weight 4 is discharged when mathlib *builds* `E₄`: `eisensteinSeries_slash_apply` reindexes the sum along `gammaSetEquiv a γ` (change of basis on the lattice), `eisensteinSeriesSIF` closes with `Gamma_mem'`. Weight 12 by `η`'s transformation law, checked on the generators (`discriminant_S_invariant`, `discriminant_T_invariant`, `slash_action_generators_SL2Z`) |
-| `jt` realizes `jq` | `hasSum_jq_qParam` | §11.1 |
-| `q · jt` is bounded at `i∞`, with limit `1` | `isBoundedAtImInfty_qJ` | **port**: `qJ = E₄³ · (gfun ∘ q)⁻¹` with `gfun q = ∏ (1 - q^n)^24 → 1` |
+| `j (γ • τ) = j τ` | `E4_cube_div_discriminant_smul` | **mathlib**: `SlashInvariantForm.slash_action_eqn''` for the weight-4 `E₄` and the weight-12 `CuspForm.discriminant`; the port only multiplies and cancels `denom ^ 12`. Weight 4 is discharged when mathlib *builds* `E₄`: `eisensteinSeries_slash_apply` reindexes the sum along `gammaSetEquiv a γ` (change of basis on the lattice), `eisensteinSeriesSIF` closes with `Gamma_mem'`. Weight 12 by `η`'s transformation law, checked on the generators (`discriminant_S_invariant`, `discriminant_T_invariant`, `slash_action_generators_SL2Z`) |
+| `j` realizes `jq` | `hasSum_jq_qParam` | §11.1 |
+| `q · j` is bounded at `i∞`, with limit `1` | `isBoundedAtImInfty_qJ` | **port**: `qJ = E₄³ · (gfun ∘ q)⁻¹` with `gfun q = ∏ (1 - q^n)^24 → 1` |
 
 So the two facts the cone needs from ℍ — invariance and the q-expansion — are both mathlib's, and
 neither is re-derived here. `JqAnalyticModel`'s own header carries the same kind of split for its

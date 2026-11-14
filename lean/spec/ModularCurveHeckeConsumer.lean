@@ -271,7 +271,7 @@ example : Nonempty (ModularPolynomialData 2) :=
 example (data : ModularPolynomialData 2) : Module.finrank
     (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
     (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
-      ({jqNModC ℚ 2} : Set (LaurentSeries ℚ))) ≤ dedekindPsi 2 :=
+      ({jqNModC ℚ 2} : Set (LaurentSeries ℚ))) ≤ ModularCurve.dedekindPsi 2 :=
   finrank_adjoin_jqNModC_le ℚ data
 example : Transcendental ℚ (jqModC ℚ) := transcendental_jqModC ℚ
 

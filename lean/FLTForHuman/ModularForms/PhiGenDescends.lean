@@ -22,9 +22,9 @@
     the exported application.
 
   **Deduplication.** FLT's `…hasSum_cosetPoly_coeff.lean` copies the whole
-  `RealL` block and the `jt`/`jqC` glue from T7's file. The port imports T7's
+  `RealL` block and the `jqC` glue from T7's file. The port imports T7's
   public `RealL` + closure instead (the payoff of T7 exporting it) and keeps only
-  the tiny `jt`/`jqC`/`realL_jqC` glue private here. The Hecke matrices come from
+  the tiny `jqC`/`realL_jqC` glue private here. The Hecke matrices come from
   `FLTForHuman.ModularForms.Defs.HeckeOperator`; the Hecke representatives on
   `ℙ¹(𝔽_ℓ)` (`heckeRep`, `redMatrix`, `heckeRep_mul`, the four commutation
   lemmas) come from `FLTForHuman.ModularForms.Defs.HeckeRepresentatives`, which
@@ -55,6 +55,7 @@ import FLTForHuman.ModularForms.Defs.HeckeOperator
 import FLTForHuman.ModularForms.Defs.HeckeRepresentatives
 import FLTForHuman.ModularForms.HeckeQExpansion
 import FLTForHuman.ModularForms.JqAnalyticModel
+import FLTForHuman.ModularForms.Defs.JInvariant
 import FLTForHuman.ModularForms.Hauptmodul
 
 set_option autoImplicit false
@@ -156,18 +157,9 @@ coefficientwise image of `PhiGen.conj`) is realized by the Hecke translates of
 `jq`. The `RealL` closure gives the product, and reducing period `ℓ` to `1`
 recovers the realization T7's headline consumes. -/
 
-private def jt (τ : ℍ) : ℂ := ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ
-
 private abbrev castC : ℚ →+* ℂ := Rat.castHom ℂ
 
-private def jqC : LaurentSeries ℂ := coeffMap castC jq
-
-private lemma jqC_coeff (m : ℤ) : jqC.coeff m = ((jq.coeff m : ℚ) : ℂ) := rfl
-
-private lemma realL_jqC : RealL 1 jqC jt := fun τ => hasSum_jq_qParam τ
-
-private lemma jt_smul (γ : SL(2, ℤ)) (τ : ℍ) : jt (γ • τ) = jt τ :=
-  E4_cube_div_discriminant_smul γ τ
+private lemma realL_jqC : RealL 1 jqC ModularForm.j := fun τ => hasSum_jq_qParam τ
 
 section Sigma
 
@@ -310,25 +302,25 @@ in `ℚ[jq]`. Stated verbatim from
 `Theorems/Thm_ModularCurve_PhiGen_mem_adjoin_jq_of_phiGenDescends.lean`.
 
 The descent hypothesis realizes `c k` as the `k`-th coefficient of the coset
-polynomial in the `SL₂(ℤ)`-invariant `jt`; T7's headline puts it in `ℚ[jq]`. -/
+polynomial in the `SL₂(ℤ)`-invariant `j`; T7's headline puts it in `ℚ[jq]`. -/
 theorem mem_adjoin_jq_of_phiGenDescends (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
     (ζ : (CyclotomicField ℓ ℚ)ˣ) (hζ : IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ)
     (c : ℕ → LaurentSeries ℚ) (hc : PhiGenDescends ℓ ζ c) (k : ℕ) :
     c k ∈ Algebra.adjoin ℚ {jq} := by
   set F : ℍ → ℂ := fun τ =>
-    (∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (jt (rep ℓ i • τ)))).coeff k with hF
+    (∏ i : Fin (ℓ + 1), (Polynomial.X - Polynomial.C (ModularForm.j (rep ℓ i • τ)))).coeff k with hF
   have hreal : RealL 1 (coeffEmb ℂ (c k)) F := by
     have hconj_zero :
-        RealL ℓ (conjC ℓ ζ hζ 0) (fun τ => jt (ModularForm.heckeDiagMatrix ℓ • τ)) := by
+        RealL ℓ (conjC ℓ ζ hζ 0) (fun τ => ModularForm.j (ModularForm.heckeDiagMatrix ℓ • τ)) := by
       intro τ
       rw [conjC_zero ℓ ζ hζ]
-      exact hasSum_qParam_heckeDiagMatrix_smul ℓ jqC jt realL_jqC τ
+      exact hasSum_qParam_heckeDiagMatrix_smul ℓ jqC ModularForm.j realL_jqC τ
     have hconj_succ : ∀ b : Fin ℓ,
-        RealL ℓ (conjC ℓ ζ hζ b.succ) (fun τ => jt (ModularForm.heckeMatrix ℓ (b : ℕ) • τ)) := by
+        RealL ℓ (conjC ℓ ζ hζ b.succ) (fun τ => ModularForm.j (ModularForm.heckeMatrix ℓ (b : ℕ) • τ)) := by
       intro b τ
-      refine (hasSum_qParam_heckeMatrix_smul ℓ (b : ℕ) jqC jt realL_jqC τ).congr_fun fun m => ?_
+      refine (hasSum_qParam_heckeMatrix_smul ℓ (b : ℕ) jqC ModularForm.j realL_jqC τ).congr_fun fun m => ?_
       rw [conjC_succ_coeff]
-    have hconj : ∀ i : Fin (ℓ + 1), RealL ℓ (conjC ℓ ζ hζ i) (fun τ => jt (rep ℓ i • τ)) := by
+    have hconj : ∀ i : Fin (ℓ + 1), RealL ℓ (conjC ℓ ζ hζ i) (fun τ => ModularForm.j (rep ℓ i • τ)) := by
       refine Fin.cases ?_ (fun b => ?_)
       · simpa only [rep_zero] using hconj_zero
       · simpa only [rep_succ] using hconj_succ b
@@ -338,7 +330,7 @@ theorem mem_adjoin_jq_of_phiGenDescends (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)
     exact realL_one_of_realL_qExpand ℓ _ _ h
   refine mem_adjoin_jq_of_hasSum_of_slash_invariant (c k) F hreal fun γ τ => ?_
   simpa only [hF] using congrArg (fun p : Polynomial ℂ => p.coeff k)
-    (cosetPoly_smul_fin ℓ jt jt_smul γ τ)
+    (cosetPoly_smul_fin ℓ ModularForm.j ModularForm.j_smul γ τ)
 
 end ModularCurve.PhiGen
 

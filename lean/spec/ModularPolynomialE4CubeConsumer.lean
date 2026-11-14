@@ -24,7 +24,7 @@
     by `PeriodPair.exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic`, both
     `jLattice`s are rewritten by `PeriodPair.jLattice_ofTau`, and the coset headline
     closes; the packaged `jLattice` headline is exercised as well;
-  * zone 5 — the `jt` invariance bridge of `CosetRootAux`.
+  * zone 5 — the `j` invariance bridge.
 -/
 import FLTForHuman.Algebra.SpecialLinearGroupSmith
 import FLTForHuman.ModularCurve.ModularPolynomialE4Cube
@@ -137,12 +137,12 @@ example (N : ℕ) [NeZero N] (data : ModularCurve.ModularPolynomialData N) (L L'
     (data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom ℂ) L.jLattice)).eval L'.jLattice = 0 :=
   ModularCurve.ModularPolynomialData.eval_jLattice_eq_zero_of_isAddCyclic N data L L' hsub hidx hcyc
 
-/-! ### Zone 5 — the `jt` invariance bridge -/
+/-! ### Zone 5 — the `j` invariance bridge -/
 
-/-- `jt` is `𝒮ℒ`-invariant, through the `sl_mem` inclusion of the coset module. -/
+/-- `j` is `𝒮ℒ`-invariant. -/
 example (γ : SL(2, ℤ)) (z : ℍ) :
-    ModularCurve.CosetRootAux.jt ((γ : GL (Fin 2) ℝ) • z) = ModularCurve.CosetRootAux.jt z :=
-  ModularCurve.CosetRootAux.jt_smul γ z
+    ModularForm.j ((γ : GL (Fin 2) ℝ) • z) = ModularForm.j z :=
+  ModularForm.j_smul γ z
 
 end ModularPolynomialE4CubeConsumer
 

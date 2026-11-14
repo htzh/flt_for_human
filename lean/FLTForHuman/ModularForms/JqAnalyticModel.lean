@@ -64,7 +64,7 @@
   | the seed's convergence step (`hnum` in `hasSum_jq_qParam`) | `UpperHalfPlane.hasSum_qExpansion` |
   | gluing `qJ_eq`, `qJ_mul_Dq`, `cuspFunction_eqOn`, `cuspFunction_Dq`, `cuspFunction_qJ`, `qExpansion_qParam_fun`, `qExpansion_{Dq',qJ}`, `periodic_qJ`, `mdiff_qJ`, `isBoundedAtImInfty_qJ`, `gfun_ne_zero`, `continuousAt_gfun` | **ported** (no mathlib counterpart) |
   | `hasSum_jq_qParam` (`q⁻¹` step) | **ported** (`HasSum.mul_left` + `Function.Injective.hasSum_iff` + the port's `coeff_jq_of_lt`) |
-  | `E4_cube_div_discriminant_smul` | `SlashInvariantForm.slash_action_eqn''` on `E₄` (weight 4) and `CuspForm.discriminant` (weight 12) |
+  | `E4_cube_div_discriminant_smul` | `ModularForm.j_smul` (`ModularForms/Defs/JInvariant.lean`), whose proof is `SlashInvariantForm.slash_action_eqn''` on `E₄` (weight 4) and `CuspForm.discriminant` (weight 12) |
 
   ## Assumptions
 
@@ -81,6 +81,7 @@ import Mathlib.RingTheory.PowerSeries.PiTopology
 import Mathlib.Analysis.Complex.TaylorSeries
 import Mathlib.Analysis.Complex.LocallyUniformLimit
 import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularForms.Defs.JInvariant
 
 set_option autoImplicit false
 
@@ -639,21 +640,8 @@ theorem hasSum_powerSeries_of_laurent {c : ℤ → ℂ} {q v : ℂ}
 theorem E4_cube_div_discriminant_smul
     (γ : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane) :
     ModularForm.E₄ (γ • τ) ^ 3 / ModularForm.discriminant (γ • τ)
-      = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ := by
-  have hγ : (mapGL ℝ γ : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨γ, rfl⟩
-  have hE : ModularForm.E₄ (γ • τ) = denom (mapGL ℝ γ) τ ^ (4 : ℤ) * ModularForm.E₄ τ :=
-    SlashInvariantForm.slash_action_eqn'' (ModularForm.E₄) hγ τ
-  have hΔ : ModularForm.discriminant (γ • τ)
-      = denom (mapGL ℝ γ) τ ^ (12 : ℤ) * ModularForm.discriminant τ := by
-    have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant hγ τ
-    simp only [CuspForm.coe_discriminant] at this
-    exact this
-  have hd : denom (mapGL ℝ γ : GL (Fin 2) ℝ) τ ≠ 0 := denom_ne_zero _ _
-  rw [hE, hΔ, mul_pow, ← zpow_natCast, ← zpow_mul]
-  norm_num
-  first
-  | rw [mul_div_mul_left _ _ (zpow_ne_zero 12 hd)]
-  | rw [mul_div_mul_left _ _ (pow_ne_zero 12 hd)]
+      = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ :=
+  ModularForm.j_smul γ τ
 
 end ModularCurve
 

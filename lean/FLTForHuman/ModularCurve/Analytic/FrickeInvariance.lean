@@ -58,15 +58,15 @@ variable {K : Type} [Field K] [Algebra ℚ K] [IsGalois ℚ K] [FiniteDimensiona
   (hG : ∀ τ : ℍ, HasSum (fun m : ℤ => ((g.coeff m : ℚ) : ℂ) * 𝕢 ℓ (τ : ℂ) ^ m) (F (ModularGroup.S • τ)))
   (hinv : ∀ γ ∈ CongruenceSubgroup.Gamma0 ℓ, ∀ τ : ℍ, F (γ • τ) = F τ)
 
-lemma realL_jtN_S : RealL ℓ (coeffMap castC jq) (fun τ => jtN ℓ (ModularGroup.S • τ)) := by
+lemma realL_jtN_S : RealL ℓ jqC (fun τ => jtN ℓ (ModularGroup.S • τ)) := by
   have : NeZero ℓ := ⟨hℓ.out.ne_zero⟩
   intro τ
 
   have hpt : ModularForm.heckeDiagMatrix ℓ • ModularGroup.S • τ = ModularGroup.S • ModularForm.heckeMatrix ℓ 0 • τ := by
     have h := heckeDiag_smul_S_T_pow_smul ℓ 0 τ
     rwa [pow_zero, mul_one] at h
-  have h := hasSum_qParam_heckeMatrix_smul ℓ 0 (coeffMap castC jq) jt realL_jqC τ
-  have hval : jtN ℓ (ModularGroup.S • τ) = jt (ModularForm.heckeMatrix ℓ 0 • τ) := by
+  have h := hasSum_qParam_heckeMatrix_smul ℓ 0 jqC ModularForm.j realL_jqC τ
+  have hval : jtN ℓ (ModularGroup.S • τ) = ModularForm.j (ModularForm.heckeMatrix ℓ 0 • τ) := by
     simp only [jtN]
     rw [hpt]
     exact E4_cube_div_discriminant_smul ModularGroup.S _
@@ -89,7 +89,7 @@ lemma realL_sum_qExpand_mul_jq_pow (n : ℕ) (ξ : ℕ → LaurentSeries ℚ) (�
     have h2 : RealL ℓ (coeffMap castC (jq ^ k)) (fun τ => jtN ℓ (ModularGroup.S • τ) ^ k) := by
       have h := RealL.prod hℓpos (Finset.range k) (fun _ _ => realL_jtN_S ℓ)
       refine h.congr ?_ fun τ => ?_
-      · rw [Finset.prod_const, Finset.card_range, map_pow]
+      · rw [Finset.prod_const, Finset.card_range, map_pow, jqC]
       · simp [Finset.prod_const, Finset.card_range]
     exact (h1.mul hℓpos h2).congr (map_mul _ _ _).symm fun τ => rfl
   exact (RealL.sum (Finset.range n) hk).congr (map_sum _ _ _).symm fun τ => rfl

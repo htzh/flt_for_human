@@ -430,9 +430,7 @@ section Analytic
 variable {K : Type} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : Kˣ)
   (hζ : IsPrimitiveRoot (ζ : K) ℓ) (σ : K →+* ℂ) (hσ : σ (ζ : K) = expRoot ℓ)
 
-def jt (τ : ℍ) : ℂ := ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ
-
-def jtN (τ : ℍ) : ℂ := jt (ModularForm.heckeDiagMatrix ℓ • τ)
+def jtN (τ : ℍ) : ℂ := ModularForm.j (ModularForm.heckeDiagMatrix ℓ • τ)
 
 abbrev castC : ℚ →+* ℂ := Rat.castHom ℂ
 
@@ -486,11 +484,12 @@ lemma realL_slotH (i : Fin (ℓ + 1)) :
     refine h.congr rfl fun τ => ?_
     simp only [slotF, cosetRep_succ, mul_smul]
 
-lemma coeffMap_conj_zero_eq : coeffMap σ (PhiGen.conj ℓ ζ 0) = qExpand ℂ (ℓ * ℓ) (coeffMap castC jq) := by
+lemma coeffMap_conj_zero_eq : coeffMap σ (PhiGen.conj ℓ ζ 0) = qExpand ℂ (ℓ * ℓ) jqC := by
   rw [PhiGen.conj_zero, coeffMap_qExpand, coeffMap_sigma_coeffEmb]
+  rfl
 
 omit hℓ in
-lemma realL_jqC : RealL 1 (coeffMap castC jq) jt := fun τ => hasSum_jq_qParam τ
+lemma realL_jqC : RealL 1 jqC ModularForm.j := fun τ => hasSum_jq_qParam τ
 
 omit hℓ in
 
@@ -530,12 +529,12 @@ lemma realL_conj (i : Fin (ℓ + 1)) : RealL ℓ (coeffMap σ (PhiGen.conj ℓ �
   have : NeZero ℓ := ⟨hℓ.out.ne_zero⟩
   refine Fin.cases ?_ (fun b => ?_) i
   · intro τ
-    have h := hasSum_qParam_heckeDiagMatrix_smul ℓ (coeffMap castC jq) jt realL_jqC τ
+    have h := hasSum_qParam_heckeDiagMatrix_smul ℓ jqC ModularForm.j realL_jqC τ
     rw [coeffMap_conj_zero_eq]
     simpa [slotJ, jtN] using h
   · intro τ
-    have h := hasSum_qParam_heckeMatrix_smul ℓ (b : ℕ) (coeffMap castC jq) jt realL_jqC τ
-    have hval : slotJ ℓ b.succ τ = jt (ModularForm.heckeMatrix ℓ (b : ℕ) • τ) := by
+    have h := hasSum_qParam_heckeMatrix_smul ℓ (b : ℕ) jqC ModularForm.j realL_jqC τ
+    have hval : slotJ ℓ b.succ τ = ModularForm.j (ModularForm.heckeMatrix ℓ (b : ℕ) • τ) := by
       rw [slotJ, jtN, cosetRep_succ, heckeDiag_smul_S_T_pow_smul]
       exact E4_cube_div_discriminant_smul ModularGroup.S _
     rw [hval]
@@ -543,8 +542,7 @@ lemma realL_conj (i : Fin (ℓ + 1)) : RealL ℓ (coeffMap σ (PhiGen.conj ℓ �
     congr 1
     rw [PhiGen.conj_succ, coeffMap_coeff, qTwist_coeff, map_mul, Units.val_zpow_eq_zpow_val, map_zpow₀,
       Units.val_pow_eq_pow_val, map_pow, hσ, expRoot_pow_zpow, coeffEmb_coeff, eq_ratCast, map_ratCast,
-      coeffMap_coeff]
-    rfl
+      jqC_coeff]
 
 def interpFun (k : ℕ) (τ : ℍ) : ℂ := (interpPoly (fun i => slotF ℓ F i τ) (fun i => slotJ ℓ i τ)).coeff k
 

@@ -4406,12 +4406,13 @@ PORT_FILES = [
     # header wire and `spec/check_port.py` owns it, so none of the three is exempt here.
     # `Basic.lean` is still on the frozen checker.
     # --- P-SET-2: the `PeriodPair` `j`-line. Two modules. `ModularForms/JInvariant.lean`
-    # is the neutral home of the generic level-one `j`-invariant and its surjectivity
-    # (`ModularForm.j` / `ModularForm.j_surjective`), promoted out of the weight-one
-    # package namespace `WLight`: both are level-one modular-form mathematics, not
-    # `WLight` API, and `LevelField.lean` now keeps the pin's `WLight.j` /
-    # `WLight.j_surjective` as one-line shims over them (same names, same statements,
-    # so the weight-one consumers are untouched). `Elliptic/PeriodPair/JLine.lean`
+    # carries the generic level-one `j`-surjectivity (`ModularForm.j_surjective`) and
+    # re-exports the invariant, which is now defined pin-free at
+    # `ModularForms/Defs/JInvariant.lean` (`ModularForm.j`) together with its
+    # `SL(2, ℤ)`-invariance: all level-one modular-form mathematics, not `WLight` API,
+    # and `LevelField.lean` now keeps the pin's `WLight.j` / `WLight.j_surjective` as
+    # one-line shims over them (same names, same statements, so the weight-one
+    # consumers are untouched). `Elliptic/PeriodPair/JLine.lean`
     # carries the two pin headlines `PeriodPair.jLattice_ofTau` /
     # `PeriodPair.jLattice_surjective` plus the `kw_`-stripped
     # `PeriodPair.jLattice_ofTau_eq`; every other helper is `private`. It imports

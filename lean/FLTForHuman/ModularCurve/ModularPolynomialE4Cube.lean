@@ -33,7 +33,7 @@
 
   The pin's three `S_` files carry their public helper surface at the namespaces
   `ModularCurve.DeepCosetAux` (the `E₄³`/`Δ` forms and the `q`-expansion
-  bookkeeping) and `ModularCurve.CosetRootAux` (`jt` and the `upperTriangularGL`
+  bookkeeping) and `ModularCurve.CosetRootAux` (the `upperTriangularGL`
   pair), which the port keeps verbatim; the helpers the pin declares `private`
   are not transcribed.  The pin's `attribute [-instance]`/`[-simp]` lines and its
   heartbeat bumps are not transcribed.  The heavy inputs are imported:
@@ -54,7 +54,7 @@ import FLTForHuman.ModularCurve.ModularEquation.Existence
 import FLTForHuman.ModularCurve.ModularEquation.Split
 import FLTForHuman.ModularCurve.Defs.PrimCosetReps
 import FLTForHuman.ModularCurve.JqIntegralRatios
-import FLTForHuman.ModularForms.JInvariant
+import FLTForHuman.ModularForms.Defs.JInvariant
 import FLTForHuman.ModularForms.DiscPow
 import FLTForHuman.ModularForms.HeckeQExpansion
 import FLTForHuman.ModularForms.HeckeQCoeff
@@ -238,21 +238,6 @@ end Mono
 end DeepCosetAux
 
 namespace CosetRootAux
-
-/-- The level-one modular function `j = E₄³ / Δ`, at the pin's local name. -/
-def jt (z : ℍ) : ℂ := (ModularForm.E₄ : ℍ → ℂ) z ^ 3 / ModularForm.discriminant z
-
-theorem sl_mem (γ : SL(2, ℤ)) : (γ : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨γ, rfl⟩
-
-theorem jt_smul (γ : SL(2, ℤ)) (z : ℍ) : jt ((γ : GL (Fin 2) ℝ) • z) = jt z := by
-  unfold jt
-  have h4 := SlashInvariantForm.slash_action_eqn'' (ModularForm.E₄) (sl_mem γ) z
-  have h12 := SlashInvariantForm.slash_action_eqn'' (CuspForm.discriminant) (sl_mem γ) z
-  rw [CuspForm.coe_discriminant] at h12
-  have hd : denom (γ : GL (Fin 2) ℝ) (z : ℂ) ≠ 0 := UpperHalfPlane.denom_ne_zero _ z
-  have hΔ : ModularForm.discriminant z ≠ 0 := ModularForm.discriminant_ne_zero z
-  rw [show (ModularForm.E₄ : ℍ → ℂ) ((γ : GL (Fin 2) ℝ) • z) = ModularForm.E₄ ((γ : GL (Fin 2) ℝ) • z) from rfl, h4, h12]
-  field_simp
 
 theorem upperTriangularGL_eq {N a b d : ℕ} (hN : N ≠ 0) (had : a * d = N) (γ₁ γ₂ : SL(2, ℤ))
     (hM : !![(a : ℤ), b; 0, d] = (γ₁ : Matrix (Fin 2) (Fin 2) ℤ) * !![(N : ℤ), 0; 0, 1] * (γ₂ : Matrix (Fin 2) (Fin 2) ℤ))
@@ -508,8 +493,13 @@ theorem eval_E4_cube_div_discriminant_coset_eq_zero (N : ℕ) [NeZero N]
   have h1 : τ' = (γ₁ : GL (Fin 2) ℝ) • (ModularForm.heckeDiagMatrix N • σ) := by
     rw [hτ'pt, hgeq, mul_smul, mul_smul]
 
-  change (data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom ℂ) (CosetRootAux.jt τ))).eval (CosetRootAux.jt τ') = 0
-  rw [h1, CosetRootAux.jt_smul, show CosetRootAux.jt τ = CosetRootAux.jt σ from by rw [hσ, CosetRootAux.jt_smul]]
+  change (data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom ℂ) (ModularForm.j τ))).eval (ModularForm.j τ') = 0
+  rw [h1,
+    show ((γ₁ : GL (Fin 2) ℝ) • (ModularForm.heckeDiagMatrix N • σ))
+      = γ₁ • (ModularForm.heckeDiagMatrix N • σ) from rfl,
+    ModularForm.j_smul,
+    show ModularForm.j τ = ModularForm.j σ from by
+      rw [hσ, show ((γ₂ : GL (Fin 2) ℝ) • τ) = γ₂ • τ from rfl, ModularForm.j_smul]]
   exact ModularCurve.ModularPolynomialData.eval_E4_cube_div_discriminant_smul_eq_zero N data σ _
     (ModularForm.coe_heckeDiagMatrix_smul hN σ)
 

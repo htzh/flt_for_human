@@ -49,7 +49,7 @@
   defines it once, here, and exports it — `RealL` with its closure and the two
   `hasSum_qParam_mul{,_laurent}` lemmas are the interface T8 imports rather than
   copies (porting-playbook.md §2, "deduplicate at the source"). Everything else
-  in this module — the pole-killing block, `RealL.aeval`, the `jt`/`jqC` glue, and
+  in this module — the pole-killing block, `RealL.aeval`, the `jqC` glue, and
   the main line's own helpers — is private.
 
   ## Assumptions
@@ -72,6 +72,7 @@ import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularForms.QExpansionPrinciple
 import FLTForHuman.ModularForms.JqAnalyticModel
+import FLTForHuman.ModularForms.Defs.JInvariant
 
 set_option autoImplicit false
 
@@ -351,20 +352,17 @@ private theorem exists_aeval_jq_sub_holomorphicAtInfty (n : ℕ) :
       rw [map_add, sub_add_eq_sub_sub]
       exact hQ k hk
 
-/-! ## The `jq` realization glue (private) -/
-
-private def jt (τ : ℍ) : ℂ := ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ
+/-! ## The `jq` realization glue -/
 
 private abbrev castC : ℚ →+* ℂ := Rat.castHom ℂ
 
-private def jqC : LaurentSeries ℂ := coeffMap castC jq
+/-- `jq` with its coefficients pushed to `ℂ`. -/
+def jqC : LaurentSeries ℂ := coeffMap castC jq
 
-private lemma jqC_coeff (m : ℤ) : jqC.coeff m = ((jq.coeff m : ℚ) : ℂ) := rfl
+@[simp]
+theorem jqC_coeff (m : ℤ) : jqC.coeff m = ((jq.coeff m : ℚ) : ℂ) := rfl
 
-private lemma realL_jqC : RealL 1 jqC jt := fun τ => hasSum_jq_qParam τ
-
-private lemma jt_smul (γ : SL(2, ℤ)) (τ : ℍ) : jt (γ • τ) = jt τ :=
-  E4_cube_div_discriminant_smul γ τ
+private lemma realL_jqC : RealL 1 jqC ModularForm.j := fun τ => hasSum_jq_qParam τ
 
 namespace RealL
 
@@ -425,16 +423,16 @@ theorem mem_adjoin_jq_of_hasSum_of_slash_invariant (f : LaurentSeries ℚ)
   set e : LaurentSeries ℚ := f - Polynomial.aeval jq P with he_def
   have he0 : ∀ m : ℤ, m < 0 → e.coeff m = 0 := fun m hm => he m (by simpa using hm)
   have hfR : RealL 1 (coeffMap castC f) F := hF
-  have hE : RealL 1 (coeffMap castC e) (F - fun τ => (P.map castC).eval (jt τ)) := by
+  have hE : RealL 1 (coeffMap castC e) (F - fun τ => (P.map castC).eval (ModularForm.j τ)) := by
     rw [he_def, map_sub]
     exact hfR.sub (RealL.aeval one_pos realL_jqC P)
   have hEinv : ∀ (γ : SL(2, ℤ)) (τ : ℍ),
-      (F - fun τ => (P.map castC).eval (jt τ)) (γ • τ) =
-        (F - fun τ => (P.map castC).eval (jt τ)) τ := by
+      (F - fun τ => (P.map castC).eval (ModularForm.j τ)) (γ • τ) =
+        (F - fun τ => (P.map castC).eval (ModularForm.j τ)) τ := by
     intro γ τ
-    simp only [Pi.sub_apply, hinv γ τ, jt_smul γ τ]
+    simp only [Pi.sub_apply, hinv γ τ, ModularForm.j_smul γ τ]
   have hEN : ∀ τ : ℍ, HasSum (fun n : ℕ => ((e.coeff n : ℚ) : ℂ) * 𝕢 1 (τ : ℂ) ^ n)
-      ((F - fun τ => (P.map castC).eval (jt τ)) τ) := by
+      ((F - fun τ => (P.map castC).eval (ModularForm.j τ)) τ) := by
     intro τ
     refine (hasSum_powerSeries_of_laurent (c := fun m : ℤ => (coeffMap castC e).coeff m)
       (fun m hm => by rw [coeffMap_coeff, he0 m hm, map_zero]) (hE τ)).congr_fun fun n => ?_
