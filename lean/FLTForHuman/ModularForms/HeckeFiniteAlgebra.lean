@@ -254,7 +254,7 @@ private theorem span_heckeAlgebra_eq_fullC (N : ℕ) [NeZero N] :
     have hle : CuspForm.heckeAlgebra N 2 (∅ : Set ℕ) ≤ (fullC N).restrictScalars ℤ := by
       refine Algebra.adjoin_le ?_
       intro x hx
-      exact Algebra.subset_adjoin hx
+      exact (Algebra.subset_adjoin hx : x ∈ fullC N)
     exact (hle hT : T ∈ fullC N)
   · rw [fullC, Algebra.adjoin_eq_span]
     apply Submodule.span_mono

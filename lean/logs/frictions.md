@@ -4884,3 +4884,34 @@ round promotes what generalizes.
 - **seen**: 2026-11-14, SET-AF84 order C at step 1 (`11 ok / 0 / 0` + `complete`, 23 pin publics on the wire);
   SET-AF83's §1 table also carried the same inflation (15 publics / 217 engines for a true 17 / 196) and was
   corrected on the second pass.
+
+## FR-0227 [lean] — a dropped type ascription becomes an `isDefEq` timeout, and the 4 M project cap hides it
+
+- **where**: `ModularForms/HeckeFiniteAlgebra.lean:257`, in `span_heckeAlgebra_eq_fullC` (the weight-2
+  `ℂ`-span = `fullC` bridge). The shape recurs at any `have h : A ≤ B` closed by `refine Algebra.adjoin_le ?_`
+  where `B` is a `Subalgebra.restrictScalars` coming from a subalgebra over another scalar ring.
+- **symptom**: at the playbook's edit-loop cap the *whole declaration* aborts —
+  `error: (deterministic) timeout at isDefEq, maximum number of heartbeats (200000)` on the last `exact`, plus two
+  cascading `«tactic execution»` timeouts on the enclosing tactic and its statement. Meanwhile
+  `lake build FLTForHuman.ModularForms.HeckeFiniteAlgebra` is **green in 7.8 s**, so the tree never showed it and
+  the stale `.olean` (built by `lake build`) made the module look fine to every consumer.
+- **cause**: the pin writes `exact (Algebra.subset_adjoin hx : x ∈ fullC N)`; the port had transcribed it as
+  `exact Algebra.subset_adjoin hx`. Without the ascription the expected membership is
+  `x ∈ ↥((fullC N).restrictScalars ℤ)` and the scalar ring of `Algebra.subset_adjoin` stays a **metavariable**, so
+  `isDefEq` must unfold `Subalgebra.restrictScalars`, `fullC`, both `Algebra.adjoin`s *and their instance
+  arguments* to decide that the two `Subalgebra` carriers agree. No search goal runs, so
+  `trace.Meta.synthInstance` reports nothing — this is the `isDefEq`/`whnf` branch of the §6 classification, not
+  the search branch.
+- **fix**: restore the pin's ascription. Elaboration is then directed — `R := ℂ` is fixed by `fullC`, the set by
+  `hx`, and the only remaining check is `↥(Algebra.adjoin ℂ s)` against `↥(fullC N)`, one delta. Alternative when
+  the ascription reads badly: state the element form once (`SetLike.le_def.mp`) and apply that at the site.
+  Verified silent at 200 000 and still silent at **60 000** (~3× margin), no `set_option maxHeartbeats`; the
+  statement check is unchanged because the edit is proof-only (`7 ok / 0 mismatch / 0 missing`).
+- **the instrument failure it exposes**: the lakefile sets `maxHeartbeats := 4 000 000` project-wide, and
+  `lake build` inherits `leanOptions` while `lake env lean` does not. So a declaration over the *edit-loop* cap is
+  green at tier 1, green at tier 2 and green in a whole-tree build, and stays invisible until someone runs
+  `lake env lean` — a module that **builds** is not a module that **fits**. Read "green build" as evidence about
+  the 4 M cap only, and run the 200 k edit loop on any module you touch.
+- **seen**: 2026-11-14; `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 FLTForHuman/ModularForms/HeckeFiniteAlgebra.lean`. The pin carries `set_option maxHeartbeats 6400000` in
+  `S_CuspForm_finrank_span_heckeAlgebra_eq_finrank.lean`, consistent with it paying this same defeq (unverified on
+  the pin's own line).
