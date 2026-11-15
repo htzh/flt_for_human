@@ -5,10 +5,10 @@
   `Def_NumberField_PrimeNormSums.lean` is a prerequisite of the adelic-height Weyl mass
   (`AutomorphicForm/Adelic/HeightWeylMass.lean`, whose `P2mMassZeta` block states its Euler
   product `eulerR` in terms of `pw`), so the port needs these declarations before that module
-  can be transcribed.  This module ports the *prefix* of the pin file that the mass module
-  uses — `pw` through `summable_pw` and `primeSum_toReal` — and nothing else: the tail
-  (`summable_card_absNorm`'s zeta-function consumer, the `LSeries` normalization, the
-  Dirichlet-series block) belongs to the Dedekind-zeta row and is not on this row's path.
+  can be transcribed.  The module ports the pin file **whole** (all 32 declarations): the prefix
+  `pw` … `primeSum_toReal` that the mass module's statements are written in, and the tail estimates
+  (`tailSum_toReal`, `Ctail`, `T`/`P0` and their two-sided bounds) that the Dedekind-zeta and
+  ray-class Euler-product rows need.
 
   The pin's unused-section-variable silencer and the phantom `{m : ℕ} [NeZero m]` section
   variable are dropped (pin scaffolding; no declaration mentions `m`), and
@@ -160,6 +160,166 @@ theorem primeSum_toReal (s : ℝ) : (FrobeniusDensity.primeSum F s).toReal = ∑
       exact absurd h (ENNReal.natCast_ne_top _)
 
 end PrimeSums
+
+
+section Tail
+
+-- The pin's tail estimates (its lines 141-296); the pin mixes `{F}` with two `variable (F) in`
+-- prefixes here, the port gives the block one explicit variable so the API is uniform.  The pin's
+-- file-level `linter.unusedSectionVars` silencer is not available, so the declarations whose type
+-- never mentions `m` carry `omit [NeZero m]` (the instance is auto-included through `m`).
+variable (F : Type) [Field F] [NumberField F]
+variable (m : ℕ) [NeZero m]
+
+theorem tailSum_toReal (s : ℝ) : (FrobeniusDensity.tailSum F s).toReal =
+    ∑' v, if (Ideal.absNorm v.asIdeal).Prime then 0 else pw F s v := by
+  rw [FrobeniusDensity.tailSum, ENNReal.tsum_toReal_eq]
+  · refine tsum_congr fun v => ?_
+    split_ifs
+    · rfl
+    · rw [FrobeniusDensity.normRpow, pw, ← ENNReal.toReal_rpow, ENNReal.toReal_natCast]
+  · intro v
+    split_ifs
+    · exact ENNReal.zero_ne_top
+    · rw [FrobeniusDensity.normRpow, Ne, ENNReal.rpow_eq_top_iff]
+      push Not
+      constructor
+      · intro h
+        exfalso
+        have := two_le_absNorm v
+        have h' : Ideal.absNorm v.asIdeal = 0 := by exact_mod_cast h
+        omega
+      · intro h
+        exact absurd h (ENNReal.natCast_ne_top _)
+
+def invSq (n : ℕ) : NNReal := ((n : NNReal) ^ 2)⁻¹
+
+theorem summable_invSq : Summable invSq := by
+  rw [← NNReal.summable_coe]
+  have : (fun n : ℕ => ((invSq n : NNReal) : ℝ)) = fun n : ℕ => ((n : ℝ) ^ 2)⁻¹ := by
+    funext n; simp [invSq]
+  rw [this]
+  exact Real.summable_nat_pow_inv.mpr one_lt_two
+
+theorem tailConst_lt_top : FrobeniusDensity.tailConst < ⊤ := by
+  rw [FrobeniusDensity.tailConst]
+  have hle : (∑' ℓ : ℕ, (if ℓ.Prime then ((ℓ : ENNReal) ^ 2)⁻¹ else 0)) ≤
+      ∑' ℓ : ℕ, ((invSq ℓ : NNReal) : ENNReal) := by
+    refine ENNReal.tsum_le_tsum fun ℓ => ?_
+    split_ifs with h
+    · rw [invSq, ENNReal.coe_inv (pow_ne_zero _ (by exact_mod_cast h.ne_zero)), ENNReal.coe_pow,
+        ENNReal.coe_natCast]
+    · exact bot_le
+  refine lt_of_le_of_lt hle (lt_top_iff_ne_top.mpr ?_)
+  rw [ENNReal.tsum_coe_ne_top_iff_summable]
+  exact summable_invSq
+
+def Ctail : ℝ := ((Module.finrank ℚ F : ENNReal) * FrobeniusDensity.tailConst).toReal
+
+theorem summable_tail {s : ℝ} (hs : 1 < s) :
+    Summable fun v : HeightOneSpectrum (𝓞 F) => if (Ideal.absNorm v.asIdeal).Prime then 0 else pw F s v := by
+  refine (summable_pw hs).of_nonneg_of_le (fun v => ?_) (fun v => ?_)
+  · split_ifs
+    · exact le_rfl
+    · exact pw_nonneg s v
+  · split_ifs
+    · exact pw_nonneg s v
+    · exact le_rfl
+
+theorem finite_bad : {v : HeightOneSpectrum (𝓞 F) | (m : 𝓞 F) ∈ v.asIdeal}.Finite := by
+  have h : (Ideal.span {(m : 𝓞 F)} : Ideal (𝓞 F)) ≠ 0 := by
+    rw [Ne, Ideal.zero_eq_bot, Ideal.span_singleton_eq_bot]; exact_mod_cast NeZero.ne m
+  refine (Ideal.finite_factors h).subset fun v hv => ?_
+  simp only [Set.mem_ofPred_eq] at hv ⊢
+  rw [Ideal.dvd_span_singleton]
+  exact hv
+
+def nbad : ℕ := (finite_bad (F := F) (m := m)).toFinset.card
+
+theorem tsum_bad_le (f : HeightOneSpectrum (𝓞 F) → ℝ) (hf : ∀ v, f v ≤ 1)
+    (hsupp : ∀ v, (m : 𝓞 F) ∉ v.asIdeal → f v = 0) : ∑' v, f v ≤ nbad F m := by
+  rw [tsum_eq_sum (s := (finite_bad (F := F) (m := m)).toFinset) (fun v hv => hsupp v (by
+    rwa [Set.Finite.mem_toFinset, Set.mem_ofPred_eq] at hv))]
+  calc ∑ v ∈ (finite_bad (F := F) (m := m)).toFinset, f v
+      ≤ ∑ v ∈ (finite_bad (F := F) (m := m)).toFinset, (1 : ℝ) := Finset.sum_le_sum fun v _ => hf v
+    _ = nbad F m := by rw [Finset.sum_const, nsmul_eq_mul, mul_one, nbad]
+
+def T (a : ZMod m) (s : ℝ) : ℝ :=
+  ∑' v : HeightOneSpectrum (𝓞 F), if (Ideal.absNorm v.asIdeal : ZMod m) = a then pw F s v else 0
+
+def P0 (s : ℝ) : ℝ :=
+  ∑' v : HeightOneSpectrum (𝓞 F), if (m : 𝓞 F) ∈ v.asIdeal then 0 else pw F s v
+
+omit [NeZero m] in
+theorem T_term_nonneg (a : ZMod m) (s : ℝ) (v : HeightOneSpectrum (𝓞 F)) :
+    0 ≤ (if (Ideal.absNorm v.asIdeal : ZMod m) = a then pw F s v else 0) := by
+  split_ifs
+  · exact pw_nonneg s v
+  · exact le_rfl
+
+omit [NeZero m] in
+theorem T_term_le (a : ZMod m) (s : ℝ) (v : HeightOneSpectrum (𝓞 F)) :
+    (if (Ideal.absNorm v.asIdeal : ZMod m) = a then pw F s v else 0) ≤ pw F s v := by
+  split_ifs
+  · exact le_rfl
+  · exact pw_nonneg s v
+
+omit [NeZero m] in
+theorem summable_T (a : ZMod m) {s : ℝ} (hs : 1 < s) :
+    Summable fun v : HeightOneSpectrum (𝓞 F) => if (Ideal.absNorm v.asIdeal : ZMod m) = a then pw F s v else 0 :=
+  (summable_pw hs).of_nonneg_of_le (T_term_nonneg (F := F) (m := m) a s)
+    (T_term_le (F := F) (m := m) a s)
+
+omit [NeZero m] in
+theorem T_nonneg (a : ZMod m) (s : ℝ) : 0 ≤ T F m a s :=
+  tsum_nonneg (T_term_nonneg (F := F) (m := m) a s)
+
+omit [NeZero m] in
+theorem P0_term_nonneg (s : ℝ) (v : HeightOneSpectrum (𝓞 F)) :
+    0 ≤ (if (m : 𝓞 F) ∈ v.asIdeal then 0 else pw F s v) := by
+  split_ifs
+  · exact le_rfl
+  · exact pw_nonneg s v
+
+omit [NeZero m] in
+theorem P0_term_le (s : ℝ) (v : HeightOneSpectrum (𝓞 F)) :
+    (if (m : 𝓞 F) ∈ v.asIdeal then 0 else pw F s v) ≤ pw F s v := by
+  split_ifs
+  · exact pw_nonneg s v
+  · exact le_rfl
+
+omit [NeZero m] in
+theorem summable_P0 {s : ℝ} (hs : 1 < s) :
+    Summable fun v : HeightOneSpectrum (𝓞 F) => if (m : 𝓞 F) ∈ v.asIdeal then 0 else pw F s v :=
+  (summable_pw hs).of_nonneg_of_le (P0_term_nonneg (F := F) (m := m) s)
+    (P0_term_le (F := F) (m := m) s)
+
+omit [NeZero m] in
+theorem P0_le_tsum_pw {s : ℝ} (hs : 1 < s) : P0 F m s ≤ ∑' v, pw F s v :=
+  (summable_P0 (F := F) (m := m) hs).tsum_le_tsum (P0_term_le (F := F) (m := m) s) (summable_pw hs)
+
+theorem tsum_pw_le_P0_add {s : ℝ} (hs : 1 < s) : (∑' v, pw F s v) ≤ P0 F m s + nbad F m := by
+  have hsplit : ∀ v : HeightOneSpectrum (𝓞 F), pw F s v =
+      (if (m : 𝓞 F) ∈ v.asIdeal then 0 else pw F s v) + (if (m : 𝓞 F) ∈ v.asIdeal then pw F s v else 0) := by
+    intro v; split_ifs <;> simp
+  have hsum2 : Summable fun v : HeightOneSpectrum (𝓞 F) => if (m : 𝓞 F) ∈ v.asIdeal then pw F s v else 0 := by
+    refine (summable_pw hs).of_nonneg_of_le (fun v => ?_) (fun v => ?_)
+    · split_ifs
+      · exact pw_nonneg s v
+      · exact le_rfl
+    · split_ifs
+      · exact le_rfl
+      · exact pw_nonneg s v
+  rw [tsum_congr hsplit, (summable_P0 (F := F) (m := m) hs).tsum_add hsum2, P0]
+  have hb := tsum_bad_le (F := F) (m := m) (fun v => if (m : 𝓞 F) ∈ v.asIdeal then pw F s v else 0)
+    (fun v => by
+      split_ifs
+      · exact pw_le_one (by linarith) v
+      · exact zero_le_one)
+    (fun v hv => by simp [hv])
+  linarith
+
+end Tail
 
 end NumberField.PrimeNormSum
 

@@ -4757,3 +4757,54 @@ round promotes what generalizes.
   before it is called a graph change.
 - **seen**: 2026-11-14, SET-AF78 order A (the manager added the row statement and had the module's worker
   fill its proof; the read then credited the row).
+
+## FR-0222 [instrument] — `check_port` cannot see a missing row, and `scaffold_audit.py` can
+
+- **where**: the four sets of 2026-11-14 (AF75–AF80). Two of the wave's three real defects were *missing
+  declarations* that every gate declared green: SET-AF75's A3 headline (the scaffold dropped it; the
+  checker read `32 ok`, FR-0217's file) and SET-AF78-A's row statement (the port had the pin's general
+  theorem but not the row's specialized form, so the shelf stayed red, FR-0221). `check_port` diffs the
+  declarations a module *has* against the wire; it has no notion of a declaration the wire has and the
+  module lacks.
+- **instrument**: `tools/deps/scaffold_audit.py <module>` reads the module's own `spec-pin:` wire, takes
+  every pin declaration the statement corpus indexes (public, non-`scoped`), and classifies it as
+  *declared here* / *satisfied by the port import closure* (recursion over `import FLTForHuman.…`) /
+  *FOLDED* (the pin's `solution` glue) / *RENAMED?* (same statement hash, different last name) / **MISSING**.
+- **sweep of the twenty modules this session landed**: one real gap — the 20 unported tail declarations of
+  `Definitions/Def_NumberField_PrimeNormSums` behind `NumberTheory/PrimeNormSums.lean` (recorded in
+  [../CARRY-FORWARD.md](../CARRY-FORWARD.md)); one class of *benign* miss that a reader must be told about —
+  `Transform`'s `countable_numberField`/`countable_ringOfIntegers`/`countable_ringOfIntegers'`, replaced by
+  an inlined pin body and by the port's `instCountableRingOfIntegers` scoped instance; and two
+  `main`-folded rows (`BesselInequality`, `ShiftConvergence`), where the pin's `main` is shape-equal to the
+  row's headline but text-different, so neither hash nor name catches it. Everything else — including
+  SET-AF79's nine-of-nine and SET-AF80's 70-of-70 — reads complete.
+- **fix / rule**: run the audit on every module whose `spec-pin:` wire is an `S_` or `Definitions/` file,
+  and state the classification (declared / imported / folded / missing) in the set's brief. A `MISSING`
+  row is a manager decision: transcribe it (FR-0221), record it as a deferral, or name the substitution
+  that replaced it. Do not read a green checker line as completeness.
+- **seen**: 2026-11-14, sweep over SET-AF75–AF80 (20 modules); instrument written and debugged in the same
+  pass (the import regex and the `FLTForHuman/` path join were both wrong on the first cut — the sweep
+  silently reported "0 satisfied by the import closure", which is why the rule says to run it on a module
+  whose answer is known before trusting a clean run).
+
+## FR-0223 [port] — `have`/`let` *do* provide instances: the `haveI`→`have` substitution is always safe, and two diagnoses got it backwards
+
+- **where**: five sets of 2026-11-14. `linter.style.haveILetI` is default-on in this mathlib and fires on
+  every `haveI`/`letI`; the standing substitution is `haveI` → `have`, `letI` → `let` (FR-0198's family).
+  Three workers (`AF76D`, `AF80A`, `AF79B`) did it unhesitatingly; two (`AF82B`, and a near-miss in
+  `AF81A`) concluded instead that "the value must be an *instance*, so `have` does not compile", and one of
+  those then claimed a sibling module carried the same warnings — it did not.
+- **fact (probed, not argued)**: Lean 4's instance resolution consults **class-typed local hypotheses**
+  regardless of binder info, so `have h : μ.Regular := …` followed by `inferInstanceAs (μ.Regular)`
+  accepts. `haveI`/`letI` are therefore *syntactic sugar for a case Lean already handles*; the linter is
+  telling the truth when it prints a `Try this:` block, and that block is a compiler-checked replacement.
+  (`tmp/af82/probe-have-vs-havei.lean` is the probe.)
+- **the two wrong turns, both worth recognising**: (i) "delete the `haveI` line → `synthInstanceFailed`"
+  is a test of *deletion*, not of the substitution — the instance was never introduced another way in that
+  experiment; (ii) "the sibling module has the same warnings" — check it, don't assume it: AF81A's loop was
+  warning-free, and a sibling's silence or noise is not evidence about your file.
+- **fix / rule**: for every `linter.style.haveILetI` warning, apply the linter's own suggestion first; a
+  class-typed `have`/`let` keeps the instance. Escalate to a scoped, documented silencer only when a
+  *specific* suggestion fails to compile, and say which site and why. Never "fix" a warning by widening a
+  hypothesis or by leaving `haveI` in place.
+- **seen**: 2026-11-14, SET-AF82 order B (5 sites, all `have`, module silent, checker and dedup unchanged).

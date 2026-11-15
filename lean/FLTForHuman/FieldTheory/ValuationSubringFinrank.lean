@@ -380,7 +380,7 @@ theorem exists_sub_mem_nonunits_of_finrank_le_card
 
 open Polynomial
 
-namespace P2mFunctionFieldPlacesDiscrete
+namespace FunctionFieldPlacesDiscrete
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
@@ -623,14 +623,14 @@ theorem isPrincipalIdealRing_of_finiteDimensional_adjoin {K F : Type*} [Field K]
     have : Algebra.IsAlgebraic K F := Algebra.IsAlgebraic.of_finite K F
     exact valuationSubring_eq_top_of_isAlgebraic K O hK
 
-end P2mFunctionFieldPlacesDiscrete
+end FunctionFieldPlacesDiscrete
 
 theorem isPrincipalIdealRing_of_finiteDimensional_adjoin
     {K F : Type*} [Field K] [Field F] [Algebra K F] (x : F)
     [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
     (O : ValuationSubring F) (hK : ∀ a : K, algebraMap K F a ∈ O) (hO : O ≠ ⊤) :
     IsPrincipalIdealRing O :=
-  P2mFunctionFieldPlacesDiscrete.isPrincipalIdealRing_of_finiteDimensional_adjoin x O hK hO
+  FunctionFieldPlacesDiscrete.isPrincipalIdealRing_of_finiteDimensional_adjoin x O hK hO
 
 open IsLocalRing
 
