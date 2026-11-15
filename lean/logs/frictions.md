@@ -4733,3 +4733,27 @@ round promotes what generalizes.
   hand-make `.olean`s or edit the dependency. Both happened here: the dependent stopped at the blocker, wrote
   its consumer zone, and closed the four remaining gates itself once B landed, with no change to its file.
 - **seen**: 2026-11-14, SET-AF76 orders B/D (D's gates 2/4/5/6 closed ~25 min after its gates 1/3).
+
+## FR-0221 [instrument] — a row whose pin `solution` is a *specialization* must be ported at the row's name, or the shelf never credits it
+
+- **where**: SET-AF78 order A, `LanglandsTunnell/TateLocal/HaarInvariance.lean`. The pin's file proves the
+  general statement `integral_comp_inv` (pin `:110`, over any locally compact nonarchimedean field `K`
+  with `hmod`/`h0` as hypotheses) and then a `solution` (`:269–304`) that specializes it to
+  `v.adicCompletion F` with both hypotheses discharged. The row's node is the specialization.
+- **symptom**: the worker ported the general form (checker `8 ok / 0 / 0`, axioms clean, consumer green —
+  the mathematics is in), but the post-landing shelf read came out **588 / 265,599 against a forecast of
+  587 / 265,294**: the node still counted as unported, 305 silo of accounting, and the wave's
+  readiness forecast was off by a row.
+- **cause**: `frontier.py`'s name tier credits a graph node when a port declaration carries its **last
+  name**. The port's `integral_comp_inv` is not `integral_comp_inv_eq_integral_modulus_inv_sq_mul_adicCompletion`,
+  so the node stayed open — the same mechanism as FR-0215, in its benign direction.
+- **fix / rule**: when a row's pin `S_` file ends in a `solution` that *specializes* a general theorem in
+  the same file, the port declares **both**: the general one (the engine) and the row's statement at the
+  row's name, proved by applying it. The scaffold must carry the row's statement — a scaffold that
+  transcribes only the engine's `_impl`/general form silently loses the row, which is the inverse of
+  SET-AF75's A3 omission (a scaffold that lost the headline itself, FR-0217's file).
+- **also**: the same asymmetry explains why a `--port` forecast can be off by a row in either direction;
+  the post-landing read is the only authority, and a one-row delta should be traced to the name tier
+  before it is called a graph change.
+- **seen**: 2026-11-14, SET-AF78 order A (the manager added the row statement and had the module's worker
+  fill its proof; the read then credited the row).
