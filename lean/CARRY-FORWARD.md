@@ -93,6 +93,22 @@ appending there would have dragged that module's whole legacy migration (a `spec
 `spec-pin:` pair with the moved declaration. The statement does not change and the checker's reading
 of the declaration moves with it. Price: one file deletion plus a wire line; no mathematics.
 
+### The third generic type-submodule equation — homed under the cusp module for want of a `RepTheory` home
+
+Landed 2026-11-14 ([automorphicForm/SET-AF83.md](automorphicForm/SET-AF83.md) §5).
+`AutomorphicForm.typeSubmodule_inf_typeSubmodule_eq_bot` (`{H G} [Group …]`,
+`(ι : H →* G)`, two inequivalent irreducible `Representation ℂ H W`) is pure representation theory with
+no automorphic-form content, and it is homed in
+`AutomorphicForm/Adelic/Cusp/ArchTypeSubmodule.lean` because `typeSubmodule` itself lives in
+`AutomorphicForm/Adelic/IsotypicCuspSpace.lean` — the equation has to sit above the definition, and the
+definition has not moved. It is not a duplicate of anything (`dedup` reads 0 clusters) and not a
+transcription of one of the four recorded generic lemmas above; it is a third, independent generic row
+whose natural home is wherever `typeSubmodule`/`typeSpan` end up.
+
+**The debt**: when `typeSubmodule` moves to a `RepTheory` home (see the entry above — the move that would
+also give the four generic lemmas one home), take this row with it. Price: one declaration (~10 lines) and
+its `spec-pin:` line; no statement changes.
+
 ### The four generic type-submodule lemmas — transcribed twice, one home still owed
 
 `comp_mem_typeSubmodule_of_map`, `comp_mem_iSup_of_forall`,

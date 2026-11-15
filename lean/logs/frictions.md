@@ -4808,3 +4808,48 @@ round promotes what generalizes.
   *specific* suggestion fails to compile, and say which site and why. Never "fix" a warning by widening a
   hypothesis or by leaving `haveI` in place.
 - **seen**: 2026-11-14, SET-AF82 order B (5 sites, all `have`, module silent, checker and dedup unchanged).
+
+## FR-0224 [spec] — a scaffold's statement must keep the pin's *own qualification* and its `open scoped`; the checker hashes text
+
+- **where**: SET-AF83's manager scaffolding (2026-11-14), four modules written from the pin's `S_` files with
+  `sorry` bodies before dispatch. Two statement-level traps, both invisible to `lake env lean`.
+- **trap 1 — qualification**: `check_port` matches by `nhash`, the sha1 of the **checker-normalised statement
+  text**; `spec/lean_parser.py:norm` erases only `ModularCurve.` and `AlgebraicCurve.` prefixes. Writing the
+  row as `Nonempty (EisensteinGeneral.Piece.FactorizationDatum F ψv nψ χ ϖ Ψ g S)` while the pin writes
+  `Nonempty (FactorizationDatum F ψv nψ χ ϖ Ψ g S)` produces a *byte-identical modulo one namespace* statement
+  that reports `MISSING (no match)` — no mismatch, no hint. The fix is `open EisensteinGeneral.Piece in` before
+  the theorem (the pin's own line) and the bare name in the statement.
+- **trap 2 — the scope that the statement needs**: the same scaffold's `∏ i : {w : InfinitePlace F // w.IsReal}`
+  failed with `synthInstanceFailed … Fintype {w // w.IsReal}` until `open scoped Classical` was added (the
+  pin's `open scoped Classical in` lines are what make its own statements elaborate; `Subtype.fintype` needs the
+  `DecidablePred` that scope provides).
+- **diagnosis recipe**: when a scaffold reports `MISSING`, do not read it as "the checker is broken" and do not
+  re-prove anything — run `statement_db.parse_file` on the pin file and on the module and diff the two
+  normalised `stmt` strings. The diff is always a name or a scope.
+- **rule**: scaffold from the pin's text, not from the wrapper's qualified spelling; keep the pin's `open … in`
+  lines; a green `lake env lean` is not a green statement check. Both gates (`lake env lean`, `check_port
+  --force`) before dispatch, and again as the first step of the order.
+- **seen**: 2026-11-14, `EisensteinGeneral/PieceFactorizationDatum.lean` (trap 1) and
+  `EisensteinGeneral/PieceLatticeMajorant.lean` (trap 2), both green after the two fixes.
+
+## FR-0225 [spec] — gate 6 asked for an in-file `maxHeartbeats` floor; the playbook forbids one, and the gate's own wording cannot hold
+
+- **where**: SET-AF83 (2026-11-14), all four orders. The work order's gate 6 read "a heartbeat floor: `set_option
+  maxHeartbeats n` at the top with `n` ≈ 4–8× the natural cost, and record the probe that bounded it (silent at
+  `n`, fails at `n/2`)". Playbook §3.5 says the opposite twice: "**no module carries a `set_option
+  maxHeartbeats`** — including one transcribed from the pin", and "never add a module `set_option
+  maxHeartbeats`".
+- **the arithmetic that should have caught it**: "4–8×" and "fails at `n/2`" are incompatible for any margin
+  above 2× — at 4× the natural cost, `n/2` = 2× is still *above* the natural cost and therefore silent. Two
+  workers (AF83C, AF83A) said so explicitly rather than quietly picking one half. Four of the seven modules
+  arrived carrying a floor (12 k, 60 k, 80 k, 100 k, 800 k across four files).
+- **fix (manager, on landing)**: remove every in-file floor, keep the probe as a header comment, and re-elaborate
+  each module at the playbook's own cap — `lake env lean -DautoImplicit=false -DmaxHeartbeats=200000`. All seven
+  silent, no proof changed, and the measured numbers are the deliverable: A ≈20 k, B ≈62 k, C1 ≈7 k, C2 ≈45 k,
+  D1 <25 k, **D2 ≈190 k** (within 5 % of the edit loop's cap; `lake build`'s project cap is 4,000,000, so it is
+  an edit-loop risk, not a build risk — watch it in any set that reopens `PieceLatticeMajorant`).
+- **rule**: a heartbeat *probe* is a measurement reported in the module header ("silent at N, fails at N/2");
+  a heartbeat *floor* is a defect marker. Record the first, never install the second. Gate text that conflates
+  them will be obeyed literally by a careful worker, which is exactly what happened here.
+- **seen**: 2026-11-14, five `set_option maxHeartbeats` sites removed from four modules of SET-AF83; the two
+  workers' objections are quoted in [../topics/automorphicForm/SET-AF83.md](../topics/automorphicForm/SET-AF83.md) §5.
