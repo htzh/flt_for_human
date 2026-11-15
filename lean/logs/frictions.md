@@ -4645,3 +4645,91 @@ round promotes what generalizes.
   wired into `check_port` and its partial declaration set reads as a diff of the whole pin file.
 - **seen**: 2026-11-14, SET-AF73 landing (source 672 → 425 lines, shelf 649 lines, both silent, checker
   and consumer unchanged, `move_dead` then 0).
+
+## FR-0217 [instance] — a delayed coercion metavariable inside a *spelled* induction motive is an instance-term `isDefEq`
+
+- **where**: SET-AF75 order A, `NumberTheory/AdelicFourier/Space.lean`,
+  `comp_mul_mem_schwartzBruhat` (the row the scaffold had omitted and the manager restored from the pin
+  with the pin's own proof, `P2M/Sol/S_NumberField_AdelicFourier_comp_mul_mem_schwartzBruhat.lean:77`).
+- **symptom**: a ten-line proof aborts at the project's 200 k edit-loop cap with
+  `(deterministic) timeout at whnf` on the `refine schwartzBruhat_induction …` line, although the rest
+  of the module is far under the cap — and the pin file carries `set_option maxHeartbeats 1600000`, so
+  the defect predates the port.
+- **cause**: the motive spells `fun x ↦ f (↑y * x)` with `y : (AdeleRing (𝓞 F) F)ˣ`. `· * x` only
+  constrains the *target type* of the coercion `↑`, so the elaborator postpones it as a `Coe`
+  metavariable over the motive's telescope; assigning that metavariable when the eliminator
+  instantiates the motive is a defeq that unfolds `AdeleRing = InfiniteAdeleRing × FiniteAdeleRing`,
+  `InfiniteAdeleRing = (v) → v.Completion`, `v.Completion = SeparationQuotient (UniformSpace.Completion)`
+  and the `Mul` instance term. The counters are the tell: `Units.val ↦ 870774`, `Prod.fst ↦ 360312`,
+  `InfiniteAdeleRing ↦ 90097`, `Quotient`/`SeparationQuotient`/`UniformSpace.Completion ↦ 30025`,
+  `Set ↦ 28813` — all in *reduction* of instance/coercion terms, with **no `synthInstance` goal
+  anywhere**, i.e. the playbook's §3.5 class "instance terms compared by an argument check", but its
+  trigger is not a big instance term in the *statement*: it is a *delayed* coercion in the *proof*.
+- **fix / rule**: ascribe the coercion where it is written — `(↑y : AdeleRing (𝓞 F) F) * x` in the
+  motive. Statement unchanged (`check_port` 33 ok), edit loop silent at 200 k, no `set_option`.
+  Two probes worth carrying: (i) the **floor probe** (every proof `sorry`) is silent, so the cost is in
+  the proof and no statement deviation is needed; (ii) spelling the same *dependent* motive at the span
+  spelling (`∈ Submodule.span ℂ (pureTensorSet F)`, no `schwartzBruhat` anywhere) still aborts, so the
+  `whnf` of the `def` is *not* the cost — and rewriting the induction as `Submodule.span_induction`
+  (whose motive stays *inferred* from the goal and is never re-elaborated as a term, so the delayed
+  metavariable never exists) is a cure but **not** a diagnosis: it leaves the trap armed for the next
+  spelled motive. Prefer the ascription.
+- **seen**: 2026-11-14, SET-AF75 order A (diagnosed by a build-fix subagent under §3.5, fix verified at
+  the 200 k cap, 32 → 33 checked declarations on the module).
+
+## FR-0218 [port] — a scaffold's `variable {F}` re-spells every *call site*, and the symptom is a `simp` that does not fire
+
+- **where**: SET-AF76 order C, `AutomorphicForm/Adelic/BesselInequality.lean`. The manager's scaffold had to
+  make the pin's section variable implicit (`variable {F}`) because v4.34 puts an explicit `F` into `ech`'s
+  telescope where the pin's Lean left it implicit, so the pin's own text `ech ψ α` in the neighbouring
+  statements elaborates only with the implicit annotation (FR-0217's file has the mirror case, `variable (F)`
+  … `variable {F}` mid-file, which the scaffold had to reproduce).
+- **symptom**: the *call sites* of the pin's proofs silently lose the argument — the pin writes
+  `setIntegral_adelicBox_comp_add_right F G hG x`, the port needs `setIntegral_adelicBox_comp_add_right G hG x`
+  — and the failure does not point at the call: a `simp only` list whose rewrite never fires leaves a goal
+  that reads like an unfinished arithmetic step.
+- **cause**: the binder annotation of a section variable is part of *every* declaration's signature that
+  uses it, so changing it changes the arity of every same-file declaration at once.
+- **fix / rule**: a scaffold that copies the pin's statement text must also copy the pin's `variable`
+  annotations (and the port must add the annotations v4.34 needs); the worker's first move is then to diff
+  the pin's *call sites of same-file theorems* against the scaffold's binder lines, not to debug the goal.
+- **also** (v4.34, same order): `@norm_sq_eq_re_inner ℂ` is now the class projection
+  `InnerProductSpace.norm_sq_eq_re_inner`, which needs `𝕜` pinned and a `conv_lhs` — a bare `rw` also
+  rewrites the `‖f u‖^2` on the other side of the target.
+- **seen**: 2026-11-14, SET-AF76 order C (5 mechanical call-site/binder fixes; checker and all gates green).
+
+## FR-0219 [pin-vs-port] — `AdeleRing` is a `def`, so the pin's `subst`-then-measure steps are rejected in v4.34
+
+- **where**: SET-AF76 order B, `NumberTheory/AdelicBox/Normalization.lean`, the headline
+  `inv_measure_adelicBox_mul_integral_pureTensor_eq` (pin `:125–220`).
+- **symptom**: after the pin's `subst hmA` (which identifies the `MeasurableSpace` of `𝔸_F` with the product
+  one), `μ (adelicBox F)` reports `Function expected at μ`, and `rw [hμ, integral_smul_nnreal_measure]` fails
+  with "pattern not found".
+- **cause**: in v4.34 mathlib `AdeleRing` is a `def` (not an `abbrev`); the elaborated term `μ` still carries
+  the old `A`-typed instance in instance-argument position, so a `subst` of the `MeasurableSpace` does not
+  re-type it and the product instance is rejected where it is *applied*.
+- **fix / rule**: never re-type `μ` by `subst`; give the product-typed copy a name and move the goal once —
+  `let μP : Measure (InfiniteAdeleRing F × FiniteAdeleRing (𝓞 F) F) := μ`, then one `change` restating the
+  frozen goal at the product type, `let πP := πX.prod ν`, `have hμP : μP = c • πP := hμ`, and
+  `hset : adelicBox F = infiniteBox F ×ˢ integralFiniteAdeles (𝓞 F) F := rfl` for the product-measure step.
+  The pin's lemma sequence is then transcribable verbatim. (The same trap sits in order D's file, which copies
+  the same prelude; it is harmless there only because no measure is applied to a set after the `subst`.)
+- **seen**: 2026-11-14, SET-AF76 order B (fixed, all gates green; flagged forward to order D at the time).
+
+## FR-0220 [orchestration] — a scaffold shared between two parallel orders blocks the dependent's *build* gate
+
+- **where**: SET-AF76 orders B and D. D's module imports B's `Normalization` (the seven transport/countability
+  lemmas the pin proves twice — the set's one real dedup). The manager dispatched B and D together, which is
+  sound for the *statements* (a scaffold's `sorry` bodies elaborate).
+- **symptom**: D's edit loop and checker were green while `lake build` of D failed, and the errors were all
+  **inside B's file** — `True`-valued statements, "function expected at `μ`", a rewrite that did not fire.
+  B was simply mid-flight; D could not produce its `.olean`, so its axioms/dedup/consumer gates could not run
+  either.
+- **cause**: a `sorry` body is not an error, but a half-edited file is; and `lake build D` builds the *whole*
+  import closure, so a dependency being edited by another order is on D's critical path.
+- **fix / rule**: when an order's module is a *dependency* of another order, either sequence them (the
+  dependency's order first — its statements are frozen, so nothing is lost by waiting), or tell the dependent
+  worker that its build/axioms/consumer gates close **after** the dependency lands and that it must not
+  hand-make `.olean`s or edit the dependency. Both happened here: the dependent stopped at the blocker, wrote
+  its consumer zone, and closed the four remaining gates itself once B landed, with no change to its file.
+- **seen**: 2026-11-14, SET-AF76 orders B/D (D's gates 2/4/5/6 closed ~25 min after its gates 1/3).
