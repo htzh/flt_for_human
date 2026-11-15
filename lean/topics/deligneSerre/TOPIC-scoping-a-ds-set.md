@@ -106,6 +106,16 @@ and across the project), and `leaf`.
 - **Silo is not content.** `port_plan`'s raw → net gap was 18% in SET 3 (4,972 silo → **4,087 net
   new math lines**, after 198 dedup lines and 230 already-in-port lines) and larger where a set
   reuses a promoted engine (BC6's new module came out at 619 lines against 925 pin lines).
+- **Count a row's public surface with the corpus parser, never with a regex.** A row's cost is
+  `(silo, public declarations)`: the silo says how much proof, the public count says how much *scaffolding*, and the
+  second is what a manager pays. `spec/statement_db.py`'s `parse_file` is the authority (it reads attributes, so
+  `@[scoped simp] private theorem …` is correctly private); a `private`-prefix regex reads that line as public and
+  inflated SET-AF84's order C from 23 wire publics to 26, for a module whose structural maximum was 11 (10 of the
+  wire's declarations are the pin's own duplicated engine block, declared once; 3 are `solution` wrapper glue, folded
+  onto the rows). Two consequences worth carrying: a wire's public count is **not** the port's declaration count,
+  and `check_port` cannot see an omission at all — it iterates the *module's* declarations — so `scaffold_audit:
+  complete` is the gate that fails on a missing declaration, and a work order's "`N ok` for a given `N`" states a
+  *size*, not an acceptance test (FR-0226).
 - **`premises` is a risk column, not a size column.** A 15-premise node is where a set stalls
   (SET 4's `genusFF_sub_one_eq_…`); give it its own order and its own wall time.
 

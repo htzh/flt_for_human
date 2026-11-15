@@ -4853,3 +4853,34 @@ round promotes what generalizes.
   them will be obeyed literally by a careful worker, which is exactly what happened here.
 - **seen**: 2026-11-14, five `set_option maxHeartbeats` sites removed from four modules of SET-AF83; the two
   workers' objections are quoted in [../topics/automorphicForm/SET-AF83.md](../topics/automorphicForm/SET-AF83.md) §5.
+
+## FR-0226 [spec] — count a module's public surface with the corpus parser, never with a `private`-prefix regex
+
+- **where**: SET-AF84's scoping (2026-11-14). The manager sized four orders from a throwaway counter that decided
+  "private" by `line.startswith("private ")`. It therefore read **`@[scoped simp] private theorem …` as public**,
+  and order C was dispatched with a target of "26 public declarations" when the wire carries **23** and the
+  module's structural maximum is **11**. The worker reproduced the true arithmetic from the corpus before writing a
+  line of proof: C1 has 1 public declaration (not 4 — the extra 3 are `@[scoped simp] private`), C2 and C3 have 11
+  each, and `diff` of `:12-198` in the two files is empty, so 10 of the 23 are the pin's own duplicated engine block
+  that the port declares **once**.
+- **the two arithmetic facts the inflated number hid**: (i) a pin file may carry the *same* engine block twice (the
+  *port once* rule of `port_advise`), so the port's declaration count is strictly smaller than the wire's public
+  count; (ii) a pin's `solution` is wrapper glue whose statement is the row's, so it folds rather than adding.
+- **the instrument**: `spec/statement_db.py`'s parser is the authority — `parse_file` returns
+  `(line, end, name, key, last, kind, priv, anon, stmt, raw, hash)` per declaration, with `priv` and `anon` as the
+  parser computes them (it reads attributes and `@[scoped simp]` prefixes). Any count in a brief, a work order or a
+  report comes from it — `tools/deps/pubcount.py` is a *regex* and is now retired for this purpose.
+- **a target `N ok` is one per *port* declaration, not one per wire public** (added on SET-AF84's landing, from
+  the A order): `check_port` emits one verdict per declaration **of the module**, so when one port declaration
+  covers two pin publics — a row and the pin's statement-identical `_impl` general form, or a row and its own
+  `solution` — the line is *shorter* than the wire's public count and the audit says so (`RENAMED?` / `FOLDED`).
+  SET-AF84A's order asked for "3 ok" for a two-row module whose pin carries three publics, and the worker
+  correctly delivered `2 ok` + `complete`; the two halves of that same order contradicted each other.
+- **and the count was never the gate anyway**: `check_port` iterates the *module's* declarations, so it reports a
+  missing declaration as nothing at all (`N ok` looks the same whether one declaration or ten are absent).
+  `scaffold_audit` is the direction-reversed check and is what proves a step-1 transcription complete. A target of
+  "`N ok` for a given N" is therefore a *sizing* statement, and `scaffold_audit: complete` is the *acceptance* one.
+  Both are gates; only the audit can fail on an omission.
+- **seen**: 2026-11-14, SET-AF84 order C at step 1 (`11 ok / 0 / 0` + `complete`, 23 pin publics on the wire);
+  SET-AF83's §1 table also carried the same inflation (15 publics / 217 engines for a true 17 / 196) and was
+  corrected on the second pass.

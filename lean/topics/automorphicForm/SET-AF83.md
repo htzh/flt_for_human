@@ -7,14 +7,19 @@ modules** (plus one manager `Def_` module), four orders.
 | # | order | rows | silo | module(s) | public decls | engine decls |
 |---|---|---|---:|---|---:|---:|
 | A | the archimedean type submodules | 3 | 1,102 | `AutomorphicForm/Adelic/Cusp/ArchTypeSubmodule` | 3 | 61 |
-| B | the finite-place integrality calculus | 4 | 1,179 | `AutomorphicForm/Adelic/FiniteIntegralConjugation` | 6 | 66 |
+| B | the finite-place integrality calculus | 4 | 1,179 | `AutomorphicForm/Adelic/FiniteIntegralConjugation` | 8 | 45 |
 | C | the Siegel window at height, and the archimedean–Petersson dictionary | 4 | 1,131 | `AutomorphicForm/Adelic/WindowedSiegel/WindowVanishing`, `AutomorphicForm/Adelic/ArchPeterssonPairing` | 4 | 50 |
 | D | the Eisenstein piece | 2 | 1,556 | `EisensteinGeneral/PieceFactorizationDatum`, `EisensteinGeneral/PieceLatticeMajorant` | 2 | 40 |
-| | | **13** | **4,968** | 7 modules | **15** | **217** |
+| | | **13** | **4,968** | 7 modules | **17** | **196** |
 
 (Public and engine counts are **pin-side**, i.e. the number of declarations the pin's `S_` files carry — that is
-what sizes the order. The port transcribes 179 of the 217 engine declarations; §5 accounts for the difference
-declaration by declaration: dead-in-the-pin helpers, merges, and the ones already public in the port's closure.)
+what sizes the order. The port transcribes 179 of the 196 engine declarations; §5 accounts for the difference
+declaration by declaration: dead-in-the-pin helpers, merges, and the ones already public in the port's closure.
+
+**Correction (second pass).** This table first carried 15 publics / 217 engines: the manager's counter read
+`@[scoped simp] private theorem` as public, and the error ran in both directions (it inflated the private count for
+A and deflated the public count for B). Every figure above now comes from `spec/statement_db.py`'s parser — see
+FR-0226 in [../../logs/frictions.md](../../logs/frictions.md).)
 
 Silo per order is the pin's own figure for the rows (`S_` lines), so each worker transcribes **1,100–1,560
 lines of pin** and 40–60 engine declarations: this is the column's heaviest wave by construction, and the
