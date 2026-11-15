@@ -17,7 +17,7 @@
     values;
   * `NumberField.denseRange_algebraMap_adicCompletion_pi_prod_infinitePlace_pi`
     (140) — the diagonal `K → ∏_{v ∈ S} K_v × ∏_{w | ∞} K_w` has dense range
-    (its helper namespace `P2mS26B6b` is kept verbatim);
+    (its helper namespace `P2mS26B6b` is rectified to `AdicCompletionDensity`);
   * `HeckeCharacter.eq_of_forall_apply_localUnit_uniformizerUnit_eq` (459) — the
     criterion itself, whose private helpers stay `private` in
     `namespace HeckeCharacter`.
@@ -31,7 +31,7 @@
 
   Faithfulness and drift.  Statements are the wrappers' verbatim; proofs are the
   `S_` files' bodies; `solution` is not ported, the pin's `p2m_*` lines are
-  dropped, and the pin's inner namespaces are kept verbatim (`P2mS26B6b`,
+  dropped, and the pin's inner namespace `P2mS26B6b` is rectified to `AdicCompletionDensity` (see the module header),
   `HeckeCharacter`).  The pin's `import Mathlib` becomes the named modules below.
 
   References (public mirror, pinned):
@@ -154,7 +154,7 @@ end AbsoluteValue
 
 /-! ### Density of the diagonal in the finite completions times the infinite ones -/
 
-namespace P2mS26B6b
+namespace AdicCompletionDensity
 
 open NumberField IsDedekindDomain
 
@@ -237,7 +237,7 @@ theorem isNontrivial_and_pairwise_not_isEquiv {K : Type*} [Field K] [NumberField
     · have hww : w ≠ w' := fun h => hij (by rw [h])
       exact hww (NumberField.InfinitePlace.eq_iff_isEquiv.2 heq)
 
-end P2mS26B6b
+end AdicCompletionDensity
 
 namespace NumberField
 
@@ -248,7 +248,7 @@ theorem denseRange_algebraMap_adicCompletion_pi_prod_infinitePlace_pi {K : Type*
       ((fun v : S => algebraMap K (v.1.adicCompletion K) x),
        (fun w : NumberField.InfinitePlace K => algebraMap K w.Completion x))) := by
   classical
-  obtain ⟨hV, hne⟩ := P2mS26B6b.isNontrivial_and_pairwise_not_isEquiv S
+  obtain ⟨hV, hne⟩ := AdicCompletionDensity.isNontrivial_and_pairwise_not_isEquiv S
   intro z
   rw [mem_closure_iff_nhds]
   intro t ht
@@ -258,11 +258,11 @@ theorem denseRange_algebraMap_adicCompletion_pi_prod_infinitePlace_pi {K : Type*
 
   have hd₁ : ∀ v : S, ∃ k : K, dist (algebraMap K (v.1.adicCompletion K) k) (z.1 v) < ε₁ / 2 := by
     intro v
-    obtain ⟨k, hk⟩ := (P2mS26B6b.denseRange_algebraMap_adicCompletion v.1).exists_dist_lt (z.1 v) (half_pos hε₁)
+    obtain ⟨k, hk⟩ := (AdicCompletionDensity.denseRange_algebraMap_adicCompletion v.1).exists_dist_lt (z.1 v) (half_pos hε₁)
     exact ⟨k, by rw [dist_comm]; exact hk⟩
   have hd₂ : ∀ w : NumberField.InfinitePlace K, ∃ k : K, dist (algebraMap K w.Completion k) (z.2 w) < ε₂ / 2 := by
     intro w
-    obtain ⟨k, hk⟩ := (P2mS26B6b.denseRange_algebraMap_completion w).exists_dist_lt (z.2 w) (half_pos hε₂)
+    obtain ⟨k, hk⟩ := (AdicCompletionDensity.denseRange_algebraMap_completion w).exists_dist_lt (z.2 w) (half_pos hε₂)
     exact ⟨k, by rw [dist_comm]; exact hk⟩
   choose k₁ hk₁ using hd₁
   choose k₂ hk₂ using hd₂
@@ -283,7 +283,7 @@ theorem denseRange_algebraMap_adicCompletion_pi_prod_infinitePlace_pi {K : Type*
   · rw [Metric.mem_ball, dist_pi_lt_iff hε₂]
     intro w
     have h1 : dist (algebraMap K w.Completion x) (algebraMap K w.Completion (k₂ w)) < ε₂ / 2 := by
-      rw [dist_eq_norm, ← map_sub, P2mS26B6b.norm_algebraMap_completion]
+      rw [dist_eq_norm, ← map_sub, AdicCompletionDensity.norm_algebraMap_completion]
       exact (hx (Sum.inr w)).trans_le (min_le_right _ _)
     calc dist (algebraMap K w.Completion x) (z.2 w)
         ≤ dist (algebraMap K w.Completion x) (algebraMap K w.Completion (k₂ w))
