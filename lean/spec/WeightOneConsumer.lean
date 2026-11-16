@@ -26,7 +26,7 @@ import FLTForHuman.ModularForms.WeightOne.Gamma0Rationality
 import FLTForHuman.ModularForms.WeightOne.Gamma0Integral
 import FLTForHuman.ModularForms.WeightOne.Gamma1Basis
 import FLTForHuman.ModularForms.WeightOne.Gamma1IntegralBasis
-import FLTForHuman.ModularForms.WeightOne.IntegralStructure
+import FLTForHuman.ModularForms.HeckeFiniteness.IntegralStructure
 
 open scoped ModularForm CongruenceSubgroup MatrixGroups Manifold UpperHalfPlane
 open Complex
@@ -348,14 +348,14 @@ example : ∃ G : ZMod 2 → ModularForm (CongruenceSubgroup.Gamma1 2 : Subgroup
 
 /-- **SET-11 order 2, executed application (integral-slash Γ₁ basis).** The last
 headline is applied at the concrete `N = 3`, `k = 2` — the shape the capstone
-`WeightOne/IntegralStructure.lean` reuses — so its `Module.Basis` existential and
+`HeckeFiniteness/IntegralStructure.lean` reuses — so its `Module.Basis` existential and
 the `q`-coefficient slash-integrality conjunct are elaborated into a term. -/
 example : ∃ (n : ℕ) (b : Module.Basis (Fin n) ℂ (CuspForm (CongruenceSubgroup.Gamma1 3) 2)),
     ∀ (i : Fin n) (γ : SL(2, ℤ)), γ ∈ CongruenceSubgroup.Gamma0 3 → ∀ m : ℕ,
       ModularFormClass.qCoeff ((⇑(b i) : ℍ → ℂ) ∣[(2 : ℤ)] γ) m ∈ Set.range ((↑) : ℤ → ℂ) :=
   CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast 3 2
 
--- The capstone, `ModularForms/WeightOne/IntegralStructure.lean`.
+-- The capstone, `ModularForms/HeckeFiniteness/IntegralStructure.lean`.
 #check CuspForm.hasIntegralStructure_of_basis_gamma1
 #check CuspForm.hasIntegralStructure_of_two_le
 #check CuspForm.hasIntegralStructure_two

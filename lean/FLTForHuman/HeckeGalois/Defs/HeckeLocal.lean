@@ -21,7 +21,7 @@
 -/
 import FLTForHuman.HeckeGalois.Defs.HeckeGaloisRepDatum
 import FLTForHuman.ModularForms.Defs.IntegralStructure
-import FLTForHuman.ModularForms.HeckeLattice
+import FLTForHuman.ModularForms.HeckeFiniteness.Lattice
 import FLTForHuman.Algebra.FiniteAlgebraComplete
 
 set_option autoImplicit false
@@ -42,7 +42,7 @@ variable (N : ℕ) [NeZero N] (S : Set ℕ)
 def latticeRestrict {t : Module.End ℂ (CuspForm (CongruenceSubgroup.Gamma0 N) 2)}
     (ht : t ∈ heckeAlgebra N 2 S) : Module.End ℤ ↥(intLattice N 2) :=
   LinearMap.restrict (t.restrictScalars ℤ)
-    (fun _f hf => mem_intLattice_of_mem_heckeAlgebra one_le_two ht hf)
+    (fun _f hf => mem_intLattice_of_mem_heckeAlgebra ht hf)
 
 def latticeActionHom : ↥(heckeAlgebra N 2 S) →+* Module.End ℤ ↥(intLattice N 2) where
   toFun t := latticeRestrict N S t.2

@@ -12,13 +12,13 @@
   * `FLTForHuman/ModularForms/Level/Degeneracy.lean` — `exists_degeneracy_Gamma0`;
   * `FLTForHuman/ModularForms/EigenformLevel.lean` — the two level-raising
     headlines;
-  * `FLTForHuman/ModularForms/EigenformExtraction.lean` — the three extraction
+  * `FLTForHuman/ModularForms/HeckeFiniteAlgebra.lean` (facade) — the three extraction
     statements.
 
   The `[extraction]` zone below is a real cross-module composition (not a list of
   `#check`s and not `sorry`-terminated, playbook §7.2): a Hecke character `χ` is
   fed to `HasIntegralStructure.exists_isNormalizedEigenform_qCoeff_eq`
-  (EigenformExtraction), the resulting normalised eigenform is handed to the
+  (its facade), the resulting normalised eigenform is handed to the
   ported `IsNormalizedEigenform.heckeTLin_apply_eq_qCoeff_smul` dictionary
   (HeckeEigenform) to read off its `T_ℓ` eigenvalue, and the same eigenform is
   then raised to level `N * p` by `exists_isNormalizedEigenform_level_mul`
@@ -35,7 +35,7 @@ import FLTForHuman.Algebra.IntegralExtensionCharacters
 import FLTForHuman.Algebra.FaithfulLatticeEigenvector
 import FLTForHuman.ModularForms.Level.Degeneracy
 import FLTForHuman.ModularForms.EigenformLevel
-import FLTForHuman.ModularForms.EigenformExtraction
+import FLTForHuman.ModularForms.HeckeFiniteAlgebra
 
 set_option autoImplicit false
 
@@ -47,7 +47,7 @@ namespace TsideSet2
 
 variable {N : ℕ} [NeZero N] {S : Set ℕ}
 
--- The wire test. `exists_isNormalizedEigenform_qCoeff_eq` (EigenformExtraction)
+-- The wire test. `exists_isNormalizedEigenform_qCoeff_eq` (HeckeFiniteAlgebra facade)
 -- produces a normalised eigenform `f` for `χ` with `qCoeff f ℓ = χ (T_ℓ)`;
 -- `heckeTLin_apply_eq_qCoeff_smul` (HeckeEigenform) rewrites `T_ℓ f` as
 -- `qCoeff f ℓ • f`; substituting the character value yields the eigenvalue

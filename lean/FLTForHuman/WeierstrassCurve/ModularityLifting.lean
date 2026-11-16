@@ -48,9 +48,8 @@ import FLTForHuman.GaloisRep.Defs.DeformationRingData
 import FLTForHuman.HeckeGalois.Defs.HeckeGaloisRepDatum
 import FLTForHuman.Patching.Defs.PatchingDatum
 import FLTForHuman.Algebra.IntegralExtensionCharacters
-import FLTForHuman.ModularForms.EigenformExtraction
-import FLTForHuman.ModularForms.EigenformLevel
 import FLTForHuman.ModularForms.HeckeFiniteAlgebra
+import FLTForHuman.ModularForms.EigenformLevel
 import FLTForHuman.WeierstrassCurve.Defs.Modularity
 import FLTForHuman.Patching.PatchingConstruction
 import FLTForHuman.Patching.LevelDescent

@@ -1,58 +1,32 @@
 /-
   From a Hecke character to a normalised eigenform.
 
-  * `CuspForm.linearIndependent_of_mem_intLattice` — `ℤ`-independence of cusp
-    forms in the integral lattice implies `ℂ`-independence.
-  * `CuspForm.HasIntegralStructure.exists_ne_zero_forall_apply_eq_smul` — the
-    generic faithful-lattice eigenvector (`Algebra/FaithfulLatticeEigenvector.lean`)
-    applied to the Hecke algebra acting on `intLattice`.
-  * `CuspForm.HasIntegralStructure.exists_isNormalizedEigenform_qCoeff_eq` — the
-    eigenvalue system produced by the first node is turned into a normalised
-    eigenform, using `RingHom.exists_comp_algebraMap_eq_of_isIntegral_of_isAlgClosed`
-    to extend the character from `heckeAlgebra N 2 S` to `heckeAlgebra N 2 ∅`.
+  `ℤ`-independence of cusp forms in the integral lattice implies `ℂ`-independence, which
+  is the freeness input of the faithful-lattice eigenvector argument; applied to the
+  Hecke algebra acting on the lattice it produces a nonzero eigenvector for any character
+  of the algebra, and rescaling by its first `q`-coefficient gives a normalised
+  eigenform. The character is extended from `heckeAlgebra N 2 S` to `heckeAlgebra N 2 ∅`
+  by integrality of the extension, which is finiteness of the algebra.
 
-  The three statements are the pin's `Theorems/` wrappers verbatim; the proofs are
-  transcribed from the `P2M/Sol/S_*` files, pinned `aa2d8b3`:
-
-  * https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_linearIndependent_of_mem_intLattice.lean
-  * https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean
-  * https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean
-
-  **Truncation dedup (work order §2).** The pin's first file introduces a *third*
-  copy of the Sturm truncation — its `FrobChareqC2.sturmB`/`trunc`/`trunc_injective`
-  (lines 33–49). The port does not: it reuses the public `CuspForm.qCoeffTrunc`
-  (`ModularForms/SturmBound.lean`) with the injectivity derived once, privately,
-  from the public `CuspForm.Gamma0_eq_zero_of_qExpansion_coeff_eq_zero`. The helper
-  `qCoeffTrunc_injective` is the only new truncation statement and it is a
-  three-line corollary of the existing bound.
-
-  The `FrobChareqC2` q-coefficient helpers of the third pin file are likewise not
-  re-proved: `hΓ` is `CongruenceSubgroup.one_mem_strictPeriods_Gamma0`,
-  `qCoeff_zero'` is `CuspForm.qCoeff_zero`, and
-  `qCoeff_hecke{T,U}Lin_one` are kept `private` here (their only consumer is
-  `C2_7a`).
-
-  spec-pin: Theorems/Thm_CuspForm_linearIndependent_of_mem_intLattice.lean
-  spec-pin: Theorems/Thm_CuspForm_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean
-  spec-pin: Theorems/Thm_CuspForm_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean
-  spec-pin: P2M/Sol/S_CuspForm_linearIndependent_of_mem_intLattice.lean
-  spec-pin: P2M/Sol/S_CuspForm_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean
-  spec-pin: P2M/Sol/S_CuspForm_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean
-
+  FLT provenance, pinned `aa2d8b3`:
+  `Theorems/Thm_CuspForm_linearIndependent_of_mem_intLattice.lean`,
+  `…_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean`,
+  `…_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean`.
 -/
-import FLTForHuman.ModularForms.HeckeFiniteAlgebra
-import FLTForHuman.ModularForms.SturmBound
-import FLTForHuman.ModularForms.Defs.Eigenform
 import FLTForHuman.Algebra.FaithfulLatticeEigenvector
 import FLTForHuman.Algebra.IntegralExtensionCharacters
+import FLTForHuman.ModularForms.Defs.Eigenform
+import FLTForHuman.ModularForms.HeckeEigenform
+import FLTForHuman.ModularForms.HeckeFiniteness.Finiteness
+import FLTForHuman.ModularForms.HeckeFiniteness.Lattice
+import FLTForHuman.ModularForms.SturmBound
 import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
 
 set_option autoImplicit false
 
--- The pin's `haveI` walls are load-bearing; keep them literal (port convention).
-set_option linter.style.haveILetI false
-
 noncomputable section
+
+set_option linter.style.haveILetI false
 
 open UpperHalfPlane ModularForm ModularFormClass
 open scoped MatrixGroups ModularForm CongruenceSubgroup
@@ -135,18 +109,19 @@ theorem linearIndependent_of_mem_intLattice {N : ℕ} [NeZero N] {k : ℤ} (n : 
 
 /-! ## The eigenvector from the faithful lattice -/
 
-/-- **The eigenvector for a Hecke character.** Stated verbatim from
-`Theorems/Thm_CuspForm_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean`. -/
-theorem HasIntegralStructure.exists_ne_zero_forall_apply_eq_smul {N : ℕ} [NeZero N] {k : ℤ}
-    (hN : CuspForm.HasIntegralStructure N k) (hk : 1 ≤ k) {S : Set ℕ}
+/-- **The eigenvector for a Hecke character**: every character of the Hecke algebra is
+realised by a nonzero cusp form that is an eigenvector for every operator in it. -/
+theorem exists_ne_zero_forall_apply_eq_smul {N : ℕ} [NeZero N] {k : ℤ} {S : Set ℕ}
     (χ : CuspForm.heckeAlgebra N k S →+* ℂ) :
     ∃ f : CuspForm (CongruenceSubgroup.Gamma0 N) k, f ≠ 0 ∧
       ∀ t : CuspForm.heckeAlgebra N k S,
         (t : Module.End ℂ (CuspForm (CongruenceSubgroup.Gamma0 N) k)) f = χ t • f := by
   have h := Module.End.exists_ne_zero_forall_apply_eq_smul_of_ringHom (K := ℂ)
     (heckeAlgebra N k S).val.toRingHom (intLattice N k) (CuspForm.intLattice_fg N k)
-    (fun t f hf => CuspForm.mem_intLattice_of_mem_heckeAlgebra hk t.2 hf)
-    (fun t ht => Subtype.ext (CuspForm.HasIntegralStructure.eq_zero_of_forall_mem_intLattice hN (t : Module.End ℂ _) ht))
+    (fun t f hf => CuspForm.mem_intLattice_of_mem_heckeAlgebra t.2 hf)
+    (fun t ht => Subtype.ext (by
+      simpa using CuspForm.eq_zero_of_forall_mem_intLattice
+        ((heckeAlgebra N k S).val.toRingHom t) ht))
     (fun n f hf hind => CuspForm.linearIndependent_of_mem_intLattice n f hf hind) χ
   exact h
 
@@ -186,13 +161,13 @@ private theorem qCoeff_heckeULin_one {N : ℕ} [NeZero N] {q : ℕ} (hqN : q ∣
 
 /-- The `S = ∅` case of the extraction: a normalised eigenform whose prime
 coefficients are the character values. This is the pin's `C2_7a`, private. -/
-private theorem C2_7a {N : ℕ} [NeZero N] (hN : HasIntegralStructure N 2) (χ : heckeAlgebra N 2 ∅ →+* ℂ) :
+private theorem C2_7a {N : ℕ} [NeZero N] (χ : heckeAlgebra N 2 ∅ →+* ℂ) :
     ∃ f : CuspForm (CongruenceSubgroup.Gamma0 N) 2, f.IsNormalizedEigenform ∧
       (∀ (ℓ : ℕ) (hℓ : ℓ.Prime) (hℓN : ¬ ℓ ∣ N),
         ModularFormClass.qCoeff f ℓ = χ (heckeAlgebra.T hℓ hℓN (Set.notMem_empty ℓ))) ∧
       ∀ (q : ℕ) (hq : q.Prime) (hqN : q ∣ N),
         ModularFormClass.qCoeff f q = χ (heckeAlgebra.U hq hqN (Set.notMem_empty q)) := by
-  obtain ⟨g, hg0, hg⟩ := CuspForm.HasIntegralStructure.exists_ne_zero_forall_apply_eq_smul hN one_le_two χ
+  obtain ⟨g, hg0, hg⟩ := exists_ne_zero_forall_apply_eq_smul χ
 
   classical
   let c : ℕ → ℂ := fun p => if hp : p.Prime then
@@ -245,18 +220,16 @@ end FrobChareqC2
 
 open FrobChareqC2 in
 
-/-- **The character's eigenvalue system is a normalised eigenform.** Stated
-verbatim from
-`Theorems/Thm_CuspForm_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean`. -/
-theorem HasIntegralStructure.exists_isNormalizedEigenform_qCoeff_eq {N : ℕ} [NeZero N]
-    (hN : CuspForm.HasIntegralStructure N 2) {S : Set ℕ}
+/-- **The character's eigenvalue system is a normalised eigenform**: the eigenvector
+produced above, rescaled by its first coefficient. -/
+theorem exists_isNormalizedEigenform_qCoeff_eq {N : ℕ} [NeZero N] {S : Set ℕ}
     (χ : CuspForm.heckeAlgebra N 2 S →+* ℂ) :
     ∃ f : CuspForm (CongruenceSubgroup.Gamma0 N) 2, f.IsNormalizedEigenform ∧
       (∀ (ℓ : ℕ) (hℓ : ℓ.Prime) (hℓN : ¬ ℓ ∣ N) (hℓS : ℓ ∉ S),
         ModularFormClass.qCoeff f ℓ = χ (CuspForm.heckeAlgebra.T hℓ hℓN hℓS)) ∧
       ∀ (q : ℕ) (hq : q.Prime) (hqN : q ∣ N) (hqS : q ∉ S),
         ModularFormClass.qCoeff f q = χ (CuspForm.heckeAlgebra.U hq hqN hqS) := by
-  haveI : Module.Finite ℤ (heckeAlgebra N 2 ∅) := CuspForm.HasIntegralStructure.moduleFinite_heckeAlgebra hN one_le_two ∅
+  haveI : Module.Finite ℤ (heckeAlgebra N 2 ∅) := CuspForm.moduleFinite_heckeAlgebra N 2 ∅
   let ι : heckeAlgebra N 2 S →ₐ[ℤ] heckeAlgebra N 2 ∅ :=
     Subalgebra.inclusion (heckeAlgebra_mono (Set.empty_subset S))
   letI : Algebra (heckeAlgebra N 2 S) (heckeAlgebra N 2 ∅) := ι.toRingHom.toAlgebra
@@ -275,7 +248,7 @@ theorem HasIntegralStructure.exists_isNormalizedEigenform_qCoeff_eq {N : ℕ} [N
   have hψι : ∀ t : heckeAlgebra N 2 S, ψ (ι t) = χ t := fun t => by
     rw [← hψ]
     rfl
-  obtain ⟨f, hf, hfT, hfU⟩ := C2_7a hN ψ
+  obtain ⟨f, hf, hfT, hfU⟩ := C2_7a ψ
   refine ⟨f, hf, fun ℓ hℓ hℓN hℓS => ?_, fun q hq hqN hqS => ?_⟩
   · rw [hfT ℓ hℓ hℓN, ← hψι]
     rfl

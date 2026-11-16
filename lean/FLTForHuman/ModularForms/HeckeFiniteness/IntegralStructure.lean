@@ -47,6 +47,7 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_CuspForm_hasIntegralStructure_two.lean
 -/
 
+import FLTForHuman.ModularForms.HeckeFiniteness.LowWeight
 import FLTForHuman.ModularForms.WeightOne.Gamma1IntegralBasis
 import FLTForHuman.ModularForms.Level.Diamond
 import FLTForHuman.ModularForms.Defs.IntegralStructure
@@ -361,5 +362,18 @@ theorem hasIntegralStructure_of_two_le (N' : ℕ) [NeZero N'] (k : ℤ) (hk : 2 
 
 theorem hasIntegralStructure_two (N : ℕ) [NeZero N] : CuspForm.HasIntegralStructure N 2 :=
   hasIntegralStructure_of_two_le N 2 le_rfl
+
+/-- The integral structure holds in every weight: `hasIntegralStructure_of_two_le` for
+`2 ≤ k`, and for `k ≤ 1` the space is a subsingleton, so every set spans it. -/
+theorem hasIntegralStructure (N : ℕ) [NeZero N] (k : ℤ) : CuspForm.HasIntegralStructure N k := by
+  rcases lt_or_ge k 2 with hk | hk
+  · have : Subsingleton (CuspForm (CongruenceSubgroup.Gamma0 N) k) :=
+      CuspForm.subsingleton_of_weight_le_one N k (by omega)
+    rw [CuspForm.HasIntegralStructure, Submodule.eq_top_iff']
+    intro x
+    have hx : x = 0 := Subsingleton.elim x 0
+    rw [hx]
+    exact Submodule.zero_mem _
+  · exact hasIntegralStructure_of_two_le N k hk
 
 end CuspForm
