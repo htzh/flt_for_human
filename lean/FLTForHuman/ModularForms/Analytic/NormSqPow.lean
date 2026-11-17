@@ -29,6 +29,7 @@ import Mathlib.Algebra.Field.ZMod
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.NumberTheory.DirichletCharacter.Bounds
 import Mathlib.NumberTheory.ModularForms.Bounds
+import Mathlib.RingTheory.RootsOfUnity.Complex
 import Mathlib.Tactic.LinearCombination
 
 set_option autoImplicit false

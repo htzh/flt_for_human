@@ -45,7 +45,7 @@ import FLTForHuman.ModularCurve.JqIntegralRatios
 import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularForms.QCoeffLevelOne
 import FLTForHuman.ModularCurve.Analytic.QParamUnique
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 

@@ -15,7 +15,7 @@
   The dictionary between the structure and the Hecke operators is
   `HeckeEigenform.lean` (T8).
 -/
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 

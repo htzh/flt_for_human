@@ -10,7 +10,7 @@
   `HasIntegralStructure` is T10. The weight-2 auxiliary vocabulary of T10's
   `Defs/IntegralLattice.lean` is a different object with different names.
 -/
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 

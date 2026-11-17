@@ -93,7 +93,7 @@ import FLTForHuman.ModularForms.WeightOne.FrickeFunction
 import FLTForHuman.ModularForms.WeightOne.LevelFraction
 import FLTForHuman.ModularForms.WeightOne.LevelN
 import FLTForHuman.ModularForms.EisensteinSeries
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.WeightOne.Gamma0Rationality
 import FLTForHuman.ModularForms.WeightOne.Gamma0Integral
 import FLTForHuman.ModularForms.JqAnalyticModel

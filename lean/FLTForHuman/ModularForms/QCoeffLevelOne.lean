@@ -55,7 +55,7 @@
 -/
 
 import FLTForHuman.ModularForms.Level.Degeneracy
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularCurve.Period.QExpansionDerivative
 import Mathlib.NumberTheory.ModularForms.LevelOne.DimensionFormula
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups

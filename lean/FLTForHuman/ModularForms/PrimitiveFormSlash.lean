@@ -49,7 +49,7 @@ import FLTForHuman.ModularForms.Analytic.HeckeEigenvalueConj
 import FLTForHuman.ModularForms.HeckeULevel
 import FLTForHuman.ModularForms.HeckeDiagDegeneracy
 import FLTForHuman.ModularForms.HeckePrelude
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import FLTForHuman.ModularForms.HeckeNebentypusFricke
 import FLTForHuman.ModularForms.HeckeFrickeTrace

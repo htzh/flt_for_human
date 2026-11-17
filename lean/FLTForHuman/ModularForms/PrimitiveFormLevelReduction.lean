@@ -40,7 +40,7 @@ import FLTForHuman.ModularForms.HeckeDiagDegeneracy
 import FLTForHuman.ModularForms.HeckeULevel
 import FLTForHuman.ModularForms.HeckeNebentypusExistence
 import FLTForHuman.ModularForms.HeckePrelude
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.WeightOne.PrimitiveQCoeffNorm
 import FLTForHuman.ModularForms.WeightOne.NebentypusQCoeffSq
 import FLTForHuman.ModularForms.Analytic.NormSqLt

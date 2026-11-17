@@ -9,7 +9,7 @@
 -/
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.NumberTheory.DirichletCharacter.Basic
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 

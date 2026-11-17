@@ -41,7 +41,7 @@ import FLTForHuman.ModularForms.NebentypusSeparation
 import FLTForHuman.ModularForms.HeckeDiagDegeneracy
 import FLTForHuman.ModularForms.HeckeULevel
 import FLTForHuman.ModularForms.HeckePrelude
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import Mathlib.NumberTheory.DirichletCharacter.Orthogonality
 import Mathlib.NumberTheory.LSeries.PrimesInAP

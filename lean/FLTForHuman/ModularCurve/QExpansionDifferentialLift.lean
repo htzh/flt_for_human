@@ -20,7 +20,7 @@ import FLTForHuman.ModularCurve.Period.QExpansionDiff
 import FLTForHuman.ModularCurve.X1.Defs
 import FLTForHuman.ModularCurve.X1.QExpansionDiv
 import FLTForHuman.ModularCurve.JqIntegralRatios
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularForms.QCoeffLevelOne
 import FLTForHuman.ModularForms.Defs.GammaH

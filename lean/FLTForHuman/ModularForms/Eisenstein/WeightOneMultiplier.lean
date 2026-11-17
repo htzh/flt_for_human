@@ -18,7 +18,7 @@
   single copy (`EisensteinG1Transform.lean`) has the same statement.
 -/
 import FLTForHuman.ModularForms.Eisenstein.EisensteinG1QExpansion
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import Mathlib.NumberTheory.DirichletCharacter.GaussSum
 import Mathlib.Analysis.Fourier.ZMod
 import Mathlib.NumberTheory.ModularForms.QExpansion

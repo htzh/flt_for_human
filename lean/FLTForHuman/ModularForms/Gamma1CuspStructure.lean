@@ -53,20 +53,8 @@ theorem qCoeff_def (f : UpperHalfPlane → ℂ) (n : ℕ) :
     qCoeff f n = (UpperHalfPlane.qExpansion 1 f).coeff n := rfl
 
 theorem eq_of_forall_qCoeff_eq {Γ : Subgroup (GL (Fin 2) ℝ)} (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {k : ℤ}
-    (F G : CuspForm Γ k) (h : ∀ n : ℕ, qCoeff F n = qCoeff G n) : F = G := by
-  have : Fact (IsCusp OnePoint.infty Γ) := ⟨Subgroup.isCusp_of_mem_strictPeriods one_pos hΓ⟩
-  have h1 : UpperHalfPlane.qExpansion 1 (⇑(F - G)) = 0 := by
-    rw [FunLike.coe_sub, ModularForm.qExpansion_sub one_pos hΓ F G]
-    ext n
-    have := h n
-    rw [qCoeff_def, qCoeff_def] at this
-    simp [this]
-  have h2 : (⇑(F - G) : UpperHalfPlane → ℂ) = 0 :=
-    (UpperHalfPlane.qExpansion_eq_zero_iff one_pos
-      (SlashInvariantFormClass.periodic_comp_ofComplex (F - G) hΓ) (ModularFormClass.holo (F - G))
-      (ModularFormClass.bdd_at_infty (F - G))).mp h1
-  have h3 : F - G = 0 := DFunLike.ext' (by rw [h2]; rfl)
-  exact sub_eq_zero.mp h3
+    (F G : CuspForm Γ k) (h : ∀ n : ℕ, qCoeff F n = qCoeff G n) : F = G :=
+  ModularFormClass.eq_of_forall_qCoeff_eq hΓ h
 
 theorem qCoeff_heckeULinH (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : ℤ) {q : ℕ} (hq : q.Prime)
     (hqM : q ∣ M) (f : CuspForm (CohCarrier.GammaH M H) k) (n : ℕ) :

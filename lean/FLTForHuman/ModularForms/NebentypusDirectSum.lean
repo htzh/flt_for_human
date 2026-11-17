@@ -33,7 +33,7 @@
 -/
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import FLTForHuman.ModularForms.HeckePrelude
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.AtkinLehnerLowering
 import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.Tactic

@@ -12,7 +12,7 @@
   (pinned `aa2d8b3`). This vocabulary feeds the `χ₋₃`/mod-`3` congruence
   machinery, not T10's full-rank existence proof.
 -/
-import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.Defs.EisensteinChiNegThree
 
 set_option autoImplicit false
