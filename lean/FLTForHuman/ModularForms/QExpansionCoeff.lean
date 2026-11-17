@@ -13,6 +13,7 @@
   pin/port namespace `UpperHalfPlaneAux`, so call sites do not change spelling.
 -/
 import Mathlib.Analysis.Complex.Polynomial.Basic
+import FLTForHuman.ModularForms.QCoeff
 import Mathlib.FieldTheory.AlgebraicClosure
 import Mathlib.FieldTheory.Galois.Infinite
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
@@ -134,18 +135,6 @@ theorem qExpansion_coeff_width (f : ℍ → ℂ) {N : ℕ} (hN : N ≠ 0)
     (qExpansion N f).coeff n =
       if N ∣ n then (qExpansion 1 f).coeff (n / N) else 0 :=
   qExpansion_coeff_width_fn f hN hper hhol hbd n
-
-/-- Uniqueness of a `q`-expansion from its coefficients at the cusp. -/
-theorem qExpansion_coeff_unique' {h : ℝ} (hh : 0 < h) {g : ℍ → ℂ} {c : ℕ → ℂ}
-    (hg : AnalyticAt ℂ (cuspFunction h g) 0)
-    (hc : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam h τ ^ m) (g τ)) (m : ℕ) :
-    c m = (qExpansion h g).coeff m := by
-  have h1 := (hasFPowerSeriesOnBall_cuspFunction hh hg hc).hasFPowerSeriesAt
-  have h2 : HasFPowerSeriesAt (cuspFunction h g)
-      (FormalMultilinearSeries.ofScalars ℂ fun m => (qExpansion h g).coeff m) 0 := by
-    simpa [qExpansion_coeff, div_eq_mul_inv, mul_comm] using hg.hasFPowerSeriesAt
-  simpa [FormalMultilinearSeries.coeff_ofScalars] using
-    congr_arg (FormalMultilinearSeries.coeff · m) (h1.eq_formalMultilinearSeries h2)
 
 end WidthN
 

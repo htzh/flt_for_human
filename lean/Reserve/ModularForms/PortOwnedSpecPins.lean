@@ -12,9 +12,9 @@
   only together with an entry there.
 
   ModularForms/QCoeff — the `q`-coefficient floor. Its interface is the port's
-  `HasQCoeff` certificate rather than the pin's three regularity conditions, and the
-  q-expansion analysis behind it is public here (topics/TOPIC-interface-changes.md
-  Entry 1):
+  presentation `HasQCoeffWith` and its diagonal `HasQCoeff`, rather than the pin's three
+  regularity conditions, and the q-expansion analysis behind it is public here
+  (topics/TOPIC-interface-changes.md Entry 1):
 
     spec-pin: Definitions/Def_FLTPrelim_Modularity.lean
     spec-pin: Theorems/Thm_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean

@@ -2,7 +2,7 @@
   Coefficient facts for the `q`-expansion of a function on the upper half plane.
 
   Mathlib has the object: `UpperHalfPlane.qExpansion` together with
-  `hasSum_qExpansion`, `qExpansion_coeff_unique`,
+  `hasSum_qExpansion`, `qExpansion_coeff_unique_of_hasSum`,
   `qExpansion_coeff_eq_intervalIntegral`, `analyticAt_cuspFunction_zero`
   (`Mathlib/NumberTheory/ModularForms/QExpansion.lean`).  It has none of the
   three lemmas below, which the Sturm-bound side of the port consumes:
@@ -34,10 +34,11 @@
   re-activates scoped instances); the port spells `p2m_open` as `open` and drops
   `p2m_reactivate`.
 
-  Two of the pin files need a `FunLike` wrapper for a bare `ℍ → ℂ`, because
-  mathlib's `qExpansion_coeff_unique` infers that type from a `FunLike` class
-  and the bare function type does not provide one.  Both files define the same
-  10-line `FnWrap` structure; the port carries one copy (`QExpansionCoeff.FnWrap`).
+  Two of the pin files wrap a bare `ℍ → ℂ` in a `FunLike` structure to reach
+  mathlib's `qExpansion_coeff_unique`, whose `FunLike` binder stalls on the bare
+  function type.  The port has `qExpansion_coeff_unique_of_hasSum`
+  (`ModularForms/QCoeff`), which is stated at the bare type, so no wrapper is
+  carried.
 
   Mathlib-first negative (checked against
   `Mathlib/NumberTheory/ModularForms/QExpansion.lean` at `v4.34.0`): no lemma
@@ -56,6 +57,7 @@ import Mathlib.Analysis.Complex.UpperHalfPlane.FunctionsBoundedAtInfty
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.Topology.Algebra.InfiniteSum.Basic
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 
@@ -64,18 +66,6 @@ noncomputable section
 namespace QExpansionCoeff
 
 open UpperHalfPlane
-
-/-- A `FunLike` wrapper for a bare `ℍ → ℂ`: mathlib's `qExpansion_coeff_unique`
-is polymorphic in a `FunLike` type, and the wrapper restores the coercion the
-lemma expects.  (The pin defines this structure once per `S_` file; the port
-carries one copy.) -/
-structure FnWrap where
-
-  toFun : ℍ → ℂ
-
-scoped instance : FunLike FnWrap ℍ ℂ where
-  coe := FnWrap.toFun
-  coe_injective := by rintro ⟨f⟩ ⟨g⟩ h; congr
 
 end QExpansionCoeff
 
@@ -174,12 +164,7 @@ theorem main (f : ℍ → ℂ) (h₀ : ℝ) (hh₀ : 0 < h₀)
     (m' : ℕ) (hm' : 0 < m') (i : ℕ) :
     PowerSeries.coeff i (qExpansion ((m' : ℝ) * h₀) f) =
       if m' ∣ i then PowerSeries.coeff (i / m') (qExpansion h₀ f) else 0 := by
-  have hper' : Periodic (f ∘ UpperHalfPlane.ofComplex) (Complex.ofReal ((m' : ℝ) * h₀)) := by
-    have e : Complex.ofReal ((m' : ℝ) * h₀) = (m' : ℕ) * (h₀ : ℂ) := by push_cast; ring
-    rw [e]
-    exact hper.nat_mul m'
   have hh : 0 < (m' : ℝ) * h₀ := by positivity
-  let F : FnWrap := ⟨f⟩
   let a : ℕ → ℂ := fun n => PowerSeries.coeff n (qExpansion h₀ f)
   have hinj : Injective (fun n : ℕ => m' * n) := mul_right_injective₀ hm'.ne'
   let c : ℕ → ℂ := extend (fun n : ℕ => m' * n) a 0
@@ -193,7 +178,7 @@ theorem main (f : ℍ → ℂ) (h₀ : ℝ) (hh₀ : 0 < h₀)
       rw [hinj.extend_apply, Nat.mul_div_cancel_left _ hm']
     · show extend (fun n : ℕ => m' * n) a 0 i = 0
       rw [extend_apply' _ _ _ (hnot i hdiv), Pi.zero_apply]
-  have hsum : ∀ τ : ℍ, HasSum (fun i => c i • Periodic.qParam ((m' : ℝ) * h₀) τ ^ i) (F τ) := by
+  have hsum : ∀ τ : ℍ, HasSum (fun i => c i • Periodic.qParam ((m' : ℝ) * h₀) τ ^ i) (f τ) := by
     intro τ
     have h1 := hasSum_qExpansion hh₀ hper hhol hbdd τ
     have heq : (fun i => c i • Periodic.qParam ((m' : ℝ) * h₀) τ ^ i) =
@@ -206,7 +191,7 @@ theorem main (f : ℍ → ℂ) (h₀ : ℝ) (hh₀ : 0 < h₀)
       · rw [extend_apply' _ _ _ (hnot i hdiv), Pi.zero_apply, zero_smul]
     rw [heq, hasSum_extend_zero hinj]
     exact h1
-  have huniq := qExpansion_coeff_unique F hh (analyticAt_cuspFunction_zero hh hper' hhol hbdd) hsum i
+  have huniq := qExpansion_coeff_unique_of_hasSum hh hsum i
 
   change c i = PowerSeries.coeff i (qExpansion ((m' : ℝ) * h₀) f) at huniq
   rw [← huniq, hc]
@@ -375,11 +360,8 @@ theorem main (hh₀ : 0 < h₀) (hper : Periodic (f ∘ ofComplex) (h₀ : ℝ))
     have := hsum1 τ
     rwa [heq, hasSum_extend_zero hinj] at this
 
-  let F : FnWrap := ⟨trSum f h₀⟩
-  have hFsum : ∀ τ : ℍ, HasSum (fun m => b m • Periodic.qParam 1 τ ^ m) (F τ) := hsum2
-  have huniq := qExpansion_coeff_unique F one_pos
-    (analyticAt_cuspFunction_zero one_pos (periodic_trSum hper) (mdifferentiable_trSum hhol)
-      (isBoundedAtImInfty_trSum hbdd)) hFsum m
+  have hFsum : ∀ τ : ℍ, HasSum (fun m => b m • Periodic.qParam 1 τ ^ m) (trSum f h₀ τ) := hsum2
+  have huniq := qExpansion_coeff_unique_of_hasSum one_pos hFsum m
   change b m = PowerSeries.coeff m (qExpansion 1 (trSum f h₀)) at huniq
   rw [← huniq]
 

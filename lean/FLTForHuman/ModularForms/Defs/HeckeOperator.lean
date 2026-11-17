@@ -121,6 +121,11 @@ theorem σ_heckeMatrix (p j : ℕ) : UpperHalfPlane.σ (heckeMatrix p j) = .refl
 theorem σ_heckeDiagMatrix (p : ℕ) : UpperHalfPlane.σ (heckeDiagMatrix p) = .refl ℝ ℂ := by
   rw [UpperHalfPlane.σ, ite_eq_left (det_heckeDiagMatrix_pos p)]
 
+/-- The slash by `!![1, j; 0, p]` is the translate `τ ↦ (τ + j) / p` scaled by `p⁻¹`: the
+automorphy factor is `(det γ) ^ (k - 1) * (c * τ + d) ^ (-k)`, and here `det γ = p` and
+`c * τ + d = p`, so the two powers combine to `p ^ (k - 1) * p ^ (-k) = p⁻¹`. The `p⁻¹` is the
+division by `p` of the average: `heckeU` sums the `p` translates, and this is what makes it
+their mean. -/
 theorem slash_heckeMatrix_apply (k : ℤ) {p : ℕ} (hp : p ≠ 0) (j : ℕ) (f : UpperHalfPlane → ℂ)
     (τ : UpperHalfPlane) :
     (f ∣[k] heckeMatrix p j) τ = (p : ℂ)⁻¹ * f (heckeMatrix p j • τ) := by
@@ -129,6 +134,10 @@ theorem slash_heckeMatrix_apply (k : ℤ) {p : ℕ} (hp : p ≠ 0) (j : ℕ) (f 
   simp only [ContinuousAlgEquiv.refl_apply, Nat.abs_cast, Complex.ofReal_natCast]
   rw [mul_assoc, ← zpow_add₀ hp', show k - 1 + -k = -1 by ring, zpow_neg_one, mul_comm]
 
+/-- The slash by `!![p, 0; 0, 1]` is the dilation `τ ↦ p * τ` scaled by `p ^ (k - 1)`: the
+automorphy factor is `(det γ) ^ (k - 1) * (c * τ + d) ^ (-k)`, and here `det γ = p` and
+`c * τ + d = 1`, so no division by `p` survives. This is the `p ^ (k - 1)` of the diagonal
+summand of `T_p`. -/
 theorem slash_heckeDiagMatrix_apply (k : ℤ) {p : ℕ} (hp : p ≠ 0) (f : UpperHalfPlane → ℂ)
     (τ : UpperHalfPlane) :
     (f ∣[k] heckeDiagMatrix p) τ = (p : ℂ) ^ (k - 1) * f (heckeDiagMatrix p • τ) := by
@@ -211,10 +220,18 @@ def coeffHeckeT (k : ℤ) (p : ℕ) (a : ℕ → ℂ) (n : ℕ) : ℂ :=
 def coeffHeckeU (p : ℕ) (a : ℕ → ℂ) (n : ℕ) : ℂ :=
   a (n * p)
 
+/-- The formal dilation `V_p` on coefficient sequences: `a n` is placed at the exponent
+`n * p`, and the other coefficients are zero. -/
+def coeffHeckeV (p : ℕ) (a : ℕ → ℂ) (n : ℕ) : ℂ :=
+  if p ∣ n then a (n / p) else 0
+
 theorem coeffHeckeT_apply (k : ℤ) (p : ℕ) (a : ℕ → ℂ) (n : ℕ) :
     coeffHeckeT k p a n = a (n * p) + if p ∣ n then (p : ℂ) ^ (k - 1) * a (n / p) else 0 := rfl
 
 theorem coeffHeckeU_apply (p : ℕ) (a : ℕ → ℂ) (n : ℕ) : coeffHeckeU p a n = a (n * p) := rfl
+
+theorem coeffHeckeV_apply (p : ℕ) (a : ℕ → ℂ) (n : ℕ) :
+    coeffHeckeV p a n = if p ∣ n then a (n / p) else 0 := rfl
 
 theorem coeffHeckeT_of_dvd (k : ℤ) {p n : ℕ} (h : p ∣ n) (a : ℕ → ℂ) :
     coeffHeckeT k p a n = a (n * p) + (p : ℂ) ^ (k - 1) * a (n / p) := by
@@ -226,6 +243,14 @@ theorem coeffHeckeT_of_not_dvd (k : ℤ) {p n : ℕ} (h : ¬ p ∣ n) (a : ℕ �
 
 theorem coeffHeckeT_eq_coeffHeckeU_add (k : ℤ) (p : ℕ) (a : ℕ → ℂ) (n : ℕ) :
     coeffHeckeT k p a n = coeffHeckeU p a n + if p ∣ n then (p : ℂ) ^ (k - 1) * a (n / p) else 0 := rfl
+
+/-- The decomposition `T_p = U_p + p ^ (k - 1) • V_p` on coefficient sequences. -/
+theorem coeffHeckeT_eq_add_smul (k : ℤ) (p : ℕ) :
+    coeffHeckeT k p = coeffHeckeU p + (p : ℂ) ^ (k - 1) • coeffHeckeV p := by
+  funext a n
+  simp only [coeffHeckeT_apply, coeffHeckeU_apply, coeffHeckeV_apply, Pi.add_apply,
+    Pi.smul_apply, smul_eq_mul]
+  split_ifs <;> ring
 
 theorem coeffHeckeT_add (k : ℤ) (p : ℕ) (a b : ℕ → ℂ) :
     coeffHeckeT k p (a + b) = coeffHeckeT k p a + coeffHeckeT k p b := by
@@ -244,6 +269,16 @@ theorem coeffHeckeU_add (p : ℕ) (a b : ℕ → ℂ) :
 
 theorem coeffHeckeU_smul (p : ℕ) (c : ℂ) (a : ℕ → ℂ) :
     coeffHeckeU p (c • a) = c • coeffHeckeU p a := rfl
+
+theorem coeffHeckeV_add (p : ℕ) (a b : ℕ → ℂ) :
+    coeffHeckeV p (a + b) = coeffHeckeV p a + coeffHeckeV p b := by
+  funext n
+  by_cases h : p ∣ n <;> simp [coeffHeckeV, h]
+
+theorem coeffHeckeV_smul (p : ℕ) (c : ℂ) (a : ℕ → ℂ) :
+    coeffHeckeV p (c • a) = c • coeffHeckeV p a := by
+  funext n
+  by_cases h : p ∣ n <;> simp [coeffHeckeV, h]
 
 end ModularForm
 

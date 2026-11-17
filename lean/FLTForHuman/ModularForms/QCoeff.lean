@@ -1,7 +1,8 @@
 /-
-  `q`-coefficients of modular forms: `qCoeff`, the `q`-expansion certificate
-  `HasQCoeff` with its conversions to and from the three regularity conditions, that
-  equal coefficients force equal functions, and the coefficient algebra.
+  `q`-coefficients of modular forms: `qCoeff`, the `q`-expansion presentation
+  `HasQCoeffWith` and its diagonal `HasQCoeff`, their reading of the coefficients and their
+  conversions to and from the three regularity conditions, that equal coefficients force
+  equal functions, and the coefficient algebra.
 
   The pin statements of this layer are port-owned (`topics/TOPIC-interface-changes.md`);
   their `spec-pin:` lines are parked in `Reserve/ModularForms/PortOwnedSpecPins.lean`.
@@ -29,12 +30,17 @@ open ModularForm ModularFormClass
 
 /-! ## The `q`-expansion presentation -/
 
-/-- `f` is presented everywhere on `ℍ` by its own `q`-expansion. This is the
-certificate that replaces the three regularity conditions `Periodic (f ∘ ofComplex) 1`,
-`MDiff f` and `IsBoundedAtImInfty f` wherever they travel together: it is closed under
-the operations, which those three are not. -/
-abbrev HasQCoeff (f : ℍ → ℂ) : Prop :=
-  ∀ τ : ℍ, HasSum (fun m ↦ qCoeff f m • Periodic.qParam 1 τ ^ m) (f τ)
+/-- `f` is presented everywhere on `ℍ` by the coefficients `c`. This is the layer an
+operator acts on: a presentation transports along a reindexing of the `q`-parameter, so
+the coefficients of the result are known before its `q`-expansion is. -/
+abbrev HasQCoeffWith (f : ℍ → ℂ) (c : ℕ → ℂ) : Prop :=
+  ∀ τ : ℍ, HasSum (fun m ↦ c m • Periodic.qParam 1 τ ^ m) (f τ)
+
+/-- `f` is presented everywhere on `ℍ` by its own `q`-expansion: the diagonal of
+`HasQCoeffWith`. This is the certificate that replaces the three regularity conditions
+`Periodic (f ∘ ofComplex) 1`, `MDiff f` and `IsBoundedAtImInfty f` wherever they travel
+together: it is closed under the operations, which those three are not. -/
+abbrev HasQCoeff (f : ℍ → ℂ) : Prop := HasQCoeffWith f (qCoeff f)
 
 /-- A function with a `q`-expansion has `qCoeff` as its `HasSum` coefficients. -/
 theorem hasSum_qCoeff {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1) (hhol : MDiff f)
@@ -47,27 +53,32 @@ theorem isBoundedAtImInfty_of_hasSum_qCoeff {f : ℍ → ℂ} (hF : HasQCoeff f)
     IsBoundedAtImInfty f :=
   UpperHalfPlane.isBoundedAtImInfty_of_hasSum_qExpansion one_pos hF
 
-/-- A function presented by its own `q`-expansion is `1`-periodic. The lower half
+/-- A function presented by coefficients of period `h` is `h`-periodic. The lower half
 plane needs no argument: `ofComplex` sends it to one fixed point. -/
-theorem periodic_of_hasSum_qCoeff {f : ℍ → ℂ} (hF : HasQCoeff f) :
-    Periodic (f ∘ ofComplex) 1 := by
-  have key : ∀ z : ℂ, Periodic.qParam 1 (z + 1) = Periodic.qParam 1 z := by
+theorem periodic_of_hasSum {h : ℝ} (hh : 0 < h) {f : ℍ → ℂ} {c : ℕ → ℂ}
+    (hf : ∀ τ : ℍ, HasSum (fun m ↦ c m • Periodic.qParam h (τ : ℂ) ^ m) (f τ)) :
+    Periodic (f ∘ ofComplex) h := by
+  have hh' : (h : ℂ) ≠ 0 := by exact_mod_cast hh.ne'
+  have key : ∀ z : ℂ, Periodic.qParam h (z + h) = Periodic.qParam h z := by
     intro z
-    have h : (2 * ↑π * I * (z + 1)) / (1 : ℝ) = (2 * ↑π * I * z) / (1 : ℝ) + 2 * ↑π * I := by
-      push_cast
-      ring
-    rw [Periodic.qParam, Periodic.qParam, h, Complex.exp_add, Complex.exp_two_pi_mul_I, mul_one]
+    rw [Periodic.qParam, Periodic.qParam, mul_add, add_div, mul_div_cancel_right₀ _ hh',
+      Complex.exp_add, Complex.exp_two_pi_mul_I, mul_one]
   intro w
   by_cases hw : 0 < w.im
-  · have hw1 : 0 < (w + 1).im := by simpa using hw
-    have h1 := hF ⟨w, hw⟩
-    have h2 := hF ⟨w + 1, hw1⟩
+  · have hw1 : 0 < (w + h).im := by simpa using hw
+    have h1 := hf ⟨w, hw⟩
+    have h2 := hf ⟨w + h, hw1⟩
     rw [key w] at h2
     simp only [comp_apply, ofComplex_apply_of_im_pos hw1, ofComplex_apply_of_im_pos hw]
     exact h2.unique h1
-  · have hw' : (w + 1).im ≤ 0 := by simpa using not_lt.mp hw
+  · have hw' : (w + h).im ≤ 0 := by simpa using not_lt.mp hw
     rw [Function.comp_apply, Function.comp_apply, ofComplex_apply_of_im_nonpos hw',
       ofComplex_apply_of_im_nonpos (not_lt.mp hw)]
+
+/-- A function presented by its own `q`-expansion is `1`-periodic. -/
+theorem periodic_of_hasSum_qCoeff {f : ℍ → ℂ} (hF : HasQCoeff f) :
+    Periodic (f ∘ ofComplex) 1 :=
+  periodic_of_hasSum one_pos hF
 
 /-! ## Regularity from a `q`-expansion -/
 
@@ -158,6 +169,36 @@ theorem ModularFormClass.analyticAt_cuspFunction_zero_of_hasSum_qCoeff {f : ℍ 
   analyticAt_cuspFunction_zero one_pos (periodic_of_hasSum_qCoeff hF)
     (mdifferentiable_of_hasSum_qCoeff hF) (isBoundedAtImInfty_of_hasSum_qCoeff hF)
 
+/-- A `HasSum` presentation pins the coefficients: they are the `q`-expansion's. Stated at
+the bare function type, because mathlib's `UpperHalfPlane.qExpansion_coeff_unique` is
+`FunLike`-generic and instantiating it here unfolds `DFunLike.coe` without bound. The
+analyticity at the cusp is read off the presentation, not assumed. -/
+theorem qExpansion_coeff_unique_of_hasSum {h : ℝ} (hh : 0 < h) {g : ℍ → ℂ} {c : ℕ → ℂ}
+    (hc : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam h τ ^ m) (g τ)) (m : ℕ) :
+    c m = (qExpansion h g).coeff m := by
+  have hg : AnalyticAt ℂ (cuspFunction h g) 0 :=
+    analyticAt_cuspFunction_zero hh (periodic_of_hasSum hh hc)
+      (mdifferentiable_of_hasSum hh fun τ => by simpa only [smul_eq_mul] using hc τ)
+      (UpperHalfPlane.isBoundedAtImInfty_of_hasSum_qExpansion hh hc)
+  have h1 := (hasFPowerSeriesOnBall_cuspFunction hh hg hc).hasFPowerSeriesAt
+  have h2 : HasFPowerSeriesAt (cuspFunction h g)
+      (FormalMultilinearSeries.ofScalars ℂ fun m => (qExpansion h g).coeff m) 0 := by
+    simpa [qExpansion_coeff, div_eq_mul_inv, mul_comm] using hg.hasFPowerSeriesAt
+  simpa [FormalMultilinearSeries.coeff_ofScalars] using
+    congr_arg (FormalMultilinearSeries.coeff · m) (h1.eq_formalMultilinearSeries h2)
+
+/-- A presentation off the diagonal of `HasQCoeffWith` is a coefficient identity. -/
+theorem qCoeff_eq_of_hasSum {g : ℍ → ℂ} {c : ℕ → ℂ} (hs : HasQCoeffWith g c) (n : ℕ) :
+    qCoeff g n = c n :=
+  (qExpansion_coeff_unique_of_hasSum one_pos hs n).symm
+
+/-- A presentation is a certificate: reading the coefficients off `HasQCoeffWith g c` gives
+`HasQCoeff g`. -/
+theorem hasQCoeff_of_hasSum {g : ℍ → ℂ} {c : ℕ → ℂ} (hs : HasQCoeffWith g c) :
+    HasQCoeff g := by
+  intro τ
+  simpa only [qCoeff_eq_of_hasSum hs] using hs τ
+
 /-! ## Equal coefficients force equality -/
 
 /-- Two functions presented by their `q`-expansions and with equal coefficients are
@@ -170,93 +211,81 @@ theorem UpperHalfPlane.eq_of_forall_qCoeff_eq {f g : UpperHalfPlane → ℂ} (hF
   simp only [h] at hf
   exact hf.unique (hG τ)
 
-/-! ## The `q`-coefficient algebra -/
+/-! ## The presentation is an algebra
+
+A presentation transports along the operations, the coefficients transforming in step.
+This is the layer an operator acts on, and none of it uses regularity. -/
+
+/-- Presentations add. -/
+theorem HasQCoeffWith.add {f g : ℍ → ℂ} {c d : ℕ → ℂ} (hf : HasQCoeffWith f c)
+    (hg : HasQCoeffWith g d) : HasQCoeffWith (f + g) (c + d) := by
+  intro τ
+  simpa only [Pi.add_apply, add_smul] using (hf τ).add (hg τ)
+
+/-- Presentations subtract. -/
+theorem HasQCoeffWith.sub {f g : ℍ → ℂ} {c d : ℕ → ℂ} (hf : HasQCoeffWith f c)
+    (hg : HasQCoeffWith g d) : HasQCoeffWith (f - g) (c - d) := by
+  intro τ
+  simpa only [Pi.sub_apply, sub_smul] using (hf τ).sub (hg τ)
+
+/-- Presentations scale. -/
+theorem HasQCoeffWith.const_smul {f : ℍ → ℂ} {c : ℕ → ℂ} (hf : HasQCoeffWith f c) (a : ℂ) :
+    HasQCoeffWith (a • f) (a • c) := by
+  intro τ
+  simpa only [Pi.smul_apply, smul_eq_mul, mul_smul, mul_assoc] using (hf τ).mul_left a
+
+/-! ## The `q`-coefficient algebra
+
+Each identity is a presentation read through `qCoeff_eq_of_hasSum`, and each certificate is
+the same presentation read through `hasQCoeff_of_hasSum`: no regularity is spent. -/
+
+/-- `qCoeff` is additive, stated on the certificate. -/
+theorem ModularFormClass.qCoeff_add_of_hasSum {f g : ℍ → ℂ} (hf : HasQCoeff f) (hg : HasQCoeff g)
+    (n : ℕ) : qCoeff (f + g) n = qCoeff f n + qCoeff g n :=
+  qCoeff_eq_of_hasSum (hf.add hg) n
+
+/-- `qCoeff` is subtractive, stated on the certificate. -/
+theorem ModularFormClass.qCoeff_sub_of_hasSum {f g : ℍ → ℂ} (hf : HasQCoeff f) (hg : HasQCoeff g)
+    (n : ℕ) : qCoeff (f - g) n = qCoeff f n - qCoeff g n :=
+  qCoeff_eq_of_hasSum (hf.sub hg) n
+
+/-- `qCoeff` is `ℂ`-linear, stated on the certificate. -/
+theorem ModularFormClass.qCoeff_const_smul_of_hasSum {f : ℍ → ℂ} (hF : HasQCoeff f) (c : ℂ)
+    (n : ℕ) : qCoeff (c • f) n = c * qCoeff f n :=
+  qCoeff_eq_of_hasSum (hF.const_smul c) n
 
 /-- `qCoeff` is additive. -/
 theorem ModularFormClass.qCoeff_add {f g : ℍ → ℂ} (hfper : Periodic (f ∘ ofComplex) 1)
     (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) (hgper : Periodic (g ∘ ofComplex) 1)
     (hghol : MDiff g) (hgbdd : IsBoundedAtImInfty g) (n : ℕ) :
-    qCoeff (f + g) n = qCoeff f n + qCoeff g n := by
-  simp only [qCoeff]
-  rw [qExpansion_add (analyticAt_cuspFunction_zero one_pos hfper hfhol hfbdd)
-    (analyticAt_cuspFunction_zero one_pos hgper hghol hgbdd)]
-  simp
+    qCoeff (f + g) n = qCoeff f n + qCoeff g n :=
+  qCoeff_add_of_hasSum (hasSum_qCoeff hfper hfhol hfbdd)
+    (hasSum_qCoeff hgper hghol hgbdd) n
 
 /-- `qCoeff` is subtractive. -/
 theorem ModularFormClass.qCoeff_sub {f g : ℍ → ℂ} (hfper : Periodic (f ∘ ofComplex) 1)
     (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) (hgper : Periodic (g ∘ ofComplex) 1)
     (hghol : MDiff g) (hgbdd : IsBoundedAtImInfty g) (n : ℕ) :
-    qCoeff (f - g) n = qCoeff f n - qCoeff g n := by
-  simp only [qCoeff]
-  rw [qExpansion_sub (analyticAt_cuspFunction_zero one_pos hfper hfhol hfbdd)
-    (analyticAt_cuspFunction_zero one_pos hgper hghol hgbdd)]
-  simp
+    qCoeff (f - g) n = qCoeff f n - qCoeff g n :=
+  qCoeff_sub_of_hasSum (hasSum_qCoeff hfper hfhol hfbdd)
+    (hasSum_qCoeff hgper hghol hgbdd) n
 
 /-- `qCoeff` is `ℂ`-linear. -/
 theorem ModularFormClass.qCoeff_const_smul {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
     (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (c : ℂ) (n : ℕ) :
-    qCoeff (c • f) n = c * qCoeff f n := by
-  simp only [qCoeff]
-  rw [qExpansion_smul (analyticAt_cuspFunction_zero one_pos hper hhol hbdd)]
-  simp
-
-/-- `qCoeff` is additive, stated on the certificate. -/
-theorem ModularFormClass.qCoeff_add_of_hasSum {f g : ℍ → ℂ} (hf : HasQCoeff f) (hg : HasQCoeff g)
-    (n : ℕ) : qCoeff (f + g) n = qCoeff f n + qCoeff g n :=
-  qCoeff_add (periodic_of_hasSum_qCoeff hf) (mdifferentiable_of_hasSum_qCoeff hf)
-    (isBoundedAtImInfty_of_hasSum_qCoeff hf) (periodic_of_hasSum_qCoeff hg)
-    (mdifferentiable_of_hasSum_qCoeff hg) (isBoundedAtImInfty_of_hasSum_qCoeff hg) n
-
-/-- `qCoeff` is subtractive, stated on the certificate. -/
-theorem ModularFormClass.qCoeff_sub_of_hasSum {f g : ℍ → ℂ} (hf : HasQCoeff f) (hg : HasQCoeff g)
-    (n : ℕ) : qCoeff (f - g) n = qCoeff f n - qCoeff g n :=
-  qCoeff_sub (periodic_of_hasSum_qCoeff hf) (mdifferentiable_of_hasSum_qCoeff hf)
-    (isBoundedAtImInfty_of_hasSum_qCoeff hf) (periodic_of_hasSum_qCoeff hg)
-    (mdifferentiable_of_hasSum_qCoeff hg) (isBoundedAtImInfty_of_hasSum_qCoeff hg) n
-
-/-- `qCoeff` is `ℂ`-linear, stated on the certificate. -/
-theorem ModularFormClass.qCoeff_const_smul_of_hasSum {f : ℍ → ℂ} (hF : HasQCoeff f) (c : ℂ)
-    (n : ℕ) : qCoeff (c • f) n = c * qCoeff f n :=
-  qCoeff_const_smul (periodic_of_hasSum_qCoeff hF) (mdifferentiable_of_hasSum_qCoeff hF)
-    (isBoundedAtImInfty_of_hasSum_qCoeff hF) c n
+    qCoeff (c • f) n = c * qCoeff f n :=
+  qCoeff_const_smul_of_hasSum (hasSum_qCoeff hper hhol hbdd) c n
 
 /-! ## The `q`-expansion is closed under the operations -/
 
 /-- The `q`-expansion of a sum is the sum of the expansions. -/
 theorem hasSum_qCoeff_add {f g : ℍ → ℂ} (hf : HasQCoeff f) (hg : HasQCoeff g) :
-    HasQCoeff (f + g) := by
-  intro τ
-  have hs : HasSum (fun m ↦ (qCoeff f m + qCoeff g m) • Periodic.qParam 1 τ ^ m)
-      ((f + g) τ) := by
-    simpa only [Pi.add_apply, add_smul] using (hf τ).add (hg τ)
-  have hc : ∀ m : ℕ, qCoeff (f + g) m = qCoeff f m + qCoeff g m := fun m =>
-    qCoeff_add (periodic_of_hasSum_qCoeff hf) (mdifferentiable_of_hasSum_qCoeff hf)
-      (isBoundedAtImInfty_of_hasSum_qCoeff hf) (periodic_of_hasSum_qCoeff hg)
-      (mdifferentiable_of_hasSum_qCoeff hg) (isBoundedAtImInfty_of_hasSum_qCoeff hg) m
-  simpa only [hc] using hs
-
-/-- The `q`-expansion of a difference is the difference of the expansions. -/
-theorem hasSum_qCoeff_sub {f g : ℍ → ℂ} (hf : HasQCoeff f) (hg : HasQCoeff g) :
-    HasQCoeff (f - g) := by
-  intro τ
-  have hs : HasSum (fun m ↦ (qCoeff f m - qCoeff g m) • Periodic.qParam 1 τ ^ m)
-      ((f - g) τ) := by
-    simpa only [Pi.sub_apply, sub_smul] using (hf τ).sub (hg τ)
-  have hc : ∀ m : ℕ, qCoeff (f - g) m = qCoeff f m - qCoeff g m := fun m =>
-    qCoeff_sub (periodic_of_hasSum_qCoeff hf) (mdifferentiable_of_hasSum_qCoeff hf)
-      (isBoundedAtImInfty_of_hasSum_qCoeff hf) (periodic_of_hasSum_qCoeff hg)
-      (mdifferentiable_of_hasSum_qCoeff hg) (isBoundedAtImInfty_of_hasSum_qCoeff hg) m
-  simpa only [hc] using hs
+    HasQCoeff (f + g) :=
+  hasQCoeff_of_hasSum (hf.add hg)
 
 /-- The `q`-expansion of a scalar multiple scales. -/
 theorem hasSum_qCoeff_const_smul {f : ℍ → ℂ} (hF : HasQCoeff f) (c : ℂ) :
-    HasQCoeff (c • f) := by
-  intro τ
-  have hs : HasSum (fun m ↦ (c * qCoeff f m) • Periodic.qParam 1 τ ^ m) ((c • f) τ) := by
-    simpa only [Pi.smul_apply, smul_eq_mul, mul_smul, mul_assoc] using (hF τ).mul_left c
-  have hc : ∀ m : ℕ, qCoeff (c • f) m = c * qCoeff f m := fun m =>
-    qCoeff_const_smul (periodic_of_hasSum_qCoeff hF) (mdifferentiable_of_hasSum_qCoeff hF)
-      (isBoundedAtImInfty_of_hasSum_qCoeff hF) c m
-  simpa only [hc] using hs
+    HasQCoeff (c • f) :=
+  hasQCoeff_of_hasSum (hF.const_smul c)
 
 end

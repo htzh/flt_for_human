@@ -21,7 +21,7 @@
   * `ΓSL` (`ModularForms/WeightOne/RationalityDvd.lean`);
   * `disc_smul` (`ModularForms/WeightOne/Defs/GammaRational.lean`, `X1DiamondRational`);
   * `periodic_mul` (`ModularForms/DiscPow.lean`, `UpperHalfPlaneAux`);
-  * `qExpansion_coeff_unique'` (`ModularForms/QExpansionCoeff.lean`).
+  * `qExpansion_coeff_unique_of_hasSum` (`ModularForms/QCoeff.lean`).
 
   The remaining 38 declarations are newly transcribed here at their pin names,
   inside `ModularCurve.A2ALInt`, preserving the pin's section-variable spellings so
@@ -405,7 +405,7 @@ theorem qParam_heckeDiag_smul (τ : ℍ) :
 
 theorem qExpansion_coeff_comp_heckeDiag {Φ Ψ : ℍ → ℂ} (hper : Periodic (Φ ∘ ofComplex) (ℓ : ℂ))
     (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) Φ) (hbd : IsBoundedAtImInfty Φ)
-    (hΨ : ∀ τ, Ψ τ = Φ (ModularForm.heckeDiagMatrix ℓ • τ)) (hΨan : AnalyticAt ℂ (cuspFunction 1 Ψ) 0)
+    (hΨ : ∀ τ, Ψ τ = Φ (ModularForm.heckeDiagMatrix ℓ • τ))
     (n : ℕ) : (qExpansion 1 Ψ).coeff n = (qExpansion ℓ Φ).coeff n := by
   have hℓpos : (0 : ℝ) < ℓ := Nat.cast_pos.mpr (NeZero.pos ℓ)
   have hper' : Periodic (Φ ∘ ofComplex) ((ℓ : ℝ) : ℂ) := by simpa using hper
@@ -414,7 +414,7 @@ theorem qExpansion_coeff_comp_heckeDiag {Φ Ψ : ℍ → ℂ} (hper : Periodic (
     have := hasSum_qExpansion hℓpos hper' hhol hbd (ModularForm.heckeDiagMatrix ℓ • τ)
     rw [qParam_heckeDiag_smul (ℓ := ℓ), ← hΨ] at this
     exact this
-  exact (qExpansion_coeff_unique' one_pos hΨan hsum n).symm
+  exact (qExpansion_coeff_unique_of_hasSum one_pos hsum n).symm
 
 theorem isRat_alForm (hk : Even k) (f : ModularForm (Γ' M ℓ) k) (hf : IsRat (qExpansion 1 f))
     (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 M) (hγℓ : (ℓ : ℤ) ∣ γ 1 1) :
@@ -433,11 +433,9 @@ theorem isRat_alForm (hk : Even k) (f : ModularForm (Γ' M ℓ) k) (hf : IsRat (
     (f.holo'.slash k _).mul E.holo'
   have hbd : IsBoundedAtImInfty (((⇑f : ℍ → ℂ) ∣[k] γ) * ⇑E) :=
     (isBoundedAtImInfty_slash f γ).mul (ModularFormClass.bdd_at_infty E)
-  have hΨan : AnalyticAt ℂ (cuspFunction 1 (Ψ : ℍ → ℂ)) 0 :=
-    ModularFormClass.analyticAt_cuspFunction_zero Ψ one_pos one_mem_strictPeriods'
   have hΨrat : IsRat (qExpansion 1 (Ψ : ℍ → ℂ)) := by
     intro n
-    rw [qExpansion_coeff_comp_heckeDiag hper hhol hbd hΨapply hΨan n]
+    rw [qExpansion_coeff_comp_heckeDiag hper hhol hbd hΨapply n]
     exact key n
   have hprod : qExpansion 1 (Ψ : ℍ → ℂ) =
       qExpansion 1 (alForm γ hγ hγℓ f) * qExpansion 1 (levelRaise (M := M) (ℓ := ℓ) E) := by

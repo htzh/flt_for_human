@@ -12,7 +12,7 @@
     `ModularForm.norm = ∏_q quotientFunc f q`.
 
   Both are proved from mathlib's `qExpansion_mul`/`cuspFunction_mul` and
-  `qExpansion_coeff_unique`. The pin repeats `qExpansion_coeff_nat_mul` a second
+  `qExpansion_coeff_unique_of_hasSum`. The pin repeats `qExpansion_coeff_nat_mul` a second
   time inside `S_ModularForm_levelOne_eq_zero_of_lt_order_qExpansion.lean`; the
   port writes it once here.
 
@@ -22,6 +22,7 @@
 -/
 import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.RingTheory.PowerSeries.Order
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 
@@ -31,15 +32,6 @@ open Complex Filter Function UpperHalfPlane ModularForm SlashInvariantFormClass 
 
 open scoped Real MatrixGroups Topology Manifold
 
-/-- A `FunLike` wrapper for a bare `ℍ → ℂ`. Mathlib's `qExpansion_coeff_unique`
-is polymorphic in a `FunLike` type and its inference stalls on the bare function
-type; wrapping it restores the coercion the lemma expects. -/
-private def QExpansionFnLike : Type := ℍ → ℂ
-
-private instance : FunLike QExpansionFnLike ℍ ℂ where
-  coe f := f
-  coe_injective _ _ h := h
-
 /-- Coefficient of a `q`-expansion when the period is multiplied by `M`. -/
 theorem UpperHalfPlane.qExpansion_coeff_nat_mul {h : ℝ} (hh : 0 < h) {F : ℍ → ℂ}
     (hper : Function.Periodic (F ∘ UpperHalfPlane.ofComplex) h) (hhol : MDiff F)
@@ -48,10 +40,6 @@ theorem UpperHalfPlane.qExpansion_coeff_nat_mul {h : ℝ} (hh : 0 < h) {F : ℍ 
   have hMh : 0 < (M : ℝ) * h := by positivity
   have hM0 : (M : ℂ) ≠ 0 := by exact_mod_cast hM.ne'
   have hh0 : (h : ℂ) ≠ 0 := by exact_mod_cast hh.ne'
-  have hper' : Periodic (F ∘ ofComplex) (((M : ℝ) * h : ℝ) : ℂ) := by
-    simpa using hper.nat_mul M
-  have han : AnalyticAt ℂ (cuspFunction (M * h) F) 0 :=
-    analyticAt_cuspFunction_zero hMh hper' hhol hbdd
   set c : ℕ → ℂ := fun n ↦ if M ∣ n then (qExpansion h F).coeff (n / M) else 0 with hc
   have hsum : ∀ τ : ℍ, HasSum (fun m ↦ c m • Periodic.qParam (M * h) τ ^ m) (F τ) := by
     intro τ
@@ -74,9 +62,7 @@ theorem UpperHalfPlane.qExpansion_coeff_nat_mul {h : ℝ} (hh : 0 < h) {F : ℍ 
     convert hs using 1
     ext m
     simp [hc, Nat.mul_div_cancel_left _ hM]
-  have key := qExpansion_coeff_unique (F := QExpansionFnLike) (show QExpansionFnLike from F)
-    hMh han hsum n
-  exact key.symm
+  exact (qExpansion_coeff_unique_of_hasSum hMh hsum n).symm
 
 /-- The `q`-expansion of a finite product is the product of the `q`-expansions. -/
 theorem UpperHalfPlane.qExpansion_prod {h : ℝ} {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ}

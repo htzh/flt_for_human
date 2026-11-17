@@ -35,6 +35,7 @@ import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.Analysis.Calculus.FDeriv.Analytic
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.RingTheory.LaurentSeries
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 
@@ -163,24 +164,6 @@ private lemma isZeroAtImInfty_normalizedDerivOfComplex
   exact hmul.congr fun τ =>
     (normalizedDerivOfComplex_eq_qParam_mul_deriv F hper hhol hbdd τ).symm
 
-private lemma qExpansion_coeff_unique'
-    {f : ℍ → ℂ} {c : ℕ → ℂ}
-    (hana : AnalyticAt ℂ (UpperHalfPlane.cuspFunction 1 f) 0)
-    (hs : ∀ τ : ℍ, HasSum (fun m : ℕ => c m • Function.Periodic.qParam 1 (τ : ℂ) ^ m) (f τ))
-    (m : ℕ) : c m = (UpperHalfPlane.qExpansion 1 f).coeff m := by
-  have h1 : HasFPowerSeriesAt (UpperHalfPlane.cuspFunction 1 f)
-      (FormalMultilinearSeries.ofScalars ℂ c) 0 :=
-    (UpperHalfPlane.hasFPowerSeriesOnBall_cuspFunction one_pos hana hs).hasFPowerSeriesAt
-  have h2 : HasFPowerSeriesAt (UpperHalfPlane.cuspFunction 1 f)
-      (FormalMultilinearSeries.ofScalars ℂ
-        (fun n => (UpperHalfPlane.qExpansion 1 f).coeff n)) 0 := by
-    simpa [UpperHalfPlane.qExpansion_coeff, div_eq_mul_inv, mul_comm]
-      using hana.hasFPowerSeriesAt
-  have h3 := h1.eq_formalMultilinearSeries h2
-  have h4 := congrArg (fun p : FormalMultilinearSeries ℂ ℂ ℂ =>
-    FormalMultilinearSeries.coeff p m) h3
-  simpa [FormalMultilinearSeries.coeff_ofScalars] using h4
-
 private lemma hasSum_qExpansion_normalizedDerivOfComplex
     (F : ℍ → ℂ) (hper : Function.Periodic (F ∘ UpperHalfPlane.ofComplex) 1)
     (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) F) (hbdd : UpperHalfPlane.IsBoundedAtImInfty F) (τ : ℍ) :
@@ -256,18 +239,7 @@ private theorem qExpansion_coeff_normalizedDerivOfComplex
     (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) F) (hbdd : UpperHalfPlane.IsBoundedAtImInfty F) (m : ℕ) :
     (UpperHalfPlane.qExpansion 1 (Derivative.normalizedDerivOfComplex F)).coeff m =
       (m : ℂ) * (UpperHalfPlane.qExpansion 1 F).coeff m := by
-  have hperD : Function.Periodic
-      (Derivative.normalizedDerivOfComplex F ∘ UpperHalfPlane.ofComplex) ((1 : ℝ) : ℂ) := by
-    rw [Complex.ofReal_one]
-    exact periodic_normalizedDerivOfComplex F hper
-  have hholD : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Derivative.normalizedDerivOfComplex F) :=
-    Derivative.normalizedDerivOfComplex_mdifferentiable hhol
-  have hbddD : UpperHalfPlane.IsBoundedAtImInfty (Derivative.normalizedDerivOfComplex F) :=
-    (isZeroAtImInfty_normalizedDerivOfComplex F hper hhol hbdd).isBoundedAtImInfty
-  have hanD : AnalyticAt ℂ (UpperHalfPlane.cuspFunction 1
-      (Derivative.normalizedDerivOfComplex F)) 0 :=
-    UpperHalfPlane.analyticAt_cuspFunction_zero one_pos hperD hholD hbddD
-  exact (qExpansion_coeff_unique' hanD
+  exact (qExpansion_coeff_unique_of_hasSum one_pos
     (hasSum_qExpansion_normalizedDerivOfComplex F hper hhol hbdd) m).symm
 
 private theorem coe_qExpansion_normalizedDerivOfComplex

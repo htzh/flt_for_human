@@ -22,7 +22,7 @@
   T_mem_Gamma1, one_mem_strictPeriods, L_mem_strictPeriods_Gamma}`, the `frickeGL`
   block of `ALTraceIdentity`, the `IsRat` block of
   `WLightS10.S_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.X1DiamondRationalForms`,
-  `UpperHalfPlaneAux.qExpansion_coeff_unique'`,
+  `qExpansion_coeff_unique_of_hasSum`,
   `UpperHalfPlane.qExpansion_coeff_mul_width` and
   `ModularCurve.RatS.exists_of_mul_eq`.  Everything but the headline is `private`.
 
@@ -276,12 +276,9 @@ private theorem qExpansion_comp_mulPt {φ : ℍ → ℂ} {h : ℝ} (hh : 0 < h)
   have hh'pos : 0 < h' := by
     have : 0 < h' * t := by rw [hh']; exact hh
     exact pos_of_mul_pos_left this ht.le
-  have hper' := periodic_comp_mulPt ht hper hh'
-  have han := analyticAt_cuspFunction_zero hh'pos hper' (mdifferentiable_comp_mulPt ht hφ)
-    (bdd_comp_mulPt ht hbd)
   ext n
   symm
-  refine UpperHalfPlaneAux.qExpansion_coeff_unique' (c := fun n => (qExpansion h φ).coeff n) hh'pos han
+  refine qExpansion_coeff_unique_of_hasSum (c := fun n => (qExpansion h φ).coeff n) hh'pos
     (fun τ => ?_) n
   have hs := hasSum_qExpansion hh hper hφ hbd (mulPt t ht τ)
   have hq : Periodic.qParam h ((t : ℂ) * (τ : ℂ)) = Periodic.qParam h' τ := by

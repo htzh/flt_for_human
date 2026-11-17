@@ -3,12 +3,13 @@
 One entry for the finiteness/integrality cluster: the vanishing and finite-dimensionality of spaces of
 cusp forms (Sturm and its coefficient forms), the integral structure of the Hecke algebra
 (`Module.Finite`/`Module.Free` over `ℤ`), and the integral/finiteness of the level tower. The modules
-it covers are `ModularForms/{QExpansionOrder,Gamma0TwoIndex,SturmBound,HeckeFiniteAlgebra,
+it covers are `ModularForms/{QCoeff,QExpansionOrder,Gamma0TwoIndex,SturmBound,HeckeFiniteAlgebra,
 HeckeAlgebra,HeckeOperatorForms,HeckeQCoeff,HeckeFiniteness/{Lattice,Finiteness,Span},
 WeightOne/Gamma1IntegralBasis,NebentypusEigenbasis}`,
 `ModularForms/Defs/{IntegralStructure,IntegralLattice,HeckeOperator,FormalHeckeOperators}`,
 `ModularCurve/HeckeInputs/Integrality.lean` and `ModularCurve/JqIntegralRatios.lean`. The operator's own
-definitions are §4: the three presentations of `T_p` and the theorems that identify them.
+definitions are §4: the three presentations of `T_p`, the theorems that identify them, and the
+`q`-coefficient presentation their coefficient statements are read through (§4.5).
 The record of *why* the route split looks the way it does is
 [studies/hecke-finiteness-coverage.md](../../../studies/hecke-finiteness-coverage.md) and
 [logs/sturm-bound-port.md](../../logs/sturm-bound-port.md); this entry is only the vocabulary.
@@ -118,9 +119,11 @@ no `q`-expansion: the arithmetic enters through the **integer matrices** of the 
 |---|---|
 | `heckeMatrix p j : GL (Fin 2) ℝ` | `!![1, j; 0, p]`, the substitution `τ ↦ (τ + j)/p` |
 | `heckeDiagMatrix p : GL (Fin 2) ℝ` | `!![p, 0; 0, 1]`, the substitution `τ ↦ p τ` |
-| `heckeU k p f` | `∑ j ∈ Finset.range p, f ∣[k] heckeMatrix p j` — the `p` cosets |
+| `heckeU k p f` | `∑ j ∈ Finset.range p, f ∣[k] heckeMatrix p j` — the `p` cosets, summed; each summand already carries the `p⁻¹` of the next row, so this is their average |
 | `heckeT k p f` | `heckeU k p f + f ∣[k] heckeDiagMatrix p` — all `p + 1` cosets of the correspondence at `p` |
 | `heckeU_def`, `heckeT_eq_heckeU_add`, `heckeT_def` | the definitional rewrites, `rfl` |
+| `slash_heckeMatrix_apply` | `(f ∣[k] heckeMatrix p j) τ = p⁻¹ * f ((τ + j) / p)`: the automorphy factor is `p ^ (k - 1) * p ^ (-k)`, since `det` and the denominator are both `p`. **This is where the `1/p` of `U_p` lives** |
+| `slash_heckeDiagMatrix_apply` | `(f ∣[k] heckeDiagMatrix p) τ = p ^ (k - 1) * f (p * τ)`: `det = p` but the denominator is `1`, so no division survives |
 | `coeffHeckeT`, `coeffHeckeU` | see 4.2 |
 
 `∣[k]` is the slash action. The two matrix families index the `p + 1` cosets of
@@ -147,12 +150,21 @@ invariance/analytic/cusp fields are supplied (`HeckeOperatorForms.lean`), and th
 | Lean | value at `n` |
 |---|---|
 | `ModularForm.coeffHeckeU p a n` | `a (n * p)` |
+| `ModularForm.coeffHeckeV p a n` | `if p ∣ n then a (n / p) else 0` — the dilation, the coefficient-level `V_p` (port-owned: the pin has no coefficient-level `V`) |
 | `ModularForm.coeffHeckeT k p a n` | `a (n * p) + if p ∣ n then p ^ (k - 1) * a (n / p) else 0` |
 | `coeffHeckeT_apply` | the `rfl` display of the same |
+| `coeffHeckeT_eq_coeffHeckeU_add` | the same with `coeffHeckeU p a n` in place of `a (n * p)`, also `rfl`: the coefficient form of `heckeT = heckeU + diag` |
+| `coeffHeckeT_eq_add_smul` | `coeffHeckeT k p = coeffHeckeU p + p ^ (k - 1) • coeffHeckeV p` at the function level — the decomposition the commutations `coeffHeckeT_coeffHeckeU_comm` and `coeffHeckeT_comm` are proved from, through `V_p ∘ V_q = V_(p * q)` (`coeffHeckeV_comp`), `V_p V_q = V_q V_p` (`coeffHeckeV_comm`) and `U_p V_q = V_q U_p` for coprime `p`, `q` (`coeffHeckeU_coeffHeckeV_comm`) |
 
 Two non-zero entries per column, of sizes `1` and `p ^ (k - 1)`: on coefficient sequences the operator
 is an integral matrix, and `coeffHeckeT_int` / `coeffHeckeU_int` (`HeckeQCoeff.lean`) are exactly that
 statement — `1 ≤ k` is what makes `p ^ (k - 1)` a natural-number power.
+
+The `1` is a cancellation, not a convention. `U_p`'s `p⁻¹` (§4.1, `slash_heckeMatrix_apply`) meets the
+`p` that the root-of-unity filter produces when the `p` translates are summed — `∑ j ∈ Finset.range p,
+(ζ ^ j) ^ m = p` for `p ∣ m` — so the two cancel and `U_p`'s coefficient map is the pure reindexing
+`a n ↦ a (n * p)`, with no constant. The diagonal summand has no such partner: its factor is
+`p ^ (k - 1)` and nothing cancels, which is why `T_p` is `U_p + p ^ (k - 1) • V` and not `U_p + V`.
 
 **4.3 Formal power-series form** (`Defs/FormalHeckeOperators.lean`; any `CommRing R`, weight a `ℕ`):
 
@@ -169,7 +181,9 @@ statement — `1 ≤ k` is what makes `p ^ (k - 1)` a natural-number power.
 | statement | says | direction |
 |---|---|---|
 | `ModularFormClass.qCoeff_heckeT`, `…_heckeU` | `qCoeff (heckeT k p f) n = coeffHeckeT k p (qCoeff f) n` | slash → coefficient |
+| `UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul` | `qCoeff (τ ↦ f (heckeDiagMatrix d • τ)) n = if d ∣ n then qCoeff f (n / d) else 0` — the dilation, the diagonal summand of `T_p` | slash → coefficient |
 | `ModularFormClass.qExpansion_heckeT_eq_heckeT`, `…_heckeU_eq_heckeU` | `qExpansion 1 (heckeT k p ⇑f) = PowerSeries.heckeT p k (qExpansion 1 ⇑f)` | slash → series |
+| `UpperHalfPlane.qExpansion_heckeDiagMatrix_smul_eq_qExpand` | `qExpansion 1 (τ ↦ f (d • τ)) = qExpand d (qExpansion 1 f)` for any `f` with `HasQCoeff f`; width one is the entire hypothesis, no level enters (`ModularForm.qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne` is the case `f := ⇑F`) | slash → series |
 | `CuspForm.mem_intLattice_of_coe_eq_heckeT`, `…_heckeU` | integral coefficients in ⇒ integral coefficients out | coefficient → lattice |
 | `CuspForm.mem_intLattice_of_mem_heckeAlgebra` | the whole algebra preserves `intLattice`, by `Algebra.adjoin_induction` (generators, `algebraMap`, `+`, `·`) | algebra → lattice |
 
@@ -188,7 +202,47 @@ Pin provenance of the three presentations, all pinned `aa2d8b3`:
 (4.3), <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_CuspForm_HeckeAlgebra.lean>
 (`heckeGenerators`/`heckeAlgebra`).
 
-**4.5 What is, and is not, a basis choice.** No basis of `S_k(Γ₀(N))` occurs in any of the three
+**4.5 The coefficient presentation** (`ModularForms/QCoeff.lean`; `HeckeQCoeff.lean`). The coefficient
+side of §4.1–4.4 runs through one pair of carriers and two eliminators. A **presentation** is a function
+together with the sequence claimed to be its coefficients:
+
+```lean
+abbrev HasQCoeffWith (f : ℍ → ℂ) (c : ℕ → ℂ) : Prop :=
+  ∀ τ : ℍ, HasSum (fun m ↦ c m • Periodic.qParam 1 τ ^ m) (f τ)
+abbrev HasQCoeff (f : ℍ → ℂ) : Prop := HasQCoeffWith f (qCoeff f)
+```
+
+| Lean | reading |
+|---|---|
+| `hasSum_qCoeff` | `Periodic (f ∘ ofComplex) 1` + `MDiff f` + `IsBoundedAtImInfty f` ⇒ `HasQCoeff f` |
+| `periodic_of_hasSum_qCoeff`, `mdifferentiable_of_hasSum_qCoeff`, `isBoundedAtImInfty_of_hasSum_qCoeff` | `HasQCoeff f` ⇒ each of the three conditions in turn |
+| `periodic_of_hasSum`, `mdifferentiable_of_hasSum` | the first two at an arbitrary coefficient sequence and an arbitrary period |
+| `ModularFormClass.analyticAt_cuspFunction_zero_of_hasSum_qCoeff` | `HasQCoeff f` ⇒ `cuspFunction 1 f` is analytic at `0` |
+| `UpperHalfPlane.eq_of_forall_qCoeff_eq` | `HasQCoeff` of both, equal coefficients ⇒ `f = g` |
+| `qCoeff_eq_of_hasSum` | `HasQCoeffWith g c` ⇒ `qCoeff g n = c n`: the coefficient identity |
+| `hasQCoeff_of_hasSum` | `HasQCoeffWith g c` ⇒ `HasQCoeff g`: the certificate |
+| `HasQCoeffWith.add`, `.sub`, `.const_smul` | a presentation transports along `+`, `-` and scalar multiple, the coefficients transforming in step; no regularity is used |
+| `hasSum_qCoeff_add`, `hasSum_qCoeff_const_smul` | `HasQCoeff` is closed under `+` and scalar multiples, by way of `.add` and `.const_smul` |
+| `ModularFormClass.qCoeff_{add,sub,const_smul}` | the facades at the three regularity conditions; `…_of_hasSum` are their certificate forms |
+| `qExpansion_coeff_unique_of_hasSum` | a presentation at any period `h` pins the coefficients against `qExpansion h g`; the cusp analyticity is read off the presentation, not assumed |
+
+`HasQCoeff` mentions `qCoeff f`, so it cannot be stated about an operator before that operator's
+coefficients are known; that is why the operators act on `HasQCoeffWith`. Each operator of §4.1 carries
+exactly one presentation, and every public coefficient statement about it is one of the two eliminators
+applied to that presentation:
+
+| operator | presentation |
+|---|---|
+| `U_p` | `hasSum_average` — the `p`-fold average, whose filter is `sum_rootOfUnity_pow` |
+| the diagonal translate `τ ↦ f (d • τ)` | `hasQCoeffWith_comp_heckeDiagMatrix_smul` |
+| `T_p` | `hasQCoeffWith_heckeT` — the sum of the two above, the dilation scaled by `p ^ (k - 1)` |
+
+So `qCoeff_heckeU` and `hasSum_qCoeff_heckeU` are one term read through `qCoeff_eq_of_hasSum` and
+`hasQCoeff_of_hasSum` respectively, and `T_p` consumes nothing beyond the two spellings of
+`heckeT = heckeU + p ^ (k - 1) • dilation` (§4.1, §4.2). The `p`-fold average is proved once; no
+coefficient statement above it re-enters analysis.
+
+**4.6 What is, and is not, a basis choice.** No basis of `S_k(Γ₀(N))` occurs in any of the three
 presentations, and none occurs in the finiteness proof: `Module.Finite.of_injective` is applied to
 `t ↦ t restricted to intLattice N k`, and a `ℤ`-basis of the lattice is needed only to *display*
 `End_ℤ(L)` as a matrix ring. What the presentations do carry is a ℤ-**structure** — integer coset
@@ -218,10 +272,10 @@ What this cluster **consumes** and must not re-derive:
 
 | provider | facts | note |
 |---|---|---|
-| mathlib modular forms | `strictPeriods`, `IsArithmetic`, `relIndex`, `index`, `qExpansion`, `PowerSeries.order`, `ModularForm.sturm_bound_levelOne`, `ModularForm.norm`, `LevelOne.DimensionFormula`, `ModularForm.norm_eq_zero_iff` | the level-one input and the index bookkeeping |
+| mathlib modular forms | `strictPeriods`, `IsArithmetic`, `relIndex`, `index`, `qExpansion`, `PowerSeries.order`, `ModularForm.sturm_bound_levelOne`, `ModularForm.norm`, `LevelOne.DimensionFormula`, `ModularForm.norm_eq_zero_iff`, `hasSum_qExpansion`, `isBoundedAtImInfty_of_hasSum_qExpansion`, `analyticAt_cuspFunction_zero` | the level-one input and the index bookkeeping; the last three are the `q`-expansion inputs of §4.5 |
 | mathlib algebra | `FiniteDimensional.of_injective`, `Module.Finite`, `Module.Free`, `Submodule.FG`, `IsIntegral`, `IsIntegralClosure`, `Algebra.adjoin` | the finiteness/integrality lemmas themselves |
 | the port's **curve layer** (`AlgebraicCurve`) | `FiniteAlong`, `algebraAlong`, `isIntegral_along`, `ModularPolynomialData`, `EvalSymm`, `gens`, `modularFunctionFieldFull` | this cluster is a *consumer* of the curve layer; the tower section is the seam |
-| the port's **Hecke layer** | `heckeT`, `heckeU`, `heckeTLin`, `heckeULin`, `heckeAlgebra`, `heckeGenerators`, `qCoeff` | the operators whose integrality is at issue |
+| the port's **Hecke layer** | `heckeT`, `heckeU`, `heckeTLin`, `heckeULin`, `heckeAlgebra`, `heckeGenerators`, `qCoeff`, `HasQCoeffWith`, `HasQCoeff` | the operators whose integrality is at issue, and the presentations they act on (§4.5) |
 | the port's **`q`-expansion hub** | `jqModC`, `IsIntegralQExp`, `intSeriesC`, `intFormRatiosC`, `eisenstein4`, `dedekindEtaUnit`, the `qExpansion_*` identifications | `JqIntegralRatios` is the seam into `ModularCurve/Defs/` |
 
 The mathematical boundary is equally sharp: *nothing here is a new convergence or new curve theorem.*
@@ -243,6 +297,8 @@ refactor that finds itself proving analysis or geometry inside this cluster is o
 | `heckeAlphaBar`/`heckeBetaBar` / `heckeT`/`heckeU` | substitutions of the modular function fields / operators on cusp forms — same matrices, different carriers |
 | `moduleFinite_heckeAlgebra_two` / route B's blob | the statement (a corollary here) / the 4,308-line pin proof (deliberately absent) |
 | `qCoeff` / `qExpansion` | the coefficient of the bundled form (`ModularFormClass.qCoeff`) / the analytic series of the underlying function |
+| `HasQCoeffWith f c` / `HasQCoeff f` | a presentation by the sequence `c` / its diagonal `c = qCoeff f`; the latter names `qCoeff f`, so an operator is presented before it is certified (§4.5) |
+| `HasQCoeff f` / `Periodic … 1` + `MDiff f` + `IsBoundedAtImInfty f` | the certificate / its three ingredients; they are inter-derivable, and the certificate is the one closed under `+`, `-` and scalar multiples |
 | `ModularForm.heckeT` / `PowerSeries.heckeT` | slash sums on `ℍ → ℂ` with `k : ℤ` / the formal operator on `R⟦X⟧` with `k : ℕ`; identified only by `qExpansion_heckeT_eq_heckeT` (§4.4) |
 | `ModularForm.heckeT` / `CuspForm.heckeTLin` | the surface function / its bundling as `Module.End ℂ`, equal on the underlying function by `coe_heckeTLin_apply` |
 | `ModularForm.coeffHeckeT` / `PowerSeries.heckeT` | the two-term coefficient operator on `ℕ → ℂ` (§4.2) / the series operator whose coefficients it computes (§4.3) |
@@ -252,6 +308,7 @@ refactor that finds itself proving analysis or geometry inside this cluster is o
 
 | module | role |
 |---|---|
+| `QCoeff.lean` | the `q`-coefficient floor: `qCoeff`, the presentation `HasQCoeffWith`/`HasQCoeff`, the two eliminators and the presentation algebra (§4.5), and `qExpansion_coeff_unique_of_hasSum` |
 | `QExpansionOrder.lean` | the period-`M` coefficient reindexing and the product order lemma (two `UpperHalfPlane` facts) |
 | `Gamma0TwoIndex.lean` | `(Γ₀ 2).index = 3`, the weight-`2` vanishing input |
 | `SturmBound.lean` | vanishing and finite dimension: the three Sturm statements, the two coefficient forms, `qCoeffTrunc`, the instance and the wrapper |
@@ -259,7 +316,7 @@ refactor that finds itself proving analysis or geometry inside this cluster is o
 | `Defs/HeckeOperator.lean` | the Hecke matrices (`heckeMatrix`, `heckeDiagMatrix`), the slash-sum operators `heckeU`/`heckeT`, and the coefficient operators `coeffHeckeU`/`coeffHeckeT` (§4.1–4.2) |
 | `Defs/FormalHeckeOperators.lean` | the formal `PowerSeries.heckeU`/`heckeV`/`heckeT` over any `CommRing`, and `heckeU_heckeV` (§4.3) |
 | `HeckeOperatorForms.lean` | the bundled `heckeTLin`/`heckeULin` and the first `qExpansion` bridge |
-| `HeckeQCoeff.lean` | `qCoeff` of the operators (`qCoeff_heckeT`, `qExpansion_heckeT_eq_heckeT`) and `coeffHecke*_int` (§4.4) |
+| `HeckeQCoeff.lean` | the three presentations of §4.5 (`hasSum_average`, the diagonal dilation, their sum for `T_p`), the coefficient bridges read off them (`qCoeff_hecke{T,U}`, `qExpansion_hecke{T,U}_eq_hecke{T,U}`), `qCoeff_comp_heckeDiagMatrix_smul`, the diagonal degeneration `qExpansion_heckeDiagMatrix_smul_eq_qExpand` and its level-one pin, and `coeffHecke*_int` |
 | `HeckeFiniteness/Lattice.lean` | `intLattice` membership, Hecke-stability, `sturmB`/`trunc`, `intLattice_fg`, `intLattice_free_and_finite` |
 | `HeckeFiniteness/Finiteness.lean` | the unconditional `moduleFinite_heckeAlgebra`/`moduleFree_heckeAlgebra` and `toSubmodule_heckeAlgebra_fg`; the lattice-embedding injection |
 | `HeckeFiniteness/Span.lean` | the eigenform span and `finrank_span_heckeAlgebra_eq_finrank` |
@@ -284,5 +341,8 @@ refactor that finds itself proving analysis or geometry inside this cluster is o
 * The three presentations of §4 may not be merged or renamed: `ModularForm.heckeT` (`k : ℤ`, on
   `ℍ → ℂ`) and `PowerSeries.heckeT` (`k : ℕ`, on `R⟦X⟧`) are separate pin declarations with separate
   modules, and the checker's per-name exemption depends on the qualified `PowerSeries.` spelling.
+* A new coefficient statement about `T_p`/`U_p`/the dilation is one of the two eliminators applied to
+  that operator's presentation (§4.5), not a fresh `HasSum` computation: the presentation lemmas are the
+  seam, and a second proof of the `p`-fold average would be the signal that a statement is bypassing it.
 * The boundary in §6 is one-way: this cluster may not invent curve-layer or Hecke-layer vocabulary, and
   the curve layer may not import it.

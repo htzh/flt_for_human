@@ -515,7 +515,7 @@ private theorem summable_bound {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
   refine this.congr fun n => ?_
   ring
 
-private theorem qExpansion_eq_of_hasSum (X : ℍ → ℂ) (hmd : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) X)
+private theorem qExpansion_eq_of_hasSum (X : ℍ → ℂ)
     (hsum : ∀ τ : ℍ, HasSum (fun n => cW N a₁ a₂ n * qq N τ ^ n) (X τ)) :
     Periodic (X ∘ ofComplex) N ∧ IsBoundedAtImInfty X ∧
       ∀ n, (qExpansion N X).coeff n = cW N a₁ a₂ n := by
@@ -567,8 +567,7 @@ private theorem qExpansion_eq_of_hasSum (X : ℍ → ℂ) (hmd : MDifferentiable
       (by positivity)
   refine ⟨hper, hbd, fun n => ?_⟩
   symm
-  refine qExpansion_coeff_unique' (natCast_pos N) (analyticAt_cuspFunction_zero (natCast_pos N) hper hmd hbd)
-    (fun τ => ?_) n
+  refine qExpansion_coeff_unique_of_hasSum (natCast_pos N) (fun τ => ?_) n
   have := hsum τ
   simpa only [smul_eq_mul, qq_eq] using this
 
@@ -689,7 +688,7 @@ private theorem main (X : FD N) (v : Fin 2 → ZMod N) (hv : v ≠ 0) :
       funext τ; rw [hWv, X.hW v τ]
     rw [this]
     exact mdifferentiable_const.mul hmdP
-  obtain ⟨hperW, hbdW, hcoefW⟩ := qExpansion_eq_of_hasSum N a₁ a₂ Wv hmdW hsum
+  obtain ⟨hperW, hbdW, hcoefW⟩ := qExpansion_eq_of_hasSum N a₁ a₂ Wv hsum
 
   have hfun : X.fricke v * Δ = (-(1 / 2592 : ℂ)) • ((⇑E46 : ℍ → ℂ) * Wv) := by
     funext τ

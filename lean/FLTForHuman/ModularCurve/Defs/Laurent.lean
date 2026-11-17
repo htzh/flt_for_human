@@ -96,6 +96,26 @@ theorem qExpand_coeff_of_not_dvd (f : LaurentSeries R) {k : ℤ} (hk : ¬ (N : �
   rintro ⟨m, rfl⟩
   exact hk ⟨m, rfl⟩
 
+/-- A power series has no negative Laurent coefficients. -/
+theorem coe_powerSeries_coeff_of_neg (p : PowerSeries R) {k : ℤ} (hk : k < 0) :
+    ((p : LaurentSeries R)).coeff k = 0 := by
+  rw [show (p : LaurentSeries R) = HahnSeries.ofPowerSeries ℤ R p from rfl]
+  rw [HahnSeries.ofPowerSeries_apply]
+  exact HahnSeries.embDomain_of_notMem_range (by
+    rintro ⟨m, rfl⟩
+    exact absurd hk (not_lt.mpr (Int.natCast_nonneg m)))
+
+/-- The `q`-substitution kills the negative exponents of a power series. -/
+theorem qExpand_coe_powerSeries_coeff_of_neg (φ : PowerSeries R) {k : ℤ} (hk : k < 0) :
+    (qExpand R N (φ : LaurentSeries R)).coeff k = 0 := by
+  by_cases h : (N : ℤ) ∣ k
+  · obtain ⟨j, rfl⟩ := h
+    have hj : j < 0 := by
+      have hN : (0 : ℤ) < N := by exact_mod_cast NeZero.pos N
+      nlinarith
+    rw [qExpand_coeff_mul, coe_powerSeries_coeff_of_neg φ hj]
+  · exact qExpand_coeff_of_not_dvd (N := N) (f := (φ : LaurentSeries R)) h
+
 @[simp]
 theorem qExpand_single (k : ℤ) (r : R) :
     qExpand R N (HahnSeries.single k r) = HahnSeries.single ((N : ℤ) * k) r :=

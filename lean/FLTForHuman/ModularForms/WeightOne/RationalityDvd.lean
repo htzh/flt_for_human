@@ -795,8 +795,7 @@ theorem qExpansion_coeff_width_mul (h : ℕ) [NeZero h] {g : ℍ → ℂ} (hg : 
     funext m
     simp only [comp_apply, hc, dvd_mul_right, ↓reduceIte, Nat.mul_div_cancel_left _ hNpos]
     rw [qParam_eq_pow_mul N h τ, ← pow_mul]
-  rw [← qExpansion_coeff_unique' (natCast_pos (N * h)) (analyticAt_cuspFunction_zero (natCast_pos (N * h))
-    (by simpa using hperN) hg hbd) hsum n]
+  rw [← qExpansion_coeff_unique_of_hasSum (natCast_pos (N * h)) hsum n]
 
 theorem qExpansion_widthDiv_rat (h : ℕ) [NeZero h] {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
     (hper : Periodic (g ∘ ofComplex) h) (hbd : IsBoundedAtImInfty g)
