@@ -11,6 +11,7 @@ only wired modules).
 
 | module | what it is |
 |---|---|
+| `Reserve/ModularForms/PortOwnedSpecPins.lean` | **not a module**: a header-only file carrying the `spec-pin:` lines of pin sources whose statements the port owns rather than diffs — declared nothing, imported nothing, read only so those pins stay *ported* for `frontier.py`. The departures are registered in [`topics/TOPIC-interface-changes.md`](../topics/TOPIC-interface-changes.md) |
 | `Reserve/ModularCurve/PhiGenIntegralityImage.lean` | T9's module in its image-theory form: the `𝒪`-lift `jqZ`/`jqO`, the unit lift `zetaUnit` of `ζ ^ e`, the conjugates `conjO` and their product `phiProdO`, and `map_phiProdO`, which identifies `phiProdO`'s image with the conjugate product. Strictly more than integrality needs (membership in `𝒪` suffices), and superseded by the membership proof in the live module; kept because the image statement is the reusable half |
 | `Reserve/ModularForms/CuspFormNorm.lean` | the norm of a cusp form — the pre-Sturm route to cusp-form vanishing, kept as an alternative |
 | `Reserve/ModularForms/LevelTwoCuspVanishing.lean` | the norm route to $`S_2(\Gamma_0(2)) = 0`$ and the level-one analogue |

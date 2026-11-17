@@ -81,7 +81,7 @@ theorem heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul
   have hb : ∀ m : ℕ, qCoeff (⇑(G d)) m = if d ∣ m then qCoeff (⇑g) (m / d) else 0 := by
     intro m
     rw [hcoe]
-    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul gper ghol gbdd hd0 m
+    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (hasSum_qCoeff gper ghol gbdd) hd0 m
 
   have hD : (⇑(G d)) ∣[k] ModularForm.heckeDiagMatrix ℓ
       = ModularForm.heckeT k ℓ ⇑(G d) - ModularForm.heckeU k ℓ ⇑(G d) := by
@@ -105,15 +105,17 @@ theorem heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul
   have hcDbdd : IsBoundedAtImInfty (c • ((⇑(G d)) ∣[k] ModularForm.heckeDiagMatrix ℓ)) :=
     hDbdd.const_smul_left c
 
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq (UpperHalfPlane.periodic_add hUper hcDper)
-    (hUhol.add hcDhol) (hUbdd.add hcDbdd) (UpperHalfPlane.periodic_smul hper _)
-    (hhol.const_smul _) (hbdd.const_smul_left _) fun n => ?_
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq
+    (hasSum_qCoeff (UpperHalfPlane.periodic_add hUper hcDper) (hUhol.add hcDhol)
+      (hUbdd.add hcDbdd))
+    (hasSum_qCoeff (UpperHalfPlane.periodic_smul hper _) (hhol.const_smul _)
+      (hbdd.const_smul_left _)) fun n => ?_
   have hqU : qCoeff (ModularForm.heckeU k ℓ ⇑(G d)) n = qCoeff ⇑(G d) (n * ℓ) := by
-    rw [UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hℓ0 n, ModularForm.coeffHeckeU_apply]
+    rw [UpperHalfPlane.qCoeff_heckeU (hasSum_qCoeff hper hhol hbdd) k hℓ0 n, ModularForm.coeffHeckeU_apply]
   have hqT : qCoeff (ModularForm.heckeT k ℓ ⇑(G d)) n
       = qCoeff ⇑(G d) (n * ℓ)
         + (if ℓ ∣ n then (ℓ : ℂ) ^ (k - 1) * qCoeff ⇑(G d) (n / ℓ) else 0) := by
-    rw [UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hℓ0 n, ModularForm.coeffHeckeT_apply]
+    rw [UpperHalfPlane.qCoeff_heckeT (hasSum_qCoeff hper hhol hbdd) k hℓ0 n, ModularForm.coeffHeckeT_apply]
   have hqD : qCoeff ((⇑(G d)) ∣[k] ModularForm.heckeDiagMatrix ℓ) n
       = (if ℓ ∣ n then (ℓ : ℂ) ^ (k - 1) * qCoeff ⇑(G d) (n / ℓ) else 0) := by
     rw [hD, ModularFormClass.qCoeff_sub hTper hThol hTbdd hUper hUhol hUbdd, hqT, hqU,
@@ -187,7 +189,7 @@ theorem heckeU_degeneracy_of_dvd_level
     intro d' hd' hd'0 m
     rw [show (⇑(G d') : ℍ → ℂ) = fun τ => g (ModularForm.heckeDiagMatrix d' • τ) from
       funext (hG d' hd')]
-    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul gper ghol gbdd hd'0 m
+    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (hasSum_qCoeff gper ghol gbdd) hd'0 m
 
   have hper : Periodic (⇑(G d) ∘ ofComplex) 1 := cusp_periodic (G d)
   have hhol : MDiff (⇑(G d) : ℍ → ℂ) := cusp_holo (G d)
@@ -196,7 +198,7 @@ theorem heckeU_degeneracy_of_dvd_level
   have hUhol := ModularForm.mdifferentiable_heckeU hhol k q
   have hUbdd := ModularForm.isBoundedAtImInfty_heckeU hbdd k q
   have hqU : ∀ m : ℕ, qCoeff (ModularForm.heckeU k q ⇑(G d)) m = qCoeff ⇑(G d) (m * q) := fun m => by
-    rw [UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hq0 m, ModularForm.coeffHeckeU_apply]
+    rw [UpperHalfPlane.qCoeff_heckeU (hasSum_qCoeff hper hhol hbdd) k hq0 m, ModularForm.coeffHeckeU_apply]
   refine ⟨fun hqd => ?_, fun hqd hqL => ?_, fun hqd hqL => ?_⟩
   ·
     obtain ⟨d', rfl⟩ := hqd
@@ -206,7 +208,7 @@ theorem heckeU_degeneracy_of_dvd_level
     have h'per : Periodic (⇑(G (q * d' / q)) ∘ ofComplex) 1 := cusp_periodic (G (q * d' / q))
     have h'hol : MDiff (⇑(G (q * d' / q)) : ℍ → ℂ) := cusp_holo (G (q * d' / q))
     have h'bdd : IsBoundedAtImInfty (⇑(G (q * d' / q)) : ℍ → ℂ) := cusp_bdd (G (q * d' / q))
-    refine UpperHalfPlane.eq_of_forall_qCoeff_eq hUper hUhol hUbdd h'per h'hol h'bdd fun m => ?_
+    refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff hUper hUhol hUbdd) (hasSum_qCoeff h'per h'hol h'bdd) fun m => ?_
     rw [hqU m, hb hd hd0, hdq, hb hd' hd'0]
     by_cases hdm : d' ∣ m
     · obtain ⟨m', rfl⟩ := hdm
@@ -221,8 +223,9 @@ theorem heckeU_degeneracy_of_dvd_level
         _ = d' * t * q := by ring
   ·
     have hcop : Nat.Coprime q d := (Nat.Prime.coprime_iff_not_dvd hq).mpr hqd
-    refine UpperHalfPlane.eq_of_forall_qCoeff_eq hUper hUhol hUbdd (UpperHalfPlane.periodic_smul hper _)
-      (hhol.const_smul _) (hbdd.const_smul_left _) fun m => ?_
+    refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff hUper hUhol hUbdd)
+      (hasSum_qCoeff (UpperHalfPlane.periodic_smul hper _) (hhol.const_smul _)
+        (hbdd.const_smul_left _)) fun m => ?_
     rw [hqU m, ModularFormClass.qCoeff_const_smul hper hhol hbdd, hb hd hd0, hb hd hd0]
     by_cases hdm : d ∣ m
     · obtain ⟨m', rfl⟩ := hdm
@@ -244,11 +247,11 @@ theorem heckeU_degeneracy_of_dvd_level
     have h'hol : MDiff (⇑(G (d * q)) : ℍ → ℂ) := cusp_holo (G (d * q))
     have h'bdd : IsBoundedAtImInfty (⇑(G (d * q)) : ℍ → ℂ) := cusp_bdd (G (d * q))
     set c : ℂ := εL (q : ZMod L) * (q : ℂ) ^ (k - 1) with hc
-    refine UpperHalfPlane.eq_of_forall_qCoeff_eq hUper hUhol hUbdd
-      (UpperHalfPlane.periodic_sub (UpperHalfPlane.periodic_smul hper _)
-        (UpperHalfPlane.periodic_smul h'per _))
-      ((hhol.const_smul _).sub (h'hol.const_smul _))
-      ((hbdd.const_smul_left _).sub (h'bdd.const_smul_left _)) fun m => ?_
+    refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff hUper hUhol hUbdd)
+      (hasSum_qCoeff (UpperHalfPlane.periodic_sub (UpperHalfPlane.periodic_smul hper _)
+          (UpperHalfPlane.periodic_smul h'per _))
+        ((hhol.const_smul _).sub (h'hol.const_smul _))
+        ((hbdd.const_smul_left _).sub (h'bdd.const_smul_left _))) fun m => ?_
     rw [hqU m, ModularFormClass.qCoeff_sub (UpperHalfPlane.periodic_smul hper _)
         (hhol.const_smul _) (hbdd.const_smul_left _)
         (UpperHalfPlane.periodic_smul h'per _) (h'hol.const_smul _) (h'bdd.const_smul_left _),

@@ -106,9 +106,9 @@ private theorem qCoeff_heckeU_add_slash (hp : p ≠ 0)
   have hqD : qCoeff D n = (p : ℂ) ^ (k - 1) * (if p ∣ n then qCoeff (⇑G) (n / p) else 0) := by
     rw [qCoeff, hDG, qExpansion_smul hanG, map_smul, smul_eq_mul]
     congr 1
-    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul hGper hGhol hGbdd hp n
+    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (hasSum_qCoeff hGper hGhol hGbdd) hp n
   have hqU : qCoeff U n = qCoeff (⇑F) (p * n) := by
-    rw [hU, UpperHalfPlane.qCoeff_heckeU hFper hFhol hFbdd k hp n, coeffHeckeU_apply, mul_comm]
+    rw [hU, UpperHalfPlane.qCoeff_heckeU (hasSum_qCoeff hFper hFhol hFbdd) k hp n, coeffHeckeU_apply, mul_comm]
   rw [qCoeff, qExpansion_add hanU hanD, map_add]
   have h1 := hqU
   have h2 := hqD

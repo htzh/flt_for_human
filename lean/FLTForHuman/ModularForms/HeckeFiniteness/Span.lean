@@ -14,6 +14,7 @@
 import FLTForHuman.ModularForms.HeckeAlgebra
 import FLTForHuman.ModularForms.HeckeEigenform
 import FLTForHuman.ModularForms.HeckeQCoeff
+import FLTForHuman.ModularForms.QCoeffClass
 import FLTForHuman.ModularForms.SturmBound
 
 set_option autoImplicit false
@@ -142,14 +143,14 @@ private theorem eq_zero_of_mem_formKer (N : ℕ) [NeZero N] {f : S2 N} (hf : f �
   rw [qCoeff_eq_zero_of_mem_formKer N n f hf]
   simp [ModularFormClass.qCoeff, FunLike.coe_zero, UpperHalfPlane.qExpansion_zero]
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'`. -/
 private theorem qCoeff_add' (N : ℕ) [NeZero N] (f g : S2 N) (n : ℕ) :
     qCoeff (⇑(f + g)) n = qCoeff (⇑f) n + qCoeff (⇑g) n := by
   simpa only [qCoeff, FunLike.coe_add] using
     ModularFormClass.qCoeff_add' (k := 2) (Γ := CongruenceSubgroup.Gamma0 N)
       (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1) f g n
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'`. -/
 private theorem qCoeff_smul' (N : ℕ) [NeZero N] (c : ℂ) (f : S2 N) (n : ℕ) :
     qCoeff (⇑(c • f)) n = c * qCoeff (⇑f) n := by
   simpa only [qCoeff, FunLike.coe_smul] using

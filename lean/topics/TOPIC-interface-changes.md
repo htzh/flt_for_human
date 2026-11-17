@@ -1,0 +1,230 @@
+# Interface changes: the port's shape where it deliberately differs from the pin
+
+The mathematics is always the pin's. A few *interfaces* are the port's, and a module
+being ported must use the port's shape instead of re-deriving the pin's: otherwise the
+same lemma lands twice, differing only in how its hypotheses are packaged, and the
+second copy is pure porting cost.
+
+This file is the registry. Every deliberate departure is an entry below, with the pin
+shape, the port shape, the bridges between them, and the recipe for a file that arrives
+holding the pin's shape.
+
+## Why the module is unpinned rather than `own:`-marked
+
+`spec/decl_markers.tsv` can declare a port declaration `own:`, which exempts it
+from the statement diff. That keeps the pin claimed by the module header but records
+nothing about *what* changed, and it hides the departure from the porting tooling: the
+next agent sees a wired module and assumes its statements are the pin's.
+
+Instead, when an interface departs from the pin:
+
+1. **Unpin the module.** Remove the affected `spec-pin:` lines from the port module's
+   leading comment. A module with no `spec-pin:` line is not diffed by
+   `spec/check_port.py`; its declarations are port-owned from then on.
+2. **Park the pins.** Add those `spec-pin:` lines to
+   `Reserve/ModularForms/PortOwnedSpecPins.lean`, a header-only module that declares
+   nothing and only carries pin lines. Both port roots are read by the tools —
+   `check_port.py` scans `("FLTForHuman", "Reserve")` and `frontier.py`'s
+   `wired_sources()` walks `DEFAULT_PORT_ROOTS = (FLTForHuman, Reserve)` — so a parked
+   pin still reads as *ported* and `frontier.py` will not propose it for porting again.
+3. **Record the entry here**, including which port declarations now cover that pin.
+
+A declaration whose pin genuinely has no comparable statement (a general form of the
+pin's concrete copies) keeps an `own:` row: there is nothing to park.
+
+## Parked pins
+
+| port module | pin source parked | covered by |
+|---|---|---|
+| `ModularForms/QCoeff` | `Definitions/Def_FLTPrelim_Modularity.lean` | `ModularFormClass.qCoeff` |
+| `ModularForms/QCoeff` | `Theorems/Thm_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean` | `UpperHalfPlane.eq_of_forall_qCoeff_eq` |
+| `ModularForms/QCoeff` | `P2M/Sol/S_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean` | `hasSum_qCoeff`, `UpperHalfPlane.eq_of_forall_qCoeff_eq` |
+| `ModularForms/QCoeff` | `P2M/Sol/S_CuspForm_IsEigenformWith_heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul.lean` | `ModularFormClass.qCoeff_{add,sub,const_smul}` |
+| `ModularForms/QCoeffClass` | `Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean` | `ModularFormClass.eq_of_forall_qCoeff_eq` |
+| `ModularForms/QCoeffClass` | `P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean` | `ModularFormClass.hasSum_qCoeff` |
+
+Both q-coefficient modules are therefore unwired: the checker no longer diffs them, and
+no `own:` row is involved. The cost is stated rather than hidden — the six statements
+that do still match the pin (`qCoeff`, the two equality principles, the three
+coefficient-algebra lemmas) are no longer diffed either. They are listed above so a
+future re-wiring knows what to re-pin.
+
+## Entry 1 — `hF` replaces the three regularity conditions
+
+**Status: applied, and `QCoeff` is unpinned (pins parked, see above), so the layer is
+port-owned and no `own:` row is involved.** The certificate is `HasQCoeff f` (an `abbrev`, so it unfolds at
+call sites), and it is already the internal currency of `hasSum_average`, `hasSum_diag`
+and `hasSum_qCoeff`.
+
+The pin carries the regularity of a function as three separate hypotheses:
+
+```
+(hper : Periodic (f ∘ ofComplex) 1) (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f)
+```
+
+The port carries the same information as one certificate, the *q-expansion presentation*:
+
+```
+hF : ∀ τ : ℍ, HasSum (fun m ↦ qCoeff f m • Periodic.qParam 1 τ ^ m) (f τ)
+```
+
+The two are **equivalent**:
+
+| direction | lemma | home |
+|---|---|---|
+| three conditions → `hF` | `hasSum_qCoeff` (mathlib `UpperHalfPlane.hasSum_qExpansion` at `one_pos`) | `QCoeff` — applied |
+| `hF` → bounded at `∞` | `isBoundedAtImInfty_of_hasSum_qCoeff` (mathlib) | `QCoeff` — applied |
+| `hF` → periodic on all of `ℂ` | `periodic_of_hasSum_qCoeff` | `QCoeff` — applied |
+| `hF` → `MDiff` | `mdifferentiable_of_hasSum_qCoeff`, specialising `mdifferentiable_of_hasSum` | `QCoeff` — applied |
+| `hF` closed under `+`, `−`, `c • ·` | `hasSum_qCoeff_add` / `_sub` / `_const_smul` | `QCoeff` — applied |
+
+The periodicity direction is short because `ofComplex` sends the closed lower half plane
+to one fixed point (`UpperHalfPlane.ofComplex_apply_of_im_nonpos`), so only points with
+`0 < im` need the expansion, and there `qParam 1 (z + 1) = qParam 1 z`.
+
+**`hF` does imply `MDiff`, and the port already proves it.** `ModularForms/QExpansionPrinciple`
+carries `mdifferentiable` — a `HasSum` presentation implies `MDiff`, general in `h` — with
+four private helpers beneath it (`hasSum_cuspFunction_of_hasSum_punctured`,
+`hasFPowerSeriesOnBall_update`, `apply_eq_cuspFunction`,
+`differentiableAt_cuspFunction_of_hasSum`), all mathlib-only. Specialising to `h = 1` and
+`c = qCoeff f` is `mdifferentiable_of_hasSum_qCoeff`.
+
+The gate was **availability, not truth**: that lemma was `private` in
+`QExpansionPrinciple`, and `QCoeff` must not import that module (everything under the
+floor would inherit it). It has been relocated — the four helpers
+(`hasSum_cuspFunction_of_hasSum_punctured`, `hasFPowerSeriesOnBall_update`,
+`apply_eq_cuspFunction`, `differentiableAt_cuspFunction_of_hasSum`) and
+`mdifferentiable_of_hasSum` now sit in `QCoeff`, `QExpansionPrinciple` imports them, and
+`mdifferentiable_of_hasSum_qCoeff` is the one-line specialisation to `HasQCoeff`.
+
+With it, the closure lemmas `hasSum_qCoeff_add` / `_sub` / `_const_smul` are three lines
+each: each adds the two expansions, then identifies `qCoeff (f ± g)` (resp. `c • f`) with
+the summed coefficients through the coefficient algebra, whose analyticity inputs come
+from the three extractions. Without the `MDiff` extraction, Lean asks for all six
+regularity facts instead (probed, `tmp/hf-algebra-probe.lean`).
+
+This unblocks the stage-3 operator transports and the Pattern-C simplifications. Flipping
+the *coefficient-level* algebra to `hF` (stage 1c) still buys little on its own and is
+deferred.
+
+**Why `hF`.** It is the only packaging closed under the operations: `hF → hF (heckeU …)`,
+`(heckeT …)`, `(d ⊙ ·)`, `(c • ·)`, `(· + ·)` are one lemma each, whereas the three
+conditions must be transported one fact at a time and re-assembled at every site. It is
+also what every consumer consumes (a `HasSum`); the three conditions are what mathlib
+needs to *manufacture* one.
+
+**Porting recipe.** A pin file states the three conditions, and that is fine — state
+them where the file states regularity, then convert **once**:
+
+```lean
+have hF : ∀ τ : ℍ, HasSum (fun m ↦ qCoeff f m • Periodic.qParam 1 τ ^ m) (f τ) :=
+  hasSum_qCoeff hper hhol hbdd
+```
+
+and use the port's `hF`-shaped lemmas from there. In the other direction, when a pin
+target needs a single fact, extract it with the table above.
+
+**Do not**
+
+* re-prove a three-condition copy of a port lemma that has an `hF` form;
+* write `hper hhol hbdd` at three call sites for one function — produce `hF` once;
+* re-port the pin's per-file private preludes (`hasSum_qCoeff`, `eq_of_forall_qCoeff_eq`,
+  `qCoeff_add` …): the pin re-proves them in many `S_` files, the port has one of each.
+
+## Entry 2 — the q-coefficient layer is split at the instance boundary
+
+**Status: applied.**
+
+`ModularForms/QCoeff` is the function-level layer and mentions no
+`[ModularFormClass F Γ k]` binder: `qCoeff`, the three-condition `hasSum_qCoeff`, the
+function-level equality principle and algebra. `ModularForms/QCoeffClass` is the
+instance-level facade on top of it: `ModularFormClass.hasSum_qCoeff` (instance → `hF` in
+one step), the bundled equality principle, and the primed algebra.
+
+**Porting recipe.** A bundled form yields its certificate directly —
+`hasSum_qCoeff f hΓ` — rather than three separate facts. A file that works with bare
+functions imports `QCoeff`; a file that has a `CuspForm`/`ModularForm` in hand imports
+`QCoeffClass`.
+
+**The pinned copy of the bundled producer** lives inside a `variable` section
+(`P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean:166`), so the checker's stored text omits
+the section binders while the port writes them out. The statement is the pin's; the pin
+is parked (see above) rather than `own:`-marked.
+
+## Entry 3 — function-level Hecke q-coefficient statements
+
+**Status: applied (2026-11-16).** `UpperHalfPlane.qCoeff_heckeU`, `…qCoeff_heckeT` and
+`…qCoeff_comp_heckeDiagMatrix_smul` take `HasQCoeff f` in place of the three conditions;
+their conclusions are unchanged. `HeckeQCoeff` is unpinned as a consequence (its 15 pins
+are parked, see above), and the three hF transports `hasSum_qCoeff_heckeU`,
+`…_heckeT`, `…_comp_heckeDiagMatrix_smul` are the primary statements — the coefficient
+identities are now two-line corollaries of them.
+
+`UpperHalfPlane.eq_of_forall_qCoeff_eq` takes two certificates instead of six
+hypotheses, and the coefficient algebra gained certificate forms
+(`qCoeff_{add,sub,const_smul}_of_hasSum`) for callers that hold an `hF` rather than the
+three facts. Call sites that build the conditions locally wrap them once:
+`hasSum_qCoeff hper hhol hbdd`.
+
+**Superseded note, kept for the reasoning:** the earlier plan was to apply this where it
+pays rather than repo-wide, because at a call site that produces the three conditions
+locally `hF` is no shorter.
+
+`eq_of_forall_qCoeff_eq` is a clear win (proof two lines shorter, 22 call sites from six
+premises to two) and is the first candidate. The *coefficient-level* algebra
+(`qCoeff_{add,sub,const_smul}`) is not: its proofs need the analyticity that the three
+premises supply for free, so each would grow to re-extract it, and its 31 call sites
+mostly build the conditions from an instance at the call site (see Entry 4), where `hF` is
+no shorter.
+
+Apply the flip when a call site's *proof* carries the certificate rather than producing it
+— the `HeckeQCoeff` internals, `Reg` and `phi_props` (Entry 4). When applied,
+`QCoeff`'s pins move to `PortOwnedSpecPins` and this entry is updated.
+
+## Entry 4 — the three production patterns at call sites
+
+Recorded because it decides whether an `hF` flip pays. Measured over the call sites of
+these lemmas (2026-11-16):
+
+* **A — inline accessor trio from an instance.** Six accessor calls written at the call
+  site, e.g. `qCoeff_add (cusp_periodic F) (cusp_holo F) (cusp_bdd F) (cusp_periodic G) …`.
+  `hF` does not help here; the *bundled* primed forms (`qCoeff_add' hΓ F G n`, one
+  argument) already supersede the *proofs*. Measured, and it corrects an earlier reading
+  of this entry: seven of the nine per-file "concrete-spelling copy" wrappers already
+  call the primed forms, and the two in `DeligneSerre/CoefficientRing` were the last ones
+  still feeding the six accessors — their proofs are re-based (six hypotheses → one), but
+  their *statements* must stay, because they are rewrite-shaped: the call sites `rw` on
+  `qCoeff ⇑(F + G)`, while the general primed statement is `qCoeff (⇑f + ⇑g)` (it cannot
+  assume `Add F`). So the wrappers are coercion adapters, not stale copies, and only the
+  proofs were the duplicate.
+* **B — three parallel transport haves** re-assembled at the consumer
+  (`periodic_smul` / `.const_smul` / `.const_smul_left`, then six arguments). This is
+  where `hF` pays, once the certificate is carried across the proof.
+* **C — the triple threaded from the enclosing binder** (the five private `_bare`s in
+  `HeckeCommute` / `HeckeEigenform`). `hF` reads better — the argument is "both sides are
+  presented by their expansions, compare coefficients" instead of six regularity facts —
+  but it needs the operator transports of stage 3 (`HasQCoeff f → HasQCoeff (heckeU k p f)`),
+  which need the `MDiff` bridge.
+
+## Entry 5 — the ad-hoc regularity packagings are gone
+
+**Status: applied.** Two hand-rolled packagings of the three conditions existed beside the
+certificate, and both were consumed only by q-coefficient reasoning:
+
+* `Reg` (`ModularForms/NebentypusEigenbasis`) — a structure with `per`/`hol`/`bdd`, four
+  producers and `Reg.analyticAt`. Replaced by `HasQCoeff`: `reg_coe` is `hasSum_qCoeff`,
+  `Reg.smul` is `hasSum_qCoeff_const_smul`, `Reg.analyticAt` is
+  `ModularFormClass.analyticAt_cuspFunction_zero_of_hasSum_qCoeff`, and `reg_heckeU`'s
+  thirteen-line hand-rolled periodicity is `hasSum_qCoeff_heckeU`.
+* `phi_props`, three times (`Analytic/HeckeEigenvalueConj`, `WeightOne/PrimitiveQCoeffNorm`,
+  `HeckeNebentypusFricke`) — a 4-conjunction of the three facts plus the coefficient
+  identity. Each is now a certificate plus that identity; the two call sites that already
+  discarded the triple now discard one conjunct.
+
+Consequence for future ports: do not re-port these packagings. A file that arrives with a
+`Reg`-like record or a `phi_props`-like conjunction should carry `HasQCoeff` and use the
+transports (`hasSum_qCoeff_{add,sub,const_smul}`, `hasSum_qCoeff_heckeU`, `_heckeT`,
+`_comp_heckeDiagMatrix_smul`, `hasSum_qCoeff_slash_heckeDiagMatrix`) to build it, and the
+extractions (`periodic_`, `isBoundedAtImInfty_`, `mdifferentiable_`,
+`analyticAt_cuspFunction_zero_of_hasSum_qCoeff`) only where a single fact is genuinely
+wanted.

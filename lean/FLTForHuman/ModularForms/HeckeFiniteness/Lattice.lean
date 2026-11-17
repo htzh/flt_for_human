@@ -17,6 +17,7 @@ import FLTForHuman.Algebra.Module.Torsion.AddTorsionFree
 import FLTForHuman.ModularForms.Defs.IntegralStructure
 import FLTForHuman.ModularForms.HeckeAlgebra
 import FLTForHuman.ModularForms.HeckeFiniteness.LowWeight
+import FLTForHuman.ModularForms.QCoeffClass
 import FLTForHuman.ModularForms.SturmBound
 
 set_option autoImplicit false
@@ -40,7 +41,7 @@ private theorem one_mem_strictPeriods_Gamma0 (N : ℕ) :
 
 /-! ## The defining set is a submodule (private) -/
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'` (`HeckeQCoeff`) at
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'` at
 `Γ₀(N)`; the addition is unfolded along the coercion, nothing is re-proved. -/
 private theorem qCoeff_add (f g : CuspForm (CongruenceSubgroup.Gamma0 N) k) (n : ℕ) :
     qCoeff ⇑(f + g) n = qCoeff ⇑f n + qCoeff ⇑g n := by

@@ -222,8 +222,8 @@ theorem qCoeff_stretch (hd : d ≠ 0) (hdMN : d * M ∣ N) (g : CuspForm Γ₁(M
   have hcoe : (⇑(stretch hd hdMN g) : ℍ → ℂ) = fun τ => g (heckeDiagMatrix d • τ) :=
     funext (stretch_apply hd hdMN g)
   rw [hcoe]
-  exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (CuspForm.cusp_periodic g) g.holo'
-    (CuspForm.cusp_bdd g) hd n
+  exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul
+    (hasSum_qCoeff (CuspForm.cusp_periodic g) g.holo' (CuspForm.cusp_bdd g)) hd n
 
 /-- The lift carries the level-changed nebentypus. -/
 theorem hasNebentypus_stretch (hd : d ≠ 0) (hdMN : d * M ∣ N) (g : CuspForm Γ₁(M) k)

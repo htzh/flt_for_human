@@ -53,6 +53,7 @@ import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import FLTForHuman.ModularForms.HeckeNebentypusFricke
 import FLTForHuman.ModularForms.HeckeFrickeTrace
+import FLTForHuman.ModularForms.QCoeffClass
 import Mathlib.NumberTheory.DirichletCharacter.Orthogonality
 import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.Tactic
@@ -377,8 +378,9 @@ theorem bdd (f : CuspForm (Γ₁ℝ M) k) : IsBoundedAtImInfty (⇑f) := by
 
 theorem eq_of_qCoeff_eq (f₁ f₂ : CuspForm (Γ₁ℝ M) k) (h : ∀ n : ℕ, qCoeff f₁ n = qCoeff f₂ n) :
     f₁ = f₂ :=
-  DFunLike.ext' (UpperHalfPlane.eq_of_forall_qCoeff_eq (periodic f₁) f₁.holo' (bdd f₁)
-    (periodic f₂) f₂.holo' (bdd f₂) h)
+  DFunLike.ext' (UpperHalfPlane.eq_of_forall_qCoeff_eq
+    (hasSum_qCoeff (periodic f₁) f₁.holo' (bdd f₁))
+    (hasSum_qCoeff (periodic f₂) f₂.holo' (bdd f₂)) h)
 
 theorem qCoeff_zero_fun (n : ℕ) : qCoeff (0 : ℍ → ℂ) n = 0 := by
   rw [qCoeff, UpperHalfPlane.qExpansion_zero, map_zero]

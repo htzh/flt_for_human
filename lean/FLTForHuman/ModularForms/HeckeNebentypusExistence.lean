@@ -157,10 +157,10 @@ private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (c : ℂ)
     intro n
     rw [ModularFormClass.qCoeff, hDG, qExpansion_smul hanG, map_smul, smul_eq_mul]
     congr 1
-    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul hgper hghol hgbdd hp0 n
+    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (hasSum_qCoeff hgper hghol hgbdd) hp0 n
   have hqU : ∀ n, ModularFormClass.qCoeff U n = ModularFormClass.qCoeff (⇑g) (n * p) := by
     intro n
-    rw [hU, UpperHalfPlane.qCoeff_heckeU hgper hghol hgbdd k hp0 n, coeffHeckeU_apply]
+    rw [hU, UpperHalfPlane.qCoeff_heckeU (hasSum_qCoeff hgper hghol hgbdd) k hp0 n, coeffHeckeU_apply]
   have hqφ : ∀ n, ModularFormClass.qCoeff φ n = ModularFormClass.qCoeff (lam • (⇑g : ℍ → ℂ)) n := by
     intro n
     rw [ModularFormClass.qCoeff, ModularFormClass.qCoeff, hφ, qExpansion_add hanU hancD,
@@ -173,8 +173,9 @@ private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (c : ℂ)
     rw [h1, h2, ← h3, mul_assoc]
 
   have hφeq : φ = lam • (⇑g : ℍ → ℂ) :=
-    UpperHalfPlane.eq_of_forall_qCoeff_eq hφper hφhol hφbdd (UpperHalfPlane.periodic_smul hgper lam)
-      (hghol.const_smul lam) (hgbdd.smul lam) hqφ
+    UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff hφper hφhol hφbdd)
+      (hasSum_qCoeff (UpperHalfPlane.periodic_smul hgper lam) (hghol.const_smul lam)
+        (hgbdd.smul lam)) hqφ
 
   set hf : ℍ → ℂ := gσ - c • (⇑g : ℍ → ℂ) with hhf
   have hσδ : UpperHalfPlane.σ (heckeDiagMatrix p) c = c := by

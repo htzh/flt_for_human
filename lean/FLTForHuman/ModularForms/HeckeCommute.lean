@@ -14,7 +14,7 @@
   in each of the three function-level `S_` files. The port imports T5's public
   `UpperHalfPlane.eq_of_forall_qCoeff_eq` instead (the SET-1 `RealL` / SET-2 trace
   precedent) and drops the two `*_const_smul` helpers, which those files never
-  use; the surviving side-condition transport is the private `mf_bdd` below.
+  use.
 
   FLT provenance, pinned `aa2d8b3`:
   `P2M/Sol/S_ModularFormClass_hecke{U,U}.lean` (86 lines),
@@ -41,101 +41,73 @@ open ModularForm ModularFormClass
 /-! ## The function-level commutations -/
 
 /-- `f`'s boundedness at `∞`, from its `ModularFormClass` instance. -/
-private theorem mf_bdd {F : Type*} [FunLike F ℍ ℂ] {Γ : Subgroup (GL (Fin 2) ℝ)} {k : ℤ}
-    [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) :
-    IsBoundedAtImInfty ⇑f :=
-  haveI : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods one_pos hΓ⟩
-  bdd_at_infty f
-
-private theorem heckeU_heckeU_comm_bare {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
-    (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (k : ℤ) (p q : ℕ) :
+private theorem heckeU_heckeU_comm_bare {f : ℍ → ℂ} (hF : HasQCoeff f) (k : ℤ) (p q : ℕ) :
     heckeU k p (heckeU k q f) = heckeU k q (heckeU k p f) := by
   rcases eq_or_ne p 0 with rfl | hp
   · simp
   rcases eq_or_ne q 0 with rfl | hq
   · simp
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq
-    (periodic_heckeU_comp_ofComplex (periodic_heckeU_comp_ofComplex hper k q) k p)
-    (mdifferentiable_heckeU (mdifferentiable_heckeU hhol k q) k p)
-    (isBoundedAtImInfty_heckeU (isBoundedAtImInfty_heckeU hbdd k q) k p)
-    (periodic_heckeU_comp_ofComplex (periodic_heckeU_comp_ofComplex hper k p) k q)
-    (mdifferentiable_heckeU (mdifferentiable_heckeU hhol k p) k q)
-    (isBoundedAtImInfty_heckeU (isBoundedAtImInfty_heckeU hbdd k p) k q) fun n ↦ ?_
-  rw [UpperHalfPlane.qCoeff_heckeU (periodic_heckeU_comp_ofComplex hper k q)
-      (mdifferentiable_heckeU hhol k q) (isBoundedAtImInfty_heckeU hbdd k q) k hp,
-    UpperHalfPlane.qCoeff_heckeU (periodic_heckeU_comp_ofComplex hper k p)
-      (mdifferentiable_heckeU hhol k p) (isBoundedAtImInfty_heckeU hbdd k p) k hq]
+  have hUq : HasQCoeff (heckeU k q f) := hasSum_qCoeff_heckeU hq hF k
+  have hUp : HasQCoeff (heckeU k p f) := hasSum_qCoeff_heckeU hp hF k
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff_heckeU hp hUq k)
+    (hasSum_qCoeff_heckeU hq hUp k) fun n => ?_
+  rw [UpperHalfPlane.qCoeff_heckeU hUq k hp, UpperHalfPlane.qCoeff_heckeU hUp k hq]
   have hq' : qCoeff (heckeU k q f) = coeffHeckeU q (qCoeff f) :=
-    funext fun m ↦ UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hq m
+    funext fun m => UpperHalfPlane.qCoeff_heckeU hF k hq m
   have hp' : qCoeff (heckeU k p f) = coeffHeckeU p (qCoeff f) :=
-    funext fun m ↦ UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hp m
+    funext fun m => UpperHalfPlane.qCoeff_heckeU hF k hp m
   rw [hq', hp', coeffHeckeU_comm]
 
-private theorem heckeT_heckeT_comm_bare {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
-    (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (k : ℤ) {p q : ℕ} (hpq : p.Coprime q) :
+private theorem heckeT_heckeT_comm_bare {f : ℍ → ℂ} (hF : HasQCoeff f) (k : ℤ) {p q : ℕ}
+    (hpq : p.Coprime q) :
     heckeT k p (heckeT k q f) = heckeT k q (heckeT k p f) := by
   rcases eq_or_ne p 0 with rfl | hp
   · simp
   rcases eq_or_ne q 0 with rfl | hq
   · simp
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq
-    (periodic_heckeT_comp_ofComplex (periodic_heckeT_comp_ofComplex hper k q) k p)
-    (mdifferentiable_heckeT (mdifferentiable_heckeT hhol k q) k p)
-    (isBoundedAtImInfty_heckeT (isBoundedAtImInfty_heckeT hbdd k q) k p)
-    (periodic_heckeT_comp_ofComplex (periodic_heckeT_comp_ofComplex hper k p) k q)
-    (mdifferentiable_heckeT (mdifferentiable_heckeT hhol k p) k q)
-    (isBoundedAtImInfty_heckeT (isBoundedAtImInfty_heckeT hbdd k p) k q) fun n ↦ ?_
-  rw [UpperHalfPlane.qCoeff_heckeT (periodic_heckeT_comp_ofComplex hper k q)
-      (mdifferentiable_heckeT hhol k q) (isBoundedAtImInfty_heckeT hbdd k q) k hp,
-    UpperHalfPlane.qCoeff_heckeT (periodic_heckeT_comp_ofComplex hper k p)
-      (mdifferentiable_heckeT hhol k p) (isBoundedAtImInfty_heckeT hbdd k p) k hq]
+  have hTq : HasQCoeff (heckeT k q f) := hasSum_qCoeff_heckeT hq hF k
+  have hTp : HasQCoeff (heckeT k p f) := hasSum_qCoeff_heckeT hp hF k
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff_heckeT hp hTq k)
+    (hasSum_qCoeff_heckeT hq hTp k) fun n => ?_
+  rw [UpperHalfPlane.qCoeff_heckeT hTq k hp, UpperHalfPlane.qCoeff_heckeT hTp k hq]
   have hq' : qCoeff (heckeT k q f) = coeffHeckeT k q (qCoeff f) :=
-    funext fun m ↦ UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hq m
+    funext fun m => UpperHalfPlane.qCoeff_heckeT hF k hq m
   have hp' : qCoeff (heckeT k p f) = coeffHeckeT k p (qCoeff f) :=
-    funext fun m ↦ UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hp m
+    funext fun m => UpperHalfPlane.qCoeff_heckeT hF k hp m
   rw [hq', hp', coeffHeckeT_comm k hpq]
 
-private theorem heckeT_heckeU_comm_bare {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
-    (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (k : ℤ) {p q : ℕ} (hpq : p.Coprime q) :
+private theorem heckeT_heckeU_comm_bare {f : ℍ → ℂ} (hF : HasQCoeff f) (k : ℤ) {p q : ℕ}
+    (hpq : p.Coprime q) :
     heckeT k p (heckeU k q f) = heckeU k q (heckeT k p f) := by
   rcases eq_or_ne p 0 with rfl | hp
   · simp
   rcases eq_or_ne q 0 with rfl | hq
   · simp
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq
-    (periodic_heckeT_comp_ofComplex (periodic_heckeU_comp_ofComplex hper k q) k p)
-    (mdifferentiable_heckeT (mdifferentiable_heckeU hhol k q) k p)
-    (isBoundedAtImInfty_heckeT (isBoundedAtImInfty_heckeU hbdd k q) k p)
-    (periodic_heckeU_comp_ofComplex (periodic_heckeT_comp_ofComplex hper k p) k q)
-    (mdifferentiable_heckeU (mdifferentiable_heckeT hhol k p) k q)
-    (isBoundedAtImInfty_heckeU (isBoundedAtImInfty_heckeT hbdd k p) k q) fun n ↦ ?_
-  rw [UpperHalfPlane.qCoeff_heckeT (periodic_heckeU_comp_ofComplex hper k q)
-      (mdifferentiable_heckeU hhol k q) (isBoundedAtImInfty_heckeU hbdd k q) k hp,
-    UpperHalfPlane.qCoeff_heckeU (periodic_heckeT_comp_ofComplex hper k p)
-      (mdifferentiable_heckeT hhol k p) (isBoundedAtImInfty_heckeT hbdd k p) k hq]
+  have hUq : HasQCoeff (heckeU k q f) := hasSum_qCoeff_heckeU hq hF k
+  have hTp : HasQCoeff (heckeT k p f) := hasSum_qCoeff_heckeT hp hF k
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff_heckeT hp hUq k)
+    (hasSum_qCoeff_heckeU hq hTp k) fun n => ?_
+  rw [UpperHalfPlane.qCoeff_heckeT hUq k hp, UpperHalfPlane.qCoeff_heckeU hTp k hq]
   have hq' : qCoeff (heckeU k q f) = coeffHeckeU q (qCoeff f) :=
-    funext fun m ↦ UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hq m
+    funext fun m => UpperHalfPlane.qCoeff_heckeU hF k hq m
   have hp' : qCoeff (heckeT k p f) = coeffHeckeT k p (qCoeff f) :=
-    funext fun m ↦ UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hp m
+    funext fun m => UpperHalfPlane.qCoeff_heckeT hF k hp m
   rw [hq', hp', coeffHeckeT_coeffHeckeU_comm k hpq]
 
 /-- `U_p` and `U_q` commute on modular forms. Stated verbatim from
 `Theorems/Thm_ModularFormClass_heckeU_heckeU_comm.lean`. -/
 theorem ModularFormClass.heckeU_heckeU_comm {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) (p q : ℕ) : ModularForm.heckeU k p (ModularForm.heckeU k q ⇑f) = ModularForm.heckeU k q (ModularForm.heckeU k p ⇑f) :=
-  heckeU_heckeU_comm_bare (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ)
-    (ModularFormClass.holo f) (mf_bdd f hΓ) k p q
+  heckeU_heckeU_comm_bare (ModularFormClass.hasSum_qCoeff f hΓ) k p q
 
 /-- `T_p` and `T_q` commute on modular forms for coprime `p`, `q`. Stated verbatim
 from `Theorems/Thm_ModularFormClass_heckeT_heckeT_comm.lean`. -/
 theorem ModularFormClass.heckeT_heckeT_comm {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {p q : ℕ} (hpq : Nat.Coprime p q) : ModularForm.heckeT k p (ModularForm.heckeT k q ⇑f) = ModularForm.heckeT k q (ModularForm.heckeT k p ⇑f) :=
-  heckeT_heckeT_comm_bare (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ)
-    (ModularFormClass.holo f) (mf_bdd f hΓ) k hpq
+  heckeT_heckeT_comm_bare (ModularFormClass.hasSum_qCoeff f hΓ) k hpq
 
 /-- `T_p` and `U_q` commute on modular forms for coprime `p`, `q`. Stated verbatim
 from `Theorems/Thm_ModularFormClass_heckeT_heckeU_comm.lean`. -/
 theorem ModularFormClass.heckeT_heckeU_comm {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {p q : ℕ} (hpq : Nat.Coprime p q) : ModularForm.heckeT k p (ModularForm.heckeU k q ⇑f) = ModularForm.heckeU k q (ModularForm.heckeT k p ⇑f) :=
-  heckeT_heckeU_comm_bare (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ)
-    (ModularFormClass.holo f) (mf_bdd f hΓ) k hpq
+  heckeT_heckeU_comm_bare (ModularFormClass.hasSum_qCoeff f hΓ) k hpq
 
 /-! ## The bundled commutations -/
 

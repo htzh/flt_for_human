@@ -659,6 +659,18 @@ specification of what the port must prove, so it is kept and diffed. Four instru
    for a `missing` is a `spec-pin:` line (or, for a rename the wire cannot express, a `pin:`
    row in this table), never a marker.
 
+   **A deliberate shape change unparks the module rather than using `own:` (2026-11-16).** When
+   the port's interface departs from the pin's shape on purpose — same mathematics, different
+   packaging of the hypotheses — the affected `spec-pin:` lines come out of the module header and
+   are *parked*, one per line, in `Reserve/ModularForms/PortOwnedSpecPins.lean`. That module
+   declares nothing; `check_port.py` reads it as wired with no declarations to diff, and
+   `frontier.py` walks `Reserve` as a port root too, so the pin still reads as ported and is never
+   proposed for porting again. The departure is registered in
+   [topics/TOPIC-interface-changes.md](topics/TOPIC-interface-changes.md) with the pin shape, the
+   port shape and the bridges between them; a porter arriving with the pin's shape uses that
+   entry instead of re-deriving a duplicate. Keep `own:` for the other case — a general form of
+   the pin's concrete per-file copies, where there is no comparable pin statement to park.
+
    **The pin's pipeline labels sit on *namespaces* too, and are stripped there as well
    (2026-11-02).** `CasCore17`, `CommAway17`, `Elem17LR`, `CasLR17`, `OsAlg17`, `OsInf17`,
    `InvZero22`, `CommAway40`, `CommConv17`, `CasLeft2`, and the file wrappers `Ws23`/`M0a`/`Ws26`/

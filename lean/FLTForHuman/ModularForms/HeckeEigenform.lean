@@ -266,62 +266,41 @@ open ModularForm
 
 namespace ModularFormClass
 
-/- The analytic core of `heckeT_eq_smul_iff` is `ModularFormClass.qCoeff_const_smul`
-of `HeckeQCoeff.lean` and the periodicity is `UpperHalfPlane.periodic_smul` of
-`HeckeAnalytic.lean`; both are imported, not re-proved. -/
-
-private theorem mf_periodic {F : Type*} [FunLike F UpperHalfPlane ℂ]
-    {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k]
-    (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) :
-    Periodic (⇑f ∘ ofComplex) 1 :=
-  SlashInvariantFormClass.periodic_comp_ofComplex f hΓ
-
-private theorem mf_bdd {F : Type*} [FunLike F UpperHalfPlane ℂ]
-    {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k]
-    (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) :
-    IsBoundedAtImInfty ⇑f :=
-  haveI : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods one_pos hΓ⟩
-  bdd_at_infty f
-
-private theorem heckeT_eq_smul_iff_bare {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
-    (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (c : ℂ) :
+private theorem heckeT_eq_smul_iff_bare {f : ℍ → ℂ} (hF : HasQCoeff f) (k : ℤ) {p : ℕ}
+    (hp : p ≠ 0) (c : ℂ) :
     ModularForm.heckeT k p f = c • f ↔
       ∀ n : ℕ, ModularForm.coeffHeckeT k p (qCoeff f) n = c * qCoeff f n := by
   constructor
   · intro h n
-    rw [← UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hp n, h,
-      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
+    rw [← UpperHalfPlane.qCoeff_heckeT hF k hp n, h, ModularFormClass.qCoeff_const_smul_of_hasSum hF]
   · intro h
-    refine UpperHalfPlane.eq_of_forall_qCoeff_eq (periodic_heckeT_comp_ofComplex hper k p)
-      (mdifferentiable_heckeT hhol k p) (isBoundedAtImInfty_heckeT hbdd k p)
-      (UpperHalfPlane.periodic_smul hper c) (hhol.const_smul c) (hbdd.const_smul_left c) fun n => ?_
-    rw [UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hp n, h n,
-      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
+    refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff_heckeT hp hF k)
+      (hasSum_qCoeff_const_smul hF c) fun n => ?_
+    rw [UpperHalfPlane.qCoeff_heckeT hF k hp n, h n,
+      ModularFormClass.qCoeff_const_smul_of_hasSum hF]
 
-private theorem heckeU_eq_smul_iff_bare {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
-    (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (c : ℂ) :
+private theorem heckeU_eq_smul_iff_bare {f : ℍ → ℂ} (hF : HasQCoeff f) (k : ℤ) {p : ℕ}
+    (hp : p ≠ 0) (c : ℂ) :
     ModularForm.heckeU k p f = c • f ↔
       ∀ n : ℕ, ModularForm.coeffHeckeU p (qCoeff f) n = c * qCoeff f n := by
   constructor
   · intro h n
-    rw [← UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hp n, h,
-      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
+    rw [← UpperHalfPlane.qCoeff_heckeU hF k hp n, h, ModularFormClass.qCoeff_const_smul_of_hasSum hF]
   · intro h
-    refine UpperHalfPlane.eq_of_forall_qCoeff_eq (periodic_heckeU_comp_ofComplex hper k p)
-      (mdifferentiable_heckeU hhol k p) (isBoundedAtImInfty_heckeU hbdd k p)
-      (UpperHalfPlane.periodic_smul hper c) (hhol.const_smul c) (hbdd.const_smul_left c) fun n => ?_
-    rw [UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hp n, h n,
-      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
+    refine UpperHalfPlane.eq_of_forall_qCoeff_eq (hasSum_qCoeff_heckeU hp hF k)
+      (hasSum_qCoeff_const_smul hF c) fun n => ?_
+    rw [UpperHalfPlane.qCoeff_heckeU hF k hp n, h n,
+      ModularFormClass.qCoeff_const_smul_of_hasSum hF]
 
 /-- `T_p f = c f` iff the coefficients satisfy the eigenvalue equation. Stated
 verbatim from `Theorems/Thm_ModularFormClass_heckeT_eq_smul_iff.lean`. -/
 theorem heckeT_eq_smul_iff {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {p : ℕ} (hp : p ≠ 0) (c : ℂ) : ModularForm.heckeT k p ⇑f = c • ⇑f ↔ ∀ n : ℕ, ModularForm.coeffHeckeT k p (ModularFormClass.qCoeff f) n = c * ModularFormClass.qCoeff f n :=
-  heckeT_eq_smul_iff_bare (mf_periodic f hΓ) (ModularFormClass.holo f) (mf_bdd f hΓ) k hp c
+  heckeT_eq_smul_iff_bare (ModularFormClass.hasSum_qCoeff f hΓ) k hp c
 
 /-- `U_p f = c f` iff the coefficients satisfy the eigenvalue equation. Stated
 verbatim from `Theorems/Thm_ModularFormClass_heckeU_eq_smul_iff.lean`. -/
 theorem heckeU_eq_smul_iff {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {p : ℕ} (hp : p ≠ 0) (c : ℂ) : ModularForm.heckeU k p ⇑f = c • ⇑f ↔ ∀ n : ℕ, ModularForm.coeffHeckeU p (ModularFormClass.qCoeff f) n = c * ModularFormClass.qCoeff f n :=
-  heckeU_eq_smul_iff_bare (mf_periodic f hΓ) (ModularFormClass.holo f) (mf_bdd f hΓ) k hp c
+  heckeU_eq_smul_iff_bare (ModularFormClass.hasSum_qCoeff f hΓ) k hp c
 
 end ModularFormClass
 

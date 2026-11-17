@@ -833,59 +833,39 @@ theorem coe_heckeLin (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter 
     (⇑((heckeLin hp hpN ε f : nebSpace N k ε) : CuspForm Γ₁(N) k) : ℍ → ℂ) = heckeFun k ε p ⇑(f : CuspForm Γ₁(N) k) :=
   rfl
 
-structure Reg (F : ℍ → ℂ) : Prop where
-  per : Periodic (F ∘ ofComplex) 1
-  hol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) F
-  bdd : IsBoundedAtImInfty F
+theorem reg_coe (g : CuspForm Γ₁(N) k) : HasQCoeff (⇑g : ℍ → ℂ) :=
+  hasSum_qCoeff (periodic_of_slash_T (slash_mem g (T_mem_Gamma1 N))) (CuspFormClass.holo g)
+    (ModularFormClass.bdd_at_infty g)
 
-theorem reg_coe (g : CuspForm Γ₁(N) k) : Reg (⇑g : ℍ → ℂ) :=
-  ⟨periodic_of_slash_T (slash_mem g (T_mem_Gamma1 N)), CuspFormClass.holo g,
-    ModularFormClass.bdd_at_infty g⟩
+theorem reg_smul {F : ℍ → ℂ} (h : HasQCoeff F) (c : ℂ) : HasQCoeff (c • F) :=
+  hasSum_qCoeff_const_smul h c
 
-theorem Reg.smul {F : ℍ → ℂ} (h : Reg F) (c : ℂ) : Reg (c • F) := by
-  refine ⟨?_, h.hol.const_smul c, h.bdd.smul c⟩
-  intro w
-  have := h.per w
-  simp only [comp_apply, Pi.smul_apply] at this ⊢
-  rw [this]
-
-theorem Reg.analyticAt {F : ℍ → ℂ} (h : Reg F) : AnalyticAt ℂ (cuspFunction 1 F) 0 :=
-  analyticAt_cuspFunction_zero one_pos h.per h.hol h.bdd
+theorem reg_analyticAt {F : ℍ → ℂ} (h : HasQCoeff F) : AnalyticAt ℂ (cuspFunction 1 F) 0 :=
+  ModularFormClass.analyticAt_cuspFunction_zero_of_hasSum_qCoeff h
 
 theorem reg_slash_heckeDiagMatrix (hp : p ≠ 0) (g : CuspForm Γ₁(N) k) :
-    Reg ((⇑g : ℍ → ℂ) ∣[k] heckeDiagMatrix p) :=
-  ⟨periodic_of_slash_T (slash_heckeDiagMatrix_slash_T hp (slash_mem g (T_pow_mem_Gamma1 N p))),
-    (CuspFormClass.holo g).slash k _, isBoundedAtImInfty_slash_heckeDiagMatrix hp
-      (ModularFormClass.bdd_at_infty g)⟩
+    HasQCoeff ((⇑g : ℍ → ℂ) ∣[k] heckeDiagMatrix p) := by
+  have hG : HasQCoeff (fun τ => (⇑g : ℍ → ℂ) (heckeDiagMatrix p • τ)) :=
+    hasSum_qCoeff_comp_heckeDiagMatrix_smul hp (reg_coe g)
+  have hDG : (⇑g : ℍ → ℂ) ∣[k] heckeDiagMatrix p
+      = ((p : ℂ) ^ (k - 1)) • fun τ => (⇑g : ℍ → ℂ) (heckeDiagMatrix p • τ) := by
+    funext τ
+    rw [slash_heckeDiagMatrix_apply k hp, Pi.smul_apply, smul_eq_mul]
+  rw [hDG]
+  exact reg_smul hG ((p : ℂ) ^ (k - 1))
 
-theorem reg_heckeU (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
-    (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) : Reg (heckeU k p ⇑f) := by
-  have hp0 : p ≠ 0 := hp.ne_zero
-  have hT : heckeFun k ε p ⇑f = heckeU k p ⇑f + ε (p : ZMod N) • ((⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix p) :=
-    rfl
-  have hreg : Reg (heckeFun k ε p ⇑f) := reg_coe (heckeForm hp hpN ε f hf)
-  have hD := reg_slash_heckeDiagMatrix hp0 f
-  have hU : heckeU k p ⇑f = heckeFun k ε p ⇑f - ε (p : ZMod N) • ((⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix p) := by
-    rw [hT, add_sub_cancel_right]
-  refine ⟨?_, ModularForm.mdifferentiable_heckeU (CuspFormClass.holo f) k p, ?_⟩
-  · have hTinv : (heckeFun k ε p ⇑f) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ ModularGroup.T) =
-        heckeFun k ε p ⇑f := slash_mem (heckeForm hp hpN ε f hf) (T_mem_Gamma1 N)
-    have hDinv := slash_heckeDiagMatrix_slash_T hp0 (slash_mem f (T_pow_mem_Gamma1 N p)) (k := k)
-    apply periodic_of_slash_T (k := k)
-    rw [hU, sub_eq_add_neg, SlashAction.add_slash, SlashAction.neg_slash, hTinv, ← sl_slash,
-      ModularForm.SL_smul_slash, sl_slash, hDinv]
-  · rw [hU]
-    exact hreg.bdd.sub ((hD.bdd).smul _)
+theorem reg_heckeU (hp : p.Prime) (f : CuspForm Γ₁(N) k) : HasQCoeff (heckeU k p ⇑f) :=
+  hasSum_qCoeff_heckeU hp.ne_zero (reg_coe f) k
 
-theorem qCoeff_heckeFun (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
-    (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) (n : ℕ) :
+theorem qCoeff_heckeFun (hp : p.Prime) (ε : DirichletCharacter ℂ N)
+    (f : CuspForm Γ₁(N) k) (n : ℕ) :
     ModularFormClass.qCoeff (heckeFun k ε p ⇑f) n
       = ModularFormClass.qCoeff (⇑f) (n * p)
         + ε (p : ZMod N) * (p : ℂ) ^ (k - 1)
           * (if p ∣ n then ModularFormClass.qCoeff (⇑f) (n / p) else 0) := by
   have hp0 : p ≠ 0 := hp.ne_zero
   have hg := reg_coe f
-  have hU := reg_heckeU hp hpN ε f hf
+  have hU := reg_heckeU hp f
   have hD := reg_slash_heckeDiagMatrix hp0 f
 
   set D : ℍ → ℂ := (⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix p with hDdef
@@ -896,16 +876,16 @@ theorem qCoeff_heckeFun (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharact
   have hpk : ((p : ℂ) ^ (k - 1)) ≠ 0 := zpow_ne_zero _ (Nat.cast_ne_zero.mpr hp0)
   have hGD : G = ((p : ℂ) ^ (k - 1))⁻¹ • D := by
     rw [hDG, smul_smul, inv_mul_cancel₀ hpk, one_smul]
-  have hGreg : Reg G := by rw [hGD]; exact hD.smul _
+  have hGreg : HasQCoeff G := by rw [hGD]; exact reg_smul hD _
   have hqD : ModularFormClass.qCoeff D n
       = (p : ℂ) ^ (k - 1) * (if p ∣ n then ModularFormClass.qCoeff (⇑f) (n / p) else 0) := by
-    rw [ModularFormClass.qCoeff, hDG, qExpansion_smul hGreg.analyticAt, _root_.map_smul, smul_eq_mul]
+    rw [ModularFormClass.qCoeff, hDG, qExpansion_smul (reg_analyticAt hGreg), _root_.map_smul, smul_eq_mul]
     congr 1
-    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul hg.per hg.hol hg.bdd hp0 n
+    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul hg hp0 n
   have hqU : ModularFormClass.qCoeff (heckeU k p ⇑f) n = ModularFormClass.qCoeff (⇑f) (n * p) := by
-    rw [UpperHalfPlane.qCoeff_heckeU hg.per hg.hol hg.bdd k hp0 n, coeffHeckeU_apply]
-  rw [heckeFun, ModularFormClass.qCoeff, qExpansion_add hU.analyticAt (hD.smul _).analyticAt,
-    qExpansion_smul hD.analyticAt, map_add, _root_.map_smul, smul_eq_mul]
+    rw [UpperHalfPlane.qCoeff_heckeU hg k hp0 n, coeffHeckeU_apply]
+  rw [heckeFun, ModularFormClass.qCoeff, qExpansion_add (reg_analyticAt hU) (reg_analyticAt (reg_smul hD _)),
+    qExpansion_smul (reg_analyticAt hD), map_add, _root_.map_smul, smul_eq_mul]
   change ModularFormClass.qCoeff (heckeU k p ⇑f) n + ε (p : ZMod N) * ModularFormClass.qCoeff D n = _
   rw [hqU, hqD, mul_assoc]
 
@@ -951,12 +931,12 @@ theorem cT_comm {p q : ℕ} (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q) (e e' 
   rw [cT_cT hp.pos hcop, cT_cT hq.pos hcop.symm, mul_comm q p, mul_comm e' e]
   ring
 
-theorem qCoeff_heckeFun' (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
-    (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) :
+theorem qCoeff_heckeFun' (hp : p.Prime) (ε : DirichletCharacter ℂ N)
+    (f : CuspForm Γ₁(N) k) :
     ModularFormClass.qCoeff (heckeFun k ε p ⇑f)
       = cT (ε (p : ZMod N) * (p : ℂ) ^ (k - 1)) p (ModularFormClass.qCoeff (⇑f)) := by
   funext n
-  rw [qCoeff_heckeFun hp hpN ε f hf n, cT]
+  rw [qCoeff_heckeFun hp ε f n, cT]
 
 theorem heckeLin_comm {q : ℕ} (hp : p.Prime) (hpN : ¬ p ∣ N) (hq : q.Prime) (hqN : ¬ q ∣ N)
     (ε : DirichletCharacter ℂ N) :
@@ -972,13 +952,13 @@ theorem heckeLin_comm {q : ℕ} (hp : p.Prime) (hpN : ¬ p ∣ N) (hq : q.Prime)
   set g₂ : CuspForm Γ₁(N) k := ((heckeLin hp hpN ε f : nebSpace N k ε) : CuspForm Γ₁(N) k)
   have hg₁ : CuspForm.HasNebentypus ε g₁ := (heckeLin hq hqN ε f).2
   have hg₂ : CuspForm.HasNebentypus ε g₂ := (heckeLin hp hpN ε f).2
-  have r₁ : Reg (heckeFun k ε p ⇑g₁) := reg_coe (heckeForm hp hpN ε g₁ hg₁)
-  have r₂ : Reg (heckeFun k ε q ⇑g₂) := reg_coe (heckeForm hq hqN ε g₂ hg₂)
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq r₁.per r₁.hol r₁.bdd r₂.per r₂.hol r₂.bdd fun n => ?_
-  rw [qCoeff_heckeFun' hp hpN ε g₁ hg₁, qCoeff_heckeFun' hq hqN ε g₂ hg₂]
+  have r₁ : HasQCoeff (heckeFun k ε p ⇑g₁) := reg_coe (heckeForm hp hpN ε g₁ hg₁)
+  have r₂ : HasQCoeff (heckeFun k ε q ⇑g₂) := reg_coe (heckeForm hq hqN ε g₂ hg₂)
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq r₁ r₂ fun n => ?_
+  rw [qCoeff_heckeFun' hp ε g₁, qCoeff_heckeFun' hq ε g₂]
   change cT _ p (ModularFormClass.qCoeff (heckeFun k ε q ⇑(f : CuspForm Γ₁(N) k))) n
     = cT _ q (ModularFormClass.qCoeff (heckeFun k ε p ⇑(f : CuspForm Γ₁(N) k))) n
-  rw [qCoeff_heckeFun' hq hqN ε _ f.2, qCoeff_heckeFun' hp hpN ε _ f.2]
+  rw [qCoeff_heckeFun' hq ε _, qCoeff_heckeFun' hp ε _]
   exact cT_comm hp hq hpq _ _ _ n
 
 end Hecke
@@ -1097,8 +1077,8 @@ theorem mem_eigenSet_of_eigen (ε : DirichletCharacter ℂ N) (v : nebSpace N k 
   have hsm : ModularFormClass.qCoeff (lam • ⇑(v : CuspForm Γ₁(N) k)) m
       = lam * ModularFormClass.qCoeff (⇑(v : CuspForm Γ₁(N) k)) m := by
     rw [ModularFormClass.qCoeff, ModularFormClass.qCoeff,
-      qExpansion_smul (reg_coe (v : CuspForm Γ₁(N) k)).analyticAt, _root_.map_smul, smul_eq_mul]
-  rw [qCoeff_heckeFun hp hpN ε _ v.2 m, hsm] at hq
+      qExpansion_smul (reg_analyticAt (reg_coe (v : CuspForm Γ₁(N) k))), _root_.map_smul, smul_eq_mul]
+  rw [qCoeff_heckeFun hp ε _ m, hsm] at hq
   rw [mul_comm p m]
   exact hq
 

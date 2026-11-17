@@ -19,6 +19,7 @@ import FLTForHuman.ModularForms.Defs.Eigenform
 import FLTForHuman.ModularForms.HeckeEigenform
 import FLTForHuman.ModularForms.HeckeFiniteness.Finiteness
 import FLTForHuman.ModularForms.HeckeFiniteness.Lattice
+import FLTForHuman.ModularForms.QCoeffClass
 import FLTForHuman.ModularForms.SturmBound
 import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
 
@@ -137,7 +138,7 @@ private theorem qCoeff_zero' (n : ℕ) :
   simp only [qCoeff, FunLike.coe_zero]
   rw [UpperHalfPlane.qExpansion_zero, map_zero]
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'`. -/
 private theorem qCoeff_smul (c : ℂ) (f : CuspForm (CongruenceSubgroup.Gamma0 N) k) (n : ℕ) :
     qCoeff ⇑(c • f) n = c * qCoeff ⇑f n := by
   simpa only [qCoeff, FunLike.coe_smul] using

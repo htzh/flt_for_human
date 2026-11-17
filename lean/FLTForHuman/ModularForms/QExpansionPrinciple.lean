@@ -30,11 +30,11 @@
   | pin helper | replaced by |
   |---|---|
   | `norm_qParam_lt_one_of_pos` | public `Periodic.norm_qParam_lt_one` |
-  | `hasSum_cuspFunction_punctured` | private in mathlib; re-derived (needed for `mdifferentiable`) |
-  | `hasFPowerSeriesOnBall_update` | private in mathlib; re-derived (needed for `mdifferentiable`) |
+  | `hasSum_cuspFunction_punctured` | ported, public: `hasSum_cuspFunction_of_hasSum_punctured` (`ModularForms/QCoeff`) |
+  | `hasFPowerSeriesOnBall_update` | ported, public: same name (`ModularForms/QCoeff`) |
   | `discFun`, `hasSum_discFun`, `discFun_zero`, `continuousAt_discFun` | dropped; the public `cuspFunction` API replaces them |
-  | `apply_eq_discFun`, `differentiableOn_discFun` | dropped; `apply_eq_cuspFunction` / `differentiableAt_cuspFunction_of_hasSum` are the private forms the `mdifferentiable` route needs |
-  | `mdifferentiable` | **ported** — no public mathlib lemma derives `MDiff` from a `HasSum` |
+  | `apply_eq_discFun`, `differentiableOn_discFun` | dropped; `apply_eq_cuspFunction` / `differentiableAt_cuspFunction_of_hasSum` are the `cuspFunction` forms, in `ModularForms/QCoeff` |
+  | `mdifferentiable` | **ported** as `mdifferentiable_of_hasSum` — no public mathlib lemma derives `MDiff` from a `HasSum` |
   | `tendsto_atImInfty` | public `UpperHalfPlane.tendsto_atImInfty_of_hasSum_qExpansion` |
   | `isBoundedAtImInfty` | public `UpperHalfPlane.isBoundedAtImInfty_of_hasSum_qExpansion` |
   | `periodic` | dropped; public `UpperHalfPlane.periodic_comp_ofComplex` is the counterpart (topic 7 needs it) |
@@ -72,6 +72,7 @@ import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.Analysis.Complex.UpperHalfPlane.Exp
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.Defs.PhiGen
+import FLTForHuman.ModularForms.QCoeff
 
 set_option autoImplicit false
 
@@ -84,99 +85,10 @@ local notation "𝕢" => Function.Periodic.qParam
 
 namespace ModularCurve
 
-/-! ## The private helper block
+/-! ## The coefficient-uniqueness block
 
-The pin's `Realized` block, reduced to what the `mdifferentiable` route actually
-needs. `hasSum_cuspFunction_of_hasSum_punctured` and `hasFPowerSeriesOnBall_update`
-are mathlib-private; `mdifferentiable` is the one genuinely missing step. -/
-
-/-- The pin's `Realized.hasSum_cuspFunction_punctured` (mathlib-private in
-`QExpansion.lean`): a `HasSum` on `ℍ` reads as a `HasSum` of the descended
-`cuspFunction` value on the punctured disc. -/
-private theorem hasSum_cuspFunction_of_hasSum_punctured {h : ℝ} {f : ℍ → ℂ} {c : ℕ → ℂ}
-    (hh : 0 < h) (hf : ∀ τ : ℍ, HasSum (fun m : ℕ => c m • 𝕢 h (τ : ℂ) ^ m) (f τ))
-    {q : ℂ} (hq : ‖q‖ < 1) (hq1 : q ≠ 0) :
-    HasSum (fun m : ℕ => c m • q ^ m) (cuspFunction h f q) := by
-  have h1 := Periodic.im_invQParam_pos_of_norm_lt_one hh hq hq1
-  let τ : ℍ := ⟨Periodic.invQParam h q, h1⟩
-  have h2 := Periodic.cuspFunction_eq_of_nonzero h (f ∘ ofComplex) hq1
-  have h3 : cuspFunction h f q = f τ := by
-    simpa [τ, cuspFunction, UpperHalfPlane.ofComplex_apply_of_im_pos h1] using h2
-  have h4 : 𝕢 h (τ : ℂ) = q := Periodic.qParam_right_inv hh.ne' hq1
-  rw [h3, ← h4]
-  exact hf τ
-
-/-- The pin's `Realized.hasFPowerSeriesOnBall_update` (mathlib-private): the
-`HasSum` on `ℍ`, with the value at `q = 0` filled in by `c 0`, is a radius-`1`
-power series. The radius bound is the summability read off
-`hasSum_cuspFunction_of_hasSum_punctured` at real `q = r`. -/
-private theorem hasFPowerSeriesOnBall_update {h : ℝ} {f : ℍ → ℂ} {c : ℕ → ℂ} (hh : 0 < h)
-    (hf : ∀ τ : ℍ, HasSum (fun m : ℕ => c m • 𝕢 h (τ : ℂ) ^ m) (f τ)) :
-    HasFPowerSeriesOnBall (update (cuspFunction h f) 0 (c 0)) (.ofScalars ℂ c) 0 1 := by
-  constructor
-  · refine le_of_forall_lt_imp_le_of_dense fun r hr => ?_
-    rcases eq_or_ne r 0 with rfl | hr'
-    · simp
-    · lift r to NNReal using hr.ne_top
-      have : FiniteDimensional ℝ ℂ := basisOneI.finiteDimensional_of_finite
-      apply FormalMultilinearSeries.le_radius_of_summable
-      simpa [smul_eq_mul, norm_mul, mul_comm, mul_left_comm, mul_assoc] using
-        (hasSum_cuspFunction_of_hasSum_punctured hh hf (q := r) (by simpa using hr)
-          (mod_cast hr')).summable.norm
-  · simp
-  · intro y hy
-    rw [← ENNReal.coe_one, Metric.eball_coe, NNReal.coe_one, mem_ball_zero_iff] at hy
-    rcases eq_or_ne y 0 with rfl | hy'
-    · simpa +contextual [zero_pow_eq] using hasSum_ite_eq 0 (c 0)
-    · simpa [update_of_ne hy', mul_comm]
-        using hasSum_cuspFunction_of_hasSum_punctured hh hf hy hy'
-
-/-- The pin's `Realized.apply_eq_discFun`, in the public `cuspFunction` form:
-`F` is the `cuspFunction` value at `q(τ)`. This is `HasSum.unique` against
-`hasSum_cuspFunction_of_hasSum_punctured`, and it does not need `h`-periodicity. -/
-private theorem apply_eq_cuspFunction {h : ℝ} {f : ℍ → ℂ} {c : ℕ → ℂ} (hh : 0 < h)
-    (hf : ∀ τ : ℍ, HasSum (fun m : ℕ => c m • 𝕢 h (τ : ℂ) ^ m) (f τ)) (τ : ℍ) :
-    f τ = cuspFunction h f (𝕢 h (τ : ℂ)) :=
-  (hf τ).unique (hasSum_cuspFunction_of_hasSum_punctured hh hf
-    (Periodic.norm_qParam_lt_one hh τ.im_pos) (Periodic.qParam_ne_zero _))
-
-/-- The pin's `Realized.differentiableOn_discFun` at a punctured disc point: the
-radius-`1` power series of `hasFPowerSeriesOnBall_update` is complex-differentiable,
-and it agrees with `cuspFunction` away from `0`. -/
-private theorem differentiableAt_cuspFunction_of_hasSum {h : ℝ} {f : ℍ → ℂ} {c : ℕ → ℂ}
-    (hh : 0 < h) (hf : ∀ τ : ℍ, HasSum (fun m : ℕ => c m • 𝕢 h (τ : ℂ) ^ m) (f τ))
-    {q : ℂ} (hq : ‖q‖ < 1) (hq' : q ≠ 0) : DifferentiableAt ℂ (cuspFunction h f) q := by
-  have h1 : DifferentiableOn ℂ (update (cuspFunction h f) 0 (c 0)) (Metric.ball 0 1) := by
-    have h := (hasFPowerSeriesOnBall_update hh hf).differentiableOn
-    rwa [← ENNReal.coe_one, Metric.eball_coe, NNReal.coe_one] at h
-  have hqball : q ∈ Metric.ball (0 : ℂ) 1 := by
-    rw [Metric.mem_ball, dist_zero_right]; exact hq
-  have h2 : DifferentiableAt ℂ (update (cuspFunction h f) 0 (c 0)) q :=
-    h1.differentiableAt (Metric.isOpen_ball.mem_nhds hqball)
-  refine h2.congr_of_eventuallyEq ?_
-  filter_upwards [isOpen_ne.mem_nhds hq'] with y hy
-  exact (update_of_ne hy (c 0) (cuspFunction h f)).symm
-
-/-- The pin's `Realized.mdifferentiable` — the one helper the mathlib audit left
-without a public counterpart: nothing public derives `MDiff` from a `HasSum`. The
-power series on the disc composes with `q ↦ q(τ)`, and `apply_eq_cuspFunction`
-identifies `F ∘ ofComplex` with that composite on `{Im > 0}`. -/
-private theorem mdifferentiable {h : ℝ} {f : ℍ → ℂ} {c : ℕ → ℂ} (hh : 0 < h)
-    (hf : ∀ τ : ℍ, HasSum (fun m : ℕ => c m * 𝕢 h (τ : ℂ) ^ m) (f τ)) :
-    MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) f := by
-  have hf' : ∀ τ : ℍ, HasSum (fun m : ℕ => c m • 𝕢 h (τ : ℂ) ^ m) (f τ) := fun τ => by
-    simpa only [smul_eq_mul] using hf τ
-  rw [UpperHalfPlane.mdifferentiable_iff]
-  have h1 : DifferentiableOn ℂ (fun z : ℂ => cuspFunction h f (𝕢 h z)) {z : ℂ | 0 < z.im} := by
-    intro z hz
-    have hzq : ‖𝕢 h z‖ < 1 := Periodic.norm_qParam_lt_one hh hz
-    have hzq' : 𝕢 h z ≠ 0 := Periodic.qParam_ne_zero _
-    exact ((differentiableAt_cuspFunction_of_hasSum hh hf' hzq hzq').comp z
-      ((Periodic.differentiable_qParam (h := h)) z)).differentiableWithinAt
-  refine h1.congr fun z hz => ?_
-  rw [Function.comp_apply, apply_eq_cuspFunction hh hf' (ofComplex z)]
-  exact congrArg (fun w : ℍ => cuspFunction h f (𝕢 h (w : ℂ)))
-    (UpperHalfPlane.ofComplex_apply_of_im_pos hz)
+The pin's `Realized.coeff_unique`, over the power-series facts that
+`ModularForms/QCoeff` now provides. -/
 
 /-- The pin's `Realized.coeff_unique`: two `HasSum` presentations of the same `F`
 have equal coefficients. Both presentations are power series at `0`
@@ -236,7 +148,7 @@ theorem coeff_eq_zero_of_hasSum_of_slash_invariant
       slash_action_eq' := fun A hA => by
         obtain ⟨γ, rfl⟩ := hA
         exact hslash γ
-      holo' := mdifferentiable one_pos hF
+      holo' := mdifferentiable_of_hasSum one_pos hF
       bdd_at_cusps' := fun {cusp} hc => by
         rw [OnePoint.isBoundedAt_iff_forall_SL2Z hc]
         intro γ _

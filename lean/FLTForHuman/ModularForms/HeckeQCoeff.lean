@@ -43,21 +43,9 @@
   `S_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean`, the five coefficient-algebra
   files and `S_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean`.
 
-  spec-pin: Theorems/Thm_UpperHalfPlane_qCoeff_heckeU.lean
-  spec-pin: Theorems/Thm_UpperHalfPlane_qCoeff_heckeT.lean
-  spec-pin: Theorems/Thm_UpperHalfPlane_qCoeff_comp_heckeDiagMatrix_smul.lean
-  spec-pin: Theorems/Thm_ModularFormClass_qCoeff_heckeU.lean
-  spec-pin: Theorems/Thm_ModularFormClass_qCoeff_heckeT.lean
-  spec-pin: Theorems/Thm_ModularFormClass_qCoeff_comp_heckeDiagMatrix_smul.lean
-  spec-pin: Theorems/Thm_ModularFormClass_qExpansion_heckeU_eq_heckeU.lean
-  spec-pin: Theorems/Thm_ModularFormClass_qExpansion_heckeT_eq_heckeT.lean
-  spec-pin: Theorems/Thm_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean
-  spec-pin: Theorems/Thm_ModularForm_coeffHeckeU_comm.lean
-  spec-pin: Theorems/Thm_ModularForm_coeffHeckeU_int.lean
-  spec-pin: Theorems/Thm_ModularForm_coeffHeckeT_comm.lean
-  spec-pin: Theorems/Thm_ModularForm_coeffHeckeT_coeffHeckeU_comm.lean
-  spec-pin: Theorems/Thm_ModularForm_coeffHeckeT_int.lean
-  spec-pin: P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean
+  The pin statements of the three function-level coefficient identities are port-owned
+  (`topics/TOPIC-interface-changes.md` Entry 1); every pin of this module is parked in
+  `Reserve/ModularForms/PortOwnedSpecPins.lean`.
 
 -/
 import Mathlib.NumberTheory.ModularForms.QExpansion
@@ -70,6 +58,7 @@ import FLTForHuman.ModularForms.HeckeAnalytic
 import FLTForHuman.ModularForms.Defs.HeckeOperator
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularForms.QCoeff
+import FLTForHuman.ModularForms.QCoeffClass
 
 set_option autoImplicit false
 
@@ -261,24 +250,25 @@ dotted), so no `SOURCES` ordering can flip one onto the other. -/
 
 /-- `U_p` acts on `q`-coefficients through `coeffHeckeU`. Stated verbatim from
 `Theorems/Thm_UpperHalfPlane_qCoeff_heckeU.lean`. -/
-theorem UpperHalfPlane.qCoeff_heckeU {f : UpperHalfPlane → ℂ} (hper : Function.Periodic (f ∘ UpperHalfPlane.ofComplex) 1) (hhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) f) (hbdd : UpperHalfPlane.IsBoundedAtImInfty f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeU k p f) n = ModularForm.coeffHeckeU p (ModularFormClass.qCoeff f) n := by
-  have hF : ∀ τ : ℍ, HasSum (fun m ↦ qCoeff f m • Periodic.qParam 1 τ ^ m) (f τ) :=
-    hasSum_qCoeff hper hhol hbdd
+theorem UpperHalfPlane.qCoeff_heckeU {f : UpperHalfPlane → ℂ} (hF : HasQCoeff f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeU k p f) n = ModularForm.coeffHeckeU p (ModularFormClass.qCoeff f) n := by
+  have hdiff : MDiff (heckeU k p f) :=
+    mdifferentiable_heckeU (mdifferentiable_of_hasSum_qCoeff hF) k p
   have hsum : ∀ τ : ℍ,
       HasSum (fun n : ℕ ↦ coeffHeckeU p (qCoeff f) n • Periodic.qParam 1 τ ^ n)
         (heckeU k p f τ) := by
     intro τ
     rw [heckeU_apply k hp]
     simpa only [coeffHeckeU_apply, smul_eq_mul] using hasSum_average hp hF τ
-  exact (qExpansion_coeff_unique' (mdifferentiable_heckeU hhol k p).continuous
-    (analyticAt_cuspFunction_zero one_pos (periodic_heckeU_comp_ofComplex hper k p)
-      (mdifferentiable_heckeU hhol k p) (isBoundedAtImInfty_heckeU hbdd k p)) hsum n).symm
+  exact (qExpansion_coeff_unique' hdiff.continuous
+    (analyticAt_cuspFunction_zero one_pos
+      (periodic_heckeU_comp_ofComplex (periodic_of_hasSum_qCoeff hF) k p) hdiff
+      (isBoundedAtImInfty_heckeU (isBoundedAtImInfty_of_hasSum_qCoeff hF) k p)) hsum n).symm
 
 /-- `T_p` acts on `q`-coefficients through `coeffHeckeT`. Stated verbatim from
 `Theorems/Thm_UpperHalfPlane_qCoeff_heckeT.lean`. -/
-theorem UpperHalfPlane.qCoeff_heckeT {f : UpperHalfPlane → ℂ} (hper : Function.Periodic (f ∘ UpperHalfPlane.ofComplex) 1) (hhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) f) (hbdd : UpperHalfPlane.IsBoundedAtImInfty f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeT k p f) n = ModularForm.coeffHeckeT k p (ModularFormClass.qCoeff f) n := by
-  have hF : ∀ τ : ℍ, HasSum (fun m ↦ qCoeff f m • Periodic.qParam 1 τ ^ m) (f τ) :=
-    hasSum_qCoeff hper hhol hbdd
+theorem UpperHalfPlane.qCoeff_heckeT {f : UpperHalfPlane → ℂ} (hF : HasQCoeff f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeT k p f) n = ModularForm.coeffHeckeT k p (ModularFormClass.qCoeff f) n := by
+  have hdiff : MDiff (heckeT k p f) :=
+    mdifferentiable_heckeT (mdifferentiable_of_hasSum_qCoeff hF) k p
   have hsum : ∀ τ : ℍ,
       HasSum (fun n : ℕ ↦ coeffHeckeT k p (qCoeff f) n • Periodic.qParam 1 τ ^ n)
         (heckeT k p f τ) := by
@@ -288,18 +278,43 @@ theorem UpperHalfPlane.qCoeff_heckeT {f : UpperHalfPlane → ℂ} (hper : Functi
     funext n
     rw [coeffHeckeT_apply, smul_eq_mul]
     split_ifs <;> ring
-  exact (qExpansion_coeff_unique' (mdifferentiable_heckeT hhol k p).continuous
-    (analyticAt_cuspFunction_zero one_pos (periodic_heckeT_comp_ofComplex hper k p)
-      (mdifferentiable_heckeT hhol k p) (isBoundedAtImInfty_heckeT hbdd k p)) hsum n).symm
+  exact (qExpansion_coeff_unique' hdiff.continuous
+    (analyticAt_cuspFunction_zero one_pos
+      (periodic_heckeT_comp_ofComplex (periodic_of_hasSum_qCoeff hF) k p) hdiff
+      (isBoundedAtImInfty_heckeT (isBoundedAtImInfty_of_hasSum_qCoeff hF) k p)) hsum n).symm
+
+/-- `U_p` preserves the `q`-expansion certificate. -/
+theorem hasSum_qCoeff_heckeU {p : ℕ} (hp : p ≠ 0) {f : ℍ → ℂ} (hF : HasQCoeff f) (k : ℤ) :
+    HasQCoeff (heckeU k p f) := by
+  have hc : ∀ m : ℕ, qCoeff (heckeU k p f) m = coeffHeckeU p (qCoeff f) m :=
+    UpperHalfPlane.qCoeff_heckeU hF k hp
+  intro τ
+  rw [heckeU_apply k hp]
+  simpa only [hc, coeffHeckeU_apply, smul_eq_mul] using hasSum_average hp hF τ
+
+/-- `T_p` preserves the `q`-expansion certificate. -/
+theorem hasSum_qCoeff_heckeT {p : ℕ} (hp : p ≠ 0) {f : ℍ → ℂ} (hF : HasQCoeff f) (k : ℤ) :
+    HasQCoeff (heckeT k p f) := by
+  have hc : ∀ m : ℕ, qCoeff (heckeT k p f) m = coeffHeckeT k p (qCoeff f) m :=
+    UpperHalfPlane.qCoeff_heckeT hF k hp
+  intro τ
+  rw [heckeT_apply k hp]
+  convert (hasSum_average hp hF τ).add (hasSum_diag hp hF k τ) using 1
+  funext n
+  rw [hc n, coeffHeckeT_apply, smul_eq_mul]
+  split_ifs <;> ring
 
 /-- The diagonal translate scales the `q`-parameter by `d`. Stated verbatim from
 `Theorems/Thm_UpperHalfPlane_qCoeff_comp_heckeDiagMatrix_smul.lean`. -/
-theorem UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul {f : UpperHalfPlane → ℂ} (hper : Function.Periodic (f ∘ UpperHalfPlane.ofComplex) 1) (hhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) f) (hbdd : UpperHalfPlane.IsBoundedAtImInfty f) {d : ℕ} (hd : d ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (fun τ ↦ f (ModularForm.heckeDiagMatrix d • τ)) n = if d ∣ n then ModularFormClass.qCoeff f (n / d) else 0 := by
+theorem UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul {f : UpperHalfPlane → ℂ} (hF : HasQCoeff f) {d : ℕ} (hd : d ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (fun τ ↦ f (ModularForm.heckeDiagMatrix d • τ)) n = if d ∣ n then ModularFormClass.qCoeff f (n / d) else 0 := by
   set G : ℍ → ℂ := fun τ ↦ f (heckeDiagMatrix d • τ) with hG
-  have hGdiff : MDiff G := mdifferentiable_comp_smul hd hhol
+  have hfper : Periodic (f ∘ ofComplex) 1 := periodic_of_hasSum_qCoeff hF
+  have hfhol : MDiff f := mdifferentiable_of_hasSum_qCoeff hF
+  have hfbdd : IsBoundedAtImInfty f := isBoundedAtImInfty_of_hasSum_qCoeff hF
+  have hGdiff : MDiff G := mdifferentiable_comp_smul hd hfhol
   have han : AnalyticAt ℂ (cuspFunction 1 G) 0 :=
-    analyticAt_cuspFunction_zero one_pos (periodic_comp_smul hd hper) hGdiff
-      (isBoundedAtImInfty_comp_smul hd hbdd)
+    analyticAt_cuspFunction_zero one_pos (periodic_comp_smul hd hfper) hGdiff
+      (isBoundedAtImInfty_comp_smul hd hfbdd)
 
   set c : ℕ → ℂ := fun n ↦ if d ∣ n then (qExpansion 1 f).coeff (n / d) else 0 with hc
   have hsum : ∀ τ : ℍ, HasSum (fun m ↦ c m • Periodic.qParam 1 τ ^ m) (G τ) := by
@@ -309,7 +324,7 @@ theorem UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul {f : UpperHalfPlane → 
       congr 1
       push_cast
       ring
-    have hs := hasSum_qExpansion one_pos hper hhol hbdd (heckeDiagMatrix d • τ)
+    have hs := hasSum_qExpansion one_pos hfper hfhol hfbdd (heckeDiagMatrix d • τ)
     simp_rw [hq, ← pow_mul] at hs
     have hinj : Injective (fun m : ℕ ↦ d * m) := mul_right_injective₀ hd
     have hsupp : ∀ x ∉ Set.range (fun m : ℕ ↦ d * m),
@@ -346,22 +361,19 @@ type: that is what `qCoeff` consumes, and it needs no `Add`/`Sub`/`SMul` on the 
 `Theorems/Thm_ModularFormClass_qCoeff_heckeU.lean`. -/
 theorem ModularFormClass.qCoeff_heckeU {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeU k p f) n = ModularForm.coeffHeckeU p (ModularFormClass.qCoeff f) n :=
   haveI : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods one_pos hΓ⟩
-  UpperHalfPlane.qCoeff_heckeU (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ) (holo f)
-    (bdd_at_infty f) k hp n
+  UpperHalfPlane.qCoeff_heckeU (ModularFormClass.hasSum_qCoeff f hΓ) k hp n
 
 /-- The bundled form of `UpperHalfPlane.qCoeff_heckeT`. Stated verbatim from
 `Theorems/Thm_ModularFormClass_qCoeff_heckeT.lean`. -/
 theorem ModularFormClass.qCoeff_heckeT {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeT k p f) n = ModularForm.coeffHeckeT k p (ModularFormClass.qCoeff f) n :=
   haveI : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods one_pos hΓ⟩
-  UpperHalfPlane.qCoeff_heckeT (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ) (holo f)
-    (bdd_at_infty f) k hp n
+  UpperHalfPlane.qCoeff_heckeT (ModularFormClass.hasSum_qCoeff f hΓ) k hp n
 
 /-- The bundled form of the diagonal dilation. Stated verbatim from
 `Theorems/Thm_ModularFormClass_qCoeff_comp_heckeDiagMatrix_smul.lean`. -/
 theorem ModularFormClass.qCoeff_comp_heckeDiagMatrix_smul {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {d : ℕ} (hd : d ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (fun τ ↦ f (ModularForm.heckeDiagMatrix d • τ)) n = if d ∣ n then ModularFormClass.qCoeff f (n / d) else 0 :=
   haveI : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods one_pos hΓ⟩
-  UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul
-    (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ) (holo f) (bdd_at_infty f) hd n
+  UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (ModularFormClass.hasSum_qCoeff f hΓ) hd n
 
 /-- `qExpansion` of `U_p f` is the formal `PowerSeries.heckeU p` of the
 `qExpansion` of `f`. Stated verbatim from
@@ -445,6 +457,44 @@ private theorem qExpand_coe_heckeV (N : ℕ) [NeZero N] (φ : PowerSeries ℂ) :
           (fun hdiv => h (Int.natCast_dvd_natCast.mp hdiv)),
         LaurentSeries.coeff_coe_powerSeries, PowerSeries.coeff_heckeV]
       simp [h]
+
+/-- The diagonal dilation preserves the `q`-expansion certificate. -/
+theorem hasSum_qCoeff_comp_heckeDiagMatrix_smul {d : ℕ} (hd : d ≠ 0) {f : ℍ → ℂ}
+    (hF : HasQCoeff f) : HasQCoeff (fun τ ↦ f (heckeDiagMatrix d • τ)) := by
+  have hc : ∀ m : ℕ, qCoeff (fun τ ↦ f (heckeDiagMatrix d • τ)) m
+      = if d ∣ m then qCoeff f (m / d) else 0 :=
+    UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul hF hd
+  intro τ
+  have hq : Periodic.qParam 1 ((heckeDiagMatrix d • τ : ℍ) : ℂ) = Periodic.qParam 1 τ ^ d :=
+    qParam_heckeDiagMatrix_smul hd τ
+  have hs := hF (heckeDiagMatrix d • τ)
+  simp_rw [hq, ← pow_mul] at hs
+  have hinj : Injective (fun m : ℕ ↦ d * m) := mul_right_injective₀ hd
+  have hsupp : ∀ x ∉ Set.range (fun m : ℕ ↦ d * m),
+      (fun m ↦ qCoeff (fun τ ↦ f (heckeDiagMatrix d • τ)) m
+        • Periodic.qParam 1 τ ^ m) x = 0 := by
+    intro x hx
+    have hx' : ¬ d ∣ x := by
+      rintro ⟨e, rfl⟩
+      exact hx ⟨e, rfl⟩
+    simp only [hc x, ite_eq_right hx', zero_smul]
+  refine (hinj.hasSum_iff hsupp).mp ?_
+  convert hs using 1
+  ext m
+  simp only [Function.comp_apply, hc, Nat.mul_div_cancel_left _ (Nat.pos_of_ne_zero hd)]
+  rw [ite_eq_left (dvd_mul_right d m)]
+
+/-- The diagonal slash preserves the `q`-expansion certificate. -/
+theorem hasSum_qCoeff_slash_heckeDiagMatrix {k : ℤ} {p : ℕ} (hp : p ≠ 0) {f : ℍ → ℂ}
+    (hF : HasQCoeff f) : HasQCoeff (f ∣[k] heckeDiagMatrix p) := by
+  have hG : HasQCoeff (fun τ => f (heckeDiagMatrix p • τ)) :=
+    hasSum_qCoeff_comp_heckeDiagMatrix_smul hp hF
+  have hDG : f ∣[k] heckeDiagMatrix p
+      = ((p : ℂ) ^ (k - 1)) • fun τ => f (heckeDiagMatrix p • τ) := by
+    funext τ
+    rw [slash_heckeDiagMatrix_apply k hp, Pi.smul_apply, smul_eq_mul]
+  rw [hDG]
+  exact hasSum_qCoeff_const_smul hG _
 
 /-- The level-one diagonal degeneration. Stated verbatim from
 `Theorems/Thm_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean`. -/

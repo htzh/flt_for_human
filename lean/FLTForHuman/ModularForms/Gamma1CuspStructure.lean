@@ -25,6 +25,7 @@
 import FLTForHuman.ModularForms.HeckeULevel
 import FLTForHuman.ModularForms.Defs.GammaH
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
+import FLTForHuman.ModularForms.QCoeffClass
 import FLTForHuman.ModularForms.WeightOne.Gamma1IntegralBasis
 import Mathlib.NumberTheory.ModularForms.QExpansion
 

@@ -26,6 +26,7 @@
 -/
 import FLTForHuman.Algebra.LatticeEigenvalues
 import FLTForHuman.ModularForms.HeckePrelude
+import FLTForHuman.ModularForms.QCoeffClass
 import FLTForHuman.ModularForms.HeckeTLinOneQCoeff
 import FLTForHuman.ModularForms.HeckeEigenNebentypus
 import FLTForHuman.ModularForms.WeightOne.Basic
@@ -55,20 +56,21 @@ private theorem cusp_analytic (F : CuspForm (Γ₁ℝ N) 1) :
   analyticAt_cuspFunction_zero one_pos (CuspForm.cusp_periodic F) (CuspForm.cusp_holo F)
     (CuspForm.cusp_bdd F)
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add`. -/
 private theorem qCoeff_add (F G : CuspForm (Γ₁ℝ N) 1) (n : ℕ) :
     qCoeff (⇑(F + G)) n = qCoeff (⇑F) n + qCoeff (⇑G) n := by
-  simpa only [qCoeff, FunLike.coe_add] using
-    ModularFormClass.qCoeff_add (CuspForm.cusp_periodic F) (CuspForm.cusp_holo F)
-      (CuspForm.cusp_bdd F) (CuspForm.cusp_periodic G) (CuspForm.cusp_holo G)
-      (CuspForm.cusp_bdd G) n
+  rw [FunLike.coe_add]
+  exact ModularFormClass.qCoeff_add' (by
+    rw [CongruenceSubgroup.strictPeriods_Gamma1]
+    exact AddSubgroup.mem_zmultiples _) F G n
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul`. -/
 private theorem qCoeff_smul (c : ℂ) (F : CuspForm (Γ₁ℝ N) 1) (n : ℕ) :
     qCoeff (⇑(c • F)) n = c * qCoeff (⇑F) n := by
-  simpa only [qCoeff, FunLike.coe_smul] using
-    ModularFormClass.qCoeff_const_smul (CuspForm.cusp_periodic F) (CuspForm.cusp_holo F)
-      (CuspForm.cusp_bdd F) c n
+  rw [FunLike.coe_smul]
+  exact ModularFormClass.qCoeff_const_smul' (by
+    rw [CongruenceSubgroup.strictPeriods_Gamma1]
+    exact AddSubgroup.mem_zmultiples _) F c n
 
 private def qcLin (N : ℕ) (n : ℕ) : CuspForm (Γ₁ℝ N) 1 →ₗ[ℂ] ℂ where
   toFun F := qCoeff (⇑F) n

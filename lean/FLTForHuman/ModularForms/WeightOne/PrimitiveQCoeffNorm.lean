@@ -1096,51 +1096,32 @@ theorem qCoeff_smul (c : ℂ) (n : ℕ) : qCoeff (c • (⇑F : ℍ → ℂ)) n 
   rw [qCoeff, qCoeff, qExpansion_smul hang, map_smul, smul_eq_mul]
 
 theorem phi_props (hp : p ≠ 0) (c : ℂ) :
-    Periodic (phi k p c ⇑F ∘ ofComplex) 1 ∧
-    MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) (phi k p c ⇑F) ∧
-    IsBoundedAtImInfty (phi k p c ⇑F) ∧
+    HasQCoeff (phi k p c ⇑F) ∧
     ∀ n : ℕ, qCoeff (phi k p c ⇑F) n =
       qCoeff (⇑F) (p * n) + c * (p : ℂ) ^ (k - 1) * (if p ∣ n then qCoeff (⇑F) (n / p) else 0) := by
-  have hFper := cusp_periodic F
-  have hFhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) (⇑F) := F.holo'
-  have hFbdd := cusp_bdd F
-  set U : ℍ → ℂ := heckeU k p (⇑F) with hU
-  set D : ℍ → ℂ := (⇑F : ℍ → ℂ) ∣[k] heckeDiagMatrix p with hD
-  have hUper : Periodic (U ∘ ofComplex) 1 := ModularForm.periodic_heckeU_comp_ofComplex hFper k p
-  have hDT : D ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ ModularGroup.T) = D :=
-    slash_heckeDiagMatrix_slash_T hp (cusp_slash_T_pow F p)
-  have hDper : Periodic (D ∘ ofComplex) 1 := periodic_of_slash_T hDT
-  have hUhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) U :=
-    ModularForm.mdifferentiable_heckeU hFhol k p
-  have hDhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) D :=
-    hFhol.slash k _
-  have hUbdd : IsBoundedAtImInfty U := isBoundedAtImInfty_heckeU hp hFbdd
-  have hDbdd : IsBoundedAtImInfty D := hFbdd.slash k (by simp [val_heckeDiagMatrix hp])
-  have hφ : phi k p c ⇑F = U + c • D := rfl
-  refine ⟨hφ ▸ periodic_add_smul hUper hDper c, hφ ▸ hUhol.add (hDhol.const_smul c),
-    hφ ▸ hUbdd.add (hDbdd.smul c), fun n => ?_⟩
-  have hanU := analyticAt_cuspFunction_zero one_pos hUper hUhol hUbdd
-  have hancD : AnalyticAt ℂ (cuspFunction 1 (c • D)) 0 :=
-    analyticAt_cuspFunction_zero one_pos (periodic_smul hDper c) (hDhol.const_smul c) (hDbdd.smul c)
-  have hanD := analyticAt_cuspFunction_zero one_pos hDper hDhol hDbdd
+  have hF : HasQCoeff (⇑F) := hasSum_qCoeff (cusp_periodic F) F.holo' (cusp_bdd F)
+  have hU : HasQCoeff (heckeU k p ⇑F) := hasSum_qCoeff_heckeU hp hF k
+  have hD : HasQCoeff ((⇑F : ℍ → ℂ) ∣[k] heckeDiagMatrix p) :=
+    hasSum_qCoeff_slash_heckeDiagMatrix (k := k) hp hF
+  have hφ : phi k p c ⇑F = heckeU k p (⇑F) + c • ((⇑F : ℍ → ℂ) ∣[k] heckeDiagMatrix p) := rfl
+  refine ⟨hφ ▸ hasSum_qCoeff_add hU (hasSum_qCoeff_const_smul hD c), fun n => ?_⟩
   set G : ℍ → ℂ := fun τ => F (heckeDiagMatrix p • τ) with hG
-  have hDG : D = ((p : ℂ) ^ (k - 1)) • G := by
+  have hGreg : HasQCoeff G := hasSum_qCoeff_comp_heckeDiagMatrix_smul hp hF
+  have hDG : (⇑F : ℍ → ℂ) ∣[k] heckeDiagMatrix p = ((p : ℂ) ^ (k - 1)) • G := by
     funext τ
-    rw [hD, slash_heckeDiagMatrix_apply k hp, Pi.smul_apply, smul_eq_mul]
-  have hpk : ((p : ℂ) ^ (k - 1)) ≠ 0 := zpow_ne_zero _ (Nat.cast_ne_zero.mpr hp)
-  have hGD : G = ((p : ℂ) ^ (k - 1))⁻¹ • D := by
-    rw [hDG, smul_smul, inv_mul_cancel₀ hpk, one_smul]
-  have hanG : AnalyticAt ℂ (cuspFunction 1 G) 0 := by
-    rw [hGD]
-    exact analyticAt_cuspFunction_zero one_pos (periodic_smul hDper _) (hDhol.const_smul _)
-      (hDbdd.smul _)
-  have hqD : qCoeff D n = (p : ℂ) ^ (k - 1) * (if p ∣ n then qCoeff (⇑F) (n / p) else 0) := by
-    rw [qCoeff, hDG, qExpansion_smul hanG, map_smul, smul_eq_mul]
+    rw [slash_heckeDiagMatrix_apply k hp, Pi.smul_apply, smul_eq_mul]
+  have hqD : qCoeff ((⇑F : ℍ → ℂ) ∣[k] heckeDiagMatrix p) n
+      = (p : ℂ) ^ (k - 1) * (if p ∣ n then qCoeff (⇑F) (n / p) else 0) := by
+    rw [hDG, qCoeff, qExpansion_smul (analyticAt_cuspFunction_zero_of_hasSum_qCoeff hGreg),
+      map_smul, smul_eq_mul]
     congr 1
-    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul hFper hFhol hFbdd hp n
-  have hqU : qCoeff U n = qCoeff (⇑F) (p * n) := by
-    rw [hU, UpperHalfPlane.qCoeff_heckeU hFper hFhol hFbdd k hp n, coeffHeckeU_apply, mul_comm]
-  rw [hφ, qCoeff, qExpansion_add hanU hancD, qExpansion_smul hanD, map_add, map_smul, smul_eq_mul]
+    exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul hF hp n
+  have hqU : qCoeff (heckeU k p ⇑F) n = qCoeff (⇑F) (p * n) := by
+    rw [UpperHalfPlane.qCoeff_heckeU hF k hp n, coeffHeckeU_apply, mul_comm]
+  have hanU := analyticAt_cuspFunction_zero_of_hasSum_qCoeff hU
+  have hanD := analyticAt_cuspFunction_zero_of_hasSum_qCoeff hD
+  have hanφ := analyticAt_cuspFunction_zero_of_hasSum_qCoeff (hasSum_qCoeff_const_smul hD c)
+  rw [hφ, qCoeff, qExpansion_add hanU hanφ, qExpansion_smul hanD, map_add, map_smul, smul_eq_mul]
   have h1 := hqU
   have h2 := hqD
   simp only [qCoeff] at h1 h2 ⊢
@@ -1150,17 +1131,18 @@ theorem phi_eq_smul_of_qCoeff (hp : p ≠ 0) (c lam : ℂ)
     (hrel : ∀ n : ℕ, qCoeff (⇑F) (p * n) + c * (p : ℂ) ^ (k - 1) *
         (if p ∣ n then qCoeff (⇑F) (n / p) else 0) = lam * qCoeff (⇑F) n) :
     phi k p c ⇑F = lam • (⇑F : ℍ → ℂ) := by
-  obtain ⟨hper, hhol, hbdd, hq⟩ := phi_props F hp c
+  obtain ⟨hFφ, hq⟩ := phi_props F hp c
   have hFhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) (⇑F) := F.holo'
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq hper hhol hbdd (periodic_smul (cusp_periodic F) lam)
-    (hFhol.const_smul lam) ((cusp_bdd F).smul lam) (fun n => ?_)
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq hFφ
+    (hasSum_qCoeff (periodic_smul (cusp_periodic F) lam) (hFhol.const_smul lam)
+      ((cusp_bdd F).smul lam)) (fun n => ?_)
   rw [hq n, hrel n, qCoeff_smul]
 
 theorem qCoeff_of_phi_eq_smul (hp : p ≠ 0) (c μ : ℂ) (hfun : phi k p c ⇑F = μ • (⇑F : ℍ → ℂ))
     (n : ℕ) :
     qCoeff (⇑F) (p * n) + c * (p : ℂ) ^ (k - 1) *
         (if p ∣ n then qCoeff (⇑F) (n / p) else 0) = μ * qCoeff (⇑F) n := by
-  obtain ⟨-, -, -, hq⟩ := phi_props F hp c
+  obtain ⟨-, hq⟩ := phi_props F hp c
   rw [← hq n, hfun, qCoeff_smul]
 
 theorem heckeU_eq_smul_of_qCoeff {ℓ : ℕ} (hℓ : ℓ ≠ 0) (a : ℂ)
@@ -1169,10 +1151,11 @@ theorem heckeU_eq_smul_of_qCoeff {ℓ : ℕ} (hℓ : ℓ ≠ 0) (a : ℂ)
   have hFper := cusp_periodic F
   have hFhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) (⇑F) := F.holo'
   have hFbdd := cusp_bdd F
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq (ModularForm.periodic_heckeU_comp_ofComplex hFper k ℓ)
-    (ModularForm.mdifferentiable_heckeU hFhol k ℓ) (isBoundedAtImInfty_heckeU hℓ hFbdd)
-    (periodic_smul hFper a) (hFhol.const_smul a) (hFbdd.smul a) (fun n => ?_)
-  rw [UpperHalfPlane.qCoeff_heckeU hFper hFhol hFbdd k hℓ n, coeffHeckeU_apply, mul_comm n ℓ, ha n,
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq
+    (hasSum_qCoeff (ModularForm.periodic_heckeU_comp_ofComplex hFper k ℓ)
+      (ModularForm.mdifferentiable_heckeU hFhol k ℓ) (isBoundedAtImInfty_heckeU hℓ hFbdd))
+    (hasSum_qCoeff (periodic_smul hFper a) (hFhol.const_smul a) (hFbdd.smul a)) (fun n => ?_)
+  rw [UpperHalfPlane.qCoeff_heckeU (hasSum_qCoeff hFper hFhol hFbdd) k hℓ n, coeffHeckeU_apply, mul_comm n ℓ, ha n,
     qCoeff_smul]
 
 end Phi

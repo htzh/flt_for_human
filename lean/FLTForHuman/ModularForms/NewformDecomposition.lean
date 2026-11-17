@@ -43,6 +43,7 @@ import FLTForHuman.ModularForms.HeckeULevel
 import FLTForHuman.ModularForms.HeckePrelude
 import FLTForHuman.ModularForms.QCoeff
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
+import FLTForHuman.ModularForms.QCoeffClass
 import Mathlib.NumberTheory.DirichletCharacter.Orthogonality
 import Mathlib.NumberTheory.LSeries.PrimesInAP
 import Mathlib.NumberTheory.ModularForms.QExpansion
@@ -1104,8 +1105,9 @@ theorem analytic (f : CuspForm (Γ₁ℝ L) k) : AnalyticAt ℂ (cuspFunction 1 
 
 theorem eq_of_qCoeff_eq (f₁ f₂ : CuspForm (Γ₁ℝ L) k) (h : ∀ n : ℕ, qCoeff f₁ n = qCoeff f₂ n) :
     f₁ = f₂ :=
-  DFunLike.ext' (UpperHalfPlane.eq_of_forall_qCoeff_eq (periodic f₁) f₁.holo' (bdd f₁)
-    (periodic f₂) f₂.holo' (bdd f₂) h)
+  DFunLike.ext' (UpperHalfPlane.eq_of_forall_qCoeff_eq
+    (hasSum_qCoeff (periodic f₁) f₁.holo' (bdd f₁))
+    (hasSum_qCoeff (periodic f₂) f₂.holo' (bdd f₂)) h)
 
 theorem qCoeff_zero_fun (n : ℕ) : qCoeff (0 : ℍ → ℂ) n = 0 := by
   rw [qCoeff, UpperHalfPlane.qExpansion_zero, map_zero]

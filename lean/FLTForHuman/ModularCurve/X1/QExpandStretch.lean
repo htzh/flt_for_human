@@ -141,8 +141,8 @@ private theorem qCoeff_stretch (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
     ModularFormClass.qCoeff (⇑(stretch hΓ' hℓ f)) n
       = if ℓ ∣ n then ModularFormClass.qCoeff (⇑f) (n / ℓ) else 0 := by
   rw [coe_stretch]
-  exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (periodic_comp_ofComplex hT f) f.holo'
-    (ModularFormClass.bdd_at_infty f) hℓ n
+  exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul
+    (hasSum_qCoeff (periodic_comp_ofComplex hT f) f.holo' (ModularFormClass.bdd_at_infty f)) hℓ n
 
 def expandPS (ℓ : ℕ) (p : PowerSeries ℤ) : PowerSeries ℤ :=
   PowerSeries.mk fun n => if ℓ ∣ n then PowerSeries.coeff (n / ℓ) p else 0

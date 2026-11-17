@@ -700,8 +700,8 @@ theorem qCoeff_stretch [IsLevel Γ] (hℓ : ℓ ≠ 0) (f : ModularForm GL↑(Γ
       = if ℓ ∣ n then ModularFormClass.qCoeff (⇑f) (n / ℓ) else 0 := by
   rw [coe_stretch]
   exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul
-    (SlashInvariantFormClass.periodic_comp_ofComplex f one_mem_strictPeriods) f.holo'
-    (ModularFormClass.bdd_at_infty f) hℓ n
+    (hasSum_qCoeff (SlashInvariantFormClass.periodic_comp_ofComplex f one_mem_strictPeriods)
+      f.holo' (ModularFormClass.bdd_at_infty f)) hℓ n
 
 omit [Γ.FiniteIndex] in
 

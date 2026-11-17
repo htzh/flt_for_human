@@ -45,6 +45,7 @@ import FLTForHuman.ModularForms.HeckeULevel
 import FLTForHuman.ModularForms.Defs.GammaH
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import FLTForHuman.ModularForms.Defs.HeckeOperator
+import FLTForHuman.ModularForms.QCoeffClass
 import Mathlib.LinearAlgebra.Basis.Basic
 import Mathlib.NumberTheory.DirichletCharacter.Orthogonality
 import Mathlib.Tactic

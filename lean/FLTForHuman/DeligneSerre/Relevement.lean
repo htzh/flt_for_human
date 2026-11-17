@@ -31,6 +31,7 @@ import FLTForHuman.ModularForms.HeckeQCoeff
 import FLTForHuman.ModularForms.HeckePrelude
 import FLTForHuman.ModularForms.HeckeTLinOneQCoeff
 import FLTForHuman.ModularForms.HeckeNebentypus
+import FLTForHuman.ModularForms.QCoeffClass
 import FLTForHuman.ModularForms.WeightOne.Basic
 import FLTForHuman.Algebra.FaithfulLatticeEigenvector
 import Mathlib.LinearAlgebra.Eigenspace.Triangularizable
@@ -72,21 +73,21 @@ private noncomputable def qCoeffLin (N : ℕ) (k : ℤ) (n : ℕ) : CuspForm (Ga
 
 private theorem qCoeffLin_apply (n : ℕ) (f : CuspForm (Gamma1 N) k) : qCoeffLin N k n f = qCoeff f n := rfl
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'`. -/
 private theorem qCoeff_add' (f g : CuspForm (Gamma1 N) k) (n : ℕ) :
     qCoeff (⇑(f + g)) n = qCoeff f n + qCoeff g n := by
   simpa only [qCoeff, FunLike.coe_add] using
     ModularFormClass.qCoeff_add' (Γ := CongruenceSubgroup.Gamma1 N)
       (one_mem_strictPeriods N) f g n
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'`. -/
 private theorem qCoeff_smul' (c : ℂ) (f : CuspForm (Gamma1 N) k) (n : ℕ) :
     qCoeff (⇑(c • f)) n = c * qCoeff f n := by
   simpa only [qCoeff, FunLike.coe_smul] using
     ModularFormClass.qCoeff_const_smul' (Γ := CongruenceSubgroup.Gamma1 N)
       (one_mem_strictPeriods N) f c n
 
-/-- The concrete-spelling copy of `ModularFormClass.qCoeff_sub'` (`HeckeQCoeff`). -/
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_sub'`. -/
 private theorem qCoeff_sub' (f g : CuspForm (Gamma1 N) k) (n : ℕ) :
     qCoeff (⇑(f - g)) n = qCoeff f n - qCoeff g n := by
   simpa only [qCoeff, FunLike.coe_sub] using
