@@ -49,6 +49,14 @@ the comparison is on the statement, not on the name.  In order:
                         dropped → promoted key → `kw_` strip → content hash
                         anywhere in the wire → mismatch / missing
 
+Every tier is gated on the statement, never on the name alone, and the one
+allowance is binder spelling: a copy matches when its `nhash` is equal or when
+`alpha_stmt` makes the two signatures identical.  `alpha_stmt` renames each
+binder by its argument position, so the pin's `hN` and the port's `_hN` or `_` at
+the same position read the same — a façade may leave a hypothesis unnamed.  A
+statement that differs in a binder's *type* or in the conclusion still mismatches,
+so the allowance cannot pass off a drifted statement.
+
 The **part-label** tier is the pin's half of the port's naming policy: its `S_` files tag
 declarations with the section they were generated from (`p0n20_rr_*`, `p0n21_rtk_*`,
 `p0n22_cpf_*`, `p0n25_wkc_*`) and the port drops that label from the name.  The checker
@@ -165,6 +173,85 @@ def norm_name(raw: str) -> str:
     return raw.rsplit(".", 1)[-1]
 
 
+# ---------------------------------------------------------------- alpha form
+# A binder introduces a name just before its `:`: `(x : T)`, `{x : T}`, `[x : T]`,
+# `∀ x : T`, `∃ x : T`, and the multi-name spellings `(x y : T)` / `∀ x y : T`.
+BINDER = re.compile(
+    r"(?:[\(\[\{]|∀|∃)(?P<names>\s*[^\s:()\[\]{}∀∃,]+(?:\s+[^\s:()\[\]{}∀∃,]+)*)\s*:"
+)
+
+
+def alpha_norm(stmt: str) -> str:
+    """`stmt` with every binder renamed to `v<i>`, by binder position.
+
+    Two statements that differ only in binder names become the same string, so a
+    port may spell a hypothesis `hN`, `_hN` or `_` and still verify against the
+    pin's `hN`.  Positional numbering is what makes the anonymous spelling work:
+    the pin's `N`, `k`, `hN`, `hk`, `S` and the port's `_`, `_` at the same
+    positions get the same names.  A name that cannot be referenced (`_`,
+    `_hN`) is rewritten in its binder only; a real name is also rewritten at
+    every later occurrence, which is the alpha-renaming itself.
+    """
+    if ":" not in stmt:
+        return stmt
+    renames: dict[str, str] = {}
+    out: list[str] = []
+    prev = 0
+    i = 0
+    for m in BINDER.finditer(stmt):
+        out.append(stmt[prev:m.start("names")])
+        canon = []
+        for raw in m.group("names").split():
+            key = f"v{i}"
+            i += 1
+            if not raw.startswith("_"):
+                renames.setdefault(raw, key)
+            canon.append(key)
+        out.append(" " + " ".join(canon))
+        prev = m.end("names")
+    out.append(stmt[prev:])
+    text = "".join(out)
+    if renames:
+        pat = re.compile(
+            r"(?<![\w'.])(?:"
+            + "|".join(sorted(map(re.escape, renames), key=len, reverse=True))
+            + r")(?![\w'ₐ-ₜ])"
+        )
+        text = pat.sub(lambda mm: renames[mm.group(0)], text)
+    return text
+
+
+DECL_HEAD = re.compile(
+    r"^(?:(?:private|protected|noncomputable|scoped|nonrec|unsafe)\s+)*"
+    r"(?:@\[[^\]]*\]\s*)*"
+    r"(?:theorem|lemma|def|abbrev|instance|structure|class|inductive|opaque|axiom)"
+    r"\s+[^\s:]+"
+)
+
+
+def alpha_stmt(text: str) -> str:
+    """`alpha_norm` of a stored signature, without its `kind name` head.
+
+    The corpus keeps the head (`theorem CuspForm.foo …`) and the port's parser
+    drops it (`{N : ℕ} … : Module.Finite …`), so the head is stripped on both
+    sides before the comparison.
+    """
+    return alpha_norm(DECL_HEAD.sub("", text).strip())
+
+
+def same_stmt(c: dict, row: dict) -> bool:
+    """Whether a pin copy `c` and the port `row` state the same thing.
+
+    The corpus `nhash` decides when it can — it is exact and cheap.  Otherwise
+    the two signatures are compared up to alpha-renaming of binders, so a
+    hypothesis the port deliberately leaves unnamed still verifies.
+    """
+    if c.get("nhash") == row.get("nhash"):
+        return True
+    sig, stmt = c.get("sig"), row.get("stmt")
+    return bool(sig and stmt and alpha_stmt(sig) == alpha_stmt(stmt))
+
+
 def module_sources(text: str) -> list[str] | None:
     """The `spec-pin:` files of a module, in order; None when it is not wired."""
     head = HEADER.match(text)
@@ -251,9 +338,9 @@ def same_kind(a: str, b: str) -> bool:
     return P.same_kind(a, b)
 
 
-def pick(cands: list[dict], kind: str, h: str) -> dict | None:
+def pick(cands: list[dict], kind: str, row: dict) -> dict | None:
     for c in cands or ():
-        if same_kind(kind, c["kind"]) and c["nhash"] == h:
+        if same_kind(kind, c["kind"]) and same_stmt(c, row):
             return c
     return None
 
@@ -263,7 +350,7 @@ def check_decl(row: dict, wire: Wire, db, marker, effective: list[str]) -> dict:
     kind, h, last = row["kind"], row["nhash"], row["last"]
     name = row["name"]
     if marker and marker[0] == "own":
-        c = pick(wire.by_hash.get(h), kind, h)
+        c = pick(wire.by_hash.get(h), kind, row)
         note = marker[1]["reason"]
         if c:
             note += (f" — but the wire has an identical statement at "
@@ -283,7 +370,7 @@ def check_decl(row: dict, wire: Wire, db, marker, effective: list[str]) -> dict:
             pool = [r for r in wire.rows if r["rel"] == mk["file"]]
         cands = [r for r in pool
                  if r["name"] == mk["name"] or r["last"] == norm_name(mk["name"])]
-        c = pick(cands, kind, h)
+        c = pick(cands, kind, row)
         if c:
             return hit(c, "marker")
         if cands:
@@ -292,26 +379,26 @@ def check_decl(row: dict, wire: Wire, db, marker, effective: list[str]) -> dict:
                 "note": f"no {mk['name']} in {mk.get('file') or 'the wire'}"}
 
     # 2. the checker's name tiers, then content
-    c = pick(wire.by_last.get(last), kind, h)
+    c = pick(wire.by_last.get(last), kind, row)
     if c:
         return hit(c, "direct name")
     if strip_part_label(last) is None:
-        c = pick(wire.by_part.get(last), kind, h)
+        c = pick(wire.by_part.get(last), kind, row)
         if c:
             return hit(c, "part label dropped")
     if strip_stage_label(last) is None:
-        c = pick(wire.by_stage.get(last), kind, h)
+        c = pick(wire.by_stage.get(last), kind, row)
         if c:
             return hit(c, "stage label dropped")
-    c = pick(wire.by_key.get(P.promoted_key(name)), kind, h)
+    c = pick(wire.by_key.get(P.promoted_key(name)), kind, row)
     if c:
         return hit(c, "promoted key")
     stripped = P.strip_pin_prefix(last)
     if stripped:
-        c = pick(wire.by_strip.get(stripped), kind, h)
+        c = pick(wire.by_strip.get(stripped), kind, row)
         if c:
             return hit(c, "prefix-stripped")
-    c = pick(wire.by_hash.get(h), kind, h)
+    c = pick(wire.by_hash.get(h), kind, row)
     if c:
         return hit(c, "content")
 

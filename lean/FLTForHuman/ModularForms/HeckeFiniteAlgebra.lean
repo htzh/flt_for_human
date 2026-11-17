@@ -56,13 +56,13 @@ theorem HasIntegralStructure.eq_zero_of_forall_mem_intLattice {N : ℕ} {k : ℤ
 
 /-- Full rank makes the Hecke algebra finite over `ℤ` (it is finite in every weight). -/
 theorem HasIntegralStructure.moduleFinite_heckeAlgebra {N : ℕ} [NeZero N] {k : ℤ}
-    (hN : CuspForm.HasIntegralStructure N k) (hk : 1 ≤ k) (S : Set ℕ) :
+    (_ : CuspForm.HasIntegralStructure N k) (_ : 1 ≤ k) (S : Set ℕ) :
     Module.Finite ℤ (CuspForm.heckeAlgebra N k S) :=
   _root_.CuspForm.moduleFinite_heckeAlgebra N k S
 
 /-- Full rank makes the Hecke algebra free over `ℤ` (it is free in every weight). -/
 theorem HasIntegralStructure.moduleFree_heckeAlgebra {N : ℕ} [NeZero N] {k : ℤ}
-    (hN : CuspForm.HasIntegralStructure N k) (hk : 1 ≤ k) (S : Set ℕ) :
+    (_ : CuspForm.HasIntegralStructure N k) (_ : 1 ≤ k) (S : Set ℕ) :
     Module.Free ℤ (CuspForm.heckeAlgebra N k S) :=
   _root_.CuspForm.moduleFree_heckeAlgebra N k S
 
@@ -79,7 +79,7 @@ theorem fg_toSubmodule_heckeAlgebra (N : ℕ) [NeZero N] (S : Set ℕ) :
 /-- The eigenvector for a Hecke character (no hypothesis is needed: the lattice spans
 the space in every weight). -/
 theorem HasIntegralStructure.exists_ne_zero_forall_apply_eq_smul {N : ℕ} [NeZero N] {k : ℤ}
-    (hN : CuspForm.HasIntegralStructure N k) (hk : 1 ≤ k) {S : Set ℕ}
+    (_ : CuspForm.HasIntegralStructure N k) (_ : 1 ≤ k) {S : Set ℕ}
     (χ : CuspForm.heckeAlgebra N k S →+* ℂ) :
     ∃ f : CuspForm (CongruenceSubgroup.Gamma0 N) k, f ≠ 0 ∧
       ∀ t : CuspForm.heckeAlgebra N k S,
@@ -88,7 +88,7 @@ theorem HasIntegralStructure.exists_ne_zero_forall_apply_eq_smul {N : ℕ} [NeZe
 
 /-- The character's eigenvalue system is a normalised eigenform. -/
 theorem HasIntegralStructure.exists_isNormalizedEigenform_qCoeff_eq {N : ℕ} [NeZero N]
-    (hN : CuspForm.HasIntegralStructure N 2) {S : Set ℕ}
+    (_ : CuspForm.HasIntegralStructure N 2) {S : Set ℕ}
     (χ : CuspForm.heckeAlgebra N 2 S →+* ℂ) :
     ∃ f : CuspForm (CongruenceSubgroup.Gamma0 N) 2, f.IsNormalizedEigenform ∧
       (∀ (ℓ : ℕ) (hℓ : ℓ.Prime) (hℓN : ¬ ℓ ∣ N) (hℓS : ℓ ∉ S),
