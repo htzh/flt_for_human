@@ -2,35 +2,11 @@
   The Hecke operators on `q`-coefficients: `U_p`, `T_p`, the diagonal dilation and
   the coefficient algebra.
 
-  FLT states the `q`-coefficient theory in **four** 353-line `S_` files
-  (`S_UpperHalfPlane_qCoeff_hecke{U,T}.lean`,
-  `S_ModularFormClass_qCoeff_hecke{U,T}.lean`). Their first 154 lines are the
-  analytic head already ported once in `HeckeAnalytic.lean`; their tail (pin lines
-  156–345: `qExpansion_coeff_unique_of_hasSum`, `hasSum_qCoeff`, `qParam_*`,
-  `sum_rootOfUnity_pow`, `hasSum_average`/`hasSum_diag`, `hasSum_heckeU/T`,
-  `qCoeff_heckeU/T_bare/class`) is byte-identical across the four. The tail is
-  written once, its Hecke-free head in `ModularForms/QCoeff`, and the Hecke part
-  here lands the public targets verbatim from their `Theorems/` wrappers (pinned
-  `aa2d8b3`):
-
-  - `UpperHalfPlane.qCoeff_heckeU`, `…qCoeff_heckeT`;
-  - `ModularFormClass.qCoeff_heckeU`, `…qCoeff_heckeT`;
-  - `UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul`,
-    `ModularFormClass.qCoeff_comp_heckeDiagMatrix_smul` (the dilation pair, whose
-    120-line pin blocks are also identical — ported once);
-  - `ModularFormClass.qExpansion_heckeU_eq_heckeU`, `…qExpansion_heckeT_eq_heckeT`;
-  - `ModularForm.qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne`;
-  - the coefficient algebra `ModularForm.coeffHecke{T,U}_comm`,
-    `…coeffHeckeT_coeffHeckeU_comm`, `…coeffHecke{T,U}_int`.
-
-  The eigenform interface (`coeffHecke_eigenvalue_*`, `IsNormalizedEigenform`) is
-  SET 4 and is **not** ported.
-
   Each operator carries one presentation (`hasSum_average` for `U_p`, the dilation
   `d • τ` for the diagonal translate, and their sum for `T_p`), and every public
   statement is that presentation read through one of two eliminators
-  (`ModularForms/QCoeff`): `qCoeff_eq_of_hasSum` for a coefficient identity,
-  `hasQCoeff_of_hasSum` for a certificate.
+  `qCoeff_eq_of_hasSum` for a coefficient identity, `hasQCoeff_of_hasSum` for a
+  certificate.
 
   Two shape notes. `UpperHalfPlane.qExpansion_coeff_unique` in mathlib `v4.34.0`
   is stated over `{F : Type*} [FunLike F ℍ ℂ]`; instantiating it at the bare
@@ -38,22 +14,7 @@
   `qExpansion_coeff_unique_of_hasSum` is that statement at the bare type, reading the
   analyticity at the cusp off the presentation. And
   `ModularForm.qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne`
-  is proved here coefficientwise through `qCoeff_eq_of_hasSum` rather than
-  through the pin's `ModularForm.exists_degeneracy_Gamma0` +
-  `ModularCurve.laurent_qParam_coeff_unique`, neither of which the port has; the
-  statement is unchanged.
-
-  FLT provenance: `P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean` lines 156–345 (the
-  shared tail), the four sibling `qCoeff` files, the two
-  `qCoeff_comp_heckeDiagMatrix_smul` files (120 lines each),
-  `S_ModularFormClass_qExpansion_hecke{U,T}_eq_hecke{T,U}.lean`,
-  `S_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean`, the five coefficient-algebra
-  files and `S_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean`.
-
-  The pin statements of the three function-level coefficient identities are port-owned
-  (`topics/TOPIC-interface-changes.md` Entry 1); every pin of this module is parked in
-  `Reserve/ModularForms/PortOwnedSpecPins.lean`.
-
+  is proved here coefficientwise through `qCoeff_eq_of_hasSum`.
 -/
 import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.NumberTheory.ModularForms.BoundedAtCusp
@@ -77,10 +38,7 @@ open scoped Real MatrixGroups ModularForm Manifold Topology
 
 open ModularForm ModularFormClass
 
-/-! ## The shared tail (private)
-
-The four pin files' identical tail, written once. The statements use the pin's
-`MDiff` (`open scoped Manifold`) and explicit binders. -/
+/-! ## The shared tail (private) -/
 
 private theorem qParam_one (z : ℂ) : Periodic.qParam 1 z = exp (2 * π * I * z) := by
   simp [Periodic.qParam]
@@ -203,22 +161,16 @@ private theorem hasQCoeffWith_heckeT {p : ℕ} (hp : p ≠ 0) {f : ℍ → ℂ} 
   exact (hasSum_average hp hF k).add
     ((hasQCoeffWith_comp_heckeDiagMatrix_smul hp hF).const_smul ((p : ℂ) ^ (k - 1)))
 
-/-! ## The public targets (verbatim from their wrappers)
+/-! ## The public targets
 
 The declarations are written with their **dotted** wrapper names (`theorem
-UpperHalfPlane.qCoeff_heckeU …`, not inside the namespace). The checker matches
-declarations by last name, and the same last name occurs in both the
-`UpperHalfPlane` and the `ModularFormClass` wrapper; the dotted spelling routes
-each copy through the checker's dotted fallback (the pin wrappers are themselves
-dotted), so no `SOURCES` ordering can flip one onto the other. -/
+UpperHalfPlane.qCoeff_heckeU …`, not inside the namespace).  -/
 
-/-- `U_p` acts on `q`-coefficients through `coeffHeckeU`. Stated verbatim from
-`Theorems/Thm_UpperHalfPlane_qCoeff_heckeU.lean`. -/
+/-- `U_p` acts on `q`-coefficients through `coeffHeckeU`.  -/
 theorem UpperHalfPlane.qCoeff_heckeU {f : UpperHalfPlane → ℂ} (hF : HasQCoeff f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeU k p f) n = ModularForm.coeffHeckeU p (ModularFormClass.qCoeff f) n :=
   qCoeff_eq_of_hasSum (hasSum_average hp hF k) n
 
-/-- `T_p` acts on `q`-coefficients through `coeffHeckeT`. Stated verbatim from
-`Theorems/Thm_UpperHalfPlane_qCoeff_heckeT.lean`. -/
+/-- `T_p` acts on `q`-coefficients through `coeffHeckeT`.  -/
 theorem UpperHalfPlane.qCoeff_heckeT {f : UpperHalfPlane → ℂ} (hF : HasQCoeff f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeT k p f) n = ModularForm.coeffHeckeT k p (ModularFormClass.qCoeff f) n :=
   qCoeff_eq_of_hasSum (hasQCoeffWith_heckeT hp hF k) n
 
@@ -232,23 +184,16 @@ theorem hasSum_qCoeff_heckeT {p : ℕ} (hp : p ≠ 0) {f : ℍ → ℂ} (hF : Ha
     HasQCoeff (heckeT k p f) :=
   hasQCoeff_of_hasSum (hasQCoeffWith_heckeT hp hF k)
 
-/-- The diagonal translate scales the `q`-parameter by `d`. Stated verbatim from
-`Theorems/Thm_UpperHalfPlane_qCoeff_comp_heckeDiagMatrix_smul.lean`. -/
+/-- The diagonal translate scales the `q`-parameter by `d`.  -/
 theorem UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul {f : UpperHalfPlane → ℂ} (hF : HasQCoeff f) {d : ℕ} (hd : d ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (fun τ ↦ f (ModularForm.heckeDiagMatrix d • τ)) n = if d ∣ n then ModularFormClass.qCoeff f (n / d) else 0 :=
   qCoeff_eq_of_hasSum (hasQCoeffWith_comp_heckeDiagMatrix_smul hd hF) n
 
 /-! ### The `q`-coefficient algebra
 
 `qCoeff` is additive and `ℂ`-linear on the periodic-holomorphic-bounded
-functions.  The pin re-proves these three `private` in every `S_` file that
-manipulates coefficients (the oldform pair's `M4bOld`, `Relevement`'s `CoefficientRing`
-prelude, the `T`-side `FrobChareqC2` block, ...), and the port had grown eight
-copies over six modules.  They are stated once here, at the pin's binders; the
-proof is mathlib's `qExpansion_add`/`qExpansion_sub`/`qExpansion_smul` with the
-cusp-function analyticity supplied by `analyticAt_cuspFunction_zero`. -/
+functions.  -/
 
-/-! The bundled spellings, over any `ModularFormClass` — the pin's `CuspForm (Gamma0 N) k`,
-`CuspForm (Gamma1 N) k`, `S2 N` and `Γ₁ℝ N` copies all instantiate these.  Like mathlib's
+/-! The bundled spellings, over any `ModularFormClass`.  Like mathlib's
 protected `ModularForm.qExpansion_{add,sub,smul}`, the addition is written at the function
 type: that is what `qCoeff` consumes, and it needs no `Add`/`Sub`/`SMul` on the form type. -/
 
@@ -349,9 +294,7 @@ namespace ModularForm
 
 The pin states the degeneration for a level-one form. That is the case `f := ⇑F` of
 `UpperHalfPlane.qExpansion_heckeDiagMatrix_smul_eq_qExpand`, and all `𝒮ℒ` supplies is
-`1 ∈ 𝒮ℒ.strictPeriods`: the width one that `HasQCoeff` already carries. The pin itself
-routes through `ModularForm.exists_degeneracy_Gamma0` and
-`ModularCurve.laurent_qParam_coeff_unique`, neither of which the port has. -/
+`1 ∈ 𝒮ℒ.strictPeriods`: the width one that `HasQCoeff` already carries.  -/
 
 /-- The level-one diagonal degeneration. Stated verbatim from
 `Theorems/Thm_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean`. -/

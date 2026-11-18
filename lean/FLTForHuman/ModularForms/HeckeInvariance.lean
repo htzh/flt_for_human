@@ -95,22 +95,19 @@ private theorem heckeU_slash_mapGL_of_sq_dvd {N : ℕ} (k : ℤ) {p : ℕ} [NeZe
   have hcNp : ((N / p : ℕ) : ℤ) ∣ g 1 0 :=
     (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp (CongruenceSubgroup.Gamma0_mem.mp hg)
   have hc : (p : ℤ) ∣ g 1 0 := (Int.natCast_dvd_natCast.mpr hpNp).trans hcNp
+  have hc0 : ((g 1 0 : ℤ) : ZMod p) = 0 := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr hc
   rw [heckeU_eq_sum_zmod k f, SlashAction.sum_slash]
   calc ∑ x : ZMod p, (f ∣[k] heckeMatrix p x.val) ∣[k] mapGL ℝ g
-      = ∑ x : ZMod p, f ∣[k] heckeMatrix p
-          (affinePerm g ((ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr hc) x).val := by
+      = ∑ x : ZMod p, f ∣[k] heckeMatrix p (affinePerm g hc0 x).val := by
         refine Finset.sum_congr rfl fun x _ ↦ ?_
-        obtain ⟨g', hg', hmul⟩ := heckeMatrix_mul_of_dvd g hc x
-        have hg'N : g' ∈ CongruenceSubgroup.Gamma0 N := by
-          rw [CongruenceSubgroup.Gamma0_mem, ZMod.intCast_zmod_eq_zero_iff_dvd, hg']
-          have hN : (N : ℤ) = (p : ℤ) * ((N / p : ℕ) : ℤ) := by
-            rw [← Nat.cast_mul, Nat.mul_div_cancel' hpN]
-          rw [hN]
-          exact mul_dvd_mul_left (p : ℤ) hcNp
+        obtain ⟨g', hg', hmul⟩ := heckeMatrix_mul_of_dvd g (N / p) hpNp hcNp x
+        rw [Nat.mul_div_cancel' hpN] at hg'
+        have hx : affinePerm g hc0 x = affineMap g x := rfl
+        rw [← hx] at hmul
         rw [← SlashAction.slash_mul, hmul, SlashAction.slash_mul,
-          hf _ (Subgroup.mem_map_of_mem (mapGL ℝ) hg'N)]
+          hf _ (Subgroup.mem_map_of_mem (mapGL ℝ) hg')]
     _ = ∑ x : ZMod p, f ∣[k] heckeMatrix p x.val :=
-        Equiv.sum_comp (affinePerm g _) (fun x ↦ f ∣[k] heckeMatrix p x.val)
+        Equiv.sum_comp (affinePerm g hc0) (fun x ↦ f ∣[k] heckeMatrix p x.val)
 
 /-- `U_p` is invariant under `Γ₀(N/p)` when `p² ∣ N` and `f` is invariant under
 `Γ₀(N)`. Stated verbatim from
