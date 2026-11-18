@@ -188,6 +188,21 @@ theorem hasSum_qCoeff_heckeT {p : ℕ} (hp : p ≠ 0) {f : ℍ → ℂ} (hF : Ha
 theorem UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul {f : UpperHalfPlane → ℂ} (hF : HasQCoeff f) {d : ℕ} (hd : d ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (fun τ ↦ f (ModularForm.heckeDiagMatrix d • τ)) n = if d ∣ n then ModularFormClass.qCoeff f (n / d) else 0 :=
   qCoeff_eq_of_hasSum (hasQCoeffWith_comp_heckeDiagMatrix_smul hd hF) n
 
+/-- The diagonal translate preserves the `q`-expansion certificate. -/
+theorem hasSum_qCoeff_comp_heckeDiagMatrix_smul {d : ℕ} (hd : d ≠ 0) {f : ℍ → ℂ}
+    (hF : HasQCoeff f) : HasQCoeff (fun τ ↦ f (heckeDiagMatrix d • τ)) :=
+  hasQCoeff_of_hasSum (hasQCoeffWith_comp_heckeDiagMatrix_smul hd hF)
+
+/-- The diagonal slash preserves the `q`-expansion certificate. -/
+theorem hasSum_qCoeff_slash_heckeDiagMatrix {k : ℤ} {p : ℕ} (hp : p ≠ 0) {f : ℍ → ℂ}
+    (hF : HasQCoeff f) : HasQCoeff (f ∣[k] heckeDiagMatrix p) := by
+  have hDG : f ∣[k] heckeDiagMatrix p
+      = ((p : ℂ) ^ (k - 1)) • fun τ => f (heckeDiagMatrix p • τ) := by
+    funext τ
+    rw [slash_heckeDiagMatrix_apply k hp, Pi.smul_apply, smul_eq_mul]
+  rw [hDG]
+  exact hasSum_qCoeff_const_smul (hasSum_qCoeff_comp_heckeDiagMatrix_smul hp hF) _
+
 /-! ### The `q`-coefficient algebra
 
 `qCoeff` is additive and `ℂ`-linear on the periodic-holomorphic-bounded

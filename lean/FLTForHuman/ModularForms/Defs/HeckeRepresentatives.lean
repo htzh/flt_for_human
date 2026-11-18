@@ -548,85 +548,17 @@ end Gamma1Hecke
 -- `Gamma1Hecke.heckeRep_mul`.
 namespace HeckeGamma1
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : g ∈ CongruenceSubgroup.Gamma1 N)
     (x : OnePoint (ZMod p)) :
     ∃ g' : SL(2, ℤ), (N : ℤ) ∣ g' 1 0 ∧
       ((g' 1 1 : ℤ) : ZMod N) * wt N p x = wt N p (redMatrix p g • x) ∧
       heckeRep p x * mapGL ℝ g = mapGL ℝ g' * heckeRep p (redMatrix p g • x) := by
-  have hp : p ≠ 0 := (Fact.out : p.Prime).ne_zero
-  obtain ⟨hgA, hgD, hgC⟩ := (CongruenceSubgroup.Gamma1_mem N g).mp hg
-  have hgN : (N : ℤ) ∣ g 1 0 := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp (by simpa using hgC)
-  have hgD' : ((g 1 1 : ℤ) : ZMod N) = 1 := by simpa using hgD
-  have hgC' : ((g 1 0 : ℤ) : ZMod N) = 0 := by simpa using hgC
-  induction x using OnePoint.rec with
-  | infty =>
-    rw [OnePoint.smul_infty_eq_ite]
-    by_cases hc : ((g 1 0 : ℤ) : ZMod p) = 0
-    ·
-      rw [ite_eq_left (by simpa using hc), heckeRep_infty]
-      obtain ⟨e, he⟩ := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hc
-      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq' hp g e he
-      refine ⟨g', ?_, ?_, hmul⟩
-      · rw [hg']
-        have hcop : IsCoprime (N : ℤ) (p : ℤ) :=
-          Nat.isCoprime_iff_coprime.mpr ((Nat.Prime.coprime_iff_not_dvd Fact.out).mpr hpN).symm
-        exact hcop.dvd_of_dvd_mul_left (he ▸ hgN)
-      · rw [hd', hgD', wt_infty, one_mul]
-    ·
-      rw [ite_eq_right (by simpa using hc), heckeRep_infty, heckeRep_coe]
-      set y : ZMod p := redMatrix p g 0 0 / redMatrix p g 1 0
-        with hy
-      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 1 1 - g 1 0 * y.val := by
-        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-        push_cast
-        rw [ZMod.natCast_zmod_val, hy, redMatrix_apply_zero_zero, redMatrix_apply_one_zero,
-          mul_div_cancel₀ _ hc, sub_self]
-      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq hp g y.val e (by linear_combination he)
-      refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
-      rw [hd', wt_infty, wt_coe]
-      have : ((g 1 1 : ℤ) : ZMod N) = ((g 1 0 : ℤ) : ZMod N) * (y.val : ℤ) + (p : ℤ) * e := by
-        have := congrArg (Int.cast : ℤ → ZMod N) (show g 1 1 = g 1 0 * y.val + p * e by linear_combination he)
-        push_cast at this ⊢
-        exact this
-      rw [hgD', hgC', zero_mul, zero_add] at this
-      push_cast at this
-      rw [mul_comm]
-      exact this.symm
-  | coe j =>
-    rw [OnePoint.smul_some_eq_ite]
-    by_cases h : redMatrix p g 1 0 * j + redMatrix p g 1 1 = 0
-    ·
-      rw [ite_eq_left h, heckeRep_infty, heckeRep_coe]
-      rw [redMatrix_apply_one_zero, redMatrix_apply_one_one] at h
-      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 0 0 + j.val * g 1 0 := by
-        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-        push_cast
-        rw [ZMod.natCast_zmod_val]
-        linear_combination h
-      obtain ⟨g', hg', hd', hmul⟩ := heckeMatrix_mul_of_eq' hp g j.val e he
-      refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
-      rw [hd', wt_infty, wt_coe, mul_one]
-      push_cast
-      rw [hgD', mul_one]
-    ·
-      rw [ite_eq_right h, heckeRep_coe, heckeRep_coe]
-      set y : ZMod p := (redMatrix p g 0 0 * j + redMatrix p g 0 1) /
-        (redMatrix p g 1 0 * j + redMatrix p g 1 1) with hy
-      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 0 1 + j.val * g 1 1 - y.val * (g 0 0 + j.val * g 1 0) := by
-        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-        push_cast
-        rw [ZMod.natCast_zmod_val, ZMod.natCast_zmod_val,
-          show ((g 0 0 : ℤ) : ZMod p) + j * ((g 1 0 : ℤ) : ZMod p)
-            = redMatrix p g 1 0 * j + redMatrix p g 1 1 by
-              rw [redMatrix_apply_one_zero, redMatrix_apply_one_one]; ring,
-          hy, div_mul_cancel₀ _ h, redMatrix_apply_zero_zero, redMatrix_apply_zero_one]
-        ring
-      obtain ⟨g', hg', hd', hmul⟩ := heckeMatrix_mul_of_eq hp g j.val y.val e (by linear_combination he)
-      refine ⟨g', hg' ▸ dvd_mul_of_dvd_right hgN _, ?_, hmul⟩
-      rw [hd', wt_coe, wt_coe, mul_one]
-      push_cast
-      rw [hgD', hgC', zero_mul, sub_zero]
+  have hd : ((g 1 1 : ℤ) : ZMod N) = 1 := by
+    simpa using ((CongruenceSubgroup.Gamma1_mem N g).mp hg).2.1
+  obtain ⟨g', hg', hd', hmul⟩ :=
+    Gamma1Hecke.heckeRep_mul (p := p) hpN g (CongruenceSubgroup.Gamma1_in_Gamma0 N hg) x
+  rw [hd, one_mul] at hd'
+  exact ⟨g', hg', hd', hmul⟩
 
 end HeckeGamma1
 

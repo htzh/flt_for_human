@@ -100,7 +100,7 @@ theorem zoneB_slash (N : ℕ) [NeZero N] {n : ℕ}
     (i : Fin n) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
     ∃ ε : DirichletCharacter ℂ N,
       (⇑(b i) : ℍ → ℂ) ∣[(0 : ℤ)] (Matrix.SpecialLinearGroup.mapGL ℝ γ)
-        = ε (SSbasis.dd (N := N) γ) • ⇑(b i) := by
+        = ε (CuspForm.HeckeEigenNebentypus.dd (N := N) γ) • ⇑(b i) := by
   obtain ⟨ε, hε⟩ := hb i
   exact ⟨ε, (SSbasis.hasNebentypus_iff ε (b i)).mp hε γ hγ⟩
 
