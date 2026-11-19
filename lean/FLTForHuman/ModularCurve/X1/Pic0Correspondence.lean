@@ -188,9 +188,8 @@ private theorem one_mem_strictPeriods : (1 : ℝ) ∈ (Γ1 M).strictPeriods := b
   exact AddSubgroup.mem_zmultiples _
 
 private theorem conj_mem_Gamma1 {γ δ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hδ : δ ∈ Gamma1 M) :
-    γ * δ * γ⁻¹ ∈ Gamma1 M := by
-  rw [← CohCarrier.GammaH_bot M] at hδ ⊢
-  exact CohCarrier.conj_mem_GammaH M ⊥ ⟨γ, hγ⟩ ⟨δ, hδ⟩
+    γ * δ * γ⁻¹ ∈ Gamma1 M :=
+  ModularForm.Level.conj_mem_Gamma1 hγ hδ
 
 private theorem le_conj {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) :
     Γ1 M ≤ ConjAct.toConjAct ((γ : GL (Fin 2) ℝ))⁻¹ • Γ1 M := by

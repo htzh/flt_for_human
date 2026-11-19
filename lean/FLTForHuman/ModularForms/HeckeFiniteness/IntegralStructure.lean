@@ -39,8 +39,8 @@
   global instance exists).
 
   `Γ₁(N) ⊴ Γ₀(N)` is needed only for the translates `translateCusp` /
-  `traceSummand`; it is proved locally (`conj_mem_Gamma1`) since mathlib exposes
-  `Gamma1' N` as a kernel. Every helper above the three headlines is `private`.
+  `traceSummand`; it is `ModularForm.Level.conj_mem_Gamma1`, adapted to the `GL`
+  picture below. Every helper above the three headlines is `private`.
 
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_CuspForm_hasIntegralStructure_of_two_le.lean
@@ -86,17 +86,13 @@ private instance instIsFiniteRelIndexGamma1Gamma0 (N : ℕ) [NeZero N] :
 private lemma le_Gamma1_Gamma0 (N : ℕ) : Gamma1GL N ≤ Gamma0GL N :=
   Subgroup.map_mono (f := Matrix.SpecialLinearGroup.mapGL ℝ) (CongruenceSubgroup.Gamma1_in_Gamma0 N)
 
-private lemma conj_mem_Gamma1 {N : ℕ} {γ x : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma0 N)
-    (hx : x ∈ CongruenceSubgroup.Gamma1 N) :
-    γ * x * γ⁻¹ ∈ CongruenceSubgroup.Gamma1 N := ModularForm.Level.conj_mem_Gamma1 hγ hx
-
 private lemma conj_mem_Gamma1_GL {N : ℕ} {γ x : GL (Fin 2) ℝ} (hγ : γ ∈ Gamma0GL N)
     (hx : x ∈ Gamma1GL N) : γ * x * γ⁻¹ ∈ Gamma1GL N := by
   obtain ⟨γ₀, hγ₀, hγeq⟩ := Subgroup.mem_map.mp hγ
   obtain ⟨x₀, hx₀, hxeq⟩ := Subgroup.mem_map.mp hx
   rw [← hγeq, ← hxeq]
   simpa only [map_mul, map_inv] using
-    Subgroup.mem_map_of_mem (Matrix.SpecialLinearGroup.mapGL ℝ) (conj_mem_Gamma1 hγ₀ hx₀)
+    Subgroup.mem_map_of_mem (Matrix.SpecialLinearGroup.mapGL ℝ) (ModularForm.Level.conj_mem_Gamma1 hγ₀ hx₀)
 
 private lemma one_mem_strictPeriods_Gamma1 (N : ℕ) : (1 : ℝ) ∈ (Gamma1GL N).strictPeriods := by
   rw [Subgroup.mem_strictPeriods_iff, Subgroup.mem_map]

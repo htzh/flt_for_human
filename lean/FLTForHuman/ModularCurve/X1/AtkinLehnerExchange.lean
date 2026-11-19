@@ -1273,14 +1273,8 @@ theorem conjSL_mem_GammaH {δ : SL(2, ℤ)} (hδH : δ ∈ Gamma1 M)
   · rw [conjSL_apply_00]; exact h00
   · rw [conjSL_apply_11]; exact h11
 
-theorem conj_mem_Gamma1 {γ z : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hz : z ∈ Gamma1 M) : γ * z * γ⁻¹ ∈ Gamma1 M := by
-  have hz0 : z ∈ Gamma0 M := Gamma1_in_Gamma0 M hz
-  have hz' : (⟨z, hz0⟩ : Gamma0 M) ∈ Gamma1' M := by
-    rw [Gamma1_to_Gamma0_mem]; exact (Gamma1_mem M z).mp hz
-  have hN : (Gamma1' M).Normal := by unfold Gamma1'; infer_instance
-  have hc : (⟨γ, hγ⟩ * ⟨z, hz0⟩ * ⟨γ, hγ⟩⁻¹ : Gamma0 M) ∈ Gamma1' M := hN.conj_mem _ hz' ⟨γ, hγ⟩
-  rw [Gamma1_to_Gamma0_mem] at hc
-  exact (Gamma1_mem M _).mpr (by simpa using hc)
+theorem conj_mem_Gamma1 {γ z : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hz : z ∈ Gamma1 M) : γ * z * γ⁻¹ ∈ Gamma1 M :=
+  ModularForm.Level.conj_mem_Gamma1 hγ hz
 variable (γ : SL(2, ℤ))
 variable (hγ : γ ∈ Gamma0 M)
 variable (hγℓ : (ℓ : ℤ) ∣ γ 1 1)

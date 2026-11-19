@@ -47,18 +47,6 @@ local notation "Γ₀(" M ")" => ((Gamma0 M : Subgroup SL(2, ℤ)) : Subgroup (G
 
 variable {M : ℕ}
 
-private theorem det_eq (g : SL(2, ℤ)) : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
-  have h := g.det_coe
-  rwa [Matrix.det_fin_two] at h
-
-private theorem det_mod {N : ℕ} (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
-    ((γ 0 0 : ℤ) : ZMod N) * ((γ 1 1 : ℤ) : ZMod N) = 1 := by
-  have hc : ((γ 1 0 : ℤ) : ZMod N) = 0 := by simpa using Gamma0_mem.mp hγ
-  have := congrArg (Int.cast : ℤ → ZMod N) (det_eq γ)
-  push_cast at this
-  rw [hc] at this
-  linear_combination this
-
 /-- The `γ 1 1` coordinate of `γ ∈ Γ₀(N)`, as a unit of `ZMod N`; the nebentypus
 character is evaluated on it.  Promoted from this module's private prelude
 (`WORKORDER-S8`, clarity): the `Γ₁ = ker dd` vocabulary is stated by the two
@@ -71,7 +59,7 @@ theorem dd_mul {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N) 
   exact this
 
 theorem isUnit_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) : IsUnit (dd (N := N) γ) :=
-  IsUnit.of_mul_eq_one _ (by rw [dd, mul_comm]; exact det_mod γ hγ)
+  IsUnit.of_mul_eq_one _ (by rw [dd, mul_comm]; exact ModularForm.Level.det_mod γ hγ)
 
 theorem mem_Gamma1_iff_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
     γ ∈ Gamma1 N ↔ dd (N := N) γ = 1 := by
@@ -80,7 +68,7 @@ theorem mem_Gamma1_iff_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
   · rintro ⟨-, h, -⟩; simpa using h
   · intro hd
     have ha : ((γ 0 0 : ℤ) : ZMod N) = 1 := by
-      have := det_mod γ hγ; rw [hd, mul_one] at this; exact this
+      have := ModularForm.Level.det_mod γ hγ; rw [hd, mul_one] at this; exact this
     exact ⟨by simpa using ha, by simpa using hd, by simpa using Gamma0_mem.mp hγ⟩
 
 theorem inv_mul_mem_Gamma1 {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N)
@@ -91,16 +79,6 @@ theorem inv_mul_mem_Gamma1 {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ �
     rw [← dd_mul h₁ hmem, mul_inv_cancel_left]
   rw [h] at hprod
   exact (isUnit_dd h₂).mul_right_injective (hprod.trans (mul_one _).symm)
-
-private theorem conj_mem_Gamma1 {N : ℕ} {σ γ : SL(2, ℤ)} (hσ : σ ∈ Gamma0 N)
-    (hγ : γ ∈ Gamma1 N) : σ * γ * σ⁻¹ ∈ Gamma1 N := by
-  have hγ0 : γ ∈ Gamma0 N := Gamma1_in_Gamma0 N hγ
-  have hmem : σ * γ * σ⁻¹ ∈ Gamma0 N := mul_mem (mul_mem hσ hγ0) (inv_mem hσ)
-  rw [mem_Gamma1_iff_dd hmem]
-  have h1 : dd (N := N) γ = 1 := (mem_Gamma1_iff_dd hγ0).mp hγ
-  have hprod : dd (N := N) (σ * γ * σ⁻¹) * dd (N := N) σ = dd σ := by
-    rw [← dd_mul hmem hσ, inv_mul_cancel_right, dd_mul hσ hγ0, h1, mul_one]
-  exact (isUnit_dd hσ).mul_left_injective (hprod.trans (one_mul _).symm)
 
 /-- Every unit `n` of `ZMod M` lifts to `σ ∈ Γ₀(M)` with `dd σ = n`. -/
 theorem exists_lift (n : ℕ) (hn : n.Coprime M) :
@@ -152,7 +130,7 @@ private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (χ : DirichletCha
     rw [hgσ, ← SlashAction.slash_mul, show σ * γ = (σ * γ * σ⁻¹) * σ by rw [inv_mul_cancel_right],
       SlashAction.slash_mul]
     congr 1
-    exact SlashInvariantFormClass.slash_action_eq g _ (Subgroup.mem_map_of_mem _ (conj_mem_Gamma1 hσ hγ))
+    exact SlashInvariantFormClass.slash_action_eq g _ (Subgroup.mem_map_of_mem _ (ModularForm.Level.conj_mem_Gamma1 hσ hγ))
 
   set U : ℍ → ℂ := heckeU k p (⇑g) with hU
   set D : ℍ → ℂ := (⇑g : ℍ → ℂ) ∣[k] heckeDiagMatrix p with hD

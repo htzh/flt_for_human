@@ -14,9 +14,12 @@
   Each pin file's helpers stay `private` in the pin's own inner namespace
   (`WeightLoweringCriterion` / `Gamma1Eisenstein` / `FrickeCuspTransport` /
   `FrickeSpan` / `GammaOneGaloisEven` / `GammaOneGaloisAllWeights`), nested in
-  this module's own `WLightS11.S_*` namespaces, so the packages' repeated
-  vocabulary (`redN`, `vm`, `cw`, `RatAt`, …) does not collide; the six
-  headlines are the module's only public surface.  `ModularCurve.IsIntegralQExp`
+  this module's own `WLightS11.S_*` namespaces, so the packages' remaining
+  vocabulary (`RatAt`, …) does not collide; the six headlines are the module's
+  only public surface.  The vocabulary that several packages share
+  (`disc_ne_zero`, `mdifferentiable_inv`, `redN`, `vm`, `cw`, `Φ`, …) is
+  declared `private` once in `WLightS11`, ahead of the six packages, and reused
+  by all of them, `private` being file-scoped.  `ModularCurve.IsIntegralQExp`
   (the pin's `Definitions/Def_ModularCurve_X1.lean` definition) is consumed from
   SET-10's `Gamma0Integral`.  The package-to-package edges are the pin's own and
   consume the already-ported SET-7/8/9 headlines.
@@ -114,6 +117,267 @@ noncomputable section
 open Complex Real UpperHalfPlane ModularForm CongruenceSubgroup
 open scoped Real Manifold MatrixGroups ModularForm Topology UpperHalfPlane
 
+namespace WLightS11
+
+open Complex UpperHalfPlane ModularForm CongruenceSubgroup Function Filter
+open scoped Real Manifold MatrixGroups ModularForm Topology
+
+local notation "Δ" => ModularForm.discriminant
+
+private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
+
+private theorem mdifferentiable_E₄ : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (E₄ : ℍ → ℂ) := E₄.holo'
+
+private theorem mdifferentiable_E₆ : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (E₆ : ℍ → ℂ) := E₆.holo'
+
+private theorem exists_E₄_ne_zero : ∃ τ : ℍ, E₄ τ ≠ 0 := by
+  by_contra h
+  push Not at h
+  have : (E₄ : ModularForm 𝒮ℒ 4) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
+  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨2, rfl⟩ this
+
+private theorem exists_E₆_ne_zero : ∃ τ : ℍ, E₆ τ ≠ 0 := by
+  by_contra h
+  push Not at h
+  have : (E₆ : ModularForm 𝒮ℒ 6) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
+  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨3, rfl⟩ this
+
+private theorem exists_Efun_ne_zero (a b : ℕ) : ∃ τ : ℍ, E₄ τ ^ a * E₆ τ ^ b ≠ 0 := by
+  obtain ⟨τ₄, h₄⟩ := exists_E₄_ne_zero
+  by_contra h
+  push Not at h
+  have hprod : ∀ τ : ℍ, E₄ τ = 0 ∨ E₆ τ = 0 := fun τ =>
+    (mul_eq_zero.1 (h τ)).imp eq_zero_of_pow_eq_zero eq_zero_of_pow_eq_zero
+  have hmul : ∀ τ : ℍ, E₆ τ * E₄ τ = 0 := fun τ => by
+    rcases hprod τ with h0 | h0 <;> simp [h0]
+  have := eq_zero_of_mul_eq_zero mdifferentiable_E₆ mdifferentiable_E₄ hmul h₄
+  obtain ⟨τ₆, h₆⟩ := exists_E₆_ne_zero
+  exact h₆ (by simpa using congrFun this τ₆)
+
+private theorem mem_SL (A : SL(2, ℤ)) : (A : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨A, rfl⟩
+
+private theorem E₄_smul (A : SL(2, ℤ)) (τ : ℍ) :
+    E₄ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (4 : ℤ) * E₄ τ := by
+  have := SlashInvariantForm.slash_action_eqn'' E₄ (Γ := 𝒮ℒ) (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
+  rw [← ModularGroup.sl_moeb] at this
+  exact_mod_cast this
+
+private theorem E₆_smul (A : SL(2, ℤ)) (τ : ℍ) :
+    E₆ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (6 : ℤ) * E₆ τ := by
+  have := SlashInvariantForm.slash_action_eqn'' E₆ (Γ := 𝒮ℒ) (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
+  rw [← ModularGroup.sl_moeb] at this
+  exact_mod_cast this
+
+private theorem disc_smul (A : SL(2, ℤ)) (τ : ℍ) :
+    Δ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (12 : ℤ) * Δ τ := by
+  have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant (Γ := 𝒮ℒ)
+    (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
+  rw [CuspForm.coe_discriminant, ← ModularGroup.sl_moeb] at this
+  exact this
+
+private theorem tendsto_E {k : ℕ} (hk3 : 3 ≤ k) (hk2 : Even k) :
+    Tendsto (⇑(ModularForm.E hk3) : ℍ → ℂ) atImInfty (𝓝 1) := by
+  have hanal := ModularFormClass.analyticAt_cuspFunction_zero (ModularForm.E hk3) one_pos
+    one_mem_strictPeriods_SL
+  have hper := SlashInvariantFormClass.periodic_comp_ofComplex (ModularForm.E hk3) one_mem_strictPeriods_SL
+  have hval : cuspFunction 1 (⇑(ModularForm.E hk3)) 0 = 1 := by
+    have h0 := qExpansion_coeff (⇑(ModularForm.E hk3)) (h := (1 : ℝ)) 0
+    rw [EisensteinSeries.E_qExpansion_coeff_zero hk3 hk2] at h0
+    simpa using h0.symm
+  have := (hanal.continuousAt.tendsto.comp (qParam_tendsto_atImInfty one_pos)).congr
+    (fun τ => eq_cuspFunction τ one_ne_zero hper)
+  simpa [hval] using this
+
+private theorem tendsto_E₄ : Tendsto (⇑E₄ : ℍ → ℂ) atImInfty (𝓝 1) := tendsto_E (by norm_num) ⟨2, rfl⟩
+
+private theorem tendsto_E₆ : Tendsto (⇑E₆ : ℍ → ℂ) atImInfty (𝓝 1) := tendsto_E (by norm_num) ⟨3, rfl⟩
+
+private theorem bdd_of_mul_tendsto_one {h e : ℍ → ℂ} (hhe : IsBoundedAtImInfty (h * e))
+    (he : Tendsto e atImInfty (𝓝 1)) : IsBoundedAtImInfty h := by
+  have hne : ∀ᶠ τ in atImInfty, e τ ≠ 0 := he.eventually_ne one_ne_zero
+  have hinv : Tendsto (fun τ => (e τ)⁻¹) atImInfty (𝓝 1) := by simpa using he.inv₀ one_ne_zero
+  have hb : IsBoundedAtImInfty ((h * e) * fun τ => (e τ)⁻¹) := hhe.mul (hinv.isBigO_one ℝ)
+  refine (hb.congr' ?_ EventuallyEq.rfl)
+  filter_upwards [hne] with τ hτ
+  simp only [Pi.mul_apply]
+  field_simp
+
+private theorem bdd_pow {f : ℍ → ℂ} (hf : IsBoundedAtImInfty f) (n : ℕ) : IsBoundedAtImInfty (f ^ n) := by
+  induction n with
+  | zero => (simp only [pow_zero]; exact Filter.const_boundedAtFilter atImInfty (1 : ℂ))
+  | succ n ih => rw [pow_succ]; exact ih.mul hf
+
+private theorem mdifferentiable_inv {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g) (h0 : ∀ τ : ℍ, g τ ≠ 0) :
+    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ => (g τ)⁻¹) := by
+  rw [UpperHalfPlane.mdifferentiable_iff]
+  have h1 := UpperHalfPlane.mdifferentiable_iff.1 hg
+  exact (h1.inv fun z _ => h0 _).congr fun z _ => by simp [comp_apply]
+
+private theorem mdifferentiable_div_disc_pow {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g) (r : ℕ) :
+    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ => g τ / Δ τ ^ r) := by
+  have := hg.mul (mdifferentiable_inv (mdifferentiable_disc.pow r) fun τ => pow_ne_zero _ (disc_ne_zero τ))
+  exact this
+
+private abbrev Idx (N : ℕ) : Type := Option {v : Fin 2 → ZMod N // v ≠ 0}
+
+private def ds {N : ℕ} (s : ℕ) (v : Fin 2 → ZMod N) : Fin 2 → ZMod N := ![v 0, (s : ZMod N) * v 1]
+
+private def redN {N : ℕ} (γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) (ZMod N) :=
+  (γ : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N)
+
+private def vm {N : ℕ} (γ : SL(2, ℤ)) (v : Fin 2 → ZMod N) : Fin 2 → ZMod N := Matrix.vecMul v (redN γ)
+
+private theorem redN_eq {N : ℕ} (γ : SL(2, ℤ)) :
+    redN (N := N) γ = (Int.castRingHom (ZMod N)).mapMatrix (γ : Matrix (Fin 2) (Fin 2) ℤ) := rfl
+
+private theorem redN_mul {N : ℕ} (γ γ' : SL(2, ℤ)) : redN (N := N) (γ * γ') = redN γ * redN γ' := by
+  rw [redN_eq, redN_eq, redN_eq, Matrix.SpecialLinearGroup.coe_mul, map_mul]
+
+private theorem redN_one {N : ℕ} : redN (N := N) 1 = 1 := by
+  rw [redN, Matrix.SpecialLinearGroup.coe_one]; simp
+
+private theorem vm_mul {N : ℕ} (γ γ' : SL(2, ℤ)) (v : Fin 2 → ZMod N) : vm (γ * γ') v = vm γ' (vm γ v) := by
+  simp only [vm, redN_mul, Matrix.vecMul_vecMul]
+
+private theorem vm_one {N : ℕ} (v : Fin 2 → ZMod N) : vm (N := N) 1 v = v := by simp [vm, redN_one]
+
+private theorem vm_ne_zero {N : ℕ} (γ : SL(2, ℤ)) {v : Fin 2 → ZMod N} (hv : v ≠ 0) : vm γ v ≠ 0 := by
+  intro h
+  apply hv
+  have : vm γ⁻¹ (vm γ v) = v := by rw [← vm_mul, mul_inv_cancel, vm_one]
+  rw [← this, h, vm, Matrix.zero_vecMul]
+
+private def idxMap {N : ℕ} (α : SL(2, ℤ)) : Idx N → Idx N :=
+  fun o => o.map fun v => ⟨vm α v.1, vm_ne_zero α v.2⟩
+
+private def cw (G : ℍ → ℂ) (α : SL(2, ℤ)) : ℍ → ℂ := fun τ => G (α • τ)
+
+private theorem cw_apply (G : ℍ → ℂ) (α : SL(2, ℤ)) (τ : ℍ) : cw G α τ = G (α • τ) := rfl
+
+private theorem cw_mul (G : ℍ → ℂ) (α β : SL(2, ℤ)) : cw G (α * β) = cw (cw G α) β := by
+  funext τ; simp [cw, mul_smul]
+
+private theorem cw_one (G : ℍ → ℂ) : cw G 1 = G := by funext τ; simp [cw]
+
+private theorem cw_eq_slash (G : ℍ → ℂ) (α : SL(2, ℤ)) : cw G α = G ∣[(0 : ℤ)] α := by
+  funext τ
+  rw [ModularForm.SL_slash_apply, cw_apply, neg_zero, zpow_zero, mul_one]
+
+private theorem mdifferentiable_cw {G : ℍ → ℂ} (hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G) (α : SL(2, ℤ)) :
+    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (cw G α) := by
+  rw [cw_eq_slash, ModularForm.SL_slash]; exact hG.slash _ _
+
+private def cwAlgHom (α : SL(2, ℤ)) : (ℍ → ℂ) →ₐ[ℂ] (ℍ → ℂ) where
+  toFun G := cw G α
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+  commutes' _ := rfl
+
+private theorem cw_mul_fun (G G' : ℍ → ℂ) (α : SL(2, ℤ)) : cw (G * G') α = cw G α * cw G' α := rfl
+
+private theorem cw_aeval {ι : Type} (g : ι → ℍ → ℂ) (R : MvPolynomial ι ℂ) (α : SL(2, ℤ)) :
+    cw (MvPolynomial.aeval g R) α = MvPolynomial.aeval (fun i => cw (g i) α) R := by
+  have := MvPolynomial.comp_aeval g (cwAlgHom α)
+  exact congrArg (fun F => F R) this
+
+private theorem fricke_eq {N : ℕ} (L : ℍ → PeriodPair) (W : (Fin 2 → ZMod N) → ℍ → ℂ)
+    (hW : ∀ (v : Fin 2 → ZMod N) (τ : ℍ), W v τ = ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
+      PeriodPair.weierstrassP (L τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ)))
+    (fricke : (Fin 2 → ZMod N) → ℍ → ℂ)
+    (hfricke : ∀ (v : Fin 2 → ZMod N) (τ : ℍ), fricke v τ =
+      -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * W v τ) :
+    fricke = fun (a : Fin 2 → ZMod N) (τ : ℍ) =>
+      -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 *
+        (((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
+          PeriodPair.weierstrassP (L τ) ((((a 0).val : ℂ) * (τ : ℂ) + ((a 1).val : ℂ)) / (N : ℂ))) := by
+  funext a τ; rw [hfricke, hW]
+
+private theorem fricke_smul {N : ℕ} [NeZero N] (L : ℍ → PeriodPair) (hL : ∀ τ : ℍ, (L τ).ω₁ = (τ : ℂ) ∧ (L τ).ω₂ = 1)
+    (W : (Fin 2 → ZMod N) → ℍ → ℂ)
+    (hW : ∀ (v : Fin 2 → ZMod N) (τ : ℍ), W v τ = ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
+      PeriodPair.weierstrassP (L τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ)))
+    (fricke : (Fin 2 → ZMod N) → ℍ → ℂ)
+    (hfricke : ∀ (v : Fin 2 → ZMod N) (τ : ℍ), fricke v τ =
+      -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * W v τ)
+    (v : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) : fricke v (γ • τ) = fricke (vm γ v) τ := by
+  have pkg := WLight.frickeFunction_modularity_package N L hL
+  rw [← fricke_eq L W hW fricke hfricke] at pkg
+  exact pkg.1 v γ τ
+
+private theorem mdifferentiable_fricke {N : ℕ} [NeZero N] (L : ℍ → PeriodPair)
+    (hL : ∀ τ : ℍ, (L τ).ω₁ = (τ : ℂ) ∧ (L τ).ω₂ = 1)
+    (W : (Fin 2 → ZMod N) → ℍ → ℂ)
+    (hW : ∀ (v : Fin 2 → ZMod N) (τ : ℍ), W v τ = ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
+      PeriodPair.weierstrassP (L τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ)))
+    (fricke : (Fin 2 → ZMod N) → ℍ → ℂ)
+    (hfricke : ∀ (v : Fin 2 → ZMod N) (τ : ℍ), fricke v τ =
+      -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * W v τ)
+    {v : Fin 2 → ZMod N} (hv : v ≠ 0) : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fricke v) := by
+  have pkg := WLight.frickeFunction_modularity_package N L hL
+  rw [← fricke_eq L W hW fricke hfricke] at pkg
+  exact pkg.2.2.1 v hv
+
+private theorem mdifferentiable_jf (jf : ℍ → ℂ)
+    (hjf : ∀ τ : ℍ, jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) :
+    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) jf := by
+  have : jf = fun τ => E₄ τ ^ 3 / Δ τ := funext hjf
+  rw [this]
+  intro τ
+  exact ((E₄.holo' τ).pow 3).div (mdifferentiable_disc τ) (discriminant_ne_zero τ)
+
+private theorem jf_smul (jf : ℍ → ℂ)
+    (hjf : ∀ τ : ℍ, jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) (α : SL(2, ℤ)) (τ : ℍ) :
+    jf (α • τ) = jf τ := by
+  have hd : denom (α : GL (Fin 2) ℝ) τ ≠ 0 := denom_ne_zero _ τ
+  have hΔ : Δ τ ≠ 0 := discriminant_ne_zero τ
+  rw [hjf, hjf, disc_smul, E₄_smul]
+  field_simp
+
+private theorem E₄_cube_eq (jf : ℍ → ℂ)
+    (hjf : ∀ τ : ℍ, jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) (τ : ℍ) :
+    E₄ τ ^ 3 = jf τ * Δ τ := by
+  rw [hjf]; field_simp [disc_ne_zero τ]
+
+private theorem E₆_sq_eq (jf : ℍ → ℂ)
+    (hjf : ∀ τ : ℍ, jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) (τ : ℍ) :
+    E₆ τ ^ 2 = (jf τ - 1728) * Δ τ := by
+  have h := discriminant_eq_E₄_cube_sub_E₆_sq τ
+  rw [hjf, sub_mul, div_mul_cancel₀ _ (disc_ne_zero τ)]
+  linear_combination (1728 : ℂ) * h
+
+private theorem exists_jf_ne_zero (jf : ℍ → ℂ)
+    (hjf : ∀ τ : ℍ, jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) :
+    ∃ τ : ℍ, jf τ ≠ 0 := by
+  obtain ⟨τ, hτ⟩ := exists_E₄_ne_zero
+  exact ⟨τ, fun h => pow_ne_zero 3 hτ (by rw [E₄_cube_eq jf hjf, h, zero_mul])⟩
+
+private theorem exists_jf_sub_ne_zero (jf : ℍ → ℂ)
+    (hjf : ∀ τ : ℍ, jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) :
+    ∃ τ : ℍ, jf τ - 1728 ≠ 0 := by
+  obtain ⟨τ, hτ⟩ := exists_E₆_ne_zero
+  exact ⟨τ, fun h => pow_ne_zero 2 hτ (by rw [E₆_sq_eq jf hjf, h, zero_mul])⟩
+
+private def Φ {N : ℕ} {k : ℤ} {a b m : ℕ}
+    (f : CuspForm ((Gamma1 N : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) k) : ℍ → ℂ := fun τ => f τ * (E₄ τ ^ a * E₆ τ ^ b) / Δ τ ^ m
+
+private theorem Φ_apply {N : ℕ} {k : ℤ} {a b m : ℕ}
+    (f : CuspForm ((Gamma1 N : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) k) (τ : ℍ) :
+    Φ (a := a) (b := b) (m := m) f τ = f τ * (E₄ τ ^ a * E₆ τ ^ b) / Δ τ ^ m := rfl
+
+private theorem Φ_mul_disc {N : ℕ} {k : ℤ} {a b m : ℕ}
+    (f : CuspForm ((Gamma1 N : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) k) (τ : ℍ) :
+    f τ * (E₄ τ ^ a * E₆ τ ^ b) = Φ (a := a) (b := b) (m := m) f τ * Δ τ ^ m := by
+  rw [Φ_apply, div_mul_cancel₀ _ (pow_ne_zero _ (disc_ne_zero τ))]
+
+private theorem mdifferentiable_Φ {N : ℕ} {k : ℤ} {a b m : ℕ}
+    (f : CuspForm ((Gamma1 N : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) k) :
+    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Φ (a := a) (b := b) (m := m) f) :=
+  mdifferentiable_div_disc_pow (f.holo'.mul ((E₄.holo'.pow a).mul (E₆.holo'.pow b))) m
+
+end WLightS11
+
 namespace WLightS11.S_CuspForm_exists_mul_E4_pow_mul_E6_pow_eq_iff
 
 set_option autoImplicit false
@@ -185,52 +449,12 @@ private theorem exists_mul_eq_of_coprime {P b c H₁ H₂ : ℍ → ℂ}
       rw [← h₁ τ]
       field_simp
 
-private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
-
-
-private theorem mdifferentiable_E₄ : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (E₄ : ℍ → ℂ) := E₄.holo'
-
-private theorem mdifferentiable_E₆ : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (E₆ : ℍ → ℂ) := E₆.holo'
-
 private theorem E₄_ne_zero_or_E₆_ne_zero (τ : ℍ) : E₄ τ ≠ 0 ∨ E₆ τ ≠ 0 := by
   by_contra h
   push Not at h
   have hΔ := discriminant_eq_E₄_cube_sub_E₆_sq τ
   rw [h.1, h.2] at hΔ
   exact disc_ne_zero τ (by rw [hΔ]; norm_num)
-
-private theorem exists_E₄_ne_zero : ∃ τ : ℍ, E₄ τ ≠ 0 := by
-  by_contra h
-  push Not at h
-  have : (E₄ : ModularForm 𝒮ℒ 4) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨2, rfl⟩ this
-
-private theorem exists_E₆_ne_zero : ∃ τ : ℍ, E₆ τ ≠ 0 := by
-  by_contra h
-  push Not at h
-  have : (E₆ : ModularForm 𝒮ℒ 6) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨3, rfl⟩ this
-
-private theorem mem_SL (A : SL(2, ℤ)) : (A : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨A, rfl⟩
-
-private theorem E₄_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    E₄ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (4 : ℤ) * E₄ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' E₄ (Γ := 𝒮ℒ) (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [← ModularGroup.sl_moeb] at this
-  exact_mod_cast this
-
-private theorem E₆_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    E₆ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (6 : ℤ) * E₆ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' E₆ (Γ := 𝒮ℒ) (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [← ModularGroup.sl_moeb] at this
-  exact_mod_cast this
-
-private theorem disc_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    Δ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (12 : ℤ) * Δ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant (Γ := 𝒮ℒ)
-    (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [CuspForm.coe_discriminant, ← ModularGroup.sl_moeb] at this
-  exact this
 
 variable (a b m : ℕ)
 
@@ -241,20 +465,6 @@ private theorem Efun_apply (τ : ℍ) : Efun a b τ = E₄ τ ^ a * E₆ τ ^ b 
 private theorem mdifferentiable_Efun : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Efun a b) :=
   (mdifferentiable_E₄.pow a).mul (mdifferentiable_E₆.pow b)
 
-private theorem exists_Efun_ne_zero : ∃ τ : ℍ, Efun a b τ ≠ 0 := by
-
-  obtain ⟨τ₄, h₄⟩ := exists_E₄_ne_zero
-  by_contra h
-  push Not at h
-  have hprod : ∀ τ : ℍ, E₄ τ = 0 ∨ E₆ τ = 0 := fun τ =>
-    (mul_eq_zero.1 (h τ)).imp eq_zero_of_pow_eq_zero eq_zero_of_pow_eq_zero
-
-  have hmul : ∀ τ : ℍ, E₆ τ * E₄ τ = 0 := fun τ => by
-    rcases hprod τ with h0 | h0 <;> simp [h0]
-  have := eq_zero_of_mul_eq_zero mdifferentiable_E₆ mdifferentiable_E₄ hmul h₄
-  obtain ⟨τ₆, h₆⟩ := exists_E₆_ne_zero
-  exact h₆ (by simpa using congrFun this τ₆)
-
 private theorem Efun_smul (A : SL(2, ℤ)) (τ : ℍ) :
     Efun a b (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ ((4 * a + 6 * b : ℕ) : ℤ) * Efun a b τ := by
   simp only [Efun, E₄_smul, E₆_smul, zpow_natCast, zpow_ofNat]
@@ -264,19 +474,6 @@ private theorem disc_pow_smul (A : SL(2, ℤ)) (τ : ℍ) :
     Δ (A • τ) ^ m = denom (A : GL (Fin 2) ℝ) τ ^ ((12 * m : ℕ) : ℤ) * Δ τ ^ m := by
   rw [disc_smul, zpow_natCast, zpow_ofNat]
   ring
-
-private theorem tendsto_E {k : ℕ} (hk : 3 ≤ k) (hk2 : Even k) :
-    Tendsto (⇑(ModularForm.E hk) : ℍ → ℂ) atImInfty (𝓝 1) := by
-  have hanal := ModularFormClass.analyticAt_cuspFunction_zero (ModularForm.E hk) one_pos
-    one_mem_strictPeriods_SL
-  have hper := SlashInvariantFormClass.periodic_comp_ofComplex (ModularForm.E hk) one_mem_strictPeriods_SL
-  have hval : cuspFunction 1 (⇑(ModularForm.E hk)) 0 = 1 := by
-    have h0 := qExpansion_coeff (⇑(ModularForm.E hk)) (h := (1 : ℝ)) 0
-    rw [EisensteinSeries.E_qExpansion_coeff_zero hk hk2] at h0
-    simpa using h0.symm
-  have := (hanal.continuousAt.tendsto.comp (qParam_tendsto_atImInfty one_pos)).congr
-    (fun τ => eq_cuspFunction τ one_ne_zero hper)
-  simpa [hval] using this
 
 private theorem tendsto_Efun : Tendsto (Efun a b) atImInfty (𝓝 1) := by
   have h4 := (tendsto_E (by norm_num : 3 ≤ 4) ⟨2, rfl⟩).pow a
@@ -885,84 +1082,12 @@ private theorem pow_ne_zero_fun {v : ℍ → ℂ} (hv : v ≠ 0) (p : ℕ) : v ^
   exact pow_ne_zero p hτ this
 
 
-private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
-
-
 private theorem periodic_disc (N : ℕ) : Periodic ((Δ : ℍ → ℂ) ∘ ofComplex) N := periodic_ofComplex_natCast periodic_disc_one N
 
 private theorem periodic_div_disc_pow {N : ℕ} {g : ℍ → ℂ} (h : Periodic (g ∘ ofComplex) N) (e : ℕ) :
     Periodic ((fun τ => g τ / Δ τ ^ e) ∘ ofComplex) N := by
   intro z; have h1 := h z; have h2 := periodic_disc N z
   simp only [comp_apply] at h1 h2 ⊢; rw [h1, h2]
-
-private theorem mdifferentiable_inv {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g) (h0 : ∀ τ : ℍ, g τ ≠ 0) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ => (g τ)⁻¹) := by
-  rw [UpperHalfPlane.mdifferentiable_iff]
-  have h1 := UpperHalfPlane.mdifferentiable_iff.1 hg
-  exact (h1.inv fun z _ => h0 _).congr fun z _ => by simp [comp_apply]
-
-private theorem mdifferentiable_div_disc_pow {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g) (r : ℕ) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ => g τ / Δ τ ^ r) := by
-  have := hg.mul (mdifferentiable_inv (mdifferentiable_disc.pow r) fun τ => pow_ne_zero _ (disc_ne_zero τ))
-  exact this
-
-private theorem tendsto_E {k : ℕ} (hk3 : 3 ≤ k) (hk2 : Even k) :
-    Tendsto (⇑(ModularForm.E hk3) : ℍ → ℂ) atImInfty (𝓝 1) := by
-  have hanal := ModularFormClass.analyticAt_cuspFunction_zero (ModularForm.E hk3) one_pos
-    one_mem_strictPeriods_SL
-  have hper := SlashInvariantFormClass.periodic_comp_ofComplex (ModularForm.E hk3) one_mem_strictPeriods_SL
-  have hval : cuspFunction 1 (⇑(ModularForm.E hk3)) 0 = 1 := by
-    have h0 := qExpansion_coeff (⇑(ModularForm.E hk3)) (h := (1 : ℝ)) 0
-    rw [EisensteinSeries.E_qExpansion_coeff_zero hk3 hk2] at h0
-    simpa using h0.symm
-  have := (hanal.continuousAt.tendsto.comp (qParam_tendsto_atImInfty one_pos)).congr
-    (fun τ => eq_cuspFunction τ one_ne_zero hper)
-  simpa [hval] using this
-
-private theorem tendsto_E₄ : Tendsto (⇑E₄ : ℍ → ℂ) atImInfty (𝓝 1) := tendsto_E (by norm_num) ⟨2, rfl⟩
-private theorem tendsto_E₆ : Tendsto (⇑E₆ : ℍ → ℂ) atImInfty (𝓝 1) := tendsto_E (by norm_num) ⟨3, rfl⟩
-
-private theorem bdd_of_mul_tendsto_one {h e : ℍ → ℂ} (hhe : IsBoundedAtImInfty (h * e))
-    (he : Tendsto e atImInfty (𝓝 1)) : IsBoundedAtImInfty h := by
-  have hne : ∀ᶠ τ in atImInfty, e τ ≠ 0 := he.eventually_ne one_ne_zero
-  have hinv : Tendsto (fun τ => (e τ)⁻¹) atImInfty (𝓝 1) := by simpa using he.inv₀ one_ne_zero
-  have hb : IsBoundedAtImInfty ((h * e) * fun τ => (e τ)⁻¹) := hhe.mul (hinv.isBigO_one ℝ)
-  refine (hb.congr' ?_ EventuallyEq.rfl)
-  filter_upwards [hne] with τ hτ
-  simp only [Pi.mul_apply]
-  field_simp
-
-private theorem bdd_pow {f : ℍ → ℂ} (hf : IsBoundedAtImInfty f) (n : ℕ) : IsBoundedAtImInfty (f ^ n) := by
-  induction n with
-  | zero => (simp only [pow_zero]; exact Filter.const_boundedAtFilter atImInfty (1 : ℂ))
-  | succ n ih => rw [pow_succ]; exact ih.mul hf
-
-private theorem mem_SL (A : SL(2, ℤ)) : (A : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨A, rfl⟩
-
-private theorem E₄_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    E₄ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (4 : ℤ) * E₄ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' E₄ (Γ := 𝒮ℒ) (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [← ModularGroup.sl_moeb] at this
-  exact_mod_cast this
-
-private theorem disc_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    Δ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (12 : ℤ) * Δ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant (Γ := 𝒮ℒ)
-    (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [CuspForm.coe_discriminant, ← ModularGroup.sl_moeb] at this
-  exact this
-
-private theorem exists_E₄_ne_zero : ∃ τ : ℍ, E₄ τ ≠ 0 := by
-  by_contra h
-  push Not at h
-  have : (E₄ : ModularForm 𝒮ℒ 4) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨2, rfl⟩ this
-
-private theorem exists_E₆_ne_zero : ∃ τ : ℍ, E₆ τ ≠ 0 := by
-  by_contra h
-  push Not at h
-  have : (E₆ : ModularForm 𝒮ℒ 6) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨3, rfl⟩ this
 
 end Analytic
 
@@ -986,15 +1111,11 @@ variable (L : ℍ → PeriodPair) (hL : ∀ τ : ℍ, (L τ).ω₁ = (τ : ℂ) 
     (hφ : ∀ z : ↥K, (z : ℂ) = Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ)) →
       φ z = Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ)) ^ s)
 
-private abbrev Idx (N : ℕ) : Type := Option {v : Fin 2 → ZMod N // v ≠ 0}
-
 private def gen (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N)) : Idx N → ℍ → ℂ :=
   fun o => o.elim jf fun v => fricke (t v.1)
 
 private def ev (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N)) (ψ : K →+* ℂ) (R : MvPolynomial (Idx N) K) : ℍ → ℂ :=
   MvPolynomial.aeval (gen fricke jf t) (MvPolynomial.map ψ R)
-
-private def ds (s : ℕ) (v : Fin 2 → ZMod N) : Fin 2 → ZMod N := ![v 0, (s : ZMod N) * v 1]
 
 private theorem ds_ne_zero {s : ℕ} (hs : s.Coprime N) {v : Fin 2 → ZMod N} (hv : v ≠ 0) : ds s v ≠ 0 := by
   intro h
@@ -1027,26 +1148,6 @@ private theorem ev_C (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N)) (ψ : K →
   simp only [ev, MvPolynomial.map_C, MvPolynomial.aeval_C, Pi.algebraMap_apply, Algebra.algebraMap_self,
     RingHom.id_apply]
 
-include hW hfricke in
-private theorem fricke_eq : fricke = fun (a : Fin 2 → ZMod N) (τ : ℍ) =>
-    -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 *
-      (((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-        PeriodPair.weierstrassP (L τ) ((((a 0).val : ℂ) * (τ : ℂ) + ((a 1).val : ℂ)) / (N : ℂ))) := by
-  funext a τ; rw [hfricke, hW]
-
-include hL hW hfricke in
-private theorem mdifferentiable_fricke {v : Fin 2 → ZMod N} (hv : v ≠ 0) : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fricke v) := by
-  have pkg := WLight.frickeFunction_modularity_package N L hL
-  rw [← fricke_eq L W hW fricke hfricke] at pkg
-  exact pkg.2.2.1 v hv
-
-include hjf in
-private theorem mdifferentiable_jf : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) jf := by
-  have : jf = fun τ => E₄ τ ^ 3 / Δ τ := funext hjf
-  rw [this]
-  intro τ
-  exact ((E₄.holo' τ).pow 3).div (mdifferentiable_disc τ) (discriminant_ne_zero τ)
-
 include hL hW hfricke hjf in
 private theorem mdifferentiable_gen (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N)) (ht : ∀ v, v ≠ 0 → t v ≠ 0)
     (o : Idx N) : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (gen fricke jf t o) := by
@@ -1065,106 +1166,11 @@ private theorem mdifferentiable_ev (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N
       rw [map_mul, MvPolynomial.aeval_X]
       exact hp.mul (mdifferentiable_gen L hL W hW fricke hfricke jf hjf t ht o)
 
-include hjf in
-private theorem jf_smul (α : SL(2, ℤ)) (τ : ℍ) : jf (α • τ) = jf τ := by
-  have hd : denom (α : GL (Fin 2) ℝ) τ ≠ 0 := denom_ne_zero _ τ
-  have hΔ : Δ τ ≠ 0 := discriminant_ne_zero τ
-  rw [hjf, hjf, disc_smul, E₄_smul]
-  field_simp
-
-include hjf in
-
-private theorem E₄_cube_eq (τ : ℍ) : E₄ τ ^ 3 = jf τ * Δ τ := by
-  rw [hjf]; field_simp [disc_ne_zero τ]
-
-include hjf in
-
-private theorem E₆_sq_eq (τ : ℍ) : E₆ τ ^ 2 = (jf τ - 1728) * Δ τ := by
-  have h := discriminant_eq_E₄_cube_sub_E₆_sq τ
-  rw [hjf, sub_mul, div_mul_cancel₀ _ (disc_ne_zero τ)]
-  linear_combination (1728 : ℂ) * h
-
-include hjf in
-private theorem exists_jf_ne_zero : ∃ τ : ℍ, jf τ ≠ 0 := by
-  obtain ⟨τ, hτ⟩ := exists_E₄_ne_zero
-  exact ⟨τ, fun h => pow_ne_zero 3 hτ (by rw [E₄_cube_eq jf hjf, h, zero_mul])⟩
-
-include hjf in
-private theorem exists_jf_sub_ne_zero : ∃ τ : ℍ, jf τ - 1728 ≠ 0 := by
-  obtain ⟨τ, hτ⟩ := exists_E₆_ne_zero
-  exact ⟨τ, fun h => pow_ne_zero 2 hτ (by rw [E₆_sq_eq jf hjf, h, zero_mul])⟩
-
-private def redN (γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) (ZMod N) :=
-  (γ : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N)
-
-private def vm (γ : SL(2, ℤ)) (v : Fin 2 → ZMod N) : Fin 2 → ZMod N := Matrix.vecMul v (redN γ)
-
-private theorem redN_eq (γ : SL(2, ℤ)) :
-    redN (N := N) γ = (Int.castRingHom (ZMod N)).mapMatrix (γ : Matrix (Fin 2) (Fin 2) ℤ) := rfl
-
-private theorem redN_mul (γ γ' : SL(2, ℤ)) : redN (N := N) (γ * γ') = redN γ * redN γ' := by
-  rw [redN_eq, redN_eq, redN_eq, Matrix.SpecialLinearGroup.coe_mul, map_mul]
-
-private theorem redN_one : redN (N := N) 1 = 1 := by
-  rw [redN, Matrix.SpecialLinearGroup.coe_one]; simp
-
-private theorem vm_mul (γ γ' : SL(2, ℤ)) (v : Fin 2 → ZMod N) : vm (γ * γ') v = vm γ' (vm γ v) := by
-  simp only [vm, redN_mul, Matrix.vecMul_vecMul]
-
-private theorem vm_one (v : Fin 2 → ZMod N) : vm (N := N) 1 v = v := by simp [vm, redN_one]
-
-private theorem vm_ne_zero (γ : SL(2, ℤ)) {v : Fin 2 → ZMod N} (hv : v ≠ 0) : vm γ v ≠ 0 := by
-  intro h
-  apply hv
-  have : vm γ⁻¹ (vm γ v) = v := by rw [← vm_mul, mul_inv_cancel, vm_one]
-  rw [← this, h, vm, Matrix.zero_vecMul]
-
-private def idxMap (α : SL(2, ℤ)) : Idx N → Idx N :=
-  fun o => o.map fun v => ⟨vm α v.1, vm_ne_zero α v.2⟩
-
-private def cw (G : ℍ → ℂ) (α : SL(2, ℤ)) : ℍ → ℂ := fun τ => G (α • τ)
-
-private theorem cw_apply (G : ℍ → ℂ) (α : SL(2, ℤ)) (τ : ℍ) : cw G α τ = G (α • τ) := rfl
-
-private theorem cw_mul (G : ℍ → ℂ) (α β : SL(2, ℤ)) : cw G (α * β) = cw (cw G α) β := by
-  funext τ; simp [cw, mul_smul]
-
-private theorem cw_one (G : ℍ → ℂ) : cw G 1 = G := by funext τ; simp [cw]
-
-private theorem cw_eq_slash (G : ℍ → ℂ) (α : SL(2, ℤ)) : cw G α = G ∣[(0 : ℤ)] α := by
-  funext τ
-  rw [ModularForm.SL_slash_apply, cw_apply, neg_zero, zpow_zero, mul_one]
-
-private theorem mdifferentiable_cw {G : ℍ → ℂ} (hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G) (α : SL(2, ℤ)) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (cw G α) := by
-  rw [cw_eq_slash, ModularForm.SL_slash]; exact hG.slash _ _
-
-private def cwAlgHom (α : SL(2, ℤ)) : (ℍ → ℂ) →ₐ[ℂ] (ℍ → ℂ) where
-  toFun G := cw G α
-  map_one' := rfl
-  map_mul' _ _ := rfl
-  map_zero' := rfl
-  map_add' _ _ := rfl
-  commutes' _ := rfl
-
-private theorem cw_mul_fun (G G' : ℍ → ℂ) (α : SL(2, ℤ)) : cw (G * G') α = cw G α * cw G' α := rfl
-
 private theorem cw_ne_zero {b : ℍ → ℂ} (hb : b ≠ 0) (γ : SL(2, ℤ)) : cw b γ ≠ 0 := by
   intro h
   apply hb
   have : cw (cw b γ) γ⁻¹ = b := by rw [← cw_mul, mul_inv_cancel, cw_one]
   rw [← this, h]; rfl
-
-private theorem cw_aeval {ι : Type} (g : ι → ℍ → ℂ) (R : MvPolynomial ι ℂ) (α : SL(2, ℤ)) :
-    cw (MvPolynomial.aeval g R) α = MvPolynomial.aeval (fun i => cw (g i) α) R := by
-  have := MvPolynomial.comp_aeval g (cwAlgHom α)
-  exact congrArg (fun F => F R) this
-
-include hL hW hfricke in
-private theorem fricke_smul (v : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) : fricke v (γ • τ) = fricke (vm γ v) τ := by
-  have pkg := WLight.frickeFunction_modularity_package N L hL
-  rw [← fricke_eq L W hW fricke hfricke] at pkg
-  exact pkg.1 v γ τ
 
 include hL hW hfricke hjf in
 
@@ -1414,17 +1420,6 @@ private theorem transport_pow_div (p q : ℕ) (E : ℍ → ℂ) (J₀ : MvPolyno
 
 variable {k a b m}
 
-private def Φ (f : CuspForm (Γ₁ℝ N) k) : ℍ → ℂ := fun τ => f τ * (E₄ τ ^ a * E₆ τ ^ b) / Δ τ ^ m
-
-private theorem Φ_apply (f : CuspForm (Γ₁ℝ N) k) (τ : ℍ) : Φ (a := a) (b := b) (m := m) f τ = f τ * (E₄ τ ^ a * E₆ τ ^ b) / Δ τ ^ m := rfl
-
-private theorem Φ_mul_disc (f : CuspForm (Γ₁ℝ N) k) (τ : ℍ) :
-    f τ * (E₄ τ ^ a * E₆ τ ^ b) = Φ (a := a) (b := b) (m := m) f τ * Δ τ ^ m := by
-  rw [Φ_apply, div_mul_cancel₀ _ (pow_ne_zero _ (disc_ne_zero τ))]
-
-private theorem mdifferentiable_Φ (f : CuspForm (Γ₁ℝ N) k) : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Φ (a := a) (b := b) (m := m) f) :=
-  mdifferentiable_div_disc_pow (f.holo'.mul ((E₄.holo'.pow a).mul (E₆.holo'.pow b))) m
-
 include hL hW hfricke hjf hK hs hφ hk in
 
 private theorem main (f : CuspForm (Γ₁ℝ N) k) (P Q : MvPolynomial (Idx N) K) (hQ0 : 𝔢 Q ≠ 0)
@@ -1601,27 +1596,6 @@ namespace FrickeSpan
 
 local notation "Δ" => ModularForm.discriminant
 
-section Analytic
-
-
-private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
-
-
-
-
-private theorem mdifferentiable_inv {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g) (h0 : ∀ τ : ℍ, g τ ≠ 0) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ => (g τ)⁻¹) := by
-  rw [UpperHalfPlane.mdifferentiable_iff]
-  have h1 := UpperHalfPlane.mdifferentiable_iff.1 hg
-  exact (h1.inv fun z _ => h0 _).congr fun z _ => by simp [comp_apply]
-
-private theorem mdifferentiable_div_disc_pow {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g) (r : ℕ) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ => g τ / Δ τ ^ r) := by
-  have := hg.mul (mdifferentiable_inv (mdifferentiable_disc.pow r) fun τ => pow_ne_zero _ (disc_ne_zero τ))
-  exact this
-
-end Analytic
-
 section Params
 
 variable {N : ℕ} [NeZero N]
@@ -1637,8 +1611,6 @@ variable (L : ℍ → PeriodPair) (hL : ∀ τ : ℍ, (L τ).ω₁ = (τ : ℂ) 
     (K : IntermediateField ℚ ℂ)
     (hK : K = IntermediateField.adjoin ℚ
       {Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))})
-
-private abbrev Idx (N : ℕ) : Type := Option {v : Fin 2 → ZMod N // v ≠ 0}
 
 private def gen : Idx N → ℍ → ℂ := fun o => o.elim jf fun v => fricke v.1
 
@@ -1669,62 +1641,7 @@ private theorem evK_zero : evK fricke jf K 0 = 0 := by simp [evK]
 private theorem evK_X (o : Idx N) : evK fricke jf K (MvPolynomial.X o) = gen fricke jf o := by
   simp [evK, MvPolynomial.map_X]
 
-private def redN (γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) (ZMod N) :=
-  (γ : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N)
-
-private def vm (γ : SL(2, ℤ)) (v : Fin 2 → ZMod N) : Fin 2 → ZMod N := Matrix.vecMul v (redN γ)
-
-private theorem redN_eq (γ : SL(2, ℤ)) :
-    redN (N := N) γ = (Int.castRingHom (ZMod N)).mapMatrix (γ : Matrix (Fin 2) (Fin 2) ℤ) := rfl
-
-private theorem redN_mul (γ γ' : SL(2, ℤ)) : redN (N := N) (γ * γ') = redN γ * redN γ' := by
-  rw [redN_eq, redN_eq, redN_eq, Matrix.SpecialLinearGroup.coe_mul, map_mul]
-
-private theorem redN_one : redN (N := N) 1 = 1 := by
-  rw [redN, Matrix.SpecialLinearGroup.coe_one]; simp
-
-private theorem vm_mul (γ γ' : SL(2, ℤ)) (v : Fin 2 → ZMod N) : vm (γ * γ') v = vm γ' (vm γ v) := by
-  simp only [vm, redN_mul, Matrix.vecMul_vecMul]
-
-private theorem vm_one (v : Fin 2 → ZMod N) : vm (N := N) 1 v = v := by simp [vm, redN_one]
-
-private theorem vm_ne_zero (γ : SL(2, ℤ)) {v : Fin 2 → ZMod N} (hv : v ≠ 0) : vm γ v ≠ 0 := by
-  intro h
-  apply hv
-  have : vm γ⁻¹ (vm γ v) = v := by rw [← vm_mul, mul_inv_cancel, vm_one]
-  rw [← this, h, vm, Matrix.zero_vecMul]
-
-private def idxMap (α : SL(2, ℤ)) : Idx N → Idx N :=
-  fun o => o.map fun v => ⟨vm α v.1, vm_ne_zero α v.2⟩
-
-private def cw (G : ℍ → ℂ) (α : SL(2, ℤ)) : ℍ → ℂ := fun τ => G (α • τ)
-
-private theorem cw_apply (G : ℍ → ℂ) (α : SL(2, ℤ)) (τ : ℍ) : cw G α τ = G (α • τ) := rfl
-
-private theorem cw_mul (G : ℍ → ℂ) (α β : SL(2, ℤ)) : cw G (α * β) = cw (cw G α) β := by
-  funext τ; simp [cw, mul_smul]
-
-private theorem cw_one (G : ℍ → ℂ) : cw G 1 = G := by funext τ; simp [cw]
-
-private theorem cw_eq_slash (G : ℍ → ℂ) (α : SL(2, ℤ)) : cw G α = G ∣[(0 : ℤ)] α := by
-  funext τ
-  rw [ModularForm.SL_slash_apply, cw_apply, neg_zero, zpow_zero, mul_one]
-
-private theorem mdifferentiable_cw {G : ℍ → ℂ} (hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G) (α : SL(2, ℤ)) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (cw G α) := by
-  rw [cw_eq_slash, ModularForm.SL_slash]; exact hG.slash _ _
-
-private def cwAlgHom (α : SL(2, ℤ)) : (ℍ → ℂ) →ₐ[ℂ] (ℍ → ℂ) where
-  toFun G := cw G α
-  map_one' := rfl
-  map_mul' _ _ := rfl
-  map_zero' := rfl
-  map_add' _ _ := rfl
-  commutes' _ := rfl
-
 @[scoped simp] private theorem cwAlgHom_apply (α : SL(2, ℤ)) (G : ℍ → ℂ) : cwAlgHom α G = cw G α := rfl
-
-private theorem cw_mul_fun (G G' : ℍ → ℂ) (α : SL(2, ℤ)) : cw (G * G') α = cw G α * cw G' α := rfl
 private theorem cw_add_fun (G G' : ℍ → ℂ) (α : SL(2, ℤ)) : cw (G + G') α = cw G α + cw G' α := rfl
 private theorem cw_smul_fun (c : ℂ) (G : ℍ → ℂ) (α : SL(2, ℤ)) : cw (c • G) α = c • cw G α := rfl
 private theorem cw_sub_fun (G G' : ℍ → ℂ) (α : SL(2, ℤ)) : cw (G - G') α = cw G α - cw G' α := rfl
@@ -1732,98 +1649,8 @@ private theorem cw_sub_fun (G G' : ℍ → ℂ) (α : SL(2, ℤ)) : cw (G - G') 
 private theorem cw_sum {ι : Type*} (s : Finset ι) (G : ι → ℍ → ℂ) (α : SL(2, ℤ)) :
     cw (∑ i ∈ s, G i) α = ∑ i ∈ s, cw (G i) α := map_sum (cwAlgHom α) G s
 
-private theorem mdifferentiable_E₄ : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (E₄ : ℍ → ℂ) := E₄.holo'
-private theorem mdifferentiable_E₆ : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (E₆ : ℍ → ℂ) := E₆.holo'
-
-private theorem mem_SL (A : SL(2, ℤ)) : (A : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨A, rfl⟩
-
-private theorem E₄_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    E₄ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (4 : ℤ) * E₄ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' E₄ (Γ := 𝒮ℒ) (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [← ModularGroup.sl_moeb] at this
-  exact_mod_cast this
-
-private theorem E₆_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    E₆ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (6 : ℤ) * E₆ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' E₆ (Γ := 𝒮ℒ) (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [← ModularGroup.sl_moeb] at this
-  exact_mod_cast this
-
-private theorem disc_smul (A : SL(2, ℤ)) (τ : ℍ) :
-    Δ (A • τ) = denom (A : GL (Fin 2) ℝ) τ ^ (12 : ℤ) * Δ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant (Γ := 𝒮ℒ)
-    (γ := (A : GL (Fin 2) ℝ)) (mem_SL A) τ
-  rw [CuspForm.coe_discriminant, ← ModularGroup.sl_moeb] at this
-  exact this
-
-private theorem exists_E₄_ne_zero : ∃ τ : ℍ, E₄ τ ≠ 0 := by
-  by_contra h
-  push Not at h
-  have : (E₄ : ModularForm 𝒮ℒ 4) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨2, rfl⟩ this
-
-private theorem exists_E₆_ne_zero : ∃ τ : ℍ, E₆ τ ≠ 0 := by
-  by_contra h
-  push Not at h
-  have : (E₆ : ModularForm 𝒮ℒ 6) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-  exact EisensteinSeries.E_ne_zero (by norm_num) ⟨3, rfl⟩ this
-
-include hjf in
-private theorem mdifferentiable_jf : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) jf := by
-  have : jf = fun τ => E₄ τ ^ 3 / Δ τ ^ 1 := by funext τ; rw [hjf, pow_one]
-  rw [this]; exact mdifferentiable_div_disc_pow (mdifferentiable_E₄.pow 3) 1
-
-include hjf in
-private theorem jf_smul (α : SL(2, ℤ)) (τ : ℍ) : jf (α • τ) = jf τ := by
-  have hd : denom (α : GL (Fin 2) ℝ) τ ≠ 0 := denom_ne_zero _ τ
-  have hΔ : Δ τ ≠ 0 := discriminant_ne_zero τ
-  rw [hjf, hjf, disc_smul, E₄_smul]
-  field_simp
-
 include hjf in
 private theorem cw_jf (α : SL(2, ℤ)) : cw jf α = jf := funext (jf_smul jf hjf α)
-
-include hjf in
-
-private theorem E₄_cube_eq (τ : ℍ) : E₄ τ ^ 3 = jf τ * Δ τ := by
-  rw [hjf]; field_simp [disc_ne_zero τ]
-
-include hjf in
-
-private theorem E₆_sq_eq (τ : ℍ) : E₆ τ ^ 2 = (jf τ - 1728) * Δ τ := by
-  have h := discriminant_eq_E₄_cube_sub_E₆_sq τ
-  rw [hjf, sub_mul, div_mul_cancel₀ _ (disc_ne_zero τ)]
-  linear_combination (1728 : ℂ) * h
-
-include hjf in
-private theorem exists_jf_ne_zero : ∃ τ : ℍ, jf τ ≠ 0 := by
-  obtain ⟨τ, hτ⟩ := exists_E₄_ne_zero
-  exact ⟨τ, fun h => pow_ne_zero 3 hτ (by rw [E₄_cube_eq jf hjf, h, zero_mul])⟩
-
-include hjf in
-private theorem exists_jf_sub_ne_zero : ∃ τ : ℍ, jf τ - 1728 ≠ 0 := by
-  obtain ⟨τ, hτ⟩ := exists_E₆_ne_zero
-  exact ⟨τ, fun h => pow_ne_zero 2 hτ (by rw [E₆_sq_eq jf hjf, h, zero_mul])⟩
-
-include hW hfricke in
-
-private theorem fricke_eq : fricke = fun (a : Fin 2 → ZMod N) (τ : ℍ) =>
-    -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 *
-      (((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-        PeriodPair.weierstrassP (L τ) ((((a 0).val : ℂ) * (τ : ℂ) + ((a 1).val : ℂ)) / (N : ℂ))) := by
-  funext a τ; rw [hfricke, hW]
-
-include hL hW hfricke in
-private theorem fricke_smul (v : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) : fricke v (γ • τ) = fricke (vm γ v) τ := by
-  have pkg := WLight.frickeFunction_modularity_package N L hL
-  rw [← fricke_eq L W hW fricke hfricke] at pkg
-  exact pkg.1 v γ τ
-
-include hL hW hfricke in
-private theorem mdifferentiable_fricke {v : Fin 2 → ZMod N} (hv : v ≠ 0) : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fricke v) := by
-  have pkg := WLight.frickeFunction_modularity_package N L hL
-  rw [← fricke_eq L W hW fricke hfricke] at pkg
-  exact pkg.2.2.1 v hv
 
 include hL hW hfricke in
 private theorem fricke_Gamma_smul (v : Fin 2 → ZMod N) {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma N)
@@ -1843,11 +1670,6 @@ private theorem mdifferentiable_gen (o : Idx N) : MDifferentiable 𝓘(ℂ) 𝓘
   cases o with
   | none => exact mdifferentiable_jf jf hjf
   | some v => exact mdifferentiable_fricke L hL W hW fricke hfricke v.2
-
-private theorem cw_aeval {ι : Type} (g : ι → ℍ → ℂ) (R : MvPolynomial ι ℂ) (α : SL(2, ℤ)) :
-    cw (MvPolynomial.aeval g R) α = MvPolynomial.aeval (fun i => cw (g i) α) R := by
-  have := MvPolynomial.comp_aeval g (cwAlgHom α)
-  simpa using congrArg (fun F => F R) this
 
 include hL hW hfricke hjf in
 
@@ -2408,37 +2230,6 @@ end Twist
 
 section Stability
 
-private theorem tendsto_E {k : ℕ} (hk3 : 3 ≤ k) (hk2 : Even k) :
-    Tendsto (⇑(ModularForm.E hk3) : ℍ → ℂ) atImInfty (𝓝 1) := by
-  have hanal := ModularFormClass.analyticAt_cuspFunction_zero (ModularForm.E hk3) one_pos
-    one_mem_strictPeriods_SL
-  have hper := SlashInvariantFormClass.periodic_comp_ofComplex (ModularForm.E hk3) one_mem_strictPeriods_SL
-  have hval : cuspFunction 1 (⇑(ModularForm.E hk3)) 0 = 1 := by
-    have h0 := qExpansion_coeff (⇑(ModularForm.E hk3)) (h := (1 : ℝ)) 0
-    rw [EisensteinSeries.E_qExpansion_coeff_zero hk3 hk2] at h0
-    simpa using h0.symm
-  have := (hanal.continuousAt.tendsto.comp (qParam_tendsto_atImInfty one_pos)).congr
-    (fun τ => eq_cuspFunction τ one_ne_zero hper)
-  simpa [hval] using this
-
-private theorem tendsto_E₄ : Tendsto (⇑E₄ : ℍ → ℂ) atImInfty (𝓝 1) := tendsto_E (by norm_num) ⟨2, rfl⟩
-private theorem tendsto_E₆ : Tendsto (⇑E₆ : ℍ → ℂ) atImInfty (𝓝 1) := tendsto_E (by norm_num) ⟨3, rfl⟩
-
-private theorem bdd_of_mul_tendsto_one {h e : ℍ → ℂ} (hhe : IsBoundedAtImInfty (h * e))
-    (he : Tendsto e atImInfty (𝓝 1)) : IsBoundedAtImInfty h := by
-  have hne : ∀ᶠ τ in atImInfty, e τ ≠ 0 := he.eventually_ne one_ne_zero
-  have hinv : Tendsto (fun τ => (e τ)⁻¹) atImInfty (𝓝 1) := by simpa using he.inv₀ one_ne_zero
-  have hb : IsBoundedAtImInfty ((h * e) * fun τ => (e τ)⁻¹) := hhe.mul (hinv.isBigO_one ℝ)
-  refine (hb.congr' ?_ EventuallyEq.rfl)
-  filter_upwards [hne] with τ hτ
-  simp only [Pi.mul_apply]
-  field_simp
-
-private theorem bdd_pow {f : ℍ → ℂ} (hf : IsBoundedAtImInfty f) (n : ℕ) : IsBoundedAtImInfty (f ^ n) := by
-  induction n with
-  | zero => (simp only [pow_zero]; exact Filter.const_boundedAtFilter atImInfty (1 : ℂ))
-  | succ n ih => rw [pow_succ]; exact ih.mul hf
-
 private theorem periodic_of_Gamma_invariant {N : ℕ} [NeZero N] {u : ℍ → ℂ}
     (h : ∀ γ ∈ CongruenceSubgroup.Gamma N, cw u γ = u) : Periodic (u ∘ ofComplex) N := by
   have hT : ModularGroup.T ^ (N : ℤ) ∈ CongruenceSubgroup.Gamma N := by
@@ -2845,17 +2636,13 @@ theorem kN_eq : kN N = IntermediateField.adjoin ℚ {Complex.exp (2 * (Real.pi :
 
 private def genSet : Set (ℍ → ℂ) := insert jf {g : ℍ → ℂ | ∃ v : Fin 2 → ZMod N, v ≠ 0 ∧ g = fricke N v}
 
-private abbrev Idx : Type := Option {v : Fin 2 → ZMod N // v ≠ 0}
-
 private def gen (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N)) : Idx N → ℍ → ℂ :=
   fun o => o.elim jf fun v => fricke N (t v.1)
-
-private def ds (s : ℕ) (v : Fin 2 → ZMod N) : Fin 2 → ZMod N := ![v 0, (s : ZMod N) * v 1]
 
 private theorem gen_id_eq : gen N id = fun o : Idx N => o.elim jf fun v => fricke N v.1 := rfl
 
 private theorem gen_ds_eq (s : ℕ) :
-    gen N (ds N s) = fun o : Idx N => o.elim jf fun v => fricke N ![v.1 0, (s : ZMod N) * v.1 1] := rfl
+    gen N (ds s) = fun o : Idx N => o.elim jf fun v => fricke N ![v.1 0, (s : ZMod N) * v.1 1] := rfl
 
 section Cyclo
 
@@ -2984,34 +2771,12 @@ variable (N : ℕ)
 
 local notation "Δ" => ModularForm.discriminant
 
-private def redN (γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) (ZMod N) :=
-  (γ : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N)
-
-private def vm (γ : SL(2, ℤ)) (v : Fin 2 → ZMod N) : Fin 2 → ZMod N := Matrix.vecMul v (redN N γ)
-
 private theorem conj_mem_Gamma (α : SL(2, ℤ)) {g : SL(2, ℤ)} (hg : g ∈ CongruenceSubgroup.Gamma N) :
     α * g * α⁻¹ ∈ CongruenceSubgroup.Gamma N :=
   Subgroup.Normal.conj_mem (Gamma_normal N) g hg α
 
 
 variable {N}
-
-private def cw (G : ℍ → ℂ) (α : SL(2, ℤ)) : ℍ → ℂ := fun τ => G (α • τ)
-
-private theorem cw_apply (G : ℍ → ℂ) (α : SL(2, ℤ)) (τ : ℍ) : cw G α τ = G (α • τ) := rfl
-
-private theorem cw_mul (G : ℍ → ℂ) (α β : SL(2, ℤ)) : cw G (α * β) = cw (cw G α) β := by
-  funext τ; simp [cw, mul_smul]
-
-private theorem cw_one (G : ℍ → ℂ) : cw G 1 = G := by funext τ; simp [cw]
-
-private theorem cw_eq_slash (G : ℍ → ℂ) (α : SL(2, ℤ)) : cw G α = G ∣[(0 : ℤ)] α := by
-  funext τ
-  rw [ModularForm.SL_slash_apply, cw_apply, neg_zero, zpow_zero, mul_one]
-
-private theorem mdifferentiable_cw {G : ℍ → ℂ} (hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G) (α : SL(2, ℤ)) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (cw G α) := by
-  rw [cw_eq_slash, ModularForm.SL_slash]; exact hG.slash _ _
 
 end Group
 
@@ -3253,70 +3018,34 @@ private theorem qExpansion_Ek_rat (n : ℕ) : ∃ r : ℚ, (qExpansion 1 (⇑(Ek
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL,
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL, map_mul, map_pow, map_pow, hp4, hp6]
 
-private theorem exists_Ek_ne_zero : ∃ τ : ℍ, E₄ τ ^ a * E₆ τ ^ b ≠ 0 := by
-  have h4 : ∃ τ : ℍ, E₄ τ ≠ 0 := by
-    by_contra h
-    push Not at h
-    have : (E₄ : ModularForm 𝒮ℒ 4) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-    exact EisensteinSeries.E_ne_zero (by norm_num) ⟨2, rfl⟩ this
-  have h6 : ∃ τ : ℍ, E₆ τ ≠ 0 := by
-    by_contra h
-    push Not at h
-    have : (E₆ : ModularForm 𝒮ℒ 6) = 0 := DFunLike.ext _ _ fun τ => by simpa using h τ
-    exact EisensteinSeries.E_ne_zero (by norm_num) ⟨3, rfl⟩ this
-  obtain ⟨τ₄, hτ₄⟩ := h4
-  by_contra h
-  push Not at h
-  have hprod : ∀ τ : ℍ, E₄ τ = 0 ∨ E₆ τ = 0 := fun τ =>
-    (mul_eq_zero.1 (h τ)).imp eq_zero_of_pow_eq_zero eq_zero_of_pow_eq_zero
-  have hmul : ∀ τ : ℍ, E₆ τ * E₄ τ = 0 := fun τ => by
-    rcases hprod τ with h0 | h0 <;> simp [h0]
-  have := eq_zero_of_mul_eq_zero E₆.holo' E₄.holo' hmul hτ₄
-  obtain ⟨τ₆, hτ₆⟩ := h6
-  exact hτ₆ (by simpa using congrFun this τ₆)
-
 variable {a b} (k : ℤ) (m : ℕ)
 
-private def Φ (f : CuspForm (Γ₁ℝ N) k) : ℍ → ℂ := fun τ => f τ * (E₄ τ ^ a * E₆ τ ^ b) / Δ τ ^ m
-
-private theorem Φ_apply (f : CuspForm (Γ₁ℝ N) k) (τ : ℍ) : Φ (a := a) (b := b) k m f τ = f τ * (E₄ τ ^ a * E₆ τ ^ b) / Δ τ ^ m := rfl
-
-private theorem Φ_mul_disc (f : CuspForm (Γ₁ℝ N) k) (τ : ℍ) :
-    f τ * (E₄ τ ^ a * E₆ τ ^ b) = Φ (a := a) (b := b) k m f τ * Δ τ ^ m := by
-  rw [Φ_apply, div_mul_cancel₀ _ (pow_ne_zero _ (discriminant_ne_zero τ))]
-
 private theorem Φ_mul_disc_fun (f : CuspForm (Γ₁ℝ N) k) :
-    Φ (a := a) (b := b) k m f * Δ ^ m = ⇑f * ⇑(Ek a b) := by
+    Φ (a := a) (b := b) (k := k) (m := m) f * Δ ^ m = ⇑f * ⇑(Ek a b) := by
   funext τ; simp only [Pi.mul_apply, Pi.pow_apply, ← Φ_mul_disc, Ek_apply]
-
-private theorem mdifferentiable_Φ (f : CuspForm (Γ₁ℝ N) k) : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Φ (a := a) (b := b) k m f) := by
-  have h1 : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ : ℍ => f τ * (E₄ τ ^ a * E₆ τ ^ b)) :=
-    f.holo'.mul ((E₄.holo'.pow a).mul (E₆.holo'.pow b))
-  intro τ
-  exact (h1 τ).div ((mdifferentiable_disc τ).pow m) (pow_ne_zero _ (discriminant_ne_zero τ))
 
 variable (hk : k + 4 * (a : ℤ) + 6 * (b : ℤ) = 12 * (m : ℤ))
 include hk
 
 private theorem crit_Φ (f : CuspForm (Γ₁ℝ N) k) :
-    (∀ A : SL(2, ℤ), IsZeroAtImInfty ((Φ (a := a) (b := b) k m f ∘ (A • ·)) * Δ ^ m)) ∧
-      ∀ γ ∈ Gamma1 N, ∀ τ : ℍ, Φ (a := a) (b := b) k m f (γ • τ) = Φ (a := a) (b := b) k m f τ := by
+    (∀ A : SL(2, ℤ), IsZeroAtImInfty ((Φ (a := a) (b := b) (k := k) (m := m) f ∘ (A • ·)) * Δ ^ m)) ∧
+      ∀ γ ∈ Gamma1 N, ∀ τ : ℍ, Φ (a := a) (b := b) (k := k) (m := m) f (γ • τ) = Φ (a := a) (b := b) (k := k) (m := m) f τ := by
   obtain ⟨-, -, h₃, h₄⟩ := (CuspForm.exists_mul_E4_pow_mul_E6_pow_eq_iff (Gamma1 N) k a b m hk
-    (Φ (a := a) (b := b) k m f) (mdifferentiable_Φ k m f)).1 ⟨f, Φ_mul_disc k m f⟩
+    (Φ (a := a) (b := b) (k := k) (m := m) f) (mdifferentiable_Φ f)).1 ⟨f, Φ_mul_disc f⟩
   exact ⟨h₃, h₄⟩
 
 omit hk in
 
 private theorem ratAt_Φ (f : CuspForm (Γ₁ℝ N) k) (c : ℕ → kN N)
     (hf : ∀ n : ℕ, (qExpansion 1 (⇑f)).coeff n = (c n : ℂ)) :
-    RatAt N (kN N) m (Φ (a := a) (b := b) k m f) := by
+    RatAt N (kN N) m (Φ (a := a) (b := b) (k := k) (m := m) f) := by
   have hperf : Periodic ((⇑f : ℍ → ℂ) ∘ ofComplex) 1 :=
     SlashInvariantFormClass.periodic_comp_ofComplex f (one_mem_strictPeriods N)
   have hperE : Periodic ((⇑(Ek a b) : ℍ → ℂ) ∘ ofComplex) 1 :=
     SlashInvariantFormClass.periodic_comp_ofComplex (Ek a b) one_mem_strictPeriods_SL
   have hbdf : IsBoundedAtImInfty (⇑f : ℍ → ℂ) := ModularFormClass.bdd_at_infty f
   have hbdE : IsBoundedAtImInfty (⇑(Ek a b) : ℍ → ℂ) := ModularFormClass.bdd_at_infty (Ek a b)
-  refine ⟨mdifferentiable_Φ k m f, ?_, ?_, ?_⟩
+  refine ⟨mdifferentiable_Φ f, ?_, ?_, ?_⟩
   · rw [Φ_mul_disc_fun]
     exact periodic_mul (periodic_ofComplex_natCast hperf N) (periodic_ofComplex_natCast hperE N)
   · rw [Φ_mul_disc_fun]; exact hbdf.mul hbdE
@@ -3369,7 +3098,7 @@ private theorem exists_multSeries (σ : (kN N) ≃ₐ[ℚ] (kN N)) (a b d : ℕ)
     rw [Ne, qExpansion_eq_zero_iff (natCast_pos N) hperN (f := (⇑F : ℍ → ℂ)) F.holo'
       (ModularFormClass.bdd_at_infty F)]
     intro h0
-    obtain ⟨τ, hτ⟩ := exists_Ek_ne_zero a b
+    obtain ⟨τ, hτ⟩ := exists_Efun_ne_zero a b
     have := congrFun h0 τ
     rw [hF] at this
     simp only [Pi.mul_apply, Pi.pow_apply, Pi.zero_apply] at this
@@ -3384,8 +3113,8 @@ private theorem main (k : ℤ) (hk : Even k) (σ : (kN N) ≃ₐ[ℚ] (kN N)) (f
   have hf' : ∀ n : ℕ, (qExpansion 1 (⇑f)).coeff n = (c n : ℂ) := hf
   obtain ⟨a, b, m, habm⟩ := exists_abm hk
 
-  set G : ℍ → ℂ := Φ (a := a) (b := b) k m f with hGdef
-  have hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G := mdifferentiable_Φ k m f
+  set G : ℍ → ℂ := Φ (a := a) (b := b) (k := k) (m := m) f with hGdef
+  have hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G := mdifferentiable_Φ f
   obtain ⟨h₃, h₄⟩ := crit_Φ k m habm f
   have hinv : ∀ g ∈ CongruenceSubgroup.Gamma N, ∀ τ : ℍ, G (g • τ) = G τ :=
     fun g hg τ => h₄ g (Gamma_le_Gamma1 N hg) τ
@@ -3409,7 +3138,7 @@ private theorem main (k : ℤ) (hk : Even k) (σ : (kN N) ≃ₐ[ℚ] (kN N)) (f
     have h1 := congrFun hGQ τ
     simp only [Pi.mul_apply] at h1
     change f τ * (E₄ τ ^ a * E₆ τ ^ b) * ev id Q τ = Δ τ ^ m * ev id P τ
-    rw [Φ_mul_disc k m f τ, ← h1]
+    rw [Φ_mul_disc f τ, ← h1]
     ring
 
   obtain ⟨f', hQ'0, hid'⟩ := CuspForm.exists_gamma1_frickeRational_sigmaTransport N tauPair tauPair_spec
@@ -3445,15 +3174,15 @@ private theorem main (k : ℤ) (hk : Even k) (σ : (kN N) ≃ₐ[ℚ] (kN N)) (f
             have hu : IsUnit (s : ZMod N) := (ZMod.unitOfCoprime s hs).isUnit
             have h1' : v.1 1 = 0 := by simpa using hu.mul_left_cancel (h1.trans (mul_zero _).symm)
             funext i; fin_cases i <;> simp [h0, h1']
-  have hG₁Q : Φ (a := a) (b := b) k m f' * Q' = P' := by
+  have hG₁Q : Φ (a := a) (b := b) (k := k) (m := m) f' * Q' = P' := by
     funext τ
     have h1 := hid' τ
     simp only [Pi.mul_apply]
     apply mul_left_cancel₀ (pow_ne_zero m (discriminant_ne_zero τ))
-    rw [← h1, Φ_mul_disc k m f' τ]
+    rw [← h1, Φ_mul_disc f' τ]
     ring
-  have hG₁eq : Φ (a := a) (b := b) k m f' = G' := by
-    have hdiff : ∀ τ : ℍ, (Φ (a := a) (b := b) k m f' - G') τ * Q' τ = 0 := by
+  have hG₁eq : Φ (a := a) (b := b) (k := k) (m := m) f' = G' := by
+    have hdiff : ∀ τ : ℍ, (Φ (a := a) (b := b) (k := k) (m := m) f' - G') τ * Q' τ = 0 := by
       intro τ
       have e1 := congrFun hG₁Q τ
       have e2 := congrFun hG'Q τ
@@ -3463,7 +3192,7 @@ private theorem main (k : ℤ) (hk : Even k) (σ : (kN N) ≃ₐ[ℚ] (kN N)) (f
       by_contra hall
       push Not at hall
       exact hQ'0 (funext hall)
-    have := eq_zero_of_mul_eq_zero ((mdifferentiable_Φ k m f').sub hG') hQ'hol hdiff hτ₀
+    have := eq_zero_of_mul_eq_zero ((mdifferentiable_Φ f').sub hG') hQ'hol hdiff hτ₀
     exact sub_eq_zero.1 this
 
   have hRGM : RatAt N (kN N) (m₁ + m) G := ⟨hG, hper, hbd, hmem⟩
@@ -3477,7 +3206,7 @@ private theorem main (k : ℤ) (hk : Even k) (σ : (kN N) ≃ₐ[ℚ] (kN N)) (f
     rw [← hpι, PowerSeries.coeff_map]
     rfl
 
-  have hsplit : ∀ (g : CuspForm (Γ₁ℝ N) k), Φ (a := a) (b := b) k m g * Δ ^ (m₁ + m) =
+  have hsplit : ∀ (g : CuspForm (Γ₁ℝ N) k), Φ (a := a) (b := b) (k := k) (m := m) g * Δ ^ (m₁ + m) =
       ⇑g * (⇑(Ek a b) * Δ ^ m₁) := by
     intro g
     rw [add_comm, pow_add, ← mul_assoc, Φ_mul_disc_fun]; ring

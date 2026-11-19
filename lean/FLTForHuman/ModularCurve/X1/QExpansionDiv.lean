@@ -43,10 +43,6 @@
   * `ModularForm.trace`/`ModularForm.coe_trace`/`SlashInvariantForm.quotientFunc`
     are mathlib's (`Mathlib/NumberTheory/ModularForms/NormTrace.lean`), so the
     pin's `tr`/`rep`/`R` block is a thin transcription over them;
-  * the pin's `conj_mem_Gamma1` also exists `private` in
-    `ModularForms/WeightOne/Gamma1IntegralBasis.lean` (and publicly as
-    `ModularForm.Level.conj_mem_Gamma1`); per the port convention it is
-    re-derived here locally `private` rather than promoted.
 
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_qExpansion_div_mem_laurentBaseChange_xHFunctionField.lean
@@ -64,9 +60,8 @@ import Mathlib.NumberTheory.ModularForms.NormTrace
 
 set_option autoImplicit false
 
--- No `linter.style.haveILetI` suppression is needed: the pin's single `haveI`
--- (`(Gamma1' N).Normal` in `conj_mem_Gamma1`) is passed explicitly as a `have`
--- to `Subgroup.Normal.conj_mem`, and the quotient `Fintype` is a `local instance`.
+-- The quotient `Fintype` is a `local instance`, so no `linter.style.haveILetI`
+-- suppression is needed.
 
 noncomputable section
 
@@ -118,42 +113,11 @@ end Groups
 
 section Translates
 
-private theorem conj_mem_Gamma1 {γ x : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (hx : x ∈ Gamma1 N) :
-    γ * x * γ⁻¹ ∈ Gamma1 N := by
-  have hx0 : x ∈ Gamma0 N := Gamma1_in_Gamma0 N hx
-  have hx' : (⟨x, hx0⟩ : Gamma0 N) ∈ Gamma1' N := by
-    rw [Gamma1_to_Gamma0_mem]
-    exact (Gamma1_mem N x).1 hx
-  have hN : (Gamma1' N).Normal := MonoidHom.normal_ker _
-  have hc : (⟨γ, hγ⟩ : Gamma0 N) * ⟨x, hx0⟩ * (⟨γ, hγ⟩ : Gamma0 N)⁻¹ ∈ Gamma1' N :=
-    Subgroup.Normal.conj_mem hN _ hx' _
-  rw [Gamma1_to_Gamma0_mem] at hc
-  exact (Gamma1_mem N _).2 hc
-
-private theorem mem_coe_Gamma1_iff (x : GL (Fin 2) ℝ) :
-    x ∈ (Γ₁ℝ) ↔ ∃ γ : SL(2, ℤ), γ ∈ Gamma1 N ∧ (Matrix.SpecialLinearGroup.mapGL ℝ γ) = x :=
-  Subgroup.mem_map
-
 open ConjAct Pointwise in
 
 private theorem toConjAct_inv_smul_coe_Gamma1 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
-    toConjAct (Matrix.SpecialLinearGroup.mapGL ℝ γ)⁻¹ • (Γ₁ℝ) = (Γ₁ℝ) := by
-  ext x
-  rw [Subgroup.mem_pointwise_smul_iff_inv_smul_mem, ← map_inv, inv_inv, ConjAct.toConjAct_smul]
-  constructor
-  · intro h
-    obtain ⟨y, hy, hyx⟩ := (mem_coe_Gamma1_iff _).1 h
-    have hx : x = Matrix.SpecialLinearGroup.mapGL ℝ γ⁻¹ * Matrix.SpecialLinearGroup.mapGL ℝ y
-        * Matrix.SpecialLinearGroup.mapGL ℝ γ := by
-      rw [hyx, map_inv]; group
-    have hmem := conj_mem_Gamma1 (Subgroup.inv_mem _ hγ) hy
-    rw [inv_inv] at hmem
-    rw [hx, ← map_mul, ← map_mul]
-    exact Subgroup.mem_map_of_mem _ hmem
-  · intro h
-    obtain ⟨y, hy, rfl⟩ := (mem_coe_Gamma1_iff _).1 h
-    rw [← map_inv, ← map_mul, ← map_mul]
-    exact Subgroup.mem_map_of_mem _ (conj_mem_Gamma1 hγ hy)
+    toConjAct (Matrix.SpecialLinearGroup.mapGL ℝ γ)⁻¹ • (Γ₁ℝ) = (Γ₁ℝ) :=
+  ModularForm.Level.toConjAct_inv_smul_coe_Gamma1 hγ
 
 private def slashMF {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (F : ModularForm (Γ₁ℝ) k) :
     ModularForm (Γ₁ℝ) k :=

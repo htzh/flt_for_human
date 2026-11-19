@@ -890,14 +890,6 @@ local notation "Γ₁ℝ" M => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL 
 
 variable {N : ℕ} {k : ℤ}
 
-private theorem conj_mem_Gamma1 {γ x : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (hx : x ∈ Gamma1 N) :
-    γ * x * γ⁻¹ ∈ Gamma1 N :=
-  ModularForm.Level.conj_mem_Gamma1 hγ hx
-
-private theorem mem_coe_Gamma1_iff (x : GL (Fin 2) ℝ) :
-    x ∈ (Γ₁ℝ N) ↔ ∃ γ : SL(2, ℤ), γ ∈ Gamma1 N ∧ (Matrix.SpecialLinearGroup.mapGL ℝ γ) = x :=
-  ModularForm.Level.mem_coe_Gamma1_iff x
-
 open ConjAct Pointwise in
 
 private theorem toConjAct_inv_smul_coe_Gamma1 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :

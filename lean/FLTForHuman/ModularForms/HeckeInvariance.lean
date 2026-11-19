@@ -8,12 +8,12 @@
   - `heckeT_slash_eq_self_of_mem_Gamma0` (`p` prime, `p ∤ N`),
   - `heckeU_slash_eq_self_of_mem_Gamma0_div` (`p² ∣ N`, the lowering step).
 
-  They are ~10-line wrappers around the shared block's workhorses
+  `heckeU_slash_eq_self_of_mem_Gamma0` and `heckeT_slash_eq_self_of_mem_Gamma0`
+  are ~10-line wrappers around the shared block's workhorses
   `heckeU_slash_mapGL`/`heckeT_slash_mapGL` in
-  `FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean`; the only extra
-  content is the `_div` case's `Γ₀(N/p) ↪ Γ₀(N)` bookkeeping (the pin's
-  `heckeU_slash_mapGL_of_sq_dvd`, kept `private` here because it is not an FLT
-  node).
+  `FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean`.
+  `heckeU_slash_eq_self_of_mem_Gamma0_div` runs the same coset computation at
+  level `N/p`, where the witness only lands in `Γ₀(p * (N/p)) = Γ₀(N)`.
 
   The Fricke pair (`heckeU_add_slash_fricke_eq_zero` and
   `exists_levelOne_coe_eq_zpow_smul_add_heckeU_slash_fricke`) now lives in
@@ -82,14 +82,19 @@ theorem heckeT_slash_eq_self_of_mem_Gamma0 {N : ℕ} (k : ℤ) {p : ℕ} (hp : p
   obtain ⟨g, hg, rfl⟩ := hγ
   exact heckeT_slash_mapGL k hpN f hf g hg
 
-/-- The `p² ∣ N` lowering step: `U_p f` is invariant under `Γ₀(N/p)` when `f` is
-invariant under `Γ₀(N)`. Private helper: the pin's
-`heckeU_slash_mapGL_of_sq_dvd`, which has no `Theorems/` wrapper of its own. -/
-private theorem heckeU_slash_mapGL_of_sq_dvd {N : ℕ} (k : ℤ) {p : ℕ} [NeZero p] (hp2N : p ^ 2 ∣ N)
-    (f : ℍ → ℂ)
-    (hf : ∀ γ ∈ (CongruenceSubgroup.Gamma0 N : Subgroup (GL (Fin 2) ℝ)), f ∣[k] γ = f)
-    (g : SL(2, ℤ)) (hg : g ∈ CongruenceSubgroup.Gamma0 (N / p)) :
-    heckeU k p f ∣[k] (mapGL ℝ g) = heckeU k p f := by
+/-- `U_p` is invariant under `Γ₀(N/p)` when `p² ∣ N` and `f` is invariant under
+`Γ₀(N)`. Stated verbatim from
+`Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0_div.lean`. -/
+theorem heckeU_slash_eq_self_of_mem_Gamma0_div {N : ℕ} (k : ℤ) {p : ℕ} (hp2N : p ^ 2 ∣ N) {f : UpperHalfPlane → ℂ}
+    (hf : ∀ γ ∈ (CongruenceSubgroup.Gamma0 N : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)),
+      SlashAction.map k γ f = f)
+    (γ : Matrix.GeneralLinearGroup (Fin 2) ℝ)
+    (hγ : γ ∈ (CongruenceSubgroup.Gamma0 (N / p) : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ))) :
+    SlashAction.map k γ (ModularForm.heckeU k p f) = ModularForm.heckeU k p f := by
+  rcases Nat.eq_zero_or_pos p with rfl | hp
+  · simp
+  haveI : NeZero p := ⟨hp.ne'⟩
+  obtain ⟨g, hg, rfl⟩ := hγ
   have hpN : p ∣ N := (dvd_pow_self p two_ne_zero).trans hp2N
   have hpNp : p ∣ N / p := (Nat.dvd_div_iff_mul_dvd hpN).mpr (by rw [← pow_two]; exact hp2N)
   have hcNp : ((N / p : ℕ) : ℤ) ∣ g 1 0 :=
@@ -108,21 +113,6 @@ private theorem heckeU_slash_mapGL_of_sq_dvd {N : ℕ} (k : ℤ) {p : ℕ} [NeZe
           hf _ (Subgroup.mem_map_of_mem (mapGL ℝ) hg')]
     _ = ∑ x : ZMod p, f ∣[k] heckeMatrix p x.val :=
         Equiv.sum_comp (affinePerm g hc0) (fun x ↦ f ∣[k] heckeMatrix p x.val)
-
-/-- `U_p` is invariant under `Γ₀(N/p)` when `p² ∣ N` and `f` is invariant under
-`Γ₀(N)`. Stated verbatim from
-`Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0_div.lean`. -/
-theorem heckeU_slash_eq_self_of_mem_Gamma0_div {N : ℕ} (k : ℤ) {p : ℕ} (hp2N : p ^ 2 ∣ N) {f : UpperHalfPlane → ℂ}
-    (hf : ∀ γ ∈ (CongruenceSubgroup.Gamma0 N : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)),
-      SlashAction.map k γ f = f)
-    (γ : Matrix.GeneralLinearGroup (Fin 2) ℝ)
-    (hγ : γ ∈ (CongruenceSubgroup.Gamma0 (N / p) : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ))) :
-    SlashAction.map k γ (ModularForm.heckeU k p f) = ModularForm.heckeU k p f := by
-  rcases Nat.eq_zero_or_pos p with rfl | hp
-  · simp
-  haveI : NeZero p := ⟨hp.ne'⟩
-  obtain ⟨g, hg, rfl⟩ := hγ
-  exact heckeU_slash_mapGL_of_sq_dvd k hp2N f hf g hg
 
 /-- `U_q` preserves `Γ_H(M)`-invariance when `q ∣ M`. Stated verbatim from
 `Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_GammaH.lean`. -/

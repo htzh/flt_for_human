@@ -132,6 +132,26 @@ theorem isUnit_d {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma0 N) :
 
 end isUnit_d
 
+section Normal
+
+/-- `Γ₁(N)` is the kernel of the lower-right character on `Γ₀(N)`: the congruence
+condition `γ 1 1 ≡ 1` forces `γ 0 0 ≡ 1` as well, and `γ 1 0 ≡ 0` is already `Γ₀`'s. -/
+theorem Gamma1_subgroupOf_eq_ker (N : ℕ) :
+    (CongruenceSubgroup.Gamma1 N).subgroupOf (CongruenceSubgroup.Gamma0 N) =
+      (CongruenceSubgroup.Gamma0Map N).ker := by
+  ext x
+  rw [Subgroup.mem_subgroupOf, MonoidHom.mem_ker]
+  show (x : SL(2, ℤ)) ∈ CongruenceSubgroup.Gamma1 N ↔ ((x : SL(2, ℤ)) 1 1 : ZMod N) = 1
+  exact ⟨fun h => ((CongruenceSubgroup.Gamma1_mem N x).1 h).2.1, fun h => mem_Gamma1_of_d_eq_one x.2 h⟩
+
+/-- `Γ₁(N)` is normal in `Γ₀(N)`: it is a kernel, so `Γ₀(N)`-conjugation preserves it. -/
+theorem Gamma1_normal_in_Gamma0 (N : ℕ) :
+    ((CongruenceSubgroup.Gamma1 N).subgroupOf (CongruenceSubgroup.Gamma0 N)).Normal := by
+  rw [Gamma1_subgroupOf_eq_ker]
+  exact MonoidHom.normal_ker _
+
+end Normal
+
 local notation "Γ₁ℝ" M => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
 
 section Lifts
@@ -170,15 +190,9 @@ theorem IsDiamondLift.coprime {d : ℕ} {γ : SL(2, ℤ)} (h : IsDiamondLift M d
 
 theorem conj_mem_Gamma1 {γ x : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hx : x ∈ Gamma1 M) :
     γ * x * γ⁻¹ ∈ Gamma1 M := by
-  have hx0 : x ∈ Gamma0 M := Gamma1_in_Gamma0 M hx
-  have hx' : (⟨x, hx0⟩ : Gamma0 M) ∈ Gamma1' M := by
-    rw [Gamma1_to_Gamma0_mem]
-    exact (Gamma1_mem M x).1 hx
-  haveI : (Gamma1' M).Normal := MonoidHom.normal_ker _
-  have hc : (⟨γ, hγ⟩ : Gamma0 M) * ⟨x, hx0⟩ * (⟨γ, hγ⟩ : Gamma0 M)⁻¹ ∈ Gamma1' M :=
-    Subgroup.Normal.conj_mem inferInstance _ hx' _
-  rw [Gamma1_to_Gamma0_mem] at hc
-  exact (Gamma1_mem M _).2 hc
+  have hmem : (⟨x, Gamma1_in_Gamma0 M hx⟩ : Gamma0 M) ∈ (Gamma1 M).subgroupOf (Gamma0 M) := hx
+  have := (Gamma1_normal_in_Gamma0 M).conj_mem _ hmem (⟨γ, hγ⟩ : Gamma0 M)
+  simpa only [Subgroup.mem_subgroupOf, Subgroup.coe_mul, Subgroup.coe_inv] using this
 
 theorem mem_coe_Gamma1_iff (x : GL (Fin 2) ℝ) :
     x ∈ (Γ₁ℝ M) ↔ ∃ γ : SL(2, ℤ), γ ∈ Gamma1 M ∧ (Matrix.SpecialLinearGroup.mapGL ℝ γ) = x :=
