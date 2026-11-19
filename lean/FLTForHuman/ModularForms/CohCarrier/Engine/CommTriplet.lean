@@ -656,7 +656,7 @@ def sigmaLow (σ : Gamma0 M) (hσ : ((ℓ * M : ℕ) : ℤ) ∣ (σ : SL(2, ℤ)
 theorem gamma0Units_sigmaLow (σ : Gamma0 M) (hσ : ((ℓ * M : ℕ) : ℤ) ∣ (σ : SL(2, ℤ)) 1 0) :
     CohCarrier.gamma0Units M (sigmaLow M ℓ σ hσ) = CohCarrier.gamma0Units M σ := by
   apply Units.ext
-  simp [CohCarrier.gamma0Units, Gamma0Map, sigmaLow, CohCarrier.conjLowerMat]
+  simp [Gamma0Map, sigmaLow, CohCarrier.conjLowerMat]
 
 theorem ιQ_mul_alpha (σ : Gamma0 M) (hσ : ((ℓ * M : ℕ) : ℤ) ∣ (σ : SL(2, ℤ)) 1 0) :
     ιQ (σ : SL(2, ℤ)) * alpha ℓ = alpha ℓ * ιQ ((sigmaLow M ℓ σ hσ : Gamma0 M) : SL(2, ℤ)) := by

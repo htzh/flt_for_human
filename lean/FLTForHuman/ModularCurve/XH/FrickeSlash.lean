@@ -297,7 +297,7 @@ private theorem exists_gamma0_lowerRight (d : (ZMod M)ˣ) :
   obtain ⟨γd, hγd⟩ := CohCarrier.gamma0Units_surjective M d
   refine ⟨γd, γd.2, ?_⟩
   have := congrArg (fun u : (ZMod M)ˣ => (u : ZMod M)) hγd
-  simpa [CohCarrier.gamma0Units, Gamma0Map] using this
+  simpa [CohCarrier.val_gamma0Units, Gamma0Map] using this
 
 /-- The `q`-expansion of `Γ_H(M)`-forms, as a `ℂ`-linear map. -/
 private def qExpL (M : ℕ) (H : Subgroup (ZMod M)ˣ) (k : ℤ) :

@@ -363,7 +363,8 @@ theorem gammaB_mem (hℓM : ¬ ℓ ∣ M) (b : ℕ) : gammaB hℓM b ∈ Gam M H
   refine ⟨h0, ?_⟩
   have : CohCarrier.gamma0Units M ⟨gammaB hℓM b, h0⟩ = 1 := by
     ext
-    simp only [CohCarrier.gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Units.val_one, Gamma0Map]
+    simp only [CohCarrier.val_gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Units.val_one,
+      Gamma0Map]
     show (((sVal hℓM b : ℤ)) : ZMod M) = 1
     rw [Int.cast_natCast, ← Nat.cast_one]
     exact (ZMod.natCast_eq_natCast_iff _ _ _).mpr (sVal_modM hℓM b)

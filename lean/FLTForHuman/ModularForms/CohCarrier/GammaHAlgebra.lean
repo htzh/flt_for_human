@@ -78,7 +78,7 @@ theorem CohCarrier.exists_eq_gammaH_of_gamma1_le_of_le_gamma0
     rw [CongruenceSubgroup.Gamma1_mem]
     have hd : (((δ : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) = 1 := by
       have := congrArg (fun u : (ZMod M)ˣ => (u : ZMod M)) hδ
-      simp [CohCarrier.val_gamma0Units] at this
+      simp at this
       exact this
     have hc : (((δ : SL(2, ℤ)) 1 0 : ℤ) : ZMod M) = 0 := (CongruenceSubgroup.Gamma0_mem).mp δ.2
     have ha : (((δ : SL(2, ℤ)) 0 0 : ℤ) : ZMod M) = 1 := by
@@ -119,7 +119,8 @@ private theorem igIDX_gamma0Units_surjective (M : ℕ) [NeZero M] :
     rw [CongruenceSubgroup.Gamma0_mem]
     simp [γ]
   refine ⟨⟨γ, hγ0⟩, Units.ext ?_⟩
-  simp only [CohCarrier.gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, CongruenceSubgroup.Gamma0Map]
+  simp only [CohCarrier.val_gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk,
+    CongruenceSubgroup.Gamma0Map]
   simp [γ]
 
 

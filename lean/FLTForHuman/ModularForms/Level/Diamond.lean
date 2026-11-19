@@ -19,6 +19,9 @@
     `mem_coe_Gamma1_iff`, `Gamma1_conjAct_smul`, `slashOfMemGamma0`,
     `slashLinOfMemGamma0`, `slash_eq_slash_of_isDiamondLift`, `diamondLinOne` (and
     the `@[simp]`/corollary companions).
+  * `Definitions/Def_CohCarrier_Level.lean:111–154` — `Gamma0_d_mul_a`, `gamma0Units`,
+    `val_gamma0Units`: the lower-right entry as a unit of `ZMod N`, whose values form
+    the group that the `d`-character takes in.
 
   Statements are transcribed verbatim from the pin (the checker is textual); the
   proofs are adapted only for mathlib `v4.34.0`. The pin spreads the group layer
@@ -98,9 +101,8 @@ theorem lift_apply_one_one (σ : SL(2, ℤ)) (hσp : ((σ 1 1 : ℤ) : ZMod N) =
 
 theorem d_mul {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ CongruenceSubgroup.Gamma0 N)
     (h₂ : γ₂ ∈ CongruenceSubgroup.Gamma0 N) :
-    (((γ₁ * γ₂) 1 1 : ℤ) : ZMod N) = ((γ₁ 1 1 : ℤ) : ZMod N) * ((γ₂ 1 1 : ℤ) : ZMod N) := by
-  have := map_mul (CongruenceSubgroup.Gamma0Map N) ⟨γ₁, h₁⟩ ⟨γ₂, h₂⟩
-  exact this
+    (((γ₁ * γ₂) 1 1 : ℤ) : ZMod N) = ((γ₁ 1 1 : ℤ) : ZMod N) * ((γ₂ 1 1 : ℤ) : ZMod N) :=
+  map_mul (CongruenceSubgroup.Gamma0Map N) ⟨γ₁, h₁⟩ ⟨γ₂, h₂⟩
 
 theorem det_mod {N : ℕ} (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
     ((γ 0 0 : ℤ) : ZMod N) * ((γ 1 1 : ℤ) : ZMod N) = 1 := by
@@ -122,13 +124,44 @@ theorem mem_Gamma1_of_d_eq_one {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgrou
 
 end reps
 
+section Character
+
+variable (M : ℕ)
+
+/-- The upper-left entry inverts the lower-right one modulo `M` inside `Γ₀(M)`: the lower-left
+entry vanishes, so the determinant reads `(0 0) * (1 1) = 1`. -/
+theorem Gamma0_d_mul_a (γ : Gamma0 M) :
+    ((γ.1 1 1 : ℤ) : ZMod M) * ((γ.1 0 0 : ℤ) : ZMod M) = 1 := by
+  simpa [mul_comm] using det_mod (N := M) (γ : SL(2, ℤ)) γ.2
+
+/-- The lower-right entry of a `Γ₀(M)`-matrix as a unit of `ZMod M`: the character whose kernel
+is `Γ₁(M)` and which makes `⟨d⟩` a group element. -/
+def gamma0Units : Gamma0 M →* (ZMod M)ˣ where
+  toFun γ :=
+    { val := Gamma0Map M γ
+      inv := ((γ.1 0 0 : ℤ) : ZMod M)
+      val_inv := Gamma0_d_mul_a M γ
+      inv_val := det_mod (N := M) (γ : SL(2, ℤ)) γ.2 }
+  map_one' := by ext; simp
+  map_mul' γ δ := by ext; exact map_mul (Gamma0Map M) γ δ
+
+@[simp] theorem val_gamma0Units (γ : Gamma0 M) : (gamma0Units M γ : ZMod M) = Gamma0Map M γ :=
+  rfl
+
+/-- The inverse of the lower-right character is the upper-left entry (`Gamma0_d_mul_a`). -/
+@[simp] theorem inv_gamma0Units (γ : Gamma0 M) :
+    (((gamma0Units M γ)⁻¹ : (ZMod M)ˣ) : ZMod M) = ((γ.1 0 0 : ℤ) : ZMod M) :=
+  rfl
+
+end Character
+
 section isUnit_d
 
 variable {N : ℕ}
 
 theorem isUnit_d {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma0 N) :
     IsUnit ((γ 1 1 : ℤ) : ZMod N) :=
-  IsUnit.of_mul_eq_one_right _ (det_mod γ hγ)
+  (gamma0Units N ⟨γ, hγ⟩).isUnit
 
 end isUnit_d
 
@@ -143,6 +176,15 @@ theorem Gamma1_subgroupOf_eq_ker (N : ℕ) :
   rw [Subgroup.mem_subgroupOf, MonoidHom.mem_ker]
   show (x : SL(2, ℤ)) ∈ CongruenceSubgroup.Gamma1 N ↔ ((x : SL(2, ℤ)) 1 1 : ZMod N) = 1
   exact ⟨fun h => ((CongruenceSubgroup.Gamma1_mem N x).1 h).2.1, fun h => mem_Gamma1_of_d_eq_one x.2 h⟩
+
+/-- `Γ₁(M)` is the kernel of the lower-right character in its group-valued form
+(`gamma0Units`): a `Γ₀(M)`-matrix whose lower-right entry is `1` modulo `M` lies in `Γ₁(M)`. -/
+theorem mem_Gamma1_of_gamma0Units_eq_one {M : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M)
+    (h : gamma0Units M ⟨γ, hγ⟩ = 1) : γ ∈ Gamma1 M := by
+  have hker : (⟨γ, hγ⟩ : Gamma0 M) ∈ (Gamma1 M).subgroupOf (Gamma0 M) := by
+    rw [Gamma1_subgroupOf_eq_ker, MonoidHom.mem_ker]
+    simpa using congrArg (fun u : (ZMod M)ˣ => (u : ZMod M)) h
+  exact Subgroup.mem_subgroupOf.mp hker
 
 /-- `Γ₁(N)` is normal in `Γ₀(N)`: it is a kernel, so `Γ₀(N)`-conjugation preserves it. -/
 theorem Gamma1_normal_in_Gamma0 (N : ℕ) :
@@ -178,14 +220,11 @@ theorem exists_isDiamondLift_of_coprime {d : ℕ} (h : Nat.Coprime d M) :
   obtain ⟨γ, h10, h11⟩ := exists_sl2_of_isCoprime (Nat.isCoprime_iff_coprime.2 h)
   exact ⟨γ, Gamma0_mem.mpr (by rw [h10]; simp), by rw [h11]; simp⟩
 
+/-- A lift of `⟨d⟩` exists only for `d` coprime to `M`: `d` is the lower-right entry of a member
+of `Γ₀(M)`, hence a unit of `ZMod M`. -/
 theorem IsDiamondLift.coprime {d : ℕ} {γ : SL(2, ℤ)} (h : IsDiamondLift M d γ) : Nat.Coprime d M := by
-  have hdet := Matrix.det_fin_two γ.1
-  rw [γ.2] at hdet
-  have hc : ((γ 1 0 : ℤ) : ZMod M) = 0 := Gamma0_mem.1 h.1
   have h1 : ((γ 0 0 : ℤ) : ZMod M) * (d : ZMod M) = 1 := by
-    have := congrArg (fun z : ℤ => (z : ZMod M)) hdet
-    simp only [Int.cast_one, Int.cast_sub, Int.cast_mul, hc, mul_zero, sub_zero, h.2] at this
-    exact this.symm
+    rw [← h.2]; exact det_mod γ h.1
   exact (ZMod.isUnit_iff_coprime d M).1 (IsUnit.of_mul_eq_one_right _ h1)
 
 theorem conj_mem_Gamma1 {γ x : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hx : x ∈ Gamma1 M) :
@@ -246,42 +285,24 @@ def slashLinOfMemGamma0 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) :
     (f : CuspForm (Γ₁ℝ M) k) :
     ⇑(slashLinOfMemGamma0 M k hγ f) = ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) := rfl
 
-set_option backward.isDefEq.respectTransparency.types false in
+/-- The diamond `⟨d⟩` marks the `Γ₁(M)`-cosets of `Γ₀(M)`: two lifts of `⟨d⟩` differ by an
+element of `Γ₁(M)`, which acts trivially, so they slash a `Γ₁(M)`-form the same way. -/
 theorem slash_eq_slash_of_isDiamondLift {d : ℕ} {γ γ' : SL(2, ℤ)} (hγ : IsDiamondLift M d γ)
     (hγ' : IsDiamondLift M d γ') (f : CuspForm (Γ₁ℝ M) k) :
     ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) = ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ') := by
-
+  have hγinv : γ⁻¹ ∈ Gamma0 M := inv_mem hγ.1
+  have hd : gamma0Units M ⟨γ', hγ'.1⟩ = gamma0Units M ⟨γ, hγ.1⟩ := by
+    ext
+    rw [val_gamma0Units, val_gamma0Units]
+    exact hγ'.2.trans hγ.2.symm
   have hmem : γ' * γ⁻¹ ∈ Gamma1 M := by
-    have hd := Matrix.det_fin_two γ.1
-    rw [γ.2] at hd
-    have hd' := Matrix.det_fin_two γ'.1
-    rw [γ'.2] at hd'
-    have hc : ((γ 1 0 : ℤ) : ZMod M) = 0 := Gamma0_mem.1 hγ.1
-    have hc' : ((γ' 1 0 : ℤ) : ZMod M) = 0 := Gamma0_mem.1 hγ'.1
-    have hδ : ((γ 1 1 : ℤ) : ZMod M) = d := hγ.2
-    have hδ' : ((γ' 1 1 : ℤ) : ZMod M) = d := hγ'.2
-    have ha : ((γ 0 0 : ℤ) : ZMod M) * d = 1 := by
-      have := congrArg (fun z : ℤ => (z : ZMod M)) hd
-      simp only [Int.cast_one, Int.cast_sub, Int.cast_mul, hc, mul_zero, sub_zero, hδ] at this
-      exact this.symm
-    have ha' : ((γ' 0 0 : ℤ) : ZMod M) * d = 1 := by
-      have := congrArg (fun z : ℤ => (z : ZMod M)) hd'
-      simp only [Int.cast_one, Int.cast_sub, Int.cast_mul, hc', mul_zero, sub_zero, hδ'] at this
-      exact this.symm
-    have hinv : (γ⁻¹ : SL(2, ℤ)) = ⟨!![γ 1 1, -(γ 0 1); -(γ 1 0), γ 0 0], by
-        rw [Matrix.det_fin_two_of]; have := γ.det_coe; rw [Matrix.det_fin_two] at this
-        linear_combination this⟩ := Matrix.SpecialLinearGroup.SL2_inv_expl γ
-    rw [Gamma1_mem, hinv]
-    simp only [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two,
-      Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-      Matrix.cons_val_fin_one, Matrix.empty_val', Int.cast_add, Int.cast_mul, Int.cast_neg, hc, hc',
-      hδ, hδ', neg_zero, mul_zero, zero_mul, add_zero, zero_add, mul_neg, Fin.isValue]
-    refine ⟨?_, ?_, trivial⟩
-    · simpa only [mul_comm] using ha'
-    · linear_combination ha
-  have hinv := SlashInvariantFormClass.slash_action_eq f _ (Subgroup.mem_map_of_mem _ hmem)
+    refine mem_Gamma1_of_gamma0Units_eq_one (mul_mem hγ'.1 hγinv) ?_
+    show gamma0Units M (⟨γ', hγ'.1⟩ * (⟨γ, hγ.1⟩ : Gamma0 M)⁻¹) = 1
+    rw [map_mul, map_inv, hd, mul_inv_cancel]
+  have hslash : ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ (γ' * γ⁻¹)) = ⇑f :=
+    SlashInvariantFormClass.slash_action_eq f _ (Subgroup.mem_map_of_mem _ hmem)
   calc ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ)
-        = (⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ (γ' * γ⁻¹))) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) := by rw [hinv]
+        = (⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ (γ' * γ⁻¹))) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) := by rw [hslash]
       _ = ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ') := by
           rw [← SlashAction.slash_mul, ← map_mul, inv_mul_cancel_right]
 

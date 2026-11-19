@@ -435,8 +435,7 @@ theorem ModularCurve.IsDiamondPullbackModL.apply_eq_one_iff_gamma0Units_mem
         have hunits : CohCarrier.gamma0Units M ⟨-(γ : SL(2, ℤ)), hneg0⟩ =
             -CohCarrier.gamma0Units M γ := by
           ext
-          simp [CohCarrier.gamma0Units, CongruenceSubgroup.Gamma0Map,
-            Matrix.SpecialLinearGroup.coe_neg]
+          simp [CongruenceSubgroup.Gamma0Map, Matrix.SpecialLinearGroup.coe_neg]
         have hnegH : (-(γ : SL(2, ℤ))) ∈ CohCarrier.GammaH M H :=
           CohCarrier.mem_GammaH_iff.mpr ⟨hneg0, by rw [hunits]; exact h⟩
         have e1 : ((γ : SL(2, ℤ)) : GL (Fin 2) ℝ) =

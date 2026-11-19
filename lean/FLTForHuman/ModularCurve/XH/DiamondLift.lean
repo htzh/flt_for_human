@@ -108,7 +108,7 @@ theorem cocycle (M : ℕ) (H : Subgroup (ZMod M)ˣ) (ℓ : ℕ) [NeZero ℓ] :
     refine ⟨h0, ?_⟩
     have hu : CohCarrier.gamma0Units M ⟨γ₁, h0⟩ = CohCarrier.gamma0Units M ⟨γ, hγ0M⟩ := by
       refine Units.ext ?_
-      simp only [CohCarrier.gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Gamma0Map]
+      simp only [CohCarrier.val_gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Gamma0Map]
       simp [γ₁]
     rw [hu]
     exact hunit

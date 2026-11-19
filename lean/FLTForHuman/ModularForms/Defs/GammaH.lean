@@ -28,7 +28,9 @@
   proofs are adapted only for mathlib `v4.34.0` (`if_pos`/`if_neg` →
   `ite_eq_left`/`ite_eq_right` and similar). The one placement divergence is
   deliberate: the pin spreads these across four modules and re-inlines them into
-  every consumer; here they have one home.
+  every consumer; here they have one home. The lower-right character itself
+  (`Gamma0_d_mul_a`, `gamma0Units`, `val_gamma0Units`) is defined in
+  `ModularForm.Level` and re-stated here under the pin's names.
 
   spec-pin: Definitions/Def_CohCarrier_Level.lean
   spec-pin: Definitions/Def_CohCarrier_Inst.lean
@@ -43,6 +45,7 @@ import Mathlib.Data.ZMod.Units
 import Mathlib.GroupTheory.Index
 import Mathlib.Tactic.Group
 import FLTForHuman.ModularForms.Defs.HeckeOperator
+import FLTForHuman.ModularForms.Level.Diamond
 
 set_option autoImplicit false
 
@@ -61,27 +64,17 @@ variable (M : ℕ)
 /-- Inside `Γ₀(M)`, the lower-right entry is the inverse of the upper-left one
 modulo `M`. -/
 theorem Gamma0_d_mul_a (γ : Gamma0 M) :
-    ((γ.1 1 1 : ℤ) : ZMod M) * ((γ.1 0 0 : ℤ) : ZMod M) = 1 := by
-  have hdet := Matrix.SpecialLinearGroup.det_coe γ.1
-  rw [Matrix.det_fin_two] at hdet
-  have hc : ((γ.1 1 0 : ℤ) : ZMod M) = 0 := Gamma0_mem.mp γ.2
-  have h := congrArg (fun z : ℤ => (z : ZMod M)) hdet
-  simp only [Int.cast_sub, Int.cast_mul, Int.cast_one, hc, mul_zero, sub_zero] at h
-  rw [mul_comm]
-  exact h
+    ((γ.1 1 1 : ℤ) : ZMod M) * ((γ.1 0 0 : ℤ) : ZMod M) = 1 :=
+  ModularForm.Level.Gamma0_d_mul_a M γ
 
-/-- The lower-right entry of a `Γ₀(M)`-matrix, as a unit of `ZMod M`. -/
-def gamma0Units : Gamma0 M →* (ZMod M)ˣ where
-  toFun γ :=
-    { val := Gamma0Map M γ
-      inv := ((γ.1 0 0 : ℤ) : ZMod M)
-      val_inv := Gamma0_d_mul_a M γ
-      inv_val := by rw [mul_comm]; exact Gamma0_d_mul_a M γ }
-  map_one' := by ext; simp
-  map_mul' γ δ := by ext; exact map_mul (Gamma0Map M) γ δ
+/-- The lower-right entry of a `Γ₀(M)`-matrix, as a unit of `ZMod M`: the character whose
+kernel is `Γ₁(M)`. -/
+abbrev gamma0Units : Gamma0 M →* (ZMod M)ˣ :=
+  ModularForm.Level.gamma0Units M
 
 @[simp]
-theorem val_gamma0Units (γ : Gamma0 M) : (gamma0Units M γ : ZMod M) = Gamma0Map M γ := rfl
+theorem val_gamma0Units (γ : Gamma0 M) : (gamma0Units M γ : ZMod M) = Gamma0Map M γ :=
+  ModularForm.Level.val_gamma0Units M γ
 
 /-- `Γ_H(M)`: the elements of `Γ₀(M)` whose lower-right entry lies in `H`. -/
 def GammaH (H : Subgroup (ZMod M)ˣ) : Subgroup SL(2, ℤ) :=
@@ -127,7 +120,7 @@ theorem translation_mem_GammaH : ModularGroup.T ∈ CohCarrier.GammaH M H := by
   refine ⟨hT0, ?_⟩
   have : CohCarrier.gamma0Units M ⟨ModularGroup.T, hT0⟩ = 1 := by
     ext
-    simp [CohCarrier.gamma0Units, Gamma0Map, ModularGroup.T]
+    simp [Gamma0Map, ModularGroup.T]
   rw [this]
   exact one_mem H
 
@@ -140,7 +133,7 @@ theorem Gamma1_le_GammaH : Gamma1 M ≤ CohCarrier.GammaH M H := by
   refine ⟨hA0, ?_⟩
   have : CohCarrier.gamma0Units M ⟨A, hA0⟩ = 1 := by
     ext
-    simp only [CohCarrier.gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Units.val_one, Gamma0Map]
+    simp only [val_gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Units.val_one, Gamma0Map]
     exact h11
   rw [this]
   exact one_mem H
@@ -152,7 +145,7 @@ theorem GammaH_bot : CohCarrier.GammaH M ⊥ = Gamma1 M := by
   rw [Subgroup.mem_bot] at hAH
   have h11 : ((A 1 1 : ℤ) : ZMod M) = 1 := by
     have := congrArg (fun u : (ZMod M)ˣ => (u : ZMod M)) hAH
-    simpa [CohCarrier.gamma0Units, Gamma0Map] using this
+    simpa [val_gamma0Units, Gamma0Map] using this
   have h10 : ((A 1 0 : ℤ) : ZMod M) = 0 := Gamma0_mem.mp hA0
   rw [Gamma1_mem]
   refine ⟨?_, h11, h10⟩
@@ -181,7 +174,7 @@ theorem gamma0Units_surjective [NeZero M] : Function.Surjective (gamma0Units M) 
     rw [Gamma0_mem]
     simp [γ]
   refine ⟨⟨γ, hγ0⟩, Units.ext ?_⟩
-  simp only [gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Gamma0Map]
+  simp only [val_gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Gamma0Map]
   simp [γ]
 
 end Surjective
@@ -222,7 +215,7 @@ def unitOfPrimeNotDvd {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) : (Z
 theorem gammaLift_apply_11 {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) :
     ((((gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : Gamma0 M) : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) = ℓ := by
   have := congrArg (fun u : (ZMod M)ˣ => (u : ZMod M)) (gamma0Units_gammaLift (unitOfPrimeNotDvd hℓ hℓM))
-  simp [unitOfPrimeNotDvd, CohCarrier.val_gamma0Units] at this
+  simp [unitOfPrimeNotDvd] at this
   exact this
 
 omit [NeZero M] in

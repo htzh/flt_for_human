@@ -119,7 +119,7 @@ theorem gamma0Units_frickeMat (γ : Gamma0 N) :
     gamma0Units N ⟨frickeMat N (γ : SL(2, ℤ)) (N_dvd_of_mem_Gamma0 N γ.2), frickeMat_mem_Gamma0 N γ.2⟩ =
       (gamma0Units N γ)⁻¹ := by
   apply Units.ext
-  simp [gamma0Units, Gamma0Map, frickeMat]
+  simp [Gamma0Map, frickeMat]
 
 variable (H : Subgroup (ZMod N)ˣ)
 

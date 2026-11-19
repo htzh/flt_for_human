@@ -398,7 +398,7 @@ theorem Gamma_subgroupOf_le_range_iotaDeg [NeZero M'] [NeZero d] (h : LevelLE M 
   have hAH : gamma0Units M' ⟨A, hA0⟩ ∈ H' := by
     have : gamma0Units M' ⟨A, hA0⟩ = 1 := by
       ext
-      simp only [gamma0Units, MonoidHom.coe_mk, OneHom.coe_mk, Units.val_one, Gamma0Map]
+      simp only [gamma0Units, Units.val_one]
       exact hA11
     rw [this]
     exact one_mem H'
