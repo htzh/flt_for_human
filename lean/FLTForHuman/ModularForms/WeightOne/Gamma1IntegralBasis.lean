@@ -892,13 +892,13 @@ variable {N : ℕ} {k : ℤ}
 
 open ConjAct Pointwise in
 
-private theorem toConjAct_inv_smul_coe_Gamma1 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
+private theorem Gamma1_conjAct_smul {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
     toConjAct (Matrix.SpecialLinearGroup.mapGL ℝ γ)⁻¹ • (Γ₁ℝ N) = (Γ₁ℝ N) :=
-  ModularForm.Level.toConjAct_inv_smul_coe_Gamma1 hγ
+  ModularForm.Level.Gamma1_conjAct_smul hγ
 
 private def slashMF {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (F : ModularForm (Γ₁ℝ N) k) : ModularForm (Γ₁ℝ N) k :=
   (ModularForm.translate F (Matrix.SpecialLinearGroup.mapGL ℝ γ)).copy
-    ((⇑F : ℍ → ℂ) ∣[k] γ) rfl (toConjAct_inv_smul_coe_Gamma1 hγ).symm
+    ((⇑F : ℍ → ℂ) ∣[k] γ) rfl (Gamma1_conjAct_smul hγ).symm
 
 @[scoped simp] private theorem coe_slashMF {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (F : ModularForm (Γ₁ℝ N) k) :
     ⇑(slashMF hγ F) = (⇑F : ℍ → ℂ) ∣[k] γ := rfl

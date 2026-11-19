@@ -2,8 +2,8 @@
   The Eisenstein piece: the archimedean integral bound, the induced section's continuity, the
   Bruhat-series Whittaker coefficient, and the additive-character integral identity.
 
-  Four rows of the `EisensteinGeneral` layer, three of them the analytic core of the Eisenstein
-  series' Fourier expansion:
+  Six rows of the `EisensteinGeneral` / `AutomorphicForm` layer, five of them the analytic core of
+  the Eisenstein series' Fourier expansion:
 
   * `Arch.exists_norm_archIntegral_le`: the archimedean integral
     `∫_{u>0} u^z · exp (-c (u + r²/u))` is polynomially-times-exponentially bounded in `r` — the
@@ -16,19 +16,36 @@
     summable almost everywhere.
   * `Piece.integral_smul_add_mul_addChar_neg_mul_eq`: the additive-character change of variables
     `∫ y, f (a • (y + u)) ψ(-ξ y) = |α(a)|⁻¹ ψ(ξ u) ∫ z, f z ψ(-ξ a⁻¹ z)`.
+  * `Glue.whittakerCoefficient_bruhatSeries_eq_finset_sum` (order AF85A): the Whittaker coefficient
+    of a Bruhat series is the finite sum of the coefficients of the induced sections it is built
+    from — the `n`-sum and the unipotent average both distribute.
+  * `AutomorphicForm.isInducedSection_etaFst_etaSnd_neg_weylIntertwiningIntegral` (order AF85A):
+    the Weyl intertwining integral of an induced section is an induced section with the two
+    characters exchanged and `s ↦ -s`.
 
-  All four pins are single-headline files (one public `solution` each, over 9 / 6 / 7 / 1 private
-  declarations), so this module is the four headlines plus the engines the order transcribes — all
-  23 of them ported here, `private`, at subject names (the pins' `e2_` / `pc_` / `l1_` label
-  prefixes are dropped; the pin-line-by-pin-line table is in `lean/tmp/af84/AF84D-REPORT.md`).
+  All six pins are single-headline files (one public `solution` each, over 9 / 6 / 7 / 1 / 2 / 0
+  private declarations), so this module is the six headlines plus the engines the orders
+  transcribe — all 25 of them ported here, `private`, at subject names (the pins' `e2_` / `pc_` /
+  `l1_` label prefixes are dropped; the pin-line-by-pin-line tables are in
+  `lean/tmp/af84/AF84D-REPORT.md` and, for the two AF85A rows, in
+  `lean/tmp/af85/AF85A-REPORT.md`).
 
-  Gates: `check_port --force` 4 ok / 0 mismatch / 0 missing / 0 own / 0 kw; `dedup.py --within` 0
+  The two AF85A engines are transcribed verbatim from the Glue pin's `:47` and `:53`; the pin's
+  third private helper `tsum_whittakerCoefficient_zero` (`:65`, 9 lines) is **dropped**: nothing in
+  the pin uses it (it is a `whittakerCoefficient_zero` restatement over `{ξ // ξ ≠ 0}`). The Weyl
+  pin has no engine, and its two `attribute [-instance]` / `[-simp]` walls (`:9`, `:10`) are not
+  transcribed, per the port's recorded practice; the pin's `letI : MeasurableSpace …` / `haveI :
+  BorelSpace …` (`:31`, `:32`) become class-typed `let` / `have` (FR-0223).
+
+  Gates: `check_port --force` 6 ok / 0 mismatch / 0 missing / 0 own / 0 kw; `dedup.py --within` 0
   duplicate clusters; `move_dead.py` 0 declarations / 0 lines; `scaffold_audit.py` complete; axioms
-  `[propext, Classical.choice, Quot.sound]` on the four rows and on all 23 engines.
+  `[propext, Classical.choice, Quot.sound]` on the six rows and on all 25 engines.
 
-  Heartbeat probe: silent at 12000, aborts at 6000 (`lake env lean -DautoImplicit=false
-  -DmaxHeartbeats=N`; the peak declaration is the `Arch` row). No in-file cap is carried —
-  playbook §3.5, FR-0225.
+  Heartbeat probe: silent at 37000, aborts at 18000 (`lake env lean -DautoImplicit=false
+  -DmaxHeartbeats=N`; the floor is 36–37 k, since 36000 already aborts). The peak declaration is
+  now the Weyl row `AutomorphicForm.isInducedSection_etaFst_etaSnd_neg_weylIntertwiningIntegral`
+  (before AF85A it was the `Arch` row at 12 k). No in-file cap is carried — playbook §3.5,
+  FR-0225.
 
   Local departures from the pins (v4.34), all recorded:
   * `haveI : (adelicAddHaar …).IsAddHaarMeasure` / `.Regular` / `IsFiniteMeasure …` → `have`
@@ -43,12 +60,15 @@
   * the pins' `attribute [local instance] adeleBorel borelSpace_adeleBorel` lines are kept, per
     section — they are positive local instances, not `[-…]` walls.
 
-  Transcribed from the four `S_` files below (pinned `aa2d8b3`, 233 + 189 + 165 + 125 lines).
+  Transcribed from the six `S_` files below (pinned `aa2d8b3`, 233 + 189 + 165 + 125 + 122 + 138
+  lines).
 
   spec-pin: P2M/Sol/S_EisensteinGeneral_Arch_exists_norm_archIntegral_le.lean
   spec-pin: P2M/Sol/S_EisensteinGeneral_Piece_continuous_and_continuous_of_isInducedSection_of_continuous_of_ne_zero.lean
   spec-pin: P2M/Sol/S_EisensteinGeneral_Glue_whittakerCoefficientIntegrable_bruhatSeries_and_ae_summable_of_integrable.lean
   spec-pin: P2M/Sol/S_EisensteinGeneral_Piece_integral_smul_add_mul_addChar_neg_mul_eq.lean
+  spec-pin: P2M/Sol/S_EisensteinGeneral_Glue_whittakerCoefficient_bruhatSeries_eq_finset_sum.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_isInducedSection_etaFst_etaSnd_neg_weylIntertwiningIntegral.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.WhittakerCoefficient
 import FLTForHuman.AutomorphicForm.Adelic.InducedSection
@@ -687,4 +707,191 @@ end ChangeOfVariables
 
 end Piece
 
+namespace Glue
+
+section BruhatSeriesSum
+
+open NumberField AutomorphicForm
+
+attribute [local instance] adeleBorel borelSpace_adeleBorel
+
+private theorem tsum_finset_sum_mul_eq {β : Type} (n : ℕ) (c : Fin n → ℂ) (f : Fin n → β → ℂ)
+    (hf : ∀ i, Summable (f i)) :
+    ∑' b : β, ∑ i : Fin n, c i * f i b = ∑ i : Fin n, c i * ∑' b : β, f i b := by
+  rw [Summable.tsum_finsetSum fun i _ => (hf i).mul_left (c i)]
+  exact Finset.sum_congr rfl fun i _ => (hf i).tsum_mul_left (c i)
+
+private theorem whittakerCoefficient_eq_finset_sum (F : Type) [Field F] [NumberField F]
+    (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ) (n : ℕ) (c : Fin n → ℂ) (Θ : Fin n → AdelicGL2 (𝓞 F) F → ℂ)
+    (Φ' : AdelicGL2 (𝓞 F) F → ℂ) (hΦ' : ∀ g', Φ' g' = ∑ i : Fin n, c i * Θ i g') (ξ : F) (g : AdelicGL2 (𝓞 F) F)
+    (hint : ∀ i, WhittakerCoefficientIntegrable F (productionPins F) ψ (Θ i) ξ g) :
+    whittakerCoefficient F (productionPins F) ψ Φ' ξ g
+      = ∑ i : Fin n, c i * whittakerCoefficient F (productionPins F) ψ (Θ i) ξ g := by
+  let : MeasurableSpace (AdeleRing (𝓞 F) F) := (productionPins F).nS
+  simp only [whittakerCoefficient, WhittakerCoefficientIntegrable] at hint ⊢
+  simp_rw [hΦ', Finset.sum_mul, mul_assoc]
+  rw [integral_finsetSum _ fun i _ => (hint i).const_mul (c i)]
+  exact Finset.sum_congr rfl fun i _ => integral_const_mul (c i) _
+
+end BruhatSeriesSum
+
+/-- The Whittaker coefficient of a Bruhat series reads off as the finite sum of the coefficients of
+the induced sections it is built from: the `n`-sum and the unipotent average both distribute. -/
+theorem whittakerCoefficient_bruhatSeries_eq_finset_sum (F : Type) [Field F] [NumberField F]
+    (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ) (hψc : Continuous ψ) (hψ : ∀ x, ‖ψ x‖ = 1) (n : ℕ) (c : Fin n → ℂ)
+    (Ψ : Fin n → AdelicGL2 (𝓞 F) F → ℂ) (Φ : AdelicGL2 (𝓞 F) F → ℂ)
+    (hΨ : ∀ i, ∃ χ₁ χ₂ : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ, IsInducedSection (𝓞 F) F χ₁ χ₂ (Ψ i))
+    (hΦ : ∀ g', Φ g' = ∑ i : Fin n, c i * Ψ i g') (ξ : F) (g : AdelicGL2 (𝓞 F) F)
+    (hint : ∀ i, Integrable (fun y => Ψ i (adelicWeyl (𝓞 F) F * unipotentGL2 y * g)) (adelicAddHaar (𝓞 F) F)) :
+    whittakerCoefficient F (productionPins F) ψ
+        (fun g' => Φ g' + ∑' ξ' : F, Φ (adelicWeyl (𝓞 F) F * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ') * g'))
+        ξ g
+      = ∑ i : Fin n, c i * whittakerCoefficient F (productionPins F) ψ
+          (fun g' => Ψ i g' + ∑' ξ' : F,
+            Ψ i (adelicWeyl (𝓞 F) F * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ') * g')) ξ g := by
+  have h0 := fun i =>
+    whittakerCoefficientIntegrable_bruhatSeries_and_ae_summable_of_integrable F ψ hψc hψ (Ψ i) (hΨ i) ξ g
+      (hint i)
+  refine Eq.trans ?_ (whittakerCoefficient_eq_finset_sum F ψ n c
+    (fun i g' => Ψ i g' + ∑' ξ' : F,
+      Ψ i (adelicWeyl (𝓞 F) F * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ') * g'))
+    (fun g' => ∑ i : Fin n, c i * (Ψ i g' + ∑' ξ' : F,
+      Ψ i (adelicWeyl (𝓞 F) F * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ') * g')))
+    (fun _ => rfl) ξ g (fun i => (h0 i).1))
+  let : MeasurableSpace (AdeleRing (𝓞 F) F) := (productionPins F).nS
+  simp only [whittakerCoefficient]
+  refine integral_congr_ae ?_
+  filter_upwards [Filter.eventually_all.2 fun i => (h0 i).2] with x hx
+  congr 1
+  simp_rw [hΦ]
+  rw [tsum_finset_sum_mul_eq n c _ hx, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  ring
+
+end Glue
+
 end EisensteinGeneral
+
+/-- The Weyl intertwining integral of an induced section is an induced section with the two characters
+exchanged and the spectral parameter `s` replaced by `-s`. -/
+theorem AutomorphicForm.isInducedSection_etaFst_etaSnd_neg_weylIntertwiningIntegral
+    (F : Type) [Field F] [NumberField F] :
+    let α : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ :=
+      ((NNReal.toRealHom : ℝ≥0 →+* ℝ).toMonoidHom.comp
+        (distribHaarChar (AdeleRing (𝓞 F) F))).toHomUnits
+    ∀ (hα : ∀ x, 0 < ((α x : ℝˣ) : ℝ))
+      (μ ν : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ) (s : ℂ)
+      (φ : AdelicGL2 (𝓞 F) F → ℂ)
+      (_hφ : IsInducedSection (𝓞 F) F (etaFst μ α hα s) (etaSnd ν α hα s) φ),
+    letI := adeleBorel (𝓞 F) F
+    IsInducedSection (𝓞 F) F (etaFst ν α hα (-s)) (etaSnd μ α hα (-s))
+      (weylIntertwiningIntegral (𝓞 F) F (adelicAddHaar (𝓞 F) F) φ) := by
+  intro α hα μ ν s φ hφ
+  let : MeasurableSpace (AdeleRing (𝓞 F) F) := adeleBorel (𝓞 F) F
+  have : BorelSpace (AdeleRing (𝓞 F) F) := borelSpace_adeleBorel (𝓞 F) F
+  intro b hb g
+
+  have hb10 : ((b : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 1 0 = 0 := hb
+  set t₁ : (AdeleRing (𝓞 F) F)ˣ := borelDiagFst (⟨b, hb⟩ : ↥(adelicBorel (𝓞 F) F)) with ht₁def
+  set t₂ : (AdeleRing (𝓞 F) F)ˣ := borelDiagSnd (⟨b, hb⟩ : ↥(adelicBorel (𝓞 F) F)) with ht₂def
+  have ht₁ : (t₁ : AdeleRing (𝓞 F) F) = (b : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 0 0 := rfl
+  have ht₂ : (t₂ : AdeleRing (𝓞 F) F) = (b : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 1 1 := rfl
+  set u₀ : AdeleRing (𝓞 F) F := (b : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 0 1 with hu₀
+  have hbm : ((b : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F))
+      = !![(t₁ : AdeleRing (𝓞 F) F), u₀; 0, (t₂ : AdeleRing (𝓞 F) F)] := by
+    ext i j
+    fin_cases i <;> fin_cases j
+    · simp [ht₁]
+    · simp [hu₀]
+    · simp [hb10]
+    · simp [ht₂]
+
+  set w : AdelicGL2 (𝓞 F) F := adelicWeyl (𝓞 F) F with hwdef
+  have hw : ((w : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) = !![0, 1; 1, 0] := by
+    ext i j
+    rw [hwdef, adelicWeyl, globalPoints_apply, gl2Weyl_val]
+    fin_cases i <;> fin_cases j <;> simp
+  have hwinv_eq : w⁻¹ = w := by
+    rw [hwdef, adelicWeyl, ← map_inv, gl2Weyl_inv]
+  have hwinv : ((w⁻¹ : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) = !![0, 1; 1, 0] := by
+    rw [hwinv_eq, hw]
+
+  set T' : AdelicGL2 (𝓞 F) F :=
+    w⁻¹ * (b * unipotentGL2 (-((↑t₁⁻¹ : AdeleRing (𝓞 F) F) * u₀))) * w with hT'def
+  have hu₁ : (t₁ : AdeleRing (𝓞 F) F) * (↑t₁⁻¹ : AdeleRing (𝓞 F) F) = 1 := Units.mul_inv t₁
+  have hu₂ : (t₂ : AdeleRing (𝓞 F) F) * (↑t₂⁻¹ : AdeleRing (𝓞 F) F) = 1 := Units.mul_inv t₂
+  have hT' : ((T' : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F))
+      = !![(t₂ : AdeleRing (𝓞 F) F), 0; 0, (t₁ : AdeleRing (𝓞 F) F)] := by
+    rw [hT'def, Matrix.GeneralLinearGroup.coe_mul, Matrix.GeneralLinearGroup.coe_mul,
+      Matrix.GeneralLinearGroup.coe_mul, hwinv, hw, hbm, unipotentGL2_coe]
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
+  have hT'mem : T' ∈ adelicBorel (𝓞 F) F := by
+    show ((T' : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 1 0 = 0
+    rw [hT']; simp
+  have hFst : borelDiagFst (⟨T', hT'mem⟩ : ↥(adelicBorel (𝓞 F) F)) = t₂ := by
+    apply Units.ext
+    show ((T' : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 0 0 = t₂
+    rw [hT']; simp
+  have hSnd : borelDiagSnd (⟨T', hT'mem⟩ : ↥(adelicBorel (𝓞 F) F)) = t₁ := by
+    apply Units.ext
+    show ((T' : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 1 1 = t₁
+    rw [hT']; simp
+
+  set a : (AdeleRing (𝓞 F) F)ˣ := t₁⁻¹ * t₂ with hadef
+  set u' : AdeleRing (𝓞 F) F := (↑t₂⁻¹ : AdeleRing (𝓞 F) F) * u₀ with hu'
+  have hy : ∀ x : AdeleRing (𝓞 F) F,
+      (↑t₁⁻¹ : AdeleRing (𝓞 F) F) * (u₀ + x * (t₂ : AdeleRing (𝓞 F) F)) = a • (x + u') := by
+    intro x
+    rw [Units.smul_def, hadef, Units.val_mul, hu', smul_eq_mul]
+    linear_combination (-((↑t₁⁻¹ : AdeleRing (𝓞 F) F) * u₀)) * hu₂
+
+  have hkey : ∀ x : AdeleRing (𝓞 F) F,
+      w⁻¹ * unipotentGL2 x * b
+        = T' * (w⁻¹ * unipotentGL2 ((↑t₁⁻¹ : AdeleRing (𝓞 F) F) * (u₀ + x * (t₂ : AdeleRing (𝓞 F) F)))) := by
+    intro x
+    apply Matrix.GeneralLinearGroup.ext
+    intro i j
+    simp only [Matrix.GeneralLinearGroup.coe_mul, hwinv, hbm, hT', unipotentGL2_coe]
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
+
+  show weylIntertwiningIntegral (𝓞 F) F (adelicAddHaar (𝓞 F) F) φ (b * g)
+      = ((etaFst ν α hα (-s) t₁ : ℂˣ) : ℂ) * ((etaSnd μ α hα (-s) t₂ : ℂˣ) : ℂ)
+        * weylIntertwiningIntegral (𝓞 F) F (adelicAddHaar (𝓞 F) F) φ g
+  simp only [weylIntertwiningIntegral]
+  have hint : ∀ x : AdeleRing (𝓞 F) F,
+      φ ((adelicWeyl (𝓞 F) F)⁻¹ * unipotentGL2 x * (b * g))
+        = ((etaFst μ α hα s t₂ : ℂˣ) : ℂ) * ((etaSnd ν α hα s t₁ : ℂˣ) : ℂ)
+          * φ ((adelicWeyl (𝓞 F) F)⁻¹ * unipotentGL2 (a • (x + u')) * g) := by
+    intro x
+    rw [← hwdef, ← mul_assoc, hkey x, mul_assoc, hφ T' hT'mem, hFst, hSnd, hy x]
+  simp_rw [hint]
+  rw [integral_const_mul]
+  have hcv := EisensteinGeneral.Piece.integral_smul_add_mul_addChar_neg_mul_eq F 1
+    (fun z => φ ((adelicWeyl (𝓞 F) F)⁻¹ * unipotentGL2 z * g)) a u' 0
+  simp only [zero_mul, neg_zero, AddChar.one_apply, mul_one] at hcv
+  rw [hcv, ← mul_assoc]
+  congr 1
+
+  have hαa : (((distribHaarChar (AdeleRing (𝓞 F) F) a : ℝ≥0) : ℝ) : ℂ) = (((α a : ℝˣ) : ℝ) : ℂ) := rfl
+  rw [hαa]
+  set A₁ : ℝ := ((α t₁ : ℝˣ) : ℝ) with hA₁
+  set A₂ : ℝ := ((α t₂ : ℝˣ) : ℝ) with hA₂
+  have hA₁pos : 0 < A₁ := hα t₁
+  have hA₂pos : 0 < A₂ := hα t₂
+  have hA₁ne : (A₁ : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hA₁pos.ne'
+  have hA₂ne : (A₂ : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hA₂pos.ne'
+  have hαa' : (((α a : ℝˣ) : ℝ) : ℂ) = (A₁ : ℂ)⁻¹ * (A₂ : ℂ) := by
+    rw [hadef, map_mul, map_inv, Units.val_mul, Units.val_inv_eq_inv_val, Complex.ofReal_mul,
+      Complex.ofReal_inv]
+  rw [hαa']
+  simp only [etaFst_apply, etaSnd_apply, Units.val_mul, cpowChar_apply_val]
+  rw [← hA₁, ← hA₂]
+  have e1 : (-s + 1 / 2 : ℂ) = -(s + 1 / 2) + 1 := by ring
+  have e2 : (-(-s + 1 / 2) : ℂ) = (s + 1 / 2) + (-1) := by ring
+  have p1 : (A₁ : ℂ) ^ (-(s + 1 / 2) + 1) = (A₁ : ℂ) ^ (-(s + 1 / 2)) * (A₁ : ℂ) := by
+    rw [Complex.cpow_add _ _ hA₁ne, Complex.cpow_one]
+  have p2 : (A₂ : ℂ) ^ ((s + 1 / 2) + -1) = (A₂ : ℂ) ^ (s + 1 / 2) * (A₂ : ℂ)⁻¹ := by
+    rw [Complex.cpow_add _ _ hA₂ne, Complex.cpow_neg_one]
+  rw [e2, e1, p1, p2]
+  field_simp

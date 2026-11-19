@@ -16,7 +16,7 @@
   * `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean:371` — `isUnit_d`.
   * `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean:469–628` — `IsDiamondLift`,
     `exists_isDiamondLift_of_coprime`, `IsDiamondLift.coprime`, `conj_mem_Gamma1`,
-    `mem_coe_Gamma1_iff`, `toConjAct_inv_smul_coe_Gamma1`, `slashOfMemGamma0`,
+    `mem_coe_Gamma1_iff`, `Gamma1_conjAct_smul`, `slashOfMemGamma0`,
     `slashLinOfMemGamma0`, `slash_eq_slash_of_isDiamondLift`, `diamondLinOne` (and
     the `@[simp]`/corollary companions).
 
@@ -199,25 +199,21 @@ theorem mem_coe_Gamma1_iff (x : GL (Fin 2) ℝ) :
   Subgroup.mem_map
 
 open ConjAct Pointwise in
-
-theorem toConjAct_inv_smul_coe_Gamma1 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) :
+/-- `Γ₁(M)` is fixed by the conjugation action of `Γ₀(M)`: this is normality of `Γ₁` in `Γ₀`
+(`Gamma1_normal_in_Gamma0`) read as `toConjAct · •` on the `GL(2, ℝ)`-picture of the level. It is
+what lets the slash by a `Γ₀`-element (`ModularForm.translate`) be a form on `Γ₁(M)` again. -/
+theorem Gamma1_conjAct_smul {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) :
     toConjAct (Matrix.SpecialLinearGroup.mapGL ℝ γ)⁻¹ • (Γ₁ℝ M) = (Γ₁ℝ M) := by
   ext x
-  rw [Subgroup.mem_pointwise_smul_iff_inv_smul_mem, ← map_inv, inv_inv, ConjAct.toConjAct_smul]
+  rw [Subgroup.mem_pointwise_smul_iff_inv_smul_mem, ConjAct.toConjAct_inv, inv_inv,
+    ConjAct.toConjAct_smul, mem_coe_Gamma1_iff]
   constructor
-  · intro h
-    obtain ⟨y, hy, hyx⟩ := (mem_coe_Gamma1_iff _).1 h
-    have hx : x = Matrix.SpecialLinearGroup.mapGL ℝ γ⁻¹ * Matrix.SpecialLinearGroup.mapGL ℝ y
-        * Matrix.SpecialLinearGroup.mapGL ℝ γ := by
-      rw [hyx, map_inv]; group
-    have hmem := conj_mem_Gamma1 (Subgroup.inv_mem _ hγ) hy
-    rw [inv_inv] at hmem
-    rw [hx, ← map_mul, ← map_mul]
-    exact Subgroup.mem_map_of_mem _ hmem
-  · intro h
-    obtain ⟨y, hy, rfl⟩ := (mem_coe_Gamma1_iff _).1 h
-    rw [← map_inv, ← map_mul, ← map_mul]
-    exact Subgroup.mem_map_of_mem _ (conj_mem_Gamma1 hγ hy)
+  · rintro ⟨y, hy, hyx⟩
+    refine ⟨γ⁻¹ * y * γ, by simpa using conj_mem_Gamma1 (Subgroup.inv_mem _ hγ) hy, ?_⟩
+    rw [map_mul, map_mul, map_inv, hyx]
+    group
+  · rintro ⟨y, hy, rfl⟩
+    exact ⟨γ * y * γ⁻¹, conj_mem_Gamma1 hγ hy, by rw [map_mul, map_mul, map_inv]⟩
 
 end Lifts
 
@@ -225,10 +221,14 @@ section Diamond
 
 variable (M : ℕ) (k : ℤ)
 
+/-- Slash a `Γ₁(M)`-cusp-form by a `Γ₀(M)`-element.  Mathlib's `CuspForm.translate` can only
+re-level: `f ∣[k] γ` is invariant under `γ⁻¹ Γ₁(M) γ`, so `translate` returns a form *there*.
+`Γ₁` is normal in `Γ₀` (`Gamma1_conjAct_smul`), which brings the level back, and `copy` installs
+the same function at it. -/
 def slashOfMemGamma0 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (f : CuspForm (Γ₁ℝ M) k) :
     CuspForm (Γ₁ℝ M) k :=
   (CuspForm.translate f (Matrix.SpecialLinearGroup.mapGL ℝ γ)).copy (⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ)) rfl
-    (toConjAct_inv_smul_coe_Gamma1 hγ).symm
+    (Gamma1_conjAct_smul hγ).symm
 
 @[simp] theorem coe_slashOfMemGamma0 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (f : CuspForm (Γ₁ℝ M) k) :
     ⇑(slashOfMemGamma0 M k hγ f) = ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) := rfl

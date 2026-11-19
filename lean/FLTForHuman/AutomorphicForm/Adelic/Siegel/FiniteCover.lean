@@ -31,6 +31,14 @@
   classifies the pin's `:13` as `RENAMED?` (same statement, different last name) while reporting
   `complete` over the wire's three public declarations.
 
+  **The `productionPinsGeneral_D_rat` row** (the third `spec-pin:` below, 23 lines) is the pin's
+  `solution` at the row's name, proved by `CoversModCentre.mono` from this module's own
+  `centreCutSiegelSet_coversModCentre_rat` and `centreCutSiegelSet_subset_classRepSiegelSet`
+  (`AutomorphicForm/Adelic/ProductionPinsGeneral.lean`), exactly as in the pin. The pin's four
+  `private` one-line numeric facts (`hc`, `hu`, `hd₂`, `hd`, pin `:10–17`) are **not** given names
+  here — three are `by norm_num` at their argument positions, and `hc : 1/2 ≤ √3/2` keeps the pin's
+  own three-step proof as an anonymous `have` in the row's proof. No public name is added.
+
   **Port deltas versus the pin.**
   * Two imports are added to the scaffold's four: `…AdelicLevel.StrongApproxRat` (the `K = ℚ` row's
     premise `exists_globalPoints_mul_mem_finiteIntegralGL2_rat`, absent from the scaffold's closure) and
@@ -52,6 +60,7 @@
 
   spec-pin: P2M/Sol/S_AutomorphicForm_SiegelCovering_exists_finset_coversModCentre_iUnion_mul_centreCutSiegelSet.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_SiegelCovering_centreCutSiegelSet_coversModCentre_rat.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_SiegelCovering_coversModCentre_productionPinsGeneral_D_rat.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.Siegel.CentreCutCover
 import FLTForHuman.AutomorphicForm.Adelic.ContentBound
@@ -1839,6 +1848,17 @@ theorem centreCutSiegelSet_coversModCentre_rat {c u d₁ d₂ : ℝ}
       (AutomorphicForm.WindowedSiegel.centreCutSiegelSet ℚ c u d₁ d₂) :=
   coversModCentre_centreCutSiegelSet_rat
     (fun g => NumberField.AdelicLevel.exists_globalPoints_mul_mem_finiteIntegralGL2_rat g) hc hu hd₂ hd
+
+/-- The production pinning's centre-cut Siegel set already covers `GL₂(ℚ)` modulo the centre: at the
+ample thresholds it is contained in a single class-representative Siegel set. -/
+theorem coversModCentre_productionPinsGeneral_D_rat :
+    CoversModCentre ℚ (productionPinsGeneral ℚ).D := by
+  rw [productionPinsGeneral_D]
+  have hc : (1 / 2 : ℝ) ≤ Real.sqrt 3 / 2 := by
+    rw [div_le_div_iff_of_pos_right two_pos, show (1 : ℝ) = Real.sqrt 1 from Real.sqrt_one.symm]
+    exact Real.sqrt_le_sqrt (by norm_num)
+  exact CoversModCentre.mono (centreCutSiegelSet_subset_classRepSiegelSet ℚ (1 / 2) 1 (1 / 2) 2)
+    (centreCutSiegelSet_coversModCentre_rat hc (by norm_num) (by norm_num) (by norm_num))
 
 
 end SiegelCovering

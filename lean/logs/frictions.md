@@ -4829,8 +4829,17 @@ round promotes what generalizes.
 - **rule**: scaffold from the pin's text, not from the wrapper's qualified spelling; keep the pin's `open … in`
   lines; a green `lake env lean` is not a green statement check. Both gates (`lake env lean`, `check_port
   --force`) before dispatch, and again as the first step of the order.
+- **trap 3 — local notation is part of the statement text too**: the pin's `SlabFDFinite` block states its
+  two engine lemmas as `μH ((· * x) '' centreCutSiegelSet K c u d₁ d₂) < ⊤` over `local notation "G"` /
+  `"μH"` (which expand to `AdelicGL2 (𝓞 K) K` / `adelicGLHaar (Fin 2) (𝓞 K) K`). Scaffolding them with the
+  expansions spelled out reports **2 mismatch** — the checker's `norm` does not expand local notation. The
+  fix is to carry the pin's two `local notation` lines into the module and write the lemmas with `G`/`μH`.
 - **seen**: 2026-11-14, `EisensteinGeneral/PieceFactorizationDatum.lean` (trap 1) and
-  `EisensteinGeneral/PieceLatticeMajorant.lean` (trap 2), both green after the two fixes.
+  `EisensteinGeneral/PieceLatticeMajorant.lean` (trap 2), both green after the two fixes; again on
+  SET-AF85's scaffolding — `AutomorphicForm/Adelic/Siegel/FiniteCover.lean` (trap 1: the row read `MISSING`
+  with the qualified `AutomorphicForm.SiegelCovering.CoversModCentre` against the pin's bare
+  `CoversModCentre`) and `AutomorphicForm/Adelic/Siegel/SlabVolume.lean` (trap 3: `2 mismatch` on the two
+  measure lemmas). Both green after the fix; the lesson is cheaper to apply than to rediscover.
 
 ## FR-0225 [spec] — gate 6 asked for an in-file `maxHeartbeats` floor; the playbook forbids one, and the gate's own wording cannot hold
 
@@ -4915,3 +4924,71 @@ round promotes what generalizes.
 - **seen**: 2026-11-14; `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 FLTForHuman/ModularForms/HeckeFiniteAlgebra.lean`. The pin carries `set_option maxHeartbeats 6400000` in
   `S_CuspForm_finrank_span_heckeAlgebra_eq_finrank.lean`, consistent with it paying this same defeq (unverified on
   the pin's own line).
+
+## FR-0228 [spec] — a pin declaration written by *equation clauses* has its whole proof stored as its `stmt`
+
+- **where**: SET-AF85 order B (2026-11-14), `UnramifiedWhittaker.exists_apply_diagOne_mul_ne_zero_of_apply_ne_zero`'s
+  second pin, `P2M/Sol/S_UnramifiedWhittaker_exists_apply_diagOne_mul_ne_zero_of_apply_ne_zero.lean:185`
+  (`finComponent_prod_localEmbed`), declared as
+  `theorem foo (…) : ∀ l, l.Nodup → … = if w ∈ l then c w else 1 | [], _ => by simp | (a :: l), hl => by …`.
+- **symptom**: `check_port` reports `MISMATCH` for any port declaration whose body is not the pin's **verbatim**,
+  and a `sorry` body cannot match at all. `84 ok / 1 MISMATCH` was the step-1 reading of an otherwise complete
+  transcription.
+- **cause**: `spec/lean_parser.top_level_cut` finds a declaration's statement by cutting at the first top-level
+  `:=`/`where`. An equation-clause theorem has neither before its bodies, so the cut returns `len(chunk)` and the
+  corpus stores the **whole proof** — plus whatever follows (`section W` / `variable …`) — as that declaration's
+  `stmt`. Measured on the pin: `stmt` begins with the signature and continues through `| [], _ => by simp | (a ::
+  l), hl => by rw […] … if_neg hwl …` into the next `theorem`. The hash therefore depends on the proof text.
+- **two forces that cannot both win**: transcribing the body verbatim keeps `ok` but freezes the pin's
+  deprecated `if_pos`/`if_neg` (v4.34 warns unconditionally), so the module is not silent; renaming them to
+  `ite_eq_left`/`ite_eq_right` (the port's recorded practice) is silent but changes the hash, so `1 mismatch`.
+  There is no transcription that satisfies both gates.
+- **fix taken**: an `own:` row in `spec/decl_markers.tsv` (tier 2, not diffed) with the reason spelled out, so
+  the declaration is verified neither by hash nor by name but by hand, and the module stays silent. The row key
+  is the **full** name the checker parses (`UnramifiedWhittaker.DiagOne.finComponent_prod_localEmbed`): the
+  module-relative `DiagOne.…` reads as `STALE MARKER`, and a `pin:` row would not help — tier-1 name matching
+  still hash-gates the statement.
+- **rule**: a pin declaration stated with pattern-matching clauses gets an `own:` row from the start, with the
+  reason "the pin's equation-clause form defeats the statement cut"; do not spend a round hunting for a body that
+  matches, and never let a deprecation warning through to keep a hash.
+- **the instrument fix this record does not make**: `top_level_cut` should stop at a top-level `|` that begins a
+  new equation **after** a complete signature (or use the declaration's own syntax tree). Changing it re-hashes
+  every equation-clause declaration in the corpus, so it is a parser-version change — run
+  `python3 spec/statement_db.py selftest` and diff the corpus hashes before and after, not a wave-time edit.
+- **seen**: 2026-11-14, SET-AF85B step 1; `84 ok / 0 mismatch / 0 missing / 1 own / 0 kw` after the marker.
+
+## FR-0229 [orchestration] — "the premise is in the import closure" is a measurement, not a recollection
+
+- **where**: SET-AF85 order C, C1 (`AutomorphicForm/Adelic/Cusp/IrreducibleSpine.lean`), 2026-11-14. The
+  manager's brief asserted that both premises of
+  `AutomorphicForm.CuspidalSpectrum.exists_orthogonal_isIrreducibleCuspSubrep_sum_eq_of_apply_eq_smul` were
+  already in the module's import closure.
+- **symptom**: the first premise was. The second,
+  `Submodule.finiteDimensional_of_isCompactOperator_of_forall_apply_eq`
+  (`Analysis/Normed/Operator/CompactFiniteDimensional.lean`), was in the *port* but imported by nothing in
+  `IrreducibleSpine`'s **354-module** closure, so the worker hit `unknownIdentifier` at the point of use —
+  a proof-side failure several declarations into the order. The scaffold's green gates could not have caught
+  it: the statement does not mention the premise, `check_port` diffs statements, and `lake env lean` on a
+  `sorry` body never calls the premise.
+- **second half of the defect**: that module's `.olean` was *absent* from `.lake/build/lib/lean/…` (only
+  `.olean.hash` / `.trace`), so even the correct `import` line would not have sufficed — the worker built the
+  one dependency (2.8 s) before adding the line. This is FR-0033's "a `Replayed` line is not evidence that the
+  `.olean` exists", met from the other side: a module in the *dependency* position whose olean was never
+  produced because nothing had imported it yet.
+- **cause**: the brief's closure claim came from sampling a few likely layers (a `grep` over the home's
+  neighbours), not from the graph. The rule in the scoping recipe (§4) says the home must sit above the
+  proof's premises and calls the check "a first cut only" — it does not say the *manager* may skip it.
+- **recipe** (10 lines, run before dispatch for every row whose premise is a port declaration):
+  1. BFS over `^import FLTForHuman\.` from the home module, mapping dotted names to paths;
+  2. check each premise's own module is in that closure — the premise's module is `grep -l "^theorem <last
+     name>"` over `FLTForHuman/`, or the `spec-pin:`/`SOURCES` map for a pinned declaration;
+  3. check the `.olean` exists under `lean/.lake/build/lib/lean/FLTForHuman/…` for every module on the
+     path that the order will need, and build the missing ones (bounded, `flock` + `timeout`) rather than
+     leaving it to the worker.
+- **rule**: a work order that says "its premises are imported" states a measurement; when the order instead
+  says "add the `import` line if the closure lacks it", it costs the worker one `import` edit and one build,
+  not a stall — and the brief should say which premises it *verified*.
+- **seen**: 2026-11-14, SET-AF85C (the worker reported at first belief, built the dependency, added the
+  line; `IrreducibleSpine` closed at `21 ok / 0 / 0` plus the rest of its six gates). The same order also
+  needed `open scoped Pointwise` and a countable-instance chain that the scaffold's `open` list had dropped —
+  both supplied proof-side, so the module kept `0 own`.
