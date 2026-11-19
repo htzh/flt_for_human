@@ -1,25 +1,63 @@
 /-
   The adelic Haar measure: the product formula and the measure of the coordinate hyperplanes.
 
-  Three statements about the Haar measure on `GL2(A)` and on the adeles:
+  Four statements about the Haar measure on `GL2(A)` and on the adeles:
 
   * the `GL2`-Haar measure is a constant times a product of local and archimedean factors
     (`exists_map_adelicGLHaar_eq_smul_prod`);
   * the adelic Haar measure of the hyperplane `{x | x.fst = 0}` is zero
     (`adelicAddHaar_setOf_fst_apply_eq_eq_zero`);
-  * the same for `{x | x.snd = 0}` (`adelicAddHaar_setOf_snd_apply_eq_zero`).
+  * the same for `{x | x.snd = 0}` (`adelicAddHaar_setOf_snd_apply_eq_zero`);
+  * a Haar measure on `GL₂` of the *infinite* adeles is right-invariant
+    (`isMulRightInvariant_of_isHaarMeasure_generalLinearGroup_infiniteAdeleRing`): the group is a
+    product of real/complex `GL₂`'s, each unimodular, so a measure that is a product of a Haar
+    measure on the archimedean factor with a Haar measure on the finite factor is invariant on both
+    sides.
 
   These are the measure-theoretic facts the factorizable-test-function and Bruhat-Eisenstein integrals
   consume.
 
   Transcribed from the pin's proof files (pinned `aa2d8b3`)
   `P2M/Sol/S_NumberField_AdelicHaar_exists_map_adelicGLHaar_eq_smul_prod.lean` (215 lines),
-  `..._adelicAddHaar_setOf_fst_apply_eq_eq_zero.lean` (128) and `..._adelicAddHaar_setOf_snd_apply_eq_zero.lean`
-  (119), with the statements from their wrappers.
+  `..._adelicAddHaar_setOf_fst_apply_eq_eq_zero.lean` (128),
+  `..._adelicAddHaar_setOf_snd_apply_eq_zero.lean` (119) and
+  `..._isMulRightInvariant_of_isHaarMeasure_generalLinearGroup_infiniteAdeleRing.lean` (84), with the
+  statements from their wrappers.
 
   Assumes from earlier modules: the adelic Haar measure and its modulus character
   (`NumberTheory/AdelicHaar/*`), the adelic level structure (`NumberTheory/AdelicLevel/*`) and
   mathlib's Haar measure API.
+
+  Two imports carry the last row's premises, neither was in this module's closure
+  (FR-0229: the closure claim is a measurement): `isMulRightInvariant_adelicGLHaar` lives in
+  `NumberTheory/AdelicHaar/MulRightInvariant.lean`, and the archimedean inclusion
+  `AutomorphicForm.adelicArchGLIncl` (with `glArch_adelicArchGLIncl` / `glFin_adelicArchGLIncl`, which
+  say that the archimedean inclusion is the identity on the archimedean component and trivial on the
+  finite one) in `AutomorphicForm/Adelic/ArchType.lean`. Both `lake build`s are cheap; the
+  `NumberTheory → AutomorphicForm` import direction is the port's usual one.
+
+  Gates for the module as landed (55 declarations, 24 public / 31 `private`): `check_port --force` 24
+  ok / 0 mismatch / 0 missing / 0 own / 0 kw; `scaffold_audit` complete; silent at
+  `-DautoImplicit=false -DmaxHeartbeats=200000`; `#print axioms` on all 24 public declarations and on
+  the three engines `ProductMeasure.L1.main`, `FstHyperplane.main`, `SndHyperplane.main` gives
+  `[propext, Classical.choice, Quot.sound]`; `move_dead.py` 0 declarations / 0 lines. The 31 `private`
+  declarations carry no axiom check of their own — a `sorry` in one is not visible to `#print axioms` —
+  but the module elaborates with **no warnings at all**, and every `sorry` in any body is a warning, so
+  there is none to hide.
+
+  Heartbeat probe: silent at 15000, aborts at 10000 — and it aborts in the *older* `L1.main`
+  (`:197`, `isDefEq`), not in the last row, so the module's floor is the product-formula engine. No
+  in-file cap is carried (playbook §3.5, FR-0225); the edit loop runs at 200000.
+
+  `dedup.py --within` reports one cluster, `ProductMeasure.L1.main` ↔
+  `NumberField.AdelicHaar.exists_map_adelicGLHaar_eq_smul_prod`: the pin's own private-engine /
+  public-row pair (`main` is the engine, the row is the wrapper's headline at the same statement up to
+  the `letI := glBorel` binder), recorded here rather than removed — the pin keeps both.
+
+  Proof-side deviation in the last row only, statement untouched: every `haveI`/`letI` of the pin
+  became `have`/`let` (FR-0223, the linter's own `Try this:`; the class-typed local is still found by
+  instance search), and the pin's `attribute [-instance]`/`attribute [-simp]` walls are dropped — the
+  port's recorded practice.
 
   spec-pin: Theorems/Thm_NumberField_AdelicHaar_exists_map_adelicGLHaar_eq_smul_prod.lean
   spec-pin: P2M/Sol/S_NumberField_AdelicHaar_exists_map_adelicGLHaar_eq_smul_prod.lean
@@ -27,6 +65,7 @@
   spec-pin: P2M/Sol/S_NumberField_AdelicHaar_adelicAddHaar_setOf_fst_apply_eq_eq_zero.lean
   spec-pin: Theorems/Thm_NumberField_AdelicHaar_adelicAddHaar_setOf_snd_apply_eq_zero.lean
   spec-pin: P2M/Sol/S_NumberField_AdelicHaar_adelicAddHaar_setOf_snd_apply_eq_zero.lean
+  spec-pin: P2M/Sol/S_NumberField_AdelicHaar_isMulRightInvariant_of_isHaarMeasure_generalLinearGroup_infiniteAdeleRing.lean
 -/
 import FLTForHuman.NumberTheory.AdelicHaar.Adele
 import FLTForHuman.NumberTheory.AdelicHaar.GeneralLinear
@@ -34,7 +73,10 @@ import FLTForHuman.NumberTheory.AdelicHaar.ProductFormula
 import FLTForHuman.NumberTheory.AdelicHaar.AdelicModulus
 import FLTForHuman.NumberTheory.AdelicDock.LocalEmbedding
 import FLTForHuman.NumberTheory.AdelicHaar.PlaceMeasure
+import FLTForHuman.NumberTheory.AdelicLevel.Countability
 import FLTForHuman.NumberTheory.AdelicLevel.HeckeGen
+import FLTForHuman.NumberTheory.AdelicHaar.MulRightInvariant
+import FLTForHuman.AutomorphicForm.Adelic.ArchType
 import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Prod
@@ -487,3 +529,85 @@ theorem NumberField.AdelicHaar.adelicAddHaar_setOf_snd_apply_eq_zero
     (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
     adelicAddHaar (𝓞 F) F {x : AdeleRing (𝓞 F) F | x.2 v = 0} = 0 :=
   SndHyperplane.main F v
+
+namespace NumberField.AdelicHaar
+
+/-- A Haar measure on the infinite-adele `GL₂` is right-invariant: the group is unimodular because it is
+a product of the archimedean general linear groups, each of which is. -/
+theorem isMulRightInvariant_of_isHaarMeasure_generalLinearGroup_infiniteAdeleRing
+    (K : Type) [Field K] [NumberField K]
+    [MeasurableSpace (GL (Fin 2) (InfiniteAdeleRing K))] [BorelSpace (GL (Fin 2) (InfiniteAdeleRing K))]
+    (μa : Measure (GL (Fin 2) (InfiniteAdeleRing K))) [μa.IsHaarMeasure] [μa.Regular] :
+    μa.IsMulRightInvariant := by
+  classical
+
+  have hLC1 : LocallyCompactSpace (Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 K) K)) :=
+    inferInstanceAs (LocallyCompactSpace (Fin 2 → Fin 2 → FiniteAdeleRing (𝓞 K) K))
+  have hLC2 : LocallyCompactSpace (GL (Fin 2) (FiniteAdeleRing (𝓞 K) K)) := inferInstance
+  let mF : MeasurableSpace (GL (Fin 2) (FiniteAdeleRing (𝓞 K) K)) := borel _
+  have hBF : BorelSpace (GL (Fin 2) (FiniteAdeleRing (𝓞 K) K)) := ⟨rfl⟩
+  set μf : Measure (GL (Fin 2) (FiniteAdeleRing (𝓞 K) K)) := Measure.haar with hμf
+  have hregf : μf.Regular := by rw [hμf]; infer_instance
+
+  obtain ⟨c, hc, hmap⟩ := exists_map_adelicGLHaar_eq_smul_prod (Fin 2) K μa μf
+  let mGL : MeasurableSpace (GL (Fin 2) (AdeleRing (𝓞 K) K)) := glBorel (Fin 2) (𝓞 K) K
+  have hBGL : BorelSpace (GL (Fin 2) (AdeleRing (𝓞 K) K)) := borelSpace_glBorel (Fin 2) (𝓞 K) K
+  have hHaarGL : (adelicGLHaar (Fin 2) (𝓞 K) K).IsHaarMeasure :=
+    isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 K) K
+  have hR : (adelicGLHaar (Fin 2) (𝓞 K) K).IsMulRightInvariant := isMulRightInvariant_adelicGLHaar K
+
+  set B : Set (GL (Fin 2) (FiniteAdeleRing (𝓞 K) K)) :=
+    (finiteLevelZero (𝓞 K) K ⊤ : Set (GL (Fin 2) (FiniteAdeleRing (𝓞 K) K))) with hB
+  have hBo : IsOpen B := isOpen_finiteLevelZero (𝓞 K) K (by simp)
+  have hBc : IsCompact B := isCompact_finiteLevelZero (𝓞 K) K ⊤
+  have hBm : MeasurableSet B := hBo.measurableSet
+  have hB0 : μf B ≠ 0 := (hBo.measure_pos μf ⟨1, one_mem _⟩).ne'
+  have hBt : μf B ≠ ⊤ := hBc.measure_lt_top.ne
+
+  set π : GL (Fin 2) (AdeleRing (𝓞 K) K) →
+      GL (Fin 2) (InfiniteAdeleRing K) × GL (Fin 2) (FiniteAdeleRing (𝓞 K) K) := fun x =>
+    (Matrix.GeneralLinearGroup.map (adeleArch (𝓞 K) K) x,
+      Matrix.GeneralLinearGroup.map (adeleFin (𝓞 K) K) x) with hπ
+  have hπm : Measurable π :=
+    (continuous_glArch (𝓞 K) K).measurable.prodMk (continuous_glFin (𝓞 K) K).measurable
+
+  have hSC : SecondCountableTopology (GL (Fin 2) (AdeleRing (𝓞 K) K)) :=
+    NumberField.AdeleRing.secondCountableTopology_generalLinearGroup_finTwo K
+  have hcontFE : Continuous (AdelicDock.finEmbed (𝓞 K) K) := by
+    refine Units.continuous_iff.mpr ⟨continuous_matrix fun i j => ?_, continuous_matrix fun i j => ?_⟩
+    · show Continuous fun g : GL (Fin 2) (FiniteAdeleRing (𝓞 K) K) => AdelicDock.finMat (𝓞 K) K g i j
+      exact continuous_const.prodMk (Units.continuous_val.matrix_elem i j)
+    · show Continuous fun g : GL (Fin 2) (FiniteAdeleRing (𝓞 K) K) =>
+        AdelicDock.finMat (𝓞 K) K ((g⁻¹ : GL (Fin 2) (FiniteAdeleRing (𝓞 K) K)) : Matrix _ _ _) i j
+      exact continuous_const.prodMk (Units.continuous_coe_inv.matrix_elem i j)
+  have hind : Topology.IsInducing (AdelicDock.finEmbed (𝓞 K) K) := by
+    refine Topology.IsInducing.of_comp hcontFE (continuous_glFin (𝓞 K) K) ?_
+    have : (glFin (𝓞 K) K) ∘ (AdelicDock.finEmbed (𝓞 K) K) = id :=
+      funext fun g => AdelicDock.glFin_finEmbed (𝓞 K) K g
+    rw [this]; exact Topology.IsInducing.id
+  have hSCf : SecondCountableTopology (GL (Fin 2) (FiniteAdeleRing (𝓞 K) K)) :=
+    hind.secondCountableTopology
+  have hSFin : SFinite μf := inferInstance
+  have hrect : ∀ A : Set (GL (Fin 2) (InfiniteAdeleRing K)), MeasurableSet A →
+      adelicGLHaar (Fin 2) (𝓞 K) K (π ⁻¹' (A ×ˢ B)) = (c : ENNReal) * (μa A * μf B) := by
+    intro A hA
+    rw [← Measure.map_apply hπm (hA.prod hBm), hmap, Measure.smul_apply, Measure.prod_prod,
+      ENNReal.smul_def, smul_eq_mul]
+  refine ⟨fun a => Measure.ext fun A hA => ?_⟩
+  rw [Measure.map_apply (measurable_mul_const a) hA]
+
+  have hpre : π ⁻¹' (((· * a) ⁻¹' A) ×ˢ B)
+      = (· * AutomorphicForm.adelicArchGLIncl K a) ⁻¹' (π ⁻¹' (A ×ˢ B)) := by
+    ext y
+    simp only [Set.mem_preimage, Set.mem_prod, hπ, map_mul]
+    show (glArch (𝓞 K) K y * a ∈ A ∧ glFin (𝓞 K) K y ∈ B) ↔
+      (glArch (𝓞 K) K y * glArch (𝓞 K) K (AutomorphicForm.adelicArchGLIncl K a) ∈ A ∧
+        glFin (𝓞 K) K y * glFin (𝓞 K) K (AutomorphicForm.adelicArchGLIncl K a) ∈ B)
+    rw [AutomorphicForm.glArch_adelicArchGLIncl, AutomorphicForm.glFin_adelicArchGLIncl, mul_one]
+  have key : (c : ENNReal) * (μa ((· * a) ⁻¹' A) * μf B) = (c : ENNReal) * (μa A * μf B) := by
+    rw [← hrect _ ((measurable_mul_const a) hA), ← hrect A hA, hpre, measure_preimage_mul_right]
+  have hc0 : (c : ENNReal) ≠ 0 := by exact_mod_cast hc.ne'
+  have h1 := (ENNReal.mul_right_inj hc0 ENNReal.coe_ne_top).mp key
+  exact (ENNReal.mul_left_inj hB0 hBt).mp h1
+
+end NumberField.AdelicHaar

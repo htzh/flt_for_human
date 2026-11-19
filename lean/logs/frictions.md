@@ -4988,7 +4988,43 @@ round promotes what generalizes.
 - **rule**: a work order that says "its premises are imported" states a measurement; when the order instead
   says "add the `import` line if the closure lacks it", it costs the worker one `import` edit and one build,
   not a stall — and the brief should say which premises it *verified*.
+- **instrument (added the same day)**: `tools/deps/premise_imports.py --nodes … [--missing-from <module>]
+  [--olean]` prints one `import` line per *declaring module* of a row's graph premises, with the premises
+  it serves, filtering out the ones already in the target module's import closure (BFS) and flagging a
+  missing `.olean`. `--nodes A --nodes B …` takes the rows; `--missing-from` takes the home. It reproduces
+  AF87A's hand BFS line for line.
+- **its scope, stated so it is not over-trusted**: only the *graph* premises. A proof may need a module that
+  is not a premise at all — AF86C's `AutomorphicForm.adelicArchGLIncl` (`AutomorphicForm/Adelic/ArchType.lean`)
+  is the recorded case — so a scaffold's import list is this report **plus** whatever the elaboration asks
+  for. The compile loop still has the last word.
 - **seen**: 2026-11-14, SET-AF85C (the worker reported at first belief, built the dependency, added the
   line; `IrreducibleSpine` closed at `21 ok / 0 / 0` plus the rest of its six gates). The same order also
   needed `open scoped Pointwise` and a countable-instance chain that the scaffold's `open` list had dropped —
   both supplied proof-side, so the module kept `0 own`.
+- **count of the recurrence before the instrument existed**: **eleven** premise modules across four orders in
+  two sets — AF85C (1: `CompactFiniteDimensional`), AF86B (3: `MulRightInvariant`, `ArchCasimir`,
+  `ArchCasimirComplex`), AF86C (2: `MulRightInvariant`, `ArchType`), AF87A (5: `MaximalCompactFactors`,
+  `TestFnTop`, `RightConvProductIntegral`, `ArchCutReproducer`, `ArchPeterssonPairing`). Every one was one
+  `import` edit; every one cost a worker the same measurement. That is what the tool is for.
+
+## FR-0230 [orchestration] — a bounded `lake build` killed mid-cascade leaves the *dependency's* olean missing
+
+- **where**: SET-AF87A (2026-11-14). `ProductMeasure.olean` was present at 13:46 and gone at 13:48 (only
+  `.olean.hash` and `.trace` left), while the worker's own `flock`'d `timeout 110 lake build` of
+  `LevelSphericalLimit` was running. The module imports `ProductMeasure`, so the worker's next edit loop could
+  not import it.
+- **mechanism**: `lake build` on a module whose dependency is stale *removes* the stale olean, then rebuilds
+  it; if the wall bound kills the build in between, the dependency's olean is simply absent. Nothing in the
+  output says "removed": the failure the next command gives is `unknown identifier` at the *first use* of a
+  declaration from that module — which reads like a missing premise (FR-0229's symptom) but is not one.
+- **diagnosis, one command**: `ls lean/.lake/build/lib/lean/FLTForHuman/<Dir>/<Module>.olean` (FR-0033's check,
+  from the other side — there a `Replayed` line hid a missing olean, here a killed build removed one).
+- **fix**: rebuild the dependency **alone**, under the lock, with its own bounded call
+  (`flock /tmp/flt-build.lock timeout 110 lake build FLTForHuman.NumberTree.<Dep>` — a single module's build
+  is seconds; the cascade is what was expensive), then resume. Never hand-make an olean and never edit the
+  dependency to make the import resolve. The worker did exactly this.
+- **the preemptive rule for a long first-time cascade**: build the *dependency* first, in its own call, before
+  building the dependent — then the dependent's `timeout 110` covers one module, not a cascade. A one-shot
+  `timeout 900` on the dependent is out of policy (AGENTS.md: every tool call within two minutes) even when it
+  finishes faster; the two-call version respects the bound and gives a better failure message.
+- **seen**: 2026-11-14, SET-AF87A; the rebuild was `3701 jobs`, exit 0, and the dependency was untouched.
