@@ -5028,3 +5028,63 @@ round promotes what generalizes.
   `timeout 900` on the dependent is out of policy (AGENTS.md: every tool call within two minutes) even when it
   finishes faster; the two-call version respects the bound and gives a better failure message.
 - **seen**: 2026-11-14, SET-AF87A; the rebuild was `3701 jobs`, exit 0, and the dependency was untouched.
+
+## FR-0231 [mathlib-drift] — `continuous_mul_right` is `continuous_mul_const` in v4.34
+
+- **where**: SET-AF88A, the archimedean bi-finiteness pin (pin 3 `:194`). The pin writes
+  `continuous_mul_right` for `Continuous (fun g => g * a)`; v4.34 has it as `continuous_mul_const`
+  (`continuous_mul_right` is gone).
+- **why it matters beyond one line**: the `Continuous (· * g)` idiom is everywhere in the adelic continuity
+  layer (right-translation continuity, `placeEmbed`-covariance, the Hecke-gen action), so this rename will be
+  met again in every ported continuity proof that predates it. The substitution is mechanical and
+  statement-neutral.
+- **seen**: 2026-11-14, SET-AF88A; one occurrence, fixed in place, `check_port` unchanged at 81 ok.
+
+## FR-0232 [port] — "statements only, `sorry` bodies" is wrong for `def`s, and a whole-declaration splice must stop at the next *prelude*
+
+Two instructions from SET-AF88A's step 1 that every later work order should carry verbatim.
+
+- **`def` bodies are not statements.** A `sorry`-bodied `def` loses the section variables only its *body*
+  mentions, so the elaborated arity changes and the pin's `solution` no longer applies (`W`, `Stable`,
+  `trSpan` in the tensor-split pin were exactly this). The rule is: **theorems get `sorry` bodies, `def`s are
+  transcribed verbatim** — a step-1 pass that stubs every `def` produces a module that is checker-green and
+  cannot be proved.
+- **A whole-declaration splice stops at the next declaration's *prelude*, not at its keyword.** Cutting a
+  body at `theorem`/`def` swallows the `variable` / `include` / `section` lines that sit between a body and
+  the next declaration; the symptom is a fake *statement* error (or a stray `end`) several declarations later,
+  which reads as a mis-transcribed statement. The worker's `lean/tmp/af88/splice.py` had this bug and it cost
+  one round; the fix is to cut at the first *declaration keyword or section/variable/include line* after the
+  body.
+- **and a `def` can carry equations**: `iterMulVec`'s hashed statement is signature **plus** equations
+  (pin 1 `:275`), so FR-0228's `|`-clause case is live outside the Whittaker module — a `:= sorry` reads as
+  `MISMATCH` and the equations must be transcribed.
+- **seen**: 2026-11-14, SET-AF88A (81 declarations, step 1 in one pass after the two rules were applied).
+
+## FR-0233 [lean] — a bare `end` no longer closes a `namespace` at v4.34, and the error is 400 lines away
+
+- **where**: SET-AF88C, `AutomorphicForm/Adelic/KfSmoothTensor.lean`. Three subject namespaces
+  (`KfLevel`, `CuspidalConstituent.Conj`, `LevelSplit`, `SliceTensor`) were closed with a bare `end` as the
+  pin does; at v4.34 the parse fails — but the reported position is the **file's last `end`**, several hundred
+  lines after the offending one.
+- **probe** (`tmp/af88/probe-bare-end.lean`): `namespace Foo / theorem bar : True := trivial / end` →
+  `error: Missing name after `end`: Expected the current scope name `Foo`` with the hint `end Foo`.
+  The same file with `section … end` inside the namespace is fine: **a bare `end` still closes a `section`,
+  only a `namespace` needs its name.**
+- **why it is worth an entry**: the pin (and every port module written before this bit) closes namespaces
+  with a bare `end` in places, so a whole-file transcription can carry the defect silently; and the distant
+  error position makes it look like a missing `end` at the *bottom* of the file. The cure is local (`end Foo`)
+  and statement-neutral.
+- **seen**: 2026-11-14, SET-AF88C; four namespaces, four `end`s named, `check_port` unchanged.
+
+## FR-0234 [tooling] — `scaffold_audit.py` and `premise_imports.py` are CWD-relative
+
+- **where**: SET-AF88's work orders. The gate lines were written as
+  `python3 tools/deps/scaffold_audit.py <module>` from the repository root, which fails with
+  `ModuleNotFoundError: No module named 'statement_db'` — `scaffold_audit.py` inserts `../../lean/spec` on
+  `sys.path` relative to the **caller's** directory, and `premise_imports.py`'s `--port-root` defaults to
+  `../../lean/FLTForHuman`, likewise relative.
+- **fix**: both are run from `tools/deps/` (`cd tools/deps && python3 scaffold_audit.py ../../lean/FLTForHuman/…`),
+  which is how `check_port.py` (`spec/`, run from `lean/`) differs — two tools, two working directories.
+- **rule for a work order**: quote the tool commands with their working directory, not just their paths.
+  A command that fails for a path reason costs a worker a detour and looks like a broken tree.
+- **seen**: 2026-11-14, SET-AF88C (reported by the worker; both tools work as documented from `tools/deps/`).
