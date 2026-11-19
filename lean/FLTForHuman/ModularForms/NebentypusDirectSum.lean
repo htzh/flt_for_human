@@ -138,12 +138,13 @@ theorem exists_gamma0_apply_ne [NeZero N] {ψ ψ' : DirichletCharacter ℂ N} (h
   refine MulChar.ext fun u => ?_
   set d : ℕ := (u : ZMod N).val with hd
   have hcop : Nat.Coprime d N := ZMod.val_coe_unit_coprime u
-  obtain ⟨x, y, hxy⟩ : IsCoprime (d : ℤ) (N : ℤ) := Nat.isCoprime_iff_coprime.mpr hcop
-  let γ : SL(2, ℤ) := ⟨!![x, -y; (N : ℤ), (d : ℤ)], by
-    rw [Matrix.det_fin_two_of]; linear_combination hxy⟩
-  have hγ : γ ∈ Gamma0 N := by rw [Gamma0_mem]; simp [γ]
+  obtain ⟨γ, hγ10, hγ11⟩ :=
+    ModularForm.Level.exists_sl2_of_isCoprime (Nat.isCoprime_iff_coprime.mpr hcop)
+  have hγ : γ ∈ Gamma0 N := by rw [Gamma0_mem, hγ10]; simp
   have hγd : ((γ 1 1 : ℤ) : ZMod N) = (u : ZMod N) := by
-    simp [γ, hd]
+    rw [hγ11, hd]
+    push_cast
+    exact ZMod.natCast_zmod_val (u : ZMod N)
   have := hall γ hγ
   rwa [hγd] at this
 

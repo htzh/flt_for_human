@@ -70,12 +70,9 @@ private theorem exists_cocycle {N ℓ : ℕ} (hℓ : ℓ ≠ 0) (g : SL(2, ℤ))
     rw [hc] at this
     linear_combination this
   set y : ZMod ℓ := affinePerm g hc x with hy
-  obtain ⟨e, he⟩ : (ℓ : ℤ) ∣ g 0 1 + x.val * g 1 1 - y.val * (g 0 0 + x.val * g 1 0) := by
-    rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-    push_cast
-    rw [ZMod.natCast_zmod_val, ZMod.natCast_zmod_val, hc, hy, affinePerm_apply]
-    linear_combination (-(((g 0 1 : ℤ) : ZMod ℓ)) - x * ((g 1 1 : ℤ) : ZMod ℓ)) * had
-  obtain ⟨g', hc', hd', hmul⟩ := heckeMatrix_mul_of_eq hℓ g x.val y.val e (by linear_combination he)
+  obtain ⟨g', hc', hd', hmul⟩ := heckeMatrix_mul_of_eq hℓ g x y (by
+    rw [hy, affinePerm_apply, hc, mul_zero, add_zero]
+    linear_combination (-(((g 0 1 : ℤ) : ZMod ℓ)) - x * ((g 1 1 : ℤ) : ZMod ℓ)) * had)
   refine ⟨g', ?_, ?_, hmul⟩
   · rw [hc']
     exact dvd_mul_of_dvd_right hNc _

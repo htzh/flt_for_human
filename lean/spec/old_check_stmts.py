@@ -3508,7 +3508,10 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/JqAnalyticModel.lean",
     "FLTForHuman/ModularForms/Hauptmodul.lean",
     "FLTForHuman/ModularForms/Defs/HeckeOperator.lean",
-    "FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean",
+    # (removed 2026-11-18) `FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean` — the pin's
+    # block is now parked in `Reserve/ModularForms/PortOwnedSpecPins.lean` (its statements are
+    # repackaged over labels, see `topics/TOPIC-interface-changes.md` Entry 6), and the two `Γ₀`
+    # `S_` copies stay wired by `ModularForms/HeckeInvariance.lean`.
     "FLTForHuman/ModularForms/HeckeFricke.lean",
     "FLTForHuman/ModularForms/HeckeCusps.lean",
     # SET-3 T5: the formal `PowerSeries` operators and the shared `q`-coefficient tail.
@@ -3531,7 +3534,6 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/Defs/IntegralLattice.lean",
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
-    "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",
     # Topic 14. Its upstream half, `Defs/PhiAtSlot.lean`, left this list on
     # 2026-11-04: it carries its own `spec-pin:` wire now (18 ok, 4 own), and its
     # four `ModularCurve.Nome` port-own declarations are `own:` rows in
@@ -3750,7 +3752,6 @@ PORT_FILES = [
     # headlines are public; the `IsFiniteRelIndex` instance, the `Γ₀ → Γ₁`
     # restriction, the translate bundle, the `qCoeff` linear map and the trace
     # additivity are all `private`.
-    "FLTForHuman/ModularForms/WeightOne/IntegralStructure.lean",
     # The shared homes (WeightOne rectification): their public declarations are the
     # lifted pin-private proofs; each is verified against the `S_` sources above.
     "FLTForHuman/ModularForms/QExpansionCoeff.lean",
@@ -5616,6 +5617,8 @@ def check_prop_bodies(flt: Path) -> int:
     ok = diff = 0
     for rel in PORT_FILES:
         p = LEAN / rel
+        if not p.exists():
+            continue
         for raw, kind, stmt, body in declaration_bodies(p.read_text(encoding="utf-8")):
             if kind not in ("def", "abbrev") or not body:
                 continue
@@ -5868,6 +5871,9 @@ def main() -> int:
 
     for rel in PORT_FILES:
         p = LEAN / rel
+        if not p.exists():
+            print(f"warning: missing port module {p}", file=sys.stderr)
+            continue
         text = p.read_text(encoding="utf-8")
         markers = pin_markers(text)
         consumed: dict[str, int] = {}

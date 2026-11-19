@@ -102,16 +102,12 @@ private theorem conj_mem_Gamma1 {N : ℕ} {σ γ : SL(2, ℤ)} (hσ : σ ∈ Gam
     rw [← dd_mul hmem hσ, inv_mul_cancel_right, dd_mul hσ hγ0, h1, mul_one]
   exact (isUnit_dd hσ).mul_left_injective (hprod.trans (one_mul _).symm)
 
-private def sl2 (A : Matrix (Fin 2) (Fin 2) ℤ) (h : A.det = 1) : SL(2, ℤ) := ⟨A, h⟩
-
 /-- Every unit `n` of `ZMod M` lifts to `σ ∈ Γ₀(M)` with `dd σ = n`. -/
 theorem exists_lift (n : ℕ) (hn : n.Coprime M) :
     ∃ σ : SL(2, ℤ), σ ∈ Gamma0 M ∧ dd (N := M) σ = n := by
-  obtain ⟨u, v, huv⟩ : IsCoprime (n : ℤ) (M : ℤ) := Nat.isCoprime_iff_coprime.mpr hn
-  refine ⟨sl2 !![u, -v; (M : ℤ), (n : ℤ)]
-      (by rw [Matrix.det_fin_two_of]; linear_combination huv), ?_, ?_⟩
-  · rw [Gamma0_mem]; simp [sl2]
-  · simp [dd, sl2]
+  obtain ⟨σ, h10, h11⟩ :=
+    ModularForm.Level.exists_sl2_of_isCoprime (Nat.isCoprime_iff_coprime.mpr hn)
+  exact ⟨σ, Gamma0_mem.mpr (by rw [h10]; simp), by rw [dd, h11]; simp⟩
 
 section Slash
 

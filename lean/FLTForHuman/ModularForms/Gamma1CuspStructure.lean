@@ -95,16 +95,15 @@ theorem qCoeff_heckeULinH (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : �
               = ((g 1 1 : ℤ) : ZMod q) *
                 (((g 0 1 : ℤ) : ZMod q) + r * ((g 1 1 : ℤ) : ZMod q))
             rw [mul_comm ((g 1 1 : ℤ) : ZMod q) r]
-          have hxe : (ModularForm.HeckeRepresentatives.affinePerm g hc0q x).val
-              = (CuspForm.perm q g (x.val : ZMod q)).val := by
-            rw [hperm x, ZMod.natCast_zmod_val]
-          have hxeZ : ((ModularForm.HeckeRepresentatives.affinePerm g hc0q x).val : ℤ)
-              = ((CuspForm.perm q g (x.val : ZMod q)).val : ℤ) := by rw [hxe]
           obtain ⟨g', hg'10, hg'11, hmul⟩ :=
-            ModularForm.HeckeRepresentatives.heckeMatrix_mul_of_eq (p := q) hq.ne_zero g x.val
-              (ModularForm.HeckeRepresentatives.affinePerm g hc0q x).val e (by
-                rw [← hxeZ] at he
-                linear_combination he)
+            ModularForm.HeckeRepresentatives.heckeMatrix_mul_of_eq (p := q) hq.ne_zero g x
+              (ModularForm.HeckeRepresentatives.affinePerm g hc0q x) (by
+                have h := congrArg (fun z : ℤ => (z : ZMod q)) he
+                push_cast at h
+                rw [ZMod.natCast_zmod_val, ZMod.natCast_zmod_val] at h
+                simp only [ZMod.natCast_self, zero_mul] at h
+                rw [hperm x]
+                linear_combination h)
           have hg'G0 : g' ∈ CongruenceSubgroup.Gamma0 M := by
             rw [CongruenceSubgroup.Gamma0_mem, hg'10]
             push_cast

@@ -42,6 +42,7 @@ pin's concrete copies) keeps an `own:` row: there is nothing to park.
 | `ModularForms/QCoeff` | `P2M/Sol/S_CuspForm_IsEigenformWith_heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul.lean` | `ModularFormClass.qCoeff_{add,sub,const_smul}` |
 | `ModularForms/QCoeffClass` | `Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean` | `ModularFormClass.eq_of_forall_qCoeff_eq` |
 | `ModularForms/QCoeffClass` | `P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean` | `ModularFormClass.hasSum_qCoeff` |
+| `ModularForms/Level` + `Defs/HeckeRepresentatives` | `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` | `Level.wt`/`lift`/`IsDiamondLift`/`det_mod`/`diamondLinOne`, `HeckeRepresentatives.heckeRep`/`redMatrix`/`heckeRep_mul` |
 
 Both q-coefficient modules are therefore unwired: the checker no longer diffs them, and
 no `own:` row is involved. The cost is stated rather than hidden — the six statements
@@ -228,3 +229,66 @@ transports (`hasSum_qCoeff_{add,sub,const_smul}`, `hasSum_qCoeff_heckeU`, `_heck
 extractions (`periodic_`, `isBoundedAtImInfty_`, `mdifferentiable_`,
 `analyticAt_cuspFunction_zero_of_hasSum_qCoeff`) only where a single fact is genuinely
 wanted.
+
+## Entry 6 — the Hecke representative block is repackaged
+
+**Status: applied, the pin's public home parked.** The pin's public block
+(`Definitions/Def_CuspForm_Gamma1HeckeOperators.lean:82–455`) and the two `Γ₀` `S_` copies state the
+`U_p`/`T_p` bookkeeping in the shape their own proofs needed. The port states it in the shape the
+level argument needs. The block's public home is parked (it is split over three port modules and
+cannot be a wire for any of them); the two `Γ₀` `S_` copies keep their existing wire in
+`ModularForms/HeckeInvariance.lean`, and the one declaration there that departs from the pin,
+`heckeMatrix_mul_of_dvd`, is the one described below.
+
+**Pin shape.** `isUnit_wt {N} (hp : p.Prime) (hpN : ¬ p ∣ N) (x)`;
+`heckeMatrix_mul_of_eq (g) (j j' : ℕ) (e : ℤ) {he}` concluding
+`∃ g', g' 1 0 = p * g 1 0 ∧ g' 1 1 = g 1 1 - g 1 0 * j' ∧ …`; and
+`heckeMatrix_mul_of_dvd (g) (hc : (p : ℤ) ∣ g 1 0) (x)` concluding
+`∃ g', g' 1 0 = p * g 1 0 ∧ heckeMatrix p x.val * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p (affinePerm g _ x).val`.
+The `heckeT` `S_` copy states `heckeRep_mul` with `hg : (N : ℤ) ∣ g 1 0` and only the
+multiplication conjunct.
+
+**Port shape.** `Level.isUnit_wt {N} (hpN : ¬ p ∣ N) (x)` under `[Fact p.Prime]`;
+`HeckeRepresentatives.heckeMatrix_mul_of_dvd (g) (M : ℕ) (hpM : p ∣ M) (hg : (M : ℤ) ∣ g 1 0) (x)`
+concluding `∃ g', g' ∈ Γ₀ (p * M) ∧ … heckeMatrix p (affineMap g x).val`; and the public `Γ₀`
+`heckeRep_mul` (`Gamma1Hecke.heckeRep_mul`) with `hg : g ∈ Γ₀ N`, which additionally records the
+witness's `1 1` entry and the `wt`-equation.
+
+The pin's other three `_mul_of_eq` corners (`_of_eq'`, `heckeDiagMatrix_mul_of_eq`, `…_of_eq'`) are
+not carried: they were proof steps of the pin's own `heckeRep_mul`, and the port's `heckeRep_mul`
+now reads the same two entries off `repMatrix_mul`'s fixed witness, so only `heckeMatrix_mul_of_eq`
+— the shape the `Γ₀` invariance layer and `Gamma1CuspStructure` consume — stays as the facade.
+
+**Representation.** The block is stated over `OnePoint (ZMod p)` throughout — one index type, no
+lift. The four label transitions are stated once, as `dvd_conjugate` (the cocycle entry is divisible
+by `p` when the target label is the image of the source label), so `heckeRep_mul` has no case split:
+its level and weight conjuncts are the `1 0` and `1 1` entries of the coset identity turned into unit
+cancellations (`isUnit_wt` for the weight factor, `ZMod.isUnit_prime_of_not_dvd` for the `p` the
+representative carries).
+
+The pin's `ℕ`-labelled `heckeMatrix_mul_of_eq` becomes label-stated: `(j j' : ZMod p)` and the
+cocycle hypothesis is an identity in `ZMod p`, so **the pin's quotient `e` disappears** — the pin's
+`p * e` term is zero there. Its consumers already held labels (`x : ZMod ℓ`,
+`y := affinePerm g _ x`) and only converted with `.val` to reach the pin's signature, so they lost
+their quotient and cast plumbing (see `topics/hecke/TOPIC-representation-survey.md`); the entry
+conjunct reads `g' 1 1 = g 1 1 - g 1 0 * j'.val`. `heckeMatrix_mul_of_dvd` keeps the pin's argument
+shape (`x : ZMod p`) and its `.val` conclusion, as does `heckeRep_mul`.
+
+**Bridges.** Primality: `have : Fact p.Prime := ⟨hp⟩`. The level packaging: the `1 0` entry of the
+witness is `p * g 1 0` and the level is `Γ₀(p * M)`, so the pin's conjunct is read off the witness
+(`repMatrix_mul`'s explicit `hW`); the label is `affineMap g x`, which is `redMatrix p g • x` on
+`Γ₀(p)` (`affineMap_eq_smul_redMatrix`), hence `affinePerm`'s value there. The `Γ₁` form of
+`heckeRep_mul` (no extra `g 1 1` factor on the `wt` equation) is `HeckeGamma1.heckeRep_mul`, a
+corollary of the `Γ₀` statement.
+
+**Port-owned declarations with no pin counterpart** (nothing to park, and no `own:` row while the
+modules are on the frozen checker): `affineMap`, `affinePerm`, `affineMap_apply`,
+`affineMap_eq_smul_redMatrix`, `exists_sl2_of_isCoprime`, `exists_diamondLift`,
+`unit_of_apply_one_zero_eq_zero`, and the integral coset layer `repMatrix` / `conjugate` /
+`clearedWitness` / `repMatrix_mul`.
+
+**Recipe for a file arriving with the pin's shape.** Take `heckeMatrix_mul_of_dvd`'s pin form from
+`repMatrix_mul` (`Defs/HeckeRepresentatives.lean`) instead of a fresh entry chase; take the `Γ₀`
+`heckeRep_mul` from `Gamma1Hecke.heckeRep_mul` and the `Γ₁` one from `HeckeGamma1.heckeRep_mul`;
+build any `Γ₀`-lift with a prescribed `1 1`-entry from `Level.exists_sl2_of_isCoprime` rather than
+from a local Bézout matrix.

@@ -21,6 +21,7 @@ After that the princples stated earlier for a good API design can be applied to 
 During refactor public API is fair game especially for theorems that are masquerading as APIs that are actually proof steps.
 If API is used outside of the theory being refactored due respect should be paid to outside consumers and a facade can be used to preserve the signature.
 A word on the checkers and the FLT clone: they are useful as guideposts during the initial port, but during refactor math clarity is what matters the most.
+We should be free to change APIs and deregister the affected module.
 
 ### Proof Practice
 

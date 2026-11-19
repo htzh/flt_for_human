@@ -49,6 +49,20 @@
     spec-pin: Theorems/Thm_ModularForm_coeffHeckeT_int.lean
     spec-pin: P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean
 
+  ModularForms/Level + Defs/HeckeRepresentatives — the Hecke representatives on `ℙ¹(𝔽_p)` and the
+  `Γ₁`/diamond vocabulary. The pin's public home for that block is not a wire for any single port
+  module: it is split across `Level/Diamond`, `Defs/HeckeRepresentatives` and
+  `Defs/Gamma1HeckeOperators`, and three of its statements are repackaged — `isUnit_wt` carries the
+  primality as a `[Fact p.Prime]` instance instead of an explicit `hp : p.Prime`;
+  `heckeMatrix_mul_of_dvd` is the level-raising packaging (`(M : ℕ)`, `p ∣ M`, conclusion
+  `g' ∈ Γ₀(p * M)`) rather than the pin's `(p : ℤ) ∣ g 1 0` plus the `1 0`-entry conjunct; and
+  `heckeMatrix_mul_of_eq` is stated over labels (`j j' : ZMod p`) instead of `ℕ` lifts, which drops
+  the pin's quotient `e` because `p` vanishes in `ZMod p`
+  (topics/TOPIC-interface-changes.md Entry 6). The two `Γ₀` `S_` copies of that block are already
+  wired by `ModularForms/HeckeInvariance.lean` and stay there.
+
+    spec-pin: Definitions/Def_CuspForm_Gamma1HeckeOperators.lean
+
   Re-wiring a parked module needs `own:` rows back for the declarations whose pin has no
   comparable statement: `ModularFormClass.qCoeff_add'`, `…qCoeff_sub'` and
   `…qCoeff_const_smul'` are the general spellings of the pin's concrete per-file copies.

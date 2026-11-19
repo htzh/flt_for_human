@@ -224,16 +224,12 @@ private theorem mul_inv_mem_GammaH {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ 
 
 private theorem exists_lift (u : (ZMod M)ˣ) [NeZero M] :
     ∃ σ : SL(2, ℤ), σ ∈ Gamma0 M ∧ dd (M := M) σ = (u : ZMod M) := by
-  have hn : (u : ZMod M).val.Coprime M := ZMod.val_coe_unit_coprime u
-  obtain ⟨a, b, hab⟩ : IsCoprime ((u : ZMod M).val : ℤ) (M : ℤ) := Nat.isCoprime_iff_coprime.mpr hn
-  let σ : SL(2, ℤ) := ⟨!![a, -b; (M : ℤ), ((u : ZMod M).val : ℤ)], by
-    rw [Matrix.det_fin_two_of]; linear_combination hab⟩
-  refine ⟨σ, ?_, ?_⟩
-  · rw [CongruenceSubgroup.Gamma0_mem]
-    dsimp only [σ]
-    simp
-  · dsimp only [σ]
-    simp [dd]
+  obtain ⟨σ, h10, h11⟩ := ModularForm.Level.exists_sl2_of_isCoprime
+    (Nat.isCoprime_iff_coprime.mpr (ZMod.val_coe_unit_coprime u))
+  refine ⟨σ, Gamma0_mem.mpr (by rw [h10]; simp), ?_⟩
+  rw [dd, h11]
+  push_cast
+  exact ZMod.natCast_zmod_val (u : ZMod M)
 
 private theorem finiteIndex_GammaH [NeZero M] : (CohCarrier.GammaH M H).FiniteIndex := Subgroup.finiteIndex_of_le (_root_.Gamma_le_GammaH' M H)
 

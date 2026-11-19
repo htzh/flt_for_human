@@ -145,13 +145,18 @@ def IsDiamondLift (d : ℕ) (γ : SL(2, ℤ)) : Prop :=
 
 variable {M}
 
+/-- Every coprime pair is the lower row of an integral `SL₂`-matrix: a Bézout pair
+`u * d + v * N = 1` gives `!![u, -v; N, d]`.  Every lift into `Γ₀` with a prescribed `1 1`-entry is
+this matrix. -/
+theorem exists_sl2_of_isCoprime {d N : ℤ} (h : IsCoprime d N) :
+    ∃ γ : SL(2, ℤ), γ 1 0 = N ∧ γ 1 1 = d := by
+  obtain ⟨u, v, huv⟩ := h
+  exact ⟨⟨!![u, -v; N, d], by rw [Matrix.det_fin_two_of]; linear_combination huv⟩, rfl, rfl⟩
+
 theorem exists_isDiamondLift_of_coprime {d : ℕ} (h : Nat.Coprime d M) :
     ∃ γ : SL(2, ℤ), IsDiamondLift M d γ := by
-  obtain ⟨u, v, huv⟩ := (Nat.isCoprime_iff_coprime.2 h : IsCoprime (d : ℤ) (M : ℤ))
-  refine ⟨⟨!![u, -v; (M : ℤ), (d : ℤ)], ?_⟩, ?_, ?_⟩
-  · rw [Matrix.det_fin_two_of]; linear_combination huv
-  · exact Gamma0_mem.mpr (by simp)
-  · simp
+  obtain ⟨γ, h10, h11⟩ := exists_sl2_of_isCoprime (Nat.isCoprime_iff_coprime.2 h)
+  exact ⟨γ, Gamma0_mem.mpr (by rw [h10]; simp), by rw [h11]; simp⟩
 
 theorem IsDiamondLift.coprime {d : ℕ} {γ : SL(2, ℤ)} (h : IsDiamondLift M d γ) : Nat.Coprime d M := by
   have hdet := Matrix.det_fin_two γ.1
