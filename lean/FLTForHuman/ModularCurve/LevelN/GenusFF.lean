@@ -176,7 +176,7 @@ private theorem E₄_rho : ModularForm.E₄ rho = 0 := by
   · exact h
 
 private theorem jAnalytic_rho : jAnalytic rho = 0 := by
-  rw [jAnalytic, E₄_rho]
+  rw [jAnalytic, ModularForm.j, E₄_rho]
   simp
 
 private theorem S_smul_I : ModularGroup.S • UpperHalfPlane.I = UpperHalfPlane.I := by
@@ -210,7 +210,7 @@ private theorem jAnalytic_I : jAnalytic UpperHalfPlane.I = 1728 := by
     apply hΔ0
     rw [hΔ, h]
     norm_num
-  rw [jAnalytic, hΔ]
+  rw [jAnalytic, ModularForm.j, hΔ]
   field_simp
   ring
 
@@ -841,13 +841,6 @@ namespace ModularCurve
 namespace SpecialFibresLB
 
 /-! #### The level-one group facts -/
-
-private theorem Gamma_le_Gamma1 (M : ℕ) :
-    CongruenceSubgroup.Gamma M ≤ CongruenceSubgroup.Gamma1 M := by
-  intro g hg
-  rw [CongruenceSubgroup.Gamma_mem] at hg
-  rw [CongruenceSubgroup.Gamma1_mem]
-  exact ⟨hg.1, hg.2.2.2, hg.2.2.1⟩
 
 private theorem mem_Gpm_of (N : ℕ) {g : SL(2, ℤ)}
     (hg : g ∈ CongruenceSubgroup.Gamma N ∨ -g ∈ CongruenceSubgroup.Gamma N) :
@@ -1516,7 +1509,7 @@ private theorem main_K (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K
   classical
   have hfd := finiteDimensional_jK M K
   have hgal := isGalois_jK M K
-  have hΓM : CongruenceSubgroup.Gamma M ≤ Γ := (Gamma_le_Gamma1 M).trans hΓ
+  have hΓM : CongruenceSubgroup.Gamma M ≤ Γ := (CongruenceSubgroup.Gamma_le_Gamma1 (n := M)).trans hΓ
   have hT : ModularGroup.T ∈ Γ := hΓ (T_mem_Gamma1 M)
 
   obtain ⟨Φ, hΦc, hΦy, hΦfix⟩ :=

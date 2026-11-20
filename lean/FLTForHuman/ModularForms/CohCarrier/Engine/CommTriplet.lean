@@ -426,7 +426,7 @@ theorem alpha_rep_distinct (q q' : Quotient (QuotientGroup.rightRel (CohCarrier.
       (CohCarrier.rep (CohCarrier.GammaHUpper M H ℓ) q')⁻¹ : ↥(CohCarrier.GammaH M H)) : SL(2, ℤ)) 0 1) :=
     Dvd.intro_left _ hz
   refine eq_of_rep_mul_inv_mem M H _ q q' ?_
-  rw [Subgroup.mem_subgroupOf, CohCarrier.mem_Gamma0Upper]
+  rw [Subgroup.mem_subgroupOf, ModularForm.Level.mem_Gamma0Upper]
   exact (ZMod.intCast_zmod_eq_zero_iff_dvd _ ℓ).mpr hdvd
 
 noncomputable def famT : HeckeFamily (ιΓ M H) :=
@@ -539,7 +539,7 @@ theorem comp_famT_distinct (M : ℕ) (H : Subgroup (ZMod M)ˣ) (ℓ ℓ' : ℕ) 
     exact dvd_sub (dvd_mul_of_dvd_right hd0 _) (dvd_mul_of_dvd_right hd1' _)
 
   have hmem : T₁ * T₂⁻¹ ∈ CohCarrier.GammaHUpper M H ℓ' := by
-    rw [Subgroup.mem_subgroupOf, CohCarrier.mem_Gamma0Upper, hG]
+    rw [Subgroup.mem_subgroupOf, ModularForm.Level.mem_Gamma0Upper, hG]
     exact (ZMod.intCast_zmod_eq_zero_iff_dvd _ ℓ').mpr hG01
   have hk : k = k₂ :=
     eq_of_rep_mul_inv_mem M H (CohCarrier.GammaHUpper M H ℓ') k k₂ (by rw [hT₁, hT₂]; exact hmem)

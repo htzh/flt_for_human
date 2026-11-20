@@ -333,35 +333,17 @@ variable {M k}
 theorem slash_eq_smul_of_hasNebentypus {ε : DirichletCharacter ℂ M}
     {g : CuspForm (Gamma1 M) k} (hg : CuspForm.HasNebentypus ε g)
     (A : SL(2, ℤ)) (hA0 : A ∈ Gamma0 M) :
-    (⇑g) ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ A : GL (Fin 2) ℝ)) = ε ((A 1 1 : ℤ) : ZMod M) • ⇑g := by
-  have _ := NeZero.ne M
-  funext τ
-  show ((⇑g) ∣[k] A) τ = _
-  rw [ModularForm.SL_slash_apply, hg A hA0 τ, Pi.smul_apply, smul_eq_mul]
-  have hne : ((A 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((A 1 1 : ℤ) : ℂ) ≠ 0 := by
-    rw [← denom_eq]; exact UpperHalfPlane.denom_ne_zero _ _
-  rw [denom_eq, mul_assoc, mul_assoc, mul_comm (_ ^ k), mul_assoc, ← zpow_add₀ hne, neg_add_cancel,
-    zpow_zero, mul_one]
+    (⇑g) ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ A : GL (Fin 2) ℝ)) = ε ((A 1 1 : ℤ) : ZMod M) • ⇑g :=
+  (CuspForm.hasNebentypus_iff ε g).mp hg A hA0
 
 theorem hasNebentypus_of_slash_eq_smul {ε : DirichletCharacter ℂ M}
     {g : CuspForm (Gamma1 M) k} {F : UpperHalfPlane → ℂ} (hF : F = ⇑g)
     (h : ∀ σ : Gamma0 M, F ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (σ : SL(2, ℤ)) : GL (Fin 2) ℝ)) =
       ε (((σ : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) • F) :
     CuspForm.HasNebentypus ε g := by
-  have _ := NeZero.ne M
-  intro A hA0 τ
-  have := congrFun (h ⟨A, hA0⟩) τ
-  rw [hF] at this
-  change ((⇑g) ∣[k] A) τ = _ at this
-  rw [ModularForm.SL_slash_apply, Pi.smul_apply, smul_eq_mul, denom_eq] at this
-  have hne : ((A 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((A 1 1 : ℤ) : ℂ) ≠ 0 := by
-    rw [← denom_eq]; exact UpperHalfPlane.denom_ne_zero _ _
-  have hz : (((A 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((A 1 1 : ℤ) : ℂ)) ^ (-k) ≠ 0 := zpow_ne_zero _ hne
-
-  have := congrArg (fun z => z * (((A 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((A 1 1 : ℤ) : ℂ)) ^ k) this
-  simp only at this
-  rw [mul_assoc, ← zpow_add₀ hne, neg_add_cancel, zpow_zero, mul_one] at this
-  rw [this]; ring
+  refine (CuspForm.hasNebentypus_iff ε g).mpr fun γ hγ => ?_
+  rw [← hF]
+  exact h ⟨γ, hγ⟩
 
 end GammaHFormBasis
 
@@ -382,7 +364,7 @@ theorem nebentypus_unique {L : ℕ} [NeZero L] {ε₁ ε₂ : DirichletCharacter
   have e1 := h₁ (γ : SL(2, ℤ)) γ.2 τ
   have e2 := h₂ (γ : SL(2, ℤ)) γ.2 τ
   rw [e1] at e2
-  have hd : (((γ : SL(2, ℤ)) 1 1 : ℤ) : ZMod L) = (u : ZMod L) := by
+  have hd : ModularForm.Level.dd (N := L) (γ : SL(2, ℤ)) = (u : ZMod L) := by
     rw [← hγ, CohCarrier.val_gamma0Units]; rfl
   rw [hd] at e2
   have hne : ((((γ : SL(2, ℤ)) 1 0 : ℤ) : ℂ) * (τ : ℂ) + (((γ : SL(2, ℤ)) 1 1 : ℤ) : ℂ)) ^ k * g τ ≠ 0 := by

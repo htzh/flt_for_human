@@ -26,9 +26,6 @@ import Mathlib.Data.ZMod.Basic
 
 set_option autoImplicit false
 
--- The pin's `haveI` walls are load-bearing; keep them literal (port convention).
-set_option linter.style.haveILetI false
-
 noncomputable section
 
 open UpperHalfPlane

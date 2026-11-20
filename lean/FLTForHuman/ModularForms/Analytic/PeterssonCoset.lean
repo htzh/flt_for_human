@@ -691,7 +691,6 @@ end unfold
 
 variable [Fintype (SL(2, ℤ) ⧸ Γ'')] [Fintype (SL(2, ℤ) ⧸ Λ)]
 
-set_option linter.style.haveILetI false in
 theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
     (hΦ : ∀ h ∈ Γ'', ∀ x : ℍ, Φ (h • x) = Φ x) (τ : ℍ) :
     cosum Λ 1 Φ τ = (Λ.relIndex Γ'' : ℂ) * cosum Γ'' 1 Φ τ := by
@@ -703,9 +702,9 @@ theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
     have hΛ : Λ.index ≠ 0 := by
       rw [Subgroup.index_eq_card, Nat.card_eq_fintype_card]; exact Fintype.card_ne_zero
     exact hΛ h.symm
-  haveI : (Λ.subgroupOf Γ'').FiniteIndex := ⟨hne⟩
-  haveI : Finite (Γ'' ⧸ Λ.subgroupOf Γ'') := Subgroup.finite_quotient_of_finiteIndex
-  letI : Fintype (Γ'' ⧸ Λ.subgroupOf Γ'') := Fintype.ofFinite _
+  have : (Λ.subgroupOf Γ'').FiniteIndex := ⟨hne⟩
+  have : Finite (Γ'' ⧸ Λ.subgroupOf Γ'') := Subgroup.finite_quotient_of_finiteIndex
+  let : Fintype (Γ'' ⧸ Λ.subgroupOf Γ'') := Fintype.ofFinite _
   set r : (Γ'' ⧸ Λ.subgroupOf Γ'') → SL(2, ℤ) := fun i => ((i.out : Γ'') : SL(2, ℤ))⁻¹ with hr
   have hr' : ∀ i, r i ∈ Γ'' := fun i => inv_mem (i.out).2
   have hex : ∀ γ ∈ Γ'', ∃ i, r i * γ ∈ Λ := by

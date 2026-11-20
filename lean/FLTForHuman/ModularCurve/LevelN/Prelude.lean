@@ -245,19 +245,8 @@ theorem fricke_smul_of_mem (v : Fin 2 → ZMod N) {γ : SL(2, ℤ)}
 
 omit [NeZero N] in
 
-theorem jAnalytic_smul (γ : SL(2, ℤ)) (τ : ℍ) : jAnalytic (γ • τ) = jAnalytic τ := by
-  have hmem : (γ : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨γ, rfl⟩
-  have h4 : (ModularForm.E₄ : ℍ → ℂ) ((γ : GL (Fin 2) ℝ) • τ) =
-      denom (γ : GL (Fin 2) ℝ) τ ^ (4 : ℤ) * ModularForm.E₄ τ :=
-    SlashInvariantForm.slash_action_eqn'' _ hmem τ
-  have h12 : ModularForm.discriminant ((γ : GL (Fin 2) ℝ) • τ) =
-      denom (γ : GL (Fin 2) ℝ) τ ^ (12 : ℤ) * ModularForm.discriminant τ := by
-    have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant hmem τ
-    simpa using this
-  have hd : denom (γ : GL (Fin 2) ℝ) τ ≠ 0 := denom_ne_zero _ _
-  have hΔ : ModularForm.discriminant τ ≠ 0 := ModularForm.discriminant_ne_zero τ
-  rw [jAnalytic, jAnalytic, ModularGroup.sl_moeb, h4, h12]
-  field_simp
+theorem jAnalytic_smul (γ : SL(2, ℤ)) (τ : ℍ) : jAnalytic (γ • τ) = jAnalytic τ :=
+  ModularForm.j_smul γ τ
 
 def precomp (g : SL(2, ℤ)) : (ℍ → ℂ) →ₐ[ℂ] (ℍ → ℂ) :=
   -- Pin: `Pi.algHom ℂ (fun _ : ℍ => ℂ) (fun τ => Pi.evalAlgHom ℂ (fun _ : ℍ => ℂ) (g • τ))`;

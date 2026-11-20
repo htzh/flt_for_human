@@ -283,6 +283,7 @@ variable {N : ℕ}
 local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
 
 open CuspForm.HeckeEigenNebentypus
+open ModularForm.Level (dd dd_mul isUnit_dd)
 
 theorem dd_eq_one_of_mem_Gamma1 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma1 N) : dd (N := N) γ = 1 :=
   (mem_Gamma1_iff_dd (Gamma1_in_Gamma0 N hγ)).mp hγ
@@ -311,41 +312,6 @@ theorem sl_slash (f : ℍ → ℂ) (γ : SL(2, ℤ)) :
 theorem slash_mem (g : CuspForm Γ₁(N) k) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma1 N) :
     (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) = ⇑g :=
   SlashInvariantFormClass.slash_action_eq g _ (Subgroup.mem_map_of_mem _ hγ)
-
-theorem hasNebentypus_iff (ε : DirichletCharacter ℂ N) (g : CuspForm Γ₁(N) k) :
-    CuspForm.HasNebentypus ε g ↔ ∀ γ : SL(2, ℤ), γ ∈ Gamma0 N →
-      (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) = ε (dd γ) • ⇑g := by
-  constructor
-  · intro h γ hγ
-    funext τ
-    have hpt := h γ hγ τ
-    rw [← sl_slash, SL_slash_apply, Pi.smul_apply, smul_eq_mul]
-    have hden : denom (Matrix.SpecialLinearGroup.toGL
-        ((Matrix.SpecialLinearGroup.map (Int.castRingHom ℝ)) γ)) (τ : ℂ)
-        = ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) := by
-      simp [denom]
-    rw [hden]
-    have hne : ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) ≠ 0 := by
-      rw [← hden]; exact UpperHalfPlane.denom_ne_zero _ τ
-    rw [hpt, dd, zpow_neg]
-    field_simp
-  · intro h γ hγ τ
-    have hslash := congrFun (h γ hγ) τ
-    rw [← sl_slash, SL_slash_apply, Pi.smul_apply, smul_eq_mul] at hslash
-    have hden : denom (Matrix.SpecialLinearGroup.toGL
-        ((Matrix.SpecialLinearGroup.map (Int.castRingHom ℝ)) γ)) (τ : ℂ)
-        = ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) := by
-      simp [denom]
-    rw [hden] at hslash
-    have hne : ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) ≠ 0 := by
-      rw [← hden]; exact UpperHalfPlane.denom_ne_zero _ τ
-    have hzk : (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ (-k) ≠ 0 := zpow_ne_zero _ hne
-    have key : g (γ • τ) =
-        ε (dd (N := N) γ) * g τ * ((((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ (-k))⁻¹ := by
-      rw [eq_mul_inv_iff_mul_eq₀ hzk]
-      exact hslash
-    rw [key, ← zpow_neg, neg_neg, dd]
-    ring
 
 theorem slash_eq_of_dd_eq (g : CuspForm Γ₁(N) k) {σ σ' : SL(2, ℤ)} (hσ : σ ∈ Gamma0 N)
     (hσ' : σ' ∈ Gamma0 N) (h : dd (N := N) σ = dd σ') :
@@ -406,12 +372,12 @@ def nebSpace (N : ℕ) [NeZero N] (k : ℤ) (ε : DirichletCharacter ℂ N) :
     simp
   add_mem' := by
     intro g h hg hh
-    rw [Set.mem_ofPred_eq, hasNebentypus_iff] at hg hh ⊢
+    rw [Set.mem_ofPred_eq, CuspForm.hasNebentypus_iff] at hg hh ⊢
     intro γ hγ
     rw [FunLike.coe_add, SlashAction.add_slash, hg γ hγ, hh γ hγ, smul_add]
   smul_mem' := by
     intro c g hg
-    rw [Set.mem_ofPred_eq, hasNebentypus_iff] at hg ⊢
+    rw [Set.mem_ofPred_eq, CuspForm.hasNebentypus_iff] at hg ⊢
     intro γ hγ
     rw [FunLike.coe_smul, ← sl_slash, ModularForm.SL_smul_slash, sl_slash, hg γ hγ,
       smul_comm]
@@ -446,7 +412,7 @@ theorem coe_proj (ε : DirichletCharacter ℂ N) (g : CuspForm Γ₁(N) k) :
   rfl
 
 theorem proj_mem (ε : DirichletCharacter ℂ N) (g : CuspForm Γ₁(N) k) : proj ε g ∈ nebSpace N k ε := by
-  rw [mem_nebSpace, hasNebentypus_iff]
+  rw [mem_nebSpace, CuspForm.hasNebentypus_iff]
   intro γ hγ
   set d₀ : (ZMod N)ˣ := (isUnit_dd hγ).unit with hd₀
   have hd₀' : (d₀ : ZMod N) = dd γ := (isUnit_dd hγ).unit_spec
@@ -541,7 +507,7 @@ def heckeForm (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N) 
     intro A hA
     obtain ⟨γ, hγ, rfl⟩ := hA
     have h := ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0 k hp hpN ε
-      ((hasNebentypus_iff ε f).mp hf) γ (Gamma1_in_Gamma0 N hγ)
+      ((CuspForm.hasNebentypus_iff ε f).mp hf) γ (Gamma1_in_Gamma0 N hγ)
     change (heckeFun k ε p ⇑f) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) = _
     rw [heckeFun, h, show ((γ 1 1 : ℤ) : ZMod N) = 1 from dd_eq_one_of_mem_Gamma1 hγ, map_one,
       one_smul]
@@ -567,11 +533,11 @@ theorem coe_heckeForm (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter
 theorem heckeForm_mem (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) :
     heckeForm hp hpN ε f hf ∈ nebSpace N k ε := by
-  rw [mem_nebSpace, hasNebentypus_iff]
+  rw [mem_nebSpace, CuspForm.hasNebentypus_iff]
   intro γ hγ
   rw [coe_heckeForm]
   exact ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0 k hp hpN ε
-    ((hasNebentypus_iff ε f).mp hf) γ hγ
+    ((CuspForm.hasNebentypus_iff ε f).mp hf) γ hγ
 
 def heckeLin (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N) :
     nebSpace N k ε →ₗ[ℂ] nebSpace N k ε where

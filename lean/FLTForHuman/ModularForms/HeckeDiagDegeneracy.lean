@@ -250,9 +250,11 @@ theorem hasNebentypus_stretch (hd : d ≠ 0) (hdMN : d * M ∣ N) (g : CuspForm 
     push_cast at this
     rw [hc, mul_zero, sub_zero] at this
     exact IsUnit.of_mul_eq_one _ (by rw [mul_comm]; exact this)
-  have hchar : (DirichletCharacter.changeLevel hMN ε) ((γ 1 1 : ℤ) : ZMod N)
-      = ε ((γ' 1 1 : ℤ) : ZMod M) := by
-    rw [h11, ← hunit.unit_spec, DirichletCharacter.changeLevel_eq_cast_of_dvd ε hMN,
+  have hchar : (DirichletCharacter.changeLevel hMN ε) (ModularForm.Level.dd (N := N) γ)
+      = ε (ModularForm.Level.dd (N := M) γ') := by
+    rw [show ModularForm.Level.dd (N := N) γ = ((γ 1 1 : ℤ) : ZMod N) from rfl,
+      show ModularForm.Level.dd (N := M) γ' = ((γ' 1 1 : ℤ) : ZMod M) from rfl,
+      h11, ← hunit.unit_spec, DirichletCharacter.changeLevel_eq_cast_of_dvd ε hMN,
       hunit.unit_spec, ZMod.cast_intCast hMN]
   rw [hchar]
 

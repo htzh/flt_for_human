@@ -22,6 +22,7 @@ During refactor public API is fair game especially for theorems that are masquer
 If API is used outside of the theory being refactored due respect should be paid to outside consumers and a facade can be used to preserve the signature.
 A word on the checkers and the FLT clone: they are useful as guideposts during the initial port, but during refactor math clarity is what matters the most.
 We should be free to change APIs and deregister the affected module.
+The only requirement is that a Reserve header only module should be used to track any pinning that is being completely removed so that frontier.py doesn't bring the dropped module up again for porting.
 
 ### Proof Practice
 

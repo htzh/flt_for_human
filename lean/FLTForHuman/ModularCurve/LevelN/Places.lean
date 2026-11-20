@@ -346,8 +346,7 @@ private theorem ordInf_one : ordInf N (1 : ℍ → ℂ) = 0 := by
 private theorem ordInf_jAnalytic : ordInf N jAnalytic = -(ordB N (Δ : ℍ → ℂ) : ℤ) := by
   have hjΔ : jAnalytic * (Δ : ℍ → ℂ) ^ 1 = (ModularForm.E₄ : ℍ → ℂ) ^ 3 := by
     funext τ
-    simp only [Pi.mul_apply, Pi.pow_apply, pow_one, jAnalytic]
-    field_simp [ModularForm.discriminant_ne_zero τ]
+    simpa [jAnalytic, pow_one] using ModularForm.j_mul_discriminant τ
   have h1 : PB jAnalytic 1 := by
     unfold PB
     rw [hjΔ]

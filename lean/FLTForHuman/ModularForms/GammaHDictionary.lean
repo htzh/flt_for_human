@@ -111,7 +111,7 @@ theorem CuspForm.exists_gammaH_coe_eq_of_hasNebentypus
     intro γ hγ
     obtain ⟨A, hA, rfl⟩ := Subgroup.mem_map.mp hγ
     obtain ⟨hA0, hAH⟩ := CohCarrier.mem_GammaH_iff.mp hA
-    have hεA : ε ((A 1 1 : ℤ) : ZMod M) = 1 := by
+    have hεA : ε (ModularForm.Level.dd A) = 1 := by
       have := hε _ hAH
       rwa [CohCarrier.val_gamma0Units] at this
     funext τ
@@ -134,17 +134,8 @@ open scoped MatrixGroups ModularForm
 private theorem slash_eq_smul_of_hasNebentypus {M : ℕ} {k : ℤ} {ε : DirichletCharacter ℂ M}
     {g : CuspForm (CongruenceSubgroup.Gamma1 M) k} (hg : CuspForm.HasNebentypus ε g)
     (A : SL(2, ℤ)) (hA0 : A ∈ CongruenceSubgroup.Gamma0 M) :
-    (⇑g) ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ A : GL (Fin 2) ℝ)) = ε ((A 1 1 : ℤ) : ZMod M) • ⇑g := by
-  funext τ
-  show ((⇑g) ∣[k] A) τ = _
-  rw [ModularForm.SL_slash_apply, hg A hA0 τ, Pi.smul_apply, smul_eq_mul]
-  have hden : UpperHalfPlane.denom (A : GL (Fin 2) ℝ) τ =
-      ((A 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((A 1 1 : ℤ) : ℂ) := by
-    simp [UpperHalfPlane.denom]
-  have hne : ((A 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((A 1 1 : ℤ) : ℂ) ≠ 0 := by
-    rw [← hden]; exact UpperHalfPlane.denom_ne_zero _ _
-  rw [hden, mul_assoc, mul_assoc, mul_comm (_ ^ k), mul_assoc, ← zpow_add₀ hne, neg_add_cancel, zpow_zero,
-    mul_one]
+    (⇑g) ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ A : GL (Fin 2) ℝ)) = ε ((A 1 1 : ℤ) : ZMod M) • ⇑g :=
+  (CuspForm.hasNebentypus_iff ε g).mp hg A hA0
 
 
 open scoped MatrixGroups ModularForm

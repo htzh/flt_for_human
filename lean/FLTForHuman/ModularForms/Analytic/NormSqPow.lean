@@ -25,6 +25,8 @@ import FLTForHuman.ModularForms.Analytic.PeterssonCoset
 import FLTForHuman.AutomorphicForm.UpperHalfPlane.ModularFundamentalDomain
 import FLTForHuman.ModularForms.Defs.HeckeOperator
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
+import FLTForHuman.ModularForms.Level.Upper
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.NumberTheory.DirichletCharacter.Bounds
@@ -43,6 +45,8 @@ namespace CuspForm.LiNormSq
 
 open CuspForm.PeterssonCoset
 
+open ModularForm.Level (Gamma0Upper mem_Gamma0Upper_iff_dvd Gamma_le_Gamma0Upper)
+
 section groups
 
 -- pin: mul_apply' (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:24)
@@ -58,72 +62,47 @@ theorem intCast_eq_one_iff (M : ℕ) (a : ℤ) : (a : ZMod M) = 1 ↔ (M : ℤ) 
     dvd_sub_comm]
 
 -- pin: Lam0 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:34)
-def Lam0 (M ℓ : ℕ) : Subgroup SL(2, ℤ) where
-  carrier := {γ | (M : ℤ) ∣ γ 0 0 - 1 ∧ (M : ℤ) ∣ γ 1 1 - 1 ∧
-    ((M / ℓ : ℕ) : ℤ) ∣ γ 0 1 ∧ ((M * ℓ : ℕ) : ℤ) ∣ γ 1 0}
-  one_mem' := by simp
-  mul_mem' := by
-    rintro A B ⟨hA1, hA2, hA3, hA4⟩ ⟨hB1, hB2, hB3, hB4⟩
-    have hbc : (M : ℤ) ∣ ((M / ℓ : ℕ) : ℤ) * ((M * ℓ : ℕ) : ℤ) := by
-      push_cast; exact Dvd.dvd.mul_left (dvd_mul_right _ _) _
-    refine ⟨?_, ?_, ?_, ?_⟩
-    · show (M : ℤ) ∣ (A * B) 0 0 - 1
-      rw [mul_apply']
-      have : A 0 0 * B 0 0 + A 0 1 * B 1 0 - 1
-          = (A 0 0 - 1) * (B 0 0 - 1) + (A 0 0 - 1) + (B 0 0 - 1) + A 0 1 * B 1 0 := by ring
-      rw [this]
-      exact dvd_add (dvd_add (dvd_add (hA1.mul_right _) hA1) hB1) (hbc.trans (mul_dvd_mul hA3 hB4))
-    · show (M : ℤ) ∣ (A * B) 1 1 - 1
-      rw [mul_apply']
-      have : A 1 0 * B 0 1 + A 1 1 * B 1 1 - 1
-          = (A 1 1 - 1) * (B 1 1 - 1) + (A 1 1 - 1) + (B 1 1 - 1) + B 0 1 * A 1 0 := by ring
-      rw [this]
-      exact dvd_add (dvd_add (dvd_add (hA2.mul_right _) hA2) hB2) (hbc.trans (mul_dvd_mul hB3 hA4))
-    · show ((M / ℓ : ℕ) : ℤ) ∣ (A * B) 0 1
-      rw [mul_apply']
-      exact dvd_add (hB3.mul_left _) (hA3.mul_right _)
-    · show ((M * ℓ : ℕ) : ℤ) ∣ (A * B) 1 0
-      rw [mul_apply']
-      exact dvd_add (hA4.mul_right _) (hB4.mul_left _)
-  inv_mem' := by
-    rintro A ⟨hA1, hA2, hA3, hA4⟩
-    simp only [Set.mem_ofPred_eq, Matrix.SpecialLinearGroup.coe_inv, Matrix.adjugate_fin_two,
-      Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-      Matrix.cons_val_fin_one, dvd_neg]
-    exact ⟨hA2, hA1, hA3, hA4⟩
+/-- `Λ₀ = Γ₁(M) ⊓ Γ⁰(M/ℓ) ⊓ Γ₀(Mℓ)`: the level-`M` lattice whose conjugate
+`!![γ₀₀, ℓγ₀₁; γ₁₀/ℓ, γ₁₁]` lies in `Γ(M)`.  Equivalently: `a ≡ d ≡ 1` modulo `M`, the
+upper-right entry `0` modulo `M/ℓ`, and the lower-left entry `0` modulo `Mℓ`. -/
+def Lam0 (M ℓ : ℕ) : Subgroup SL(2, ℤ) :=
+  (Gamma1 M : Subgroup SL(2, ℤ)) ⊓ Gamma0Upper (M / ℓ) ⊓ Gamma0 (M * ℓ)
 
 variable {M ℓ : ℕ}
 
 -- pin: mem_Lam0 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:70)
 theorem mem_Lam0 {γ : SL(2, ℤ)} : γ ∈ Lam0 M ℓ ↔ (M : ℤ) ∣ γ 0 0 - 1 ∧ (M : ℤ) ∣ γ 1 1 - 1 ∧
-    ((M / ℓ : ℕ) : ℤ) ∣ γ 0 1 ∧ ((M * ℓ : ℕ) : ℤ) ∣ γ 1 0 := Iff.rfl
+    ((M / ℓ : ℕ) : ℤ) ∣ γ 0 1 ∧ ((M * ℓ : ℕ) : ℤ) ∣ γ 1 0 := by
+  constructor
+  · rintro ⟨⟨h1, h2⟩, h3⟩
+    have h1' : γ ∈ (Gamma1 M : Subgroup SL(2, ℤ)) := h1
+    have h3' : γ ∈ (Gamma0 (M * ℓ) : Subgroup SL(2, ℤ)) := h3
+    rw [Gamma1_mem] at h1'
+    rw [Gamma0_mem] at h3'
+    exact ⟨(intCast_eq_one_iff M _).mp h1'.1, (intCast_eq_one_iff M _).mp h1'.2.1,
+      mem_Gamma0Upper_iff_dvd.mp h2, (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp h3'⟩
+  · rintro ⟨h00, h11, h01, h10⟩
+    refine Subgroup.mem_inf.mpr
+      ⟨Subgroup.mem_inf.mpr ⟨?_, mem_Gamma0Upper_iff_dvd.mpr h01⟩, ?_⟩
+    · rw [Gamma1_mem]
+      exact ⟨(intCast_eq_one_iff M _).mpr h00, (intCast_eq_one_iff M _).mpr h11,
+        (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr
+          ((Int.natCast_dvd_natCast.mpr (dvd_mul_right M ℓ)).trans h10)⟩
+    · rw [Gamma0_mem]
+      exact (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr h10
 
 -- pin: Lam0_le_Gamma1 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:73)
-theorem Lam0_le_Gamma1 : Lam0 M ℓ ≤ Gamma1 M := by
-  rintro γ ⟨h1, h2, -, h4⟩
-  rw [Gamma1_mem]
-  refine ⟨(intCast_eq_one_iff M _).mpr h1, (intCast_eq_one_iff M _).mpr h2, ?_⟩
-  rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
-  exact (by push_cast; exact dvd_mul_right _ _ : (M : ℤ) ∣ ((M * ℓ : ℕ) : ℤ)).trans h4
+theorem Lam0_le_Gamma1 : Lam0 M ℓ ≤ Gamma1 M := inf_le_left.trans inf_le_left
 
 -- pin: Gamma_le_Lam0 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:80)
-theorem Gamma_le_Lam0 (hℓM : ℓ ∣ M) : Gamma (M * ℓ) ≤ Lam0 M ℓ := by
-  intro γ hγ
-  rw [Gamma_mem] at hγ
-  obtain ⟨h00, h01, h10, h11⟩ := hγ
-  have hM : (M : ℤ) ∣ ((M * ℓ : ℕ) : ℤ) := by push_cast; exact dvd_mul_right _ _
-  have hMl : ((M / ℓ : ℕ) : ℤ) ∣ ((M * ℓ : ℕ) : ℤ) :=
-    Int.natCast_dvd_natCast.mpr ((Nat.div_dvd_of_dvd hℓM).trans (dvd_mul_right M ℓ))
-  refine ⟨hM.trans ((intCast_eq_one_iff _ _).mp h00), hM.trans ((intCast_eq_one_iff _ _).mp h11),
-    hMl.trans ((ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp h01),
-    (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp h10⟩
+theorem Gamma_le_Lam0 (hℓM : ℓ ∣ M) : Gamma (M * ℓ) ≤ Lam0 M ℓ :=
+  le_inf
+    (le_inf ((Gamma_le_of_dvd (dvd_mul_right M ℓ)).trans Gamma_le_Gamma1)
+      (Gamma_le_Gamma0Upper ((Nat.div_dvd_of_dvd hℓM).trans (dvd_mul_right M ℓ))))
+    Gamma_le_Gamma0
 
 -- pin: Gamma_le_Gamma1 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:91)
-theorem Gamma_le_Gamma1 : Gamma M ≤ Gamma1 M := by
-  intro γ hγ
-  rw [Gamma_mem] at hγ
-  rw [Gamma1_mem]
-  exact ⟨hγ.1, hγ.2.2.2, hγ.2.2.1⟩
+theorem Gamma_le_Gamma1 : Gamma M ≤ Gamma1 M := CongruenceSubgroup.Gamma_le_Gamma1
 
 /- The pin's four `scoped instance`s. They are public here as in the pin and carry
    their `-- pin:` marker, even though the checker's `DECL_RE` cannot see `scoped`
@@ -137,17 +116,17 @@ scoped instance Lam0_finiteIndex [NeZero M] [hl : Fact ℓ.Prime] [hd : Fact (�
 
 -- pin: fintypeQuotLam0 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:102)
 scoped instance fintypeQuotLam0 [NeZero M] [Fact ℓ.Prime] [Fact (ℓ ∣ M)] : Fintype (SL(2, ℤ) ⧸ Lam0 M ℓ) :=
-  haveI : Finite (SL(2, ℤ) ⧸ Lam0 M ℓ) := Subgroup.finite_quotient_of_finiteIndex
+  have : Finite (SL(2, ℤ) ⧸ Lam0 M ℓ) := Subgroup.finite_quotient_of_finiteIndex
   Fintype.ofFinite _
 
 -- pin: fintypeQuotGamma (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:106)
 scoped instance fintypeQuotGamma [NeZero M] : Fintype (SL(2, ℤ) ⧸ Gamma M) :=
-  haveI : Finite (SL(2, ℤ) ⧸ Gamma M) := Subgroup.finite_quotient_of_finiteIndex
+  have : Finite (SL(2, ℤ) ⧸ Gamma M) := Subgroup.finite_quotient_of_finiteIndex
   Fintype.ofFinite _
 
 -- pin: fintypeQuotGamma1 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:110)
 scoped instance fintypeQuotGamma1 [NeZero M] : Fintype (SL(2, ℤ) ⧸ Gamma1 M) :=
-  haveI : Finite (SL(2, ℤ) ⧸ Gamma1 M) := Subgroup.finite_quotient_of_finiteIndex
+  have : Finite (SL(2, ℤ) ⧸ Gamma1 M) := Subgroup.finite_quotient_of_finiteIndex
   Fintype.ofFinite _
 
 -- pin: tGL (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:114)
@@ -221,7 +200,7 @@ set_option linter.unusedVariables false in
 theorem exact_divs (hℓM : ℓ ∣ M) (hℓ : ℓ ≠ 0) {γ : SL(2, ℤ)} (hγ : γ ∈ Lam0 M ℓ) :
     (ℓ : ℤ) * (γ 1 0 / ℓ) = γ 1 0 ∧ (ℓ : ℤ) * ((γ 1 1 - γ 0 0) / ℓ) = γ 1 1 - γ 0 0 ∧
       ((ℓ : ℤ) * ℓ) * (γ 1 0 / (ℓ * ℓ)) = γ 1 0 := by
-  obtain ⟨h1, h2, -, h4⟩ := hγ
+  obtain ⟨h1, h2, -, h4⟩ := (mem_Lam0).mp hγ
   have hℓM' : (ℓ : ℤ) ∣ M := Int.natCast_dvd_natCast.mpr hℓM
   refine ⟨Int.mul_ediv_cancel' ?_, Int.mul_ediv_cancel' ?_, Int.mul_ediv_cancel' ?_⟩
   · exact (by push_cast; exact dvd_mul_left _ _ : (ℓ : ℤ) ∣ ((M * ℓ : ℕ) : ℤ)).trans h4
@@ -257,7 +236,7 @@ def tConj (hℓM : ℓ ∣ M) (hℓ : ℓ ≠ 0) (n : ℤ) (γ : Lam0 M ℓ) : S
 -- pin: tConj_mem (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:198)
 theorem tConj_mem (hℓM : ℓ ∣ M) (hℓ : ℓ ≠ 0) (n : ℤ) (γ : Lam0 M ℓ) :
     tConj hℓM hℓ n γ ∈ Lam0 M ℓ := by
-  obtain ⟨h1, h2, h3, h4⟩ := γ.2
+  obtain ⟨h1, h2, h3, h4⟩ := (mem_Lam0).mp γ.2
   obtain ⟨e1, e2, e3⟩ := exact_divs hℓM hℓ γ.2
   have hℓ' : (ℓ : ℤ) ≠ 0 := by exact_mod_cast hℓ
   have hMl : (M : ℤ) = (M / ℓ : ℕ) * ℓ := by exact_mod_cast (Nat.div_mul_cancel hℓM).symm
@@ -283,7 +262,7 @@ theorem tConj_mem (hℓM : ℓ ∣ M) (hℓ : ℓ ≠ 0) (n : ℤ) (γ : Lam0 M 
       apply mul_left_cancel₀ (mul_ne_zero hℓ' hℓ')
       rw [e3, ht, show ((M * ℓ : ℕ) : ℤ) = (M : ℤ) * ℓ by push_cast; ring, hMl]; ring
     rw [this]; exact dvd_mul_right _ _
-  refine ⟨?_, ?_, ?_, ?_⟩
+  refine (mem_Lam0).mpr ⟨?_, ?_, ?_, ?_⟩
   · show (M : ℤ) ∣ tConjMat M ℓ n γ 0 0 - 1
     simp only [tConjMat, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_fin_one]
     have : (γ : SL(2, ℤ)) 0 0 + n * ((γ : SL(2, ℤ)) 1 0 / ℓ) - 1 = ((γ : SL(2, ℤ)) 0 0 - 1) + n * ((γ : SL(2, ℤ)) 1 0 / ℓ) := by ring
@@ -381,7 +360,7 @@ theorem det_dConjInvMat {γ : SL(2, ℤ)} (h : (ℓ : ℤ) ∣ γ 0 1) : (dConjI
 
 -- pin: dvd_10_of_mem_Lam0 (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:315)
 theorem dvd_10_of_mem_Lam0 {γ : SL(2, ℤ)} (hγ : γ ∈ Lam0 M ℓ) : (ℓ : ℤ) ∣ γ 1 0 :=
-  (by push_cast; exact dvd_mul_left _ _ : (ℓ : ℤ) ∣ ((M * ℓ : ℕ) : ℤ)).trans hγ.2.2.2
+  (by push_cast; exact dvd_mul_left _ _ : (ℓ : ℤ) ∣ ((M * ℓ : ℕ) : ℤ)).trans ((mem_Lam0).mp hγ).2.2.2
 
 -- pin: dvd_01_of_mem_Gamma (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:318)
 theorem dvd_01_of_mem_Gamma (hℓM : ℓ ∣ M) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma M) : (ℓ : ℤ) ∣ γ 0 1 :=
@@ -391,7 +370,7 @@ theorem dvd_01_of_mem_Gamma (hℓM : ℓ ∣ M) {γ : SL(2, ℤ)} (hγ : γ ∈ 
 def dConj (hℓM : ℓ ∣ M) (γ : Lam0 M ℓ) : Gamma M :=
   let x : SL(2, ℤ) := ⟨dConjMat ℓ γ, det_dConjMat (dvd_10_of_mem_Lam0 γ.2)⟩
   ⟨x, by
-    obtain ⟨h1, h2, h3, h4⟩ := γ.2
+    obtain ⟨h1, h2, h3, h4⟩ := (mem_Lam0).mp γ.2
     rw [Gamma_mem]
     show (((γ : SL(2, ℤ)) 0 0 : ℤ) : ZMod M) = 1 ∧ (((ℓ : ℤ) * (γ : SL(2, ℤ)) 0 1 : ℤ) : ZMod M) = 0 ∧
       (((γ : SL(2, ℤ)) 1 0 / ℓ : ℤ) : ZMod M) = 0 ∧ (((γ : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) = 1
@@ -541,7 +520,7 @@ theorem lowSL_inv (c : ℤ) : (lowSL c)⁻¹ = lowSL (-c) := by
 -- pin: conj_lowSL_mem (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:453)
 theorem conj_lowSL_mem (hℓM : ℓ ∣ M) {c : ℤ} (hc : (M : ℤ) ∣ c) {γ : SL(2, ℤ)} (hγ : γ ∈ Lam0 M ℓ) :
     lowSL c * γ * (lowSL c)⁻¹ ∈ Lam0 M ℓ := by
-  obtain ⟨h1, h2, h3, h4⟩ := hγ
+  obtain ⟨h1, h2, h3, h4⟩ := (mem_Lam0).mp hγ
   rw [lowSL_inv]
   have e00 : (lowSL c * γ * lowSL (-c)) 0 0 = γ 0 0 - γ 0 1 * c := by
     simp [mul_apply', lowSL_apply]; ring
@@ -554,7 +533,7 @@ theorem conj_lowSL_mem (hℓM : ℓ ∣ M) {c : ℤ} (hc : (M : ℤ) ∣ c) {γ 
   have hMc : (M : ℤ) ∣ γ 0 1 * c := hc.mul_left _
   have hMℓ_MM : ((M * ℓ : ℕ) : ℤ) ∣ (M : ℤ) * M := by
     push_cast; exact mul_dvd_mul_left _ (Int.natCast_dvd_natCast.mpr hℓM)
-  refine ⟨?_, ?_, ?_, ?_⟩
+  refine (mem_Lam0).mpr ⟨?_, ?_, ?_, ?_⟩
   · rw [e00, show γ 0 0 - γ 0 1 * c - 1 = (γ 0 0 - 1) - γ 0 1 * c by ring]; exact h1.sub hMc
   · rw [e11, show γ 1 1 + c * γ 0 1 - 1 = (γ 1 1 - 1) + c * γ 0 1 by ring]; exact h2.add (hc.mul_right _)
   · rw [e01]; exact h3
@@ -602,10 +581,9 @@ theorem one_mem_strictPeriods (M : ℕ) : (1 : ℝ) ∈ (Γ₁(M)).strictPeriods
 -- pin: hasSum_F (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:510)
 -- the `Fact (IsCusp OnePoint.infty (Γ₁(M)))` binding is load-bearing: it is the instance
 -- argument of `ModularFormClass.bdd_at_infty`.
-set_option linter.style.haveILetI false in
 theorem hasSum_F (F : CuspForm Γ₁(M) k) (z : ℍ) :
     HasSum (fun n : ℕ => (qExpansion 1 F).coeff n • Function.Periodic.qParam 1 (z : ℂ) ^ n) (F z) := by
-  haveI : Fact (IsCusp OnePoint.infty (Γ₁(M))) :=
+  have : Fact (IsCusp OnePoint.infty (Γ₁(M))) :=
     ⟨(Γ₁(M)).isCusp_of_mem_strictPeriods one_pos (one_mem_strictPeriods M)⟩
   exact UpperHalfPlane.hasSum_qExpansion one_pos
     (SlashInvariantFormClass.periodic_comp_ofComplex F (one_mem_strictPeriods M))
@@ -816,19 +794,8 @@ omit [NeZero M] [Fact ℓ.Prime] [Fact (ℓ ∣ M)] in
 theorem slash_eq_smul_of_hasNebentypus {ε : DirichletCharacter ℂ M} {g : CuspForm Γ₁(M) k}
     (hg : CuspForm.HasNebentypus ε g) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) :
     (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ)
-      = ε ((γ 1 1 : ℤ) : ZMod M) • (⇑g : ℍ → ℂ) := by
-  funext τ
-  have h := ModularForm.SL_slash_apply (f := ⇑g) (k := k) γ τ
-  rw [ModularGroup.denom_apply] at h
-  rw [show ((⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ)) τ
-      = ((⇑g : ℍ → ℂ) ∣[k] γ) τ from rfl, h, hg γ hγ τ, Pi.smul_apply, smul_eq_mul]
-  have hne : ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) ≠ 0 := by
-    have := denom_ne_zero (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) τ
-    rwa [show denom (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) τ
-      = ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) from ModularGroup.denom_apply γ τ] at this
-  have hk : (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ k ≠ 0 := zpow_ne_zero k hne
-  rw [zpow_neg]
-  field_simp
+      = ε ((γ 1 1 : ℤ) : ZMod M) • (⇑g : ℍ → ℂ) :=
+  (CuspForm.hasNebentypus_iff ε g).mp hg γ hγ
 
 omit [Fact ℓ.Prime] [Fact (ℓ ∣ M)] in
 -- pin: exists_unit_of_not_factorsThrough (S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:718)
@@ -1092,7 +1059,6 @@ end CuspForm.LiNormSq
 
 -- The two `haveI` bindings of the headline are load-bearing: they are the `Fact ℓ.Prime` and
 -- `Fact (ℓ ∣ M)` instance arguments of `LiNormSq.norm_sq_eq`.
-set_option linter.style.haveILetI false in
 -- pin: norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough (Theorems/Thm_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean:14)
 theorem CuspForm.norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough
     (M : ℕ) [NeZero M] (k : ℤ) (ε : DirichletCharacter ℂ M) {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ℓ ∣ M)
@@ -1100,6 +1066,6 @@ theorem CuspForm.norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough
     (hg : CuspForm.HasNebentypus ε g) (a : ℂ)
     (ha : ∀ n : ℕ, ModularFormClass.qCoeff g (ℓ * n) = a * ModularFormClass.qCoeff g n) :
     ‖a‖ ^ 2 = (ℓ : ℝ) ^ (k - 1) := by
-  haveI : Fact ℓ.Prime := ⟨hℓ⟩
-  haveI : Fact (ℓ ∣ M) := ⟨hℓM⟩
+  have : Fact ℓ.Prime := ⟨hℓ⟩
+  have : Fact (ℓ ∣ M) := ⟨hℓM⟩
   exact CuspForm.LiNormSq.norm_sq_eq hℓM ε g hg hε hg0 a ha

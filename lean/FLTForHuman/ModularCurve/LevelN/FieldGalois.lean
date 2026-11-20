@@ -790,8 +790,7 @@ variable (N : ℕ) [NeZero N]
 private theorem jAnalytic_mul_discriminant :
     jAnalytic * (Δ : ℍ → ℂ) ^ 1 = (ModularForm.E₄ : ℍ → ℂ) ^ 3 := by
   funext τ
-  simp only [Pi.mul_apply, Pi.pow_apply, pow_one, jAnalytic]
-  field_simp [ModularForm.discriminant_ne_zero τ]
+  simpa [jAnalytic, pow_one] using ModularForm.j_mul_discriminant τ
 private theorem isBoundedAtImInfty_jAnalytic_mul :
     IsBoundedAtImInfty (jAnalytic * (Δ : ℍ → ℂ) ^ 1) := by
   rw [jAnalytic_mul_discriminant]

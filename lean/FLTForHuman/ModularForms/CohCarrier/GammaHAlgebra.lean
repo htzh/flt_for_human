@@ -60,6 +60,8 @@ open Matrix Matrix.SpecialLinearGroup CongruenceSubgroup
 open scoped MatrixGroups
 
 open CohCarrier
+
+open ModularForm.Level (mem_Gamma0Upper)
 open scoped MatrixGroups
 
 
@@ -617,7 +619,6 @@ theorem mem_GammaH_iff_col (γ : SL(2, ℤ)) :
     fin_cases i
     · rw [GammaHDoubleCoset.col_apply]
       simp [e₁]
-      rfl
     · rw [GammaHDoubleCoset.col_apply]
       simp [e₁]
       exact hc

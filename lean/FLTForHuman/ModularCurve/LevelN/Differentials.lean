@@ -1219,7 +1219,7 @@ theorem ν_jK_neg : ν N K δ (jK N K) < 0 := by
     rw [jK, hq]
     simp only [cfδ, Pi.mul_apply, Pi.inv_apply, cf_eq_T N _ hq0, precomp_apply, coe_jGen,
       jAnalytic_smul]
-    rw [jAnalytic, G, div_eq_mul_inv]
+    rw [jAnalytic, ModularForm.j, G, div_eq_mul_inv]
   rw [ν, meromorphicOrderAt_congr hev,
     meromorphicOrderAt_mul (analyticAt_cf_G N).meromorphicAt
       (analyticAt_cf_discriminant N).meromorphicAt.inv,

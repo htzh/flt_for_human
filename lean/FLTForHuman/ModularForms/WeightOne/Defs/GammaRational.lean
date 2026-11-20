@@ -57,6 +57,7 @@ import Mathlib.RingTheory.RootsOfUnity.Complex
 import Mathlib.RingTheory.RootsOfUnity.Minpoly
 import Mathlib.RingTheory.Unramified.Field
 import FLTForHuman.ModularForms.WeightOne.Defs.RatAt
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 
 set_option linter.unusedSectionVars false
 
@@ -269,11 +270,8 @@ theorem conj_mem_Gamma (α : SL(2, ℤ)) {g : SL(2, ℤ)} (hg : g ∈ Congruence
     α * g * α⁻¹ ∈ CongruenceSubgroup.Gamma N :=
   Subgroup.Normal.conj_mem (Gamma_normal N) g hg α
 
-theorem Gamma_le_Gamma1 : CongruenceSubgroup.Gamma N ≤ Gamma1 N := by
-  intro g hg
-  rw [Gamma_mem] at hg
-  rw [Gamma1_mem]
-  exact ⟨hg.1, hg.2.2.2, hg.2.2.1⟩
+theorem Gamma_le_Gamma1 : CongruenceSubgroup.Gamma N ≤ Gamma1 N :=
+  CongruenceSubgroup.Gamma_le_Gamma1
 
 theorem exists_twist_conj {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (s : ℕ) :
     ∃ γ' : SL(2, ℤ), (∃ g ∈ Gamma1 N, γ' = g * γ) ∧

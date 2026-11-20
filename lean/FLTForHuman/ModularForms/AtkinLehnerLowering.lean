@@ -64,15 +64,8 @@ lemma intCast_zmod_eq_one_iff_dvd (x : ℤ) (N : ℕ) :
     ((x : ℤ) : ZMod N) = 1 ↔ (N : ℤ) ∣ x - 1 := by
   rw [← sub_eq_zero, ← Int.cast_one, ← Int.cast_sub, ZMod.intCast_zmod_eq_zero_iff_dvd]
 
-lemma Gamma1_le_of_dvd {A B : ℕ} (h : A ∣ B) : Gamma1 B ≤ Gamma1 A := by
-  intro γ hγ
-  rw [Gamma1_mem] at hγ ⊢
-  obtain ⟨h1, h2, h3⟩ := hγ
-  have hAB : (A : ℤ) ∣ (B : ℤ) := Int.natCast_dvd_natCast.mpr h
-  refine ⟨?_, ?_, ?_⟩
-  · rw [intCast_zmod_eq_one_iff_dvd] at h1 ⊢; exact hAB.trans h1
-  · rw [intCast_zmod_eq_one_iff_dvd] at h2 ⊢; exact hAB.trans h2
-  · rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h3 ⊢; exact hAB.trans h3
+lemma Gamma1_le_of_dvd {A B : ℕ} (h : A ∣ B) : Gamma1 B ≤ Gamma1 A :=
+  CongruenceSubgroup.Gamma1_le_of_dvd h
 
 lemma GammaOneGL_le_of_dvd {A B : ℕ} (h : A ∣ B) :
     ((Gamma1 B : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) ≤
@@ -729,11 +722,7 @@ lemma coe_conjW (M : ℕ) [NeZero M] (ε : ℝ) (hε : ε = 1 ∨ ε = -1) {k : 
     (hε0 : ε ≠ 0) :
     (⇑(conjW M ε hε f) : ℍ → ℂ) = (⇑f : ℍ → ℂ) ∣[k] wGL M (NeZero.ne M) ε hε0 := rfl
 
-lemma Gamma_le_Gamma1 (N : ℕ) : Gamma N ≤ Gamma1 N := by
-  intro γ hγ
-  rw [Gamma_mem] at hγ
-  rw [Gamma1_mem]
-  exact ⟨hγ.1, hγ.2.2.2, hγ.2.2.1⟩
+lemma Gamma_le_Gamma1 (N : ℕ) : Gamma N ≤ Gamma1 N := CongruenceSubgroup.Gamma_le_Gamma1
 
 def restrictΓ (N : ℕ) {k : ℤ} (f : CuspForm Γ₁(N) k) : CuspForm 𝒢(N) k where
   toFun := ⇑f

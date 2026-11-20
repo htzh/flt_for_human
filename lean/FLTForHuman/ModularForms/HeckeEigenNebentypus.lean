@@ -5,10 +5,11 @@
   nebentypus: `g ∣[k] γ = χ (γ 1 1) • g`.
 
   Transcribed from `P2M/Sol/S_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean`
-  (pinned `aa2d8b3`, 436 lines). The `Γ₁ = ker dd` vocabulary (`dd`, `dd_mul`,
-  `isUnit_dd`, `mem_Gamma1_iff_dd`, `inv_mul_mem_Gamma1`, `dd_pow`, `exists_lift`)
-  is **public** (`WORKORDER-S8`, promoted for clarity): the two successor headlines
-  state it, so it is shared API rather than per-file glue. The generic facts
+  (pinned `aa2d8b3`, 436 lines). The `Γ₁ = ker dd` vocabulary (`mem_Gamma1_iff_dd`,
+  `inv_mul_mem_Gamma1`, `dd_pow`, `exists_lift`, on the character `dd` with its
+  multiplication and unit laws from the level vocabulary) is **public**
+  (`WORKORDER-S8`, promoted for clarity): the two successor headlines state it, so
+  it is shared API rather than per-file glue. The generic facts
   (`det_eq`, `det_mod`, `T_mem_Gamma1`, `conj_mem_Gamma1`) reuse their existing public
   homes, and the predecessor's own proof internals stay `private`; the two shared
   targets it consumes
@@ -45,21 +46,9 @@ namespace HeckeEigenNebentypus
 local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
 local notation "Γ₀(" M ")" => ((Gamma0 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
 
+open ModularForm.Level (dd dd_mul isUnit_dd)
+
 variable {M : ℕ}
-
-/-- The `γ 1 1` coordinate of `γ ∈ Γ₀(N)`, as a unit of `ZMod N`; the nebentypus
-character is evaluated on it.  Promoted from this module's private prelude
-(`WORKORDER-S8`, clarity): the `Γ₁ = ker dd` vocabulary is stated by the two
-successor headlines, so it is shared API, not per-file glue. -/
-def dd {N : ℕ} (γ : SL(2, ℤ)) : ZMod N := ((γ 1 1 : ℤ) : ZMod N)
-
-theorem dd_mul {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N) (h₂ : γ₂ ∈ Gamma0 N) :
-    dd (N := N) (γ₁ * γ₂) = dd (N := N) γ₁ * dd γ₂ := by
-  have := map_mul (Gamma0Map N) ⟨γ₁, h₁⟩ ⟨γ₂, h₂⟩
-  exact this
-
-theorem isUnit_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) : IsUnit (dd (N := N) γ) :=
-  IsUnit.of_mul_eq_one _ (by rw [dd, mul_comm]; exact ModularForm.Level.det_mod γ hγ)
 
 theorem mem_Gamma1_iff_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
     γ ∈ Gamma1 N ↔ dd (N := N) γ = 1 := by

@@ -43,6 +43,7 @@ pin's concrete copies) keeps an `own:` row: there is nothing to park.
 | `ModularForms/QCoeffClass` | `Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean` | `ModularFormClass.eq_of_forall_qCoeff_eq` |
 | `ModularForms/QCoeffClass` | `P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean` | `ModularFormClass.hasSum_qCoeff` |
 | `ModularForms/Level` + `Defs/HeckeRepresentatives` | `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` | `Level.wt`/`lift`/`IsDiamondLift`/`det_mod`/`diamondLinOne`, `HeckeRepresentatives.heckeRep`/`redMatrix`/`heckeRep_mul` |
+| `ModularForms/Analytic/PeterssonHecke` | `P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean` | `Lam`/`mem_Lam`/`dvd_01_of_mem_Lam`, `gInf`/`sigP`/`gInf_coe`/`sigP_coe`/`gInf_inv_coe`/`not_dvd_n`, `exists_rr_mul_mem`/`rr_mul_rr_inv_mem` |
 
 Both q-coefficient modules are therefore unwired: the checker no longer diffs them, and
 no `own:` row is involved. The cost is stated rather than hidden — the six statements
@@ -292,3 +293,52 @@ modules are on the frozen checker): `affineMap`, `affinePerm`, `affineMap_apply`
 `heckeRep_mul` from `Gamma1Hecke.heckeRep_mul` and the `Γ₁` one from `HeckeGamma1.heckeRep_mul`;
 build any `Γ₀`-lift with a prescribed `1 1`-entry from `Level.exists_sl2_of_isCoprime` rather than
 from a local Bézout matrix.
+
+## Entry 7 — the Hecke adjointness engine is port-owned
+
+**Status: applied, the pin parked.** `ModularForms/Analytic/PeterssonHecke.lean` is the analytic
+engine for `⟨T_p f, g⟩ = conj ε(p) ⟨f, T_p g⟩` on a nebentypus component. Its pin
+(`S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean`) states the group layer, the
+Bézout lifts and two entry computations in the shape its own proof wanted; the port states them in
+the shape the argument needs. None of the pin's 117 declarations is `private`, so unpinning is a
+whole-module decision rather than a per-declaration one.
+
+**Pin shape.** `def Lam (N p) : Subgroup SL(2, ℤ)` with the carrier
+`{γ | γ ∈ Gamma1 N ∧ (p : ℤ) ∣ γ 0 1}` and its own `mul_mem'`/`inv_mem'`;
+`def bez (hpN) : ℤ × ℤ` with `(bez hpN).1 * p - (bez hpN).2 * N = 1` and the lift matrices spelled
+`!![(bez hpN).1 * p, (bez hpN).2; N, 1]` / `!![(bez hpN).1, (bez hpN).2; N, p]`;
+`upperRight_T_mul`, `upperRight_gInf_mul` as named entry computations; and
+`conjSL_mem_Gamma1`/`cfwd_coe` naming the divisibility witness as `hh.2` / `h.2.2`.
+
+**Port shape.** `Lam` is `Γ₁(N) ⊓ Γ⁰(p)` — a one-line intersection of `Gamma1` and
+`Level.Gamma0Upper`, so the group closure is `Subgroup.inf`'s; `mem_Lam` keeps the pin's statement
+and is the single bridge to the divisibility spelling, with `dvd_01_of_mem_Lam` as the eliminator
+and `Lam_le` = `inf_le_left`. The Bézout datum is `Level.BezoutPair (p : ℤ) (N : ℤ)` (one
+normalization `u * p + v * N = 1`, one constructor family `mat`/`matDiag`), and the lifts are its
+`matDiag`/`mat`; `bez` and `bez_spec` are gone, so `gInf_coe`/`sigP_coe` state
+`!![(bezPair hpN).u * p, -(bezPair hpN).v; N, 1]` and `!![…, -(bezPair hpN).v; N, p]`,
+`gInf_inv_coe` states `!![1, (bezPair hpN).v; -N, (bezPair hpN).u * p]`, and `not_dvd_n` states
+`¬ (p : ℤ) ∣ (bezPair hpN).v` — the sign sits where the matrix has it instead of behind a
+translation lemma. `conjSL_mem_Gamma1`/`cfwd_coe` name their witness `dvd_01_of_mem_Lam hh`, and
+`upperRight_T_mul`/`upperRight_gInf_mul` are inlined as `have h01` at their single use site.
+
+**Bridges.** `Subgroup.mem_inf` (definitional) turns `Lam`-membership into
+`Γ₁ N ∧ Γ⁰(p)`; `mem_Gamma0Upper_iff_dvd` turns the `ZMod` entry condition into `(p : ℤ) ∣ γ 0 1`,
+which is the whole content of `mem_Lam`. `(bezPair hpN).huv` is the Bézout relation in the port's
+sign; `gInf_mem` and the `rr_mul_rr_inv_mem` branches read it with the minus of `matDiag` visible,
+and `dvd_neg` moves between `p ∣ v` and `p ∣ -v` where the matrix carries the other sign.
+
+**The duplicated layer.** The pin also wrote its admissible-function and pairing layer twice; the
+port keeps one copy, in the wired `ModularForms/Analytic/PeterssonCoset.lean`. The engine's
+`Adm` (identically shaped to `Nice`, field order aside), its `Adm.add/smul/neg/sub`, its own
+`dens`/`dens_nonneg`/`petersson_self_eq_dens`/`continuous_dens`/`dens_smul_of_inv`, its
+`unfold_sum`, and its `integral_cosum_self`/`integral_cosum_polar`/`integral_cosum_pair`
+(statement-identical to the coset layer's, `Adm` vs `Nice` aside) are all gone; the engine's two
+admissibility proofs now produce `Nice`, and `main` calls the coset layer's
+`integral_cosum_pair`. The engine is 66 public declarations against the pin's 118.
+
+**Recipe for a file arriving with the pin's shape.** Do not rebuild `Lam`: write
+`Γ₁ N ⊓ Gamma0Upper p` and take `mem_Lam`/`dvd_01_of_mem_Lam` from this module. Do not introduce a
+Bézout pair or a lift matrix: take `Level.BezoutPair` (`.huv`, `.mat`, `.matDiag`) and, for a lift
+into `Γ₀` with a prescribed `1 1`-entry, `Level.exists_sl2_of_isCoprime`. Read the upper-right
+entry of `gInf * γ` or `T ^ t * γ` as a local `have`, as `exists_rr_mul_mem` does.

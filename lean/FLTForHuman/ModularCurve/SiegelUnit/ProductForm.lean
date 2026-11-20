@@ -36,7 +36,7 @@
 
   The pin's seven type-only `def` matches in the port (`uFun → LevelN.jAnalytic`,
   `thetaFun → EIS2K1.qN`, `P144`/`P1728`/`deltaZ → e1Chi3`, `sigmaSeries → EtaQSeries.f`,
-  `GammaS → CohCarrier.Gamma0Upper`) are **not** imports: they share a type, not a value,
+  `GammaS → ModularForm.Level.Gamma0Upper`) are **not** imports: they share a type, not a value,
   and the pin's own definitions are written here.
 
   FLT provenance, pinned `aa2d8b3`:

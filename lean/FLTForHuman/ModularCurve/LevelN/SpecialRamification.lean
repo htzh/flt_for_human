@@ -73,7 +73,7 @@ theorem ST_smul_ρ : (ModularGroup.S * ModularGroup.T) • ρ = ρ :=
 
 /-- `j` vanishes at `ρ`. -/
 theorem jAnalytic_ρ : LevelN.jAnalytic ρ = 0 := by
-  rw [LevelN.jAnalytic, JMultiplicity.E₄_ρ]
+  rw [LevelN.jAnalytic, ModularForm.j, JMultiplicity.E₄_ρ]
   simp
 
 /-- `j = 1728` at `i`. -/
@@ -86,7 +86,7 @@ theorem jAnalytic_I : LevelN.jAnalytic UpperHalfPlane.I = 1728 := by
     apply hΔ0
     rw [hΔ, h]
     norm_num
-  rw [LevelN.jAnalytic, hΔ]
+  rw [LevelN.jAnalytic, ModularForm.j, hΔ]
   field_simp
   ring
 

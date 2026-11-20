@@ -460,10 +460,12 @@ theorem hasNebentypus_inv_of_conj [NeZero M] {ε : DirichletCharacter ℂ M}
     hf' (γ • τ) (conjNeg γ • negConj τ) (coe_conjNeg_smul_negConj γ τ)
   have h2 := hf (conjNeg γ) (conjNeg_mem_Gamma0 hγ) (negConj τ)
   have h3 : f' τ = conj (f (negConj τ)) := hf' τ (negConj τ) rfl
-  rw [h1, h2, map_mul, map_mul, conjNeg_apply_11, conjNeg_apply_10, conj_dirichlet, ← h3,
+  rw [h1, h2, show ε (ModularForm.Level.dd (N := M) (conjNeg γ))
+      = ε ((conjNeg γ 1 1 : ℤ) : ZMod M) from rfl,
+    map_mul, map_mul, conjNeg_apply_11, conjNeg_apply_10, conj_dirichlet, ← h3,
     map_zpow₀, map_add, map_mul]
-  simp only [Int.cast_neg, map_neg, conj_intCast, coe_negConj, Complex.conj_conj,
-    neg_mul_neg]
+  simp only [ModularForm.Level.dd, Int.cast_neg, map_neg, conj_intCast, coe_negConj,
+    Complex.conj_conj, neg_mul_neg]
 
 variable [NeZero M]
 

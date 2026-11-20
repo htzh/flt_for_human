@@ -141,24 +141,8 @@ private theorem SL_smul_slash' (γ : SL(2, ℤ)) (f : ℍ → ℂ) (c : ℂ) :
 
 private theorem hasNebentypus_iff_slash {ε : DirichletCharacter ℂ N} (f : CuspForm (Gamma1 N) k) :
     CuspForm.HasNebentypus ε f ↔ ∀ γ : SL(2, ℤ), γ ∈ Gamma0 N →
-      (⇑f : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) = ε ((γ 1 1 : ℤ) : ZMod N) • ⇑f := by
-  constructor
-  · intro hf γ hγ
-    funext τ
-    rw [SL_slash_apply', hf γ hγ τ, Pi.smul_apply, smul_eq_mul]
-    have hne := denom_ne_zero' γ τ
-    rw [zpow_neg, mul_assoc, mul_comm (_ ^ k * f τ), ← mul_assoc ((_) ^ k)⁻¹,
-      inv_mul_cancel₀ (zpow_ne_zero k hne), one_mul]
-  · intro hf γ hγ τ
-    have h1 := congrFun (hf γ hγ) τ
-    rw [SL_slash_apply', Pi.smul_apply, smul_eq_mul] at h1
-    have hne := denom_ne_zero' γ τ
-    have h2 : f (γ • τ) * (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ (-k)
-        * (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ k
-        = ε ((γ 1 1 : ℤ) : ZMod N) * f τ * (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ k := by
-      rw [h1]
-    rw [mul_assoc, ← zpow_add₀ hne, neg_add_cancel, zpow_zero, mul_one] at h2
-    rw [h2]; ring
+      (⇑f : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) = ε ((γ 1 1 : ℤ) : ZMod N) • ⇑f :=
+  CuspForm.hasNebentypus_iff ε f
 
 private noncomputable def nebSubmodule (N : ℕ) (k : ℤ) (ε : DirichletCharacter ℂ N) :
     Submodule ℂ (CuspForm (Gamma1 N) k) where

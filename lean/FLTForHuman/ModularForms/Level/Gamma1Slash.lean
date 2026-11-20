@@ -74,11 +74,8 @@ theorem L_mem_strictPeriods_Gamma (L : ℕ) :
   rw [ΓGL, CongruenceSubgroup.strictPeriods_Gamma]
   exact AddSubgroup.mem_zmultiples _
 
-theorem Gamma_le_Gamma1 (L : ℕ) : CongruenceSubgroup.Gamma L ≤ Gamma1 L := by
-  intro g hg
-  rw [Gamma_mem] at hg
-  rw [Gamma1_mem]
-  exact ⟨hg.1, hg.2.2.2, hg.2.2.1⟩
+theorem Gamma_le_Gamma1 (L : ℕ) : CongruenceSubgroup.Gamma L ≤ Gamma1 L :=
+  CongruenceSubgroup.Gamma_le_Gamma1
 
 /-- Restrict a modular form along an inclusion of level subgroups. -/
 def restrictF {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} (h : Γ' ≤ Γ) (f : ModularForm Γ k) :

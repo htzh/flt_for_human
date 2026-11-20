@@ -63,6 +63,22 @@
 
     spec-pin: Definitions/Def_CuspForm_Gamma1HeckeOperators.lean
 
+  ModularForms/Analytic/PeterssonHecke — the Hecke adjointness engine. The subgroup `Λ` it
+  pairs over is `Γ₁(N) ⊓ Γ⁰(p)` (`Level.Gamma0Upper`'s group) instead of a carrier with its own
+  `mul_mem'`/`inv_mem'`; the Bézout datum is `Level.BezoutPair` (one normalization, `u * p +
+  v * N = 1`) with no sign-translating `bez`; the two statements that name their divisibility
+  witness do so through `dvd_01_of_mem_Lam`; and two one-use entry computations are inlined
+  (topics/TOPIC-interface-changes.md Entry 7). The pin was written twice in the pin's own
+  tree (`S_CuspForm_norm_sq_…` carries a second copy of its group layer) and none of its 117
+  declarations is `private`, so unpinning hands the whole public surface to the port:
+
+    spec-pin: P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean
+
+  The pin's group-and-pairing layer (`Nice`, `dens`, `unfold_sum`, the `integral_cosum_*`
+  triple, the coset-integral block) has its wire in
+  `Definitions/Def_CuspForm_PeterssonCoset.lean`, which `ModularForms/Analytic/PeterssonCoset.lean`
+  carries and is diffed against; this module keeps no copy of it.
+
   Re-wiring a parked module needs `own:` rows back for the declarations whose pin has no
   comparable statement: `ModularFormClass.qCoeff_add'`, `…qCoeff_sub'` and
   `…qCoeff_const_smul'` are the general spellings of the pin's concrete per-file copies.

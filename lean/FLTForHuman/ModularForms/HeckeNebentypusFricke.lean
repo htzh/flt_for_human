@@ -187,7 +187,9 @@ private theorem hasNebentypus_inv (ε : DirichletCharacter ℂ M) {g h : CuspFor
   have e11 : ((γW 1 1 : ℤ) : ℂ) = ((γ 0 0 : ℤ) : ℂ) := by rw [hγW, frickeConj_apply_11]
   have e10 : ((γW 1 0 : ℤ) : ℂ) = -((M : ℂ) * ((γ 0 1 : ℤ) : ℂ)) := by
     rw [hγW, frickeConj_apply_10]; push_cast; ring
-  have e11' : ((γW 1 1 : ℤ) : ZMod M) = ((γ 0 0 : ℤ) : ZMod M) := by rw [hγW, frickeConj_apply_11]
+  have e11' : ModularForm.Level.dd (N := M) γW = ((γ 0 0 : ℤ) : ZMod M) := by
+    rw [show ModularForm.Level.dd (N := M) γW = ((γW 1 1 : ℤ) : ZMod M) from rfl,
+      hγW, frickeConj_apply_11]
   rw [h1, h2, e11', dirichlet_apply_00 ε γ hγ, e11, e10, coe_frickeGL_smul]
 
   have hM : (M : ℂ) ≠ 0 := by exact_mod_cast NeZero.ne M
@@ -217,6 +219,7 @@ private theorem hasNebentypus_inv (ε : DirichletCharacter ℂ M) {g h : CuspFor
     rw [zpow_neg, mul_inv_cancel₀ (zpow_ne_zero k hτ)]
   rw [hlin, div_zpow, div_zpow, zpow_neg, zpow_neg]
   field_simp
+  simp only [ModularForm.Level.dd]
   linear_combination
     (-((↑τ * ((γ 1 0 : ℤ) : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ k * ε⁻¹ ((γ 1 1 : ℤ) : ZMod M) *
       g (frickeGL M • τ))) * hτk
@@ -494,7 +497,9 @@ private theorem main_pointwise (ε : DirichletCharacter ℂ M) {g h : CuspForm (
       rw [coe_heckeMatrix_smul hp0]
     have hcoez : (z : ℂ) = -1 / ((M : ℂ) * (x / p)) := by
       rw [hz, coe_frickeGL_smul, hcoem]
-    have e11 : ((γ 1 1 : ℤ) : ZMod M) = (p : ZMod M) := by rw [hγ, gam_apply_11, Int.cast_natCast]
+    have e11 : ModularForm.Level.dd (N := M) γ = (p : ZMod M) := by
+      rw [show ModularForm.Level.dd (N := M) γ = ((γ 1 1 : ℤ) : ZMod M) from rfl,
+        hγ, gam_apply_11, Int.cast_natCast]
     have e11' : ((γ 1 1 : ℤ) : ℂ) = (p : ℂ) := by rw [hγ, gam_apply_11, Int.cast_natCast]
     have e10 : ((γ 1 0 : ℤ) : ℂ) = (M : ℂ) * (j' : ℂ) := by
       rw [hγ, gam_apply_10]; push_cast; ring

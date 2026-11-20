@@ -157,28 +157,14 @@ theorem J_ne_zero (γ : SL(2, ℤ)) (τ : ℍ) :
 
 theorem slash_eq_smul_of_hasNebentypus {ε : DirichletCharacter ℂ N} {f : CuspForm Γ₁(N) k}
     (hf : CuspForm.HasNebentypus ε f) (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
-    (⇑f : ℍ → ℂ) ∣[k] (mapGL ℝ γ : GL (Fin 2) ℝ) = ε ((γ 1 1 : ℤ) : ZMod N) • (⇑f : ℍ → ℂ) := by
-  funext τ
-  rw [slash_mapGL_apply, hf γ hγ τ, Pi.smul_apply, smul_eq_mul]
-  have hJ := zpow_ne_zero k (J_ne_zero γ τ)
-  rw [zpow_neg]
-  field_simp
+    (⇑f : ℍ → ℂ) ∣[k] (mapGL ℝ γ : GL (Fin 2) ℝ) = ε ((γ 1 1 : ℤ) : ZMod N) • (⇑f : ℍ → ℂ) :=
+  (CuspForm.hasNebentypus_iff ε f).mp hf γ hγ
 
 theorem hasNebentypus_of_slash_eq_smul {ε : DirichletCharacter ℂ N} {F : CuspForm Γ₁(N) k}
     (hF : ∀ γ : SL(2, ℤ), γ ∈ Gamma0 N →
       (⇑F : ℍ → ℂ) ∣[k] (mapGL ℝ γ : GL (Fin 2) ℝ) = ε ((γ 1 1 : ℤ) : ZMod N) • (⇑F : ℍ → ℂ)) :
-    CuspForm.HasNebentypus ε F := by
-  intro γ hγ τ
-  have hpt := congrFun (hF γ hγ) τ
-  rw [slash_mapGL_apply, Pi.smul_apply, smul_eq_mul] at hpt
-  have hJ := J_ne_zero γ τ
-  have hzk : (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ (-k) ≠ 0 := zpow_ne_zero _ hJ
-  have key : F (γ • τ) = ε ((γ 1 1 : ℤ) : ZMod N) * F τ *
-      ((((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ (-k))⁻¹ := by
-    rw [eq_mul_inv_iff_mul_eq₀ hzk]
-    exact hpt
-  rw [key, ← zpow_neg, neg_neg]
-  ring
+    CuspForm.HasNebentypus ε F :=
+  (CuspForm.hasNebentypus_iff ε F).mpr hF
 
 theorem hasNebentypus_heckeUForm [NeZero N] {ℓ : ℕ} (hℓN : ℓ ∣ N)
     {ε : DirichletCharacter ℂ N} {f : CuspForm Γ₁(N) k} (hf : CuspForm.HasNebentypus ε f) :

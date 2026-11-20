@@ -34,18 +34,11 @@ theorem HasNebentypus.diamondLinOne_apply_eq_smul {M : ℕ} {k : ℤ}
     (hg : CuspForm.HasNebentypus ε g) {d : ℕ} (hd : Nat.Coprime d M) :
     CuspForm.diamondLinOne M k d g = ε (d : ZMod M) • g := by
   obtain ⟨γ, hγ⟩ := ModularForm.Level.exists_isDiamondLift_of_coprime hd
-  refine CuspForm.ext fun τ => ?_
-  rw [ModularForm.Level.diamondLinOne_apply_apply hγ, smul_apply, smul_eq_mul]
-  have hs : ((⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ)) τ
-      = g (γ • τ) * denom (γ : GL (Fin 2) ℝ) τ ^ (-k) :=
-    ModularForm.SL_slash_apply (f := ⇑g) (k := k) γ τ
-  rw [hs, hg γ hγ.1 τ, hγ.2]
-  have hden : denom (γ : GL (Fin 2) ℝ) τ = ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) := by
-    rw [ModularGroup.denom_apply]
-  have hne : ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) ≠ 0 := by
-    rw [← hden]; exact denom_ne_zero _ τ
-  rw [hden, zpow_neg, mul_assoc, mul_comm (_ ^ k * g τ), ← mul_assoc ((_) ^ k)⁻¹, inv_mul_cancel₀
-    (zpow_ne_zero k hne), one_mul]
+  ext τ
+  rw [ModularForm.Level.diamondLinOne_apply_apply hγ,
+    (CuspForm.hasNebentypus_iff ε g).mp hg γ hγ.1,
+    show ModularForm.Level.dd γ = (d : ZMod M) from hγ.2]
+  rfl
 
 end CuspForm
 

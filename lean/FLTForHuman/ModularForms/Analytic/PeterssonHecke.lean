@@ -7,20 +7,39 @@
   `P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:17–1212`,
   taken whole (119 public declarations, none `private`), less its top-level
   `solution`, which is re-proved in the tier-1 façade
-  `FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean`. Every public
-  declaration carries its `-- pin: <name> (<file>:<line>)` comment; the module is
-  tier 3 (unlisted) and registered in `spec/UNWIRED-PUBLIC.md`.
+  `FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean`.
 
-  **100 declarations, not 118.** The coset-integral layer of the pin's file — 18
-  declarations (`mp_smul_*`, `measurable_smul_*`, `splitEquiv`, the `tsum_*`
-  reindexings, `wt`, `measurable_wt`, `indicator_smul`, `tsum_wt_smul`,
-  `ae_tsum_wt_smul`, `tsum_G_eq`, `weight_lintegral`, `cvn_lintegral`, `cosum`,
-  `petersson_polarization`) — is statement-identical to the pin's *second* copy of
-  that layer in `Definitions/Def_CuspForm_PeterssonCoset.lean`, which the port now
-  carries as the wired definition layer
-  `FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean`. Those 18 were moved
-  there on 2026-10-18 and are imported and opened below, so they are no longer
-  duplicated in this engine.
+  **Port-owned, tier 3.** The pin is parked in
+  `Reserve/ModularForms/PortOwnedSpecPins.lean` and the departures are registered in
+  `topics/TOPIC-interface-changes.md` Entry 7; nothing here is statement-diffed. The
+  module carries 66 public declarations against the pin's 118. Two layers of the
+  pin's file are statement-identical to declarations the port already owns and are
+  imported rather than re-proved.
+
+  The pin wrote its group-and-pairing layer twice; the port carries **one** copy, in the
+  wired definition layer `PeterssonCoset.lean`: its 18 coset-integral declarations
+  (`mp_smul_*`, `measurable_smul_*`, `splitEquiv`, the `tsum_*` reindexings, `wt`,
+  `measurable_wt`, `indicator_smul`, `tsum_wt_smul`, `ae_tsum_wt_smul`, `tsum_G_eq`,
+  `weight_lintegral`, `cvn_lintegral`, `cosum`, `petersson_polarization`) moved there on
+  2026-10-18, and this module's remaining 15 — the admissible-function predicate
+  (`Nice`), `dens`, `dens_nonneg`, `petersson_self_eq_dens`, `continuous_dens`,
+  `Nice.dens_smul`, the `Nice` algebra, `unfold_sum`, and the integral triple
+  `integral_cosum_self`/`integral_cosum_polar`/`integral_cosum_pair` — were dropped in
+  its favour on the next pass. What stays here is the Hecke-specific part: the
+  representatives `rr`, the `Λ`-coset unfolding, `Φ`/`Ψ`, the character identities and
+  the assembly. The bookkeeping layer — `det_entries`, `eMap`, `eMap_bijective`
+  (`PeterssonCoset`) and `det_mod`, `dd`, `dd_mul`, `isUnit_dd`, the `Γ₀`
+  lower-right character (`ModularForm.Level`) — is imported from its one home and
+  opened below, as is `Γ⁰(p)` (`ModularForms/Level/Upper.lean`), the factor of
+  `Λ = Γ₁(N) ⊓ Γ⁰(p)`.
+
+  The interface is the port's in four places (Entry 7): `Lam` is `Γ₁(N) ⊓ Γ⁰(p)`
+  rather than a hand-rolled carrier, with `dvd_01_of_mem_Lam` as its upper-right
+  eliminator; the Bézout datum is `Level.BezoutPair` with no sign-translating `bez`;
+  `conjSL_mem_Gamma1`/`cfwd_coe` name their divisibility witness through that
+  eliminator; and the two one-use entry computations `upperRight_T_mul`,
+  `upperRight_gInf_mul` are inlined at their site. `mem_Lam` keeps the pin's
+  statement, so the two conditions stay readable at every use.
 
   The proof: unfold `peterssonOn` (coset sum over `SL(2, ℤ) ⧸ Γ₁(N)`, integrated
   over `𝒟`) with `petersson_sum_left`/`petersson_sum_right`, rewrite the Hecke
@@ -33,6 +52,9 @@ import FLTForHuman.ModularForms.Analytic.Petersson
 import FLTForHuman.ModularForms.Analytic.PeterssonCoset
 import FLTForHuman.ModularForms.Defs.HeckeOperator
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
+import FLTForHuman.ModularForms.Level.Diamond
+import FLTForHuman.ModularForms.Level.Upper
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.NumberTheory.DirichletCharacter.Bounds
 import Mathlib.NumberTheory.ModularForms.Bounds
@@ -50,123 +72,59 @@ namespace CuspForm
 
 namespace PetHeckeAdj
 
-open CuspForm.PeterssonCoset
-
-
--- pin: mapGL_coe_eq (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:18)
-theorem mapGL_coe_eq (s : SL(2, ℤ)) :
+/-- The coercion of `mapGL` to matrices, in the spelling the `rw` chains below need (mathlib's
+`Matrix.SpecialLinearGroup.mapGL_coe_matrix` states the same fact with the coercion left inside
+`SpecialLinearGroup.map`). -/
+private theorem mapGL_coe_eq (s : SL(2, ℤ)) :
     ((Matrix.SpecialLinearGroup.mapGL ℝ s : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ)
-      = (s : Matrix (Fin 2) (Fin 2) ℤ).map (algebraMap ℤ ℝ) := rfl
+      = (s : Matrix (Fin 2) (Fin 2) ℤ).map (algebraMap ℤ ℝ) :=
+  Matrix.SpecialLinearGroup.mapGL_coe_matrix s
 
--- pin: mul_apply_10 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:22)
-theorem mul_apply_10 (A B : SL(2, ℤ)) :
+open CuspForm.PeterssonCoset
+open ModularForm.Level (dd mem_Gamma1_of_d_eq_one Gamma0Upper mem_Gamma0Upper
+  mem_Gamma0Upper_iff_dvd Gamma_le_Gamma0Upper)
+
+private theorem mul_apply_10 (A B : SL(2, ℤ)) :
     ((A * B : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 1 0
       = (A : Matrix (Fin 2) (Fin 2) ℤ) 1 0 * (B : Matrix (Fin 2) (Fin 2) ℤ) 0 0
-        + (A : Matrix (Fin 2) (Fin 2) ℤ) 1 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 0 := by
-  rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two]
+        + (A : Matrix (Fin 2) (Fin 2) ℤ) 1 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 0 :=
+  (Matrix.two_mul_expl _ _).2.2.1
 
--- pin: mul_apply_01 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:28)
-theorem mul_apply_01 (A B : SL(2, ℤ)) :
+private theorem mul_apply_01 (A B : SL(2, ℤ)) :
     ((A * B : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 0 1
       = (A : Matrix (Fin 2) (Fin 2) ℤ) 0 0 * (B : Matrix (Fin 2) (Fin 2) ℤ) 0 1
-        + (A : Matrix (Fin 2) (Fin 2) ℤ) 0 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 1 := by
-  rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two]
+        + (A : Matrix (Fin 2) (Fin 2) ℤ) 0 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 1 :=
+  (Matrix.two_mul_expl _ _).2.1
 
--- pin: mul_apply_00 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:34)
-theorem mul_apply_00 (A B : SL(2, ℤ)) :
+private theorem mul_apply_00 (A B : SL(2, ℤ)) :
     ((A * B : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 0 0
       = (A : Matrix (Fin 2) (Fin 2) ℤ) 0 0 * (B : Matrix (Fin 2) (Fin 2) ℤ) 0 0
-        + (A : Matrix (Fin 2) (Fin 2) ℤ) 0 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 0 := by
-  rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two]
+        + (A : Matrix (Fin 2) (Fin 2) ℤ) 0 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 0 :=
+  (Matrix.two_mul_expl _ _).1
 
--- pin: mul_apply_11 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:40)
-theorem mul_apply_11 (A B : SL(2, ℤ)) :
+private theorem mul_apply_11 (A B : SL(2, ℤ)) :
     ((A * B : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 1 1
       = (A : Matrix (Fin 2) (Fin 2) ℤ) 1 0 * (B : Matrix (Fin 2) (Fin 2) ℤ) 0 1
-        + (A : Matrix (Fin 2) (Fin 2) ℤ) 1 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 1 := by
-  rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two]
+        + (A : Matrix (Fin 2) (Fin 2) ℤ) 1 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 1 :=
+  (Matrix.two_mul_expl _ _).2.2.2
 
 -- `det_heckeMatrix` is public in `ModularForms/Defs/HeckeOperator.lean` (it was
 -- `private` until 2026-10-18); the local copy that stood here is gone.
 
--- pin: T_zpow_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:46)
-theorem T_zpow_coe (t : ℤ) :
-    ((ModularGroup.T ^ t : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) = !![1, t; 0, 1] :=
-  ModularGroup.coe_T_zpow t
-
--- pin: det_entries (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:50)
-theorem det_entries (γ : SL(2, ℤ)) :
-    (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 0 * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1
-      - (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 0 = 1 := by
-  have := Matrix.SpecialLinearGroup.det_coe γ
-  rwa [Matrix.det_fin_two] at this
-
--- pin: mem_Gamma1_iff (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:56)
-theorem mem_Gamma1_iff (N : ℕ) (γ : SL(2, ℤ)) :
+private theorem mem_Gamma1_iff (N : ℕ) (γ : SL(2, ℤ)) :
     γ ∈ Gamma1 N ↔ (((γ : Matrix (Fin 2) (Fin 2) ℤ) 0 0 : ℤ) : ZMod N) = 1 ∧
       (((γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod N) = 1 ∧
       (N : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 0 := by
   rw [Gamma1_mem, ZMod.intCast_zmod_eq_zero_iff_dvd]
-
-section Bookkeeping
-
-variable {N : ℕ}
-
--- pin: det_mod (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:66)
-theorem det_mod (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
-    ((γ 0 0 : ℤ) : ZMod N) * ((γ 1 1 : ℤ) : ZMod N) = 1 := by
-  have hc : ((γ 1 0 : ℤ) : ZMod N) = 0 := by simpa using Gamma0_mem.mp hγ
-  have := congrArg (Int.cast : ℤ → ZMod N) (det_entries γ)
-  push_cast at this
-  rw [hc] at this
-  linear_combination this
-
--- pin: dd (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:74)
-def dd (γ : SL(2, ℤ)) : ZMod N := ((γ 1 1 : ℤ) : ZMod N)
-
--- pin: dd_mul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:76)
-theorem dd_mul {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N) (h₂ : γ₂ ∈ Gamma0 N) :
-    dd (N := N) (γ₁ * γ₂) = dd (N := N) γ₁ * dd γ₂ := by
-  have := map_mul (Gamma0Map N) ⟨γ₁, h₁⟩ ⟨γ₂, h₂⟩
-  exact this
-
--- pin: isUnit_dd (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:81)
-theorem isUnit_dd {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) : IsUnit (dd (N := N) γ) :=
-  IsUnit.of_mul_eq_one _ (by rw [dd, mul_comm]; exact det_mod γ hγ)
-
-end Bookkeeping
 
 section Slash
 
 variable {N : ℕ} {k : ℤ}
 
 local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
-
--- pin: sl_slash (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:92)
-theorem sl_slash (f : ℍ → ℂ) (γ : SL(2, ℤ)) :
-    f ∣[k] γ = f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) := rfl
-
--- pin: slash_mem (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:95)
 theorem slash_mem (g : CuspForm Γ₁(N) k) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma1 N) :
     (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) = ⇑g :=
   SlashInvariantFormClass.slash_action_eq g _ (Subgroup.mem_map_of_mem _ hγ)
-
--- pin: slash_eq_of_hasNebentypus (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:99)
-theorem slash_eq_of_hasNebentypus (ε : DirichletCharacter ℂ N) (g : CuspForm Γ₁(N) k)
-    (h : CuspForm.HasNebentypus ε g) (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
-    (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) = ε (dd γ) • ⇑g := by
-  funext τ
-  have hpt := h γ hγ τ
-  rw [← sl_slash, SL_slash_apply, Pi.smul_apply, smul_eq_mul]
-  have hden : denom (Matrix.SpecialLinearGroup.toGL
-      ((Matrix.SpecialLinearGroup.map (Int.castRingHom ℝ)) γ)) (τ : ℂ)
-      = ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) := by
-    simp [denom]
-  rw [hden]
-  have hne : ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) ≠ 0 := by
-    rw [← hden]; exact UpperHalfPlane.denom_ne_zero _ τ
-  rw [hpt, dd, zpow_neg]
-  field_simp
 
 end Slash
 
@@ -174,47 +132,26 @@ section Lam
 
 variable {N p : ℕ}
 
--- pin: Lam (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:121)
-def Lam (N p : ℕ) : Subgroup SL(2, ℤ) where
-  carrier := {γ | γ ∈ Gamma1 N ∧ (p : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1}
-  one_mem' := ⟨one_mem _, by simp⟩
-  mul_mem' := by
-    rintro A B ⟨hA1, hA2⟩ ⟨hB1, hB2⟩
-    refine ⟨mul_mem hA1 hB1, ?_⟩
-    rw [mul_apply_01]; exact dvd_add (hB2.mul_left _) (hA2.mul_right _)
-  inv_mem' := by
-    rintro A ⟨hA1, hA2⟩
-    refine ⟨inv_mem hA1, ?_⟩
-    simp only [Matrix.SpecialLinearGroup.coe_inv, Matrix.adjugate_fin_two,
-      Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-      Matrix.cons_val_fin_one, dvd_neg]
-    exact hA2
+/-- `Λ = Γ₁(N) ⊓ Γ⁰(p)`: the elements of `Γ₁(N)` whose upper-right entry vanishes modulo `p`,
+i.e. the subgroup of `Γ₁(N)` that fixes the `p + 1` Hecke cosets of `rr`. -/
+def Lam (N p : ℕ) : Subgroup SL(2, ℤ) := (Gamma1 N : Subgroup SL(2, ℤ)) ⊓ Gamma0Upper p
 
--- pin: mem_Lam (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:136)
 theorem mem_Lam (γ : SL(2, ℤ)) :
-    γ ∈ Lam N p ↔ γ ∈ Gamma1 N ∧ (p : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 := Iff.rfl
+    γ ∈ Lam N p ↔ γ ∈ Gamma1 N ∧ (p : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 := by
+  rw [show γ ∈ Lam N p ↔ γ ∈ (Gamma1 N : Subgroup SL(2, ℤ)) ∧ γ ∈ Gamma0Upper p
+    from Subgroup.mem_inf]
+  exact and_congr_right fun _ => mem_Gamma0Upper_iff_dvd
 
--- pin: Lam_le (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:139)
-theorem Lam_le (N p : ℕ) : Lam N p ≤ Gamma1 N := fun _ hγ => hγ.1
+/-- The divisibility that `Lam`-membership gives on the upper-right entry. -/
+theorem dvd_01_of_mem_Lam {γ : SL(2, ℤ)} (hγ : γ ∈ Lam N p) :
+    (p : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 :=
+  mem_Gamma0Upper_iff_dvd.mp hγ.2
 
--- pin: Gamma_le_Lam (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:141)
-theorem Gamma_le_Lam (N p : ℕ) : Gamma (p * N) ≤ Lam N p := by
-  intro γ hγ
-  rw [Gamma_mem] at hγ
-  obtain ⟨h00, h01, h10, h11⟩ := hγ
-  have hdvd : N ∣ p * N := dvd_mul_left N p
-  have h01' : ((p * N : ℕ) : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 :=
-    (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp h01
-  have h10' : ((p * N : ℕ) : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 0 :=
-    (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp h10
-  push_cast at h01' h10'
-  refine ⟨?_, (dvd_mul_right (p : ℤ) N).trans h01'⟩
-  rw [mem_Gamma1_iff]
-  refine ⟨?_, ?_, (dvd_mul_left (N : ℤ) p).trans h10'⟩
-  · have := congrArg (ZMod.castHom hdvd (ZMod N)) h00
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom hdvd (ZMod N)) h11
-    rwa [map_intCast, map_one] at this
+theorem Lam_le (N p : ℕ) : Lam N p ≤ Gamma1 N := inf_le_left
+
+theorem Gamma_le_Lam (N p : ℕ) : Gamma (p * N) ≤ Lam N p :=
+  le_inf ((Gamma_le_of_dvd (dvd_mul_left N p)).trans Gamma_le_Gamma1)
+    (Gamma_le_Gamma0Upper (dvd_mul_right p N))
 
 scoped instance Lam_finiteIndex (N p : ℕ) [NeZero N] [NeZero p] : (Lam N p).FiniteIndex := by
   have hN : NeZero (p * N) := inferInstance
@@ -229,230 +166,171 @@ scoped instance fintypeQuot (M : ℕ) [NeZero M] : Fintype (SL(2, ℤ) ⧸ Gamma
   haveI : Finite (SL(2, ℤ) ⧸ Gamma1 M) := Subgroup.finite_quotient_of_finiteIndex
   Fintype.ofFinite _
 
--- pin: bez (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:172)
-def bez (hpN : Nat.Coprime p N) : ℤ × ℤ :=
-  ((Nat.isCoprime_iff_coprime.mpr hpN).choose, -(Nat.isCoprime_iff_coprime.mpr hpN).choose_spec.choose)
+/-- The Bézout datum of `(p, N)`, in the port's normalization `u * p + v * N = 1`: the Hecke
+representatives `gInf`/`sigP` are its `matDiag`/`mat`, whose upper-right entry is `-v`. -/
+private def bezPair (hpN : Nat.Coprime p N) : ModularForm.Level.BezoutPair (p : ℤ) (N : ℤ) :=
+  (ModularForm.Level.BezoutPair.exists_of_coprime hpN).some
 
--- pin: bez_spec (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:175)
-theorem bez_spec (hpN : Nat.Coprime p N) : (bez hpN).1 * p - (bez hpN).2 * N = 1 := by
-  have := (Nat.isCoprime_iff_coprime.mpr hpN).choose_spec.choose_spec
-  simp only [bez]
-  linear_combination this
+def gInf (hpN : Nat.Coprime p N) : SL(2, ℤ) := (bezPair hpN).matDiag
 
--- pin: gInf (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:180)
-def gInf (hpN : Nat.Coprime p N) : SL(2, ℤ) :=
-  ⟨!![(bez hpN).1 * p, (bez hpN).2; (N : ℤ), 1], by
-    rw [Matrix.det_fin_two_of]; linear_combination bez_spec hpN⟩
+def sigP (hpN : Nat.Coprime p N) : SL(2, ℤ) := (bezPair hpN).mat
 
--- pin: sigP (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:184)
-def sigP (hpN : Nat.Coprime p N) : SL(2, ℤ) :=
-  ⟨!![(bez hpN).1, (bez hpN).2; (N : ℤ), (p : ℤ)], by
-    rw [Matrix.det_fin_two_of]; linear_combination bez_spec hpN⟩
-
--- pin: gInf_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:188)
 theorem gInf_coe (hpN : Nat.Coprime p N) :
-    ((gInf hpN : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) = !![(bez hpN).1 * p, (bez hpN).2; (N : ℤ), 1] :=
+    ((gInf hpN : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ)
+      = !![(bezPair hpN).u * p, -(bezPair hpN).v; (N : ℤ), 1] :=
   rfl
 
--- pin: sigP_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:192)
 theorem sigP_coe (hpN : Nat.Coprime p N) :
-    ((sigP hpN : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) = !![(bez hpN).1, (bez hpN).2; (N : ℤ), (p : ℤ)] :=
+    ((sigP hpN : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ)
+      = !![(bezPair hpN).u, -(bezPair hpN).v; (N : ℤ), (p : ℤ)] :=
   rfl
 
--- pin: gInf_mem (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:196)
+/-- `gInf = !![u * p, -v; N, 1]` is in `Γ₀(N)` because its lower-left entry is `N`, and in
+`Γ₁(N)` because its lower-right entry is `1` — no Bézout input is needed, the upper-left entry
+follows from the determinant. -/
 theorem gInf_mem (hpN : Nat.Coprime p N) : gInf hpN ∈ Gamma1 N := by
-  rw [mem_Gamma1_iff, gInf_coe]
-  simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-    Matrix.cons_val_fin_one, Int.cast_one, dvd_refl, and_true]
-  have h : (bez hpN).1 * p = 1 + (bez hpN).2 * N := by linear_combination bez_spec hpN
-  rw [h]; push_cast; simp
+  have hΓ₀ : gInf hpN ∈ Gamma0 N := by
+    rw [Gamma0_mem]
+    show (((N : ℤ) : ZMod N)) = 0
+    simp
+  exact mem_Gamma1_of_d_eq_one hΓ₀ (by simp [dd, gInf])
 
--- pin: sigP_mem (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:203)
 theorem sigP_mem (hpN : Nat.Coprime p N) : sigP hpN ∈ Gamma0 N := by
   rw [Gamma0_mem]
   show (((N : ℤ) : ℤ) : ZMod N) = 0
   simp
 
--- pin: dd_sigP (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:208)
 theorem dd_sigP (hpN : Nat.Coprime p N) : dd (N := N) (sigP hpN) = (p : ZMod N) := by
   show (((p : ℤ) : ℤ) : ZMod N) = (p : ZMod N)
   simp
 
--- pin: not_dvd_n (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:212)
-theorem not_dvd_n (hpN : Nat.Coprime p N) (hp : p ≠ 1) : ¬ (p : ℤ) ∣ (bez hpN).2 := by
+theorem not_dvd_n (hpN : Nat.Coprime p N) (hp : p ≠ 1) : ¬ (p : ℤ) ∣ (bezPair hpN).v := by
   rintro ⟨t, ht⟩
-  have h := bez_spec hpN
+  have h := (bezPair hpN).huv
   rw [ht] at h
-  have h1 : (p : ℤ) ∣ 1 := ⟨(bez hpN).1 - t * N, by linear_combination -h⟩
+  have h1 : (p : ℤ) ∣ 1 := ⟨(bezPair hpN).u + t * N, by linear_combination -h⟩
   have hp1 : (p : ℤ) = 1 := Int.eq_one_of_dvd_one (by positivity) h1
   exact hp (by exact_mod_cast hp1)
 
--- pin: rr (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:220)
+/-- The `p + 1` Hecke representatives of `Γ₁(N)` in the double coset of `diag(p, 1)`: the Bézout
+lift `gInf` at `∞` (the coset on which `d` vanishes mod `p`), and the `p` translates `T ^ j`. -/
 def rr (hpN : Nat.Coprime p N) : Option (Fin p) → SL(2, ℤ)
   | none => gInf hpN
   | some j => ModularGroup.T ^ ((j : ℕ) : ℤ)
 
--- pin: T_zpow_mem_Gamma1 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:224)
-theorem T_zpow_mem_Gamma1 (N : ℕ) (t : ℤ) : ModularGroup.T ^ t ∈ Gamma1 N := by
-  rw [mem_Gamma1_iff, T_zpow_coe]; simp
+private theorem T_zpow_mem_Gamma1 (N : ℕ) (t : ℤ) : ModularGroup.T ^ t ∈ Gamma1 N := by
+  rw [mem_Gamma1_iff, ModularGroup.coe_T_zpow]; simp
 
--- pin: rr_mem (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:227)
 theorem rr_mem (hpN : Nat.Coprime p N) (i : Option (Fin p)) : rr hpN i ∈ Gamma1 N := by
   cases i with
   | none => exact gInf_mem hpN
   | some j => exact T_zpow_mem_Gamma1 N _
 
--- pin: upperRight_T_mul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:232)
-theorem upperRight_T_mul (t : ℤ) (γ : SL(2, ℤ)) :
-    ((ModularGroup.T ^ t * γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 0 1
-      = (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 + t * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 := by
-  rw [mul_apply_01, T_zpow_coe]
-  simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-    Matrix.cons_val_fin_one]
-  ring
-
--- pin: upperRight_gInf_mul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:240)
-theorem upperRight_gInf_mul (hpN : Nat.Coprime p N) (γ : SL(2, ℤ)) :
-    ((gInf hpN * γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 0 1
-      = (bez hpN).1 * p * (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1
-        + (bez hpN).2 * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 := by
-  rw [mul_apply_01, gInf_coe]
-  simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-    Matrix.cons_val_fin_one]
-
--- pin: exists_rr_mul_mem (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:248)
--- The `haveI : Fact p.Prime` below is load-bearing for `field_simp` (it supplies `p ≠ 0`).
-set_option linter.style.haveILetI false in
+/-- Every element of `Γ₁(N)` is one representative of `rr` away from `Λ` — the covering half of
+the coset decomposition of `Γ₁(N)` by `Lam`, whose index is `p + 1`. -/
 theorem exists_rr_mul_mem [NeZero p] (hpN : Nat.Coprime p N) (hp : p.Prime) (γ : SL(2, ℤ))
     (hγ : γ ∈ Gamma1 N) : ∃ i : Option (Fin p), rr hpN i * γ ∈ Lam N p := by
-  by_cases hd : (((γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod p) = 0
+  by_cases hd : (p : ℤ) ∣ (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1
   ·
-    refine ⟨none, mul_mem (gInf_mem hpN) hγ, ?_⟩
-    show (p : ℤ) ∣ ((gInf hpN * γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 0 1
-    rw [upperRight_gInf_mul]
-    obtain ⟨t, ht⟩ := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hd
-    rw [ht]
-    exact ⟨(bez hpN).1 * (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 + (bez hpN).2 * t, by ring⟩
+    have h01 : ((gInf hpN * γ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 0 1
+        = (bezPair hpN).u * p * (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1
+          + -(bezPair hpN).v * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 := by
+      rw [mul_apply_01, gInf_coe]
+      simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
+        Matrix.cons_val_fin_one]
+    have hvanish : gInf hpN * γ ∈ Gamma0Upper p := by
+      rw [mem_Gamma0Upper_iff_dvd, h01]
+      exact dvd_add (dvd_mul_of_dvd_left (dvd_mul_left (p : ℤ) _) _) (hd.mul_left _)
+    have hΓ₁ : gInf hpN * γ ∈ (Gamma1 N : Subgroup SL(2, ℤ)) := mul_mem (gInf_mem hpN) hγ
+    exact ⟨none, show gInf hpN * γ ∈ Lam N p from
+      Subgroup.mem_inf.mpr ⟨hΓ₁, hvanish⟩⟩
   ·
-    set j0 : ZMod p := -((((γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 : ℤ) : ZMod p)
-      * ((((γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod p))⁻¹) with hj0
-    refine ⟨some ⟨j0.val, ZMod.val_lt j0⟩, mul_mem (T_zpow_mem_Gamma1 N _) hγ, ?_⟩
-    show (p : ℤ) ∣ ((ModularGroup.T ^ (((j0.val : ℕ)) : ℤ) * γ : SL(2, ℤ)) :
-        Matrix (Fin 2) (Fin 2) ℤ) 0 1
-    rw [upperRight_T_mul, ← ZMod.intCast_zmod_eq_zero_iff_dvd]
-    push_cast
-    haveI : Fact p.Prime := ⟨hp⟩
-    rw [ZMod.natCast_zmod_val, hj0]
-    field_simp
-    ring
+    have hne : (((γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod p) ≠ 0 := fun h =>
+      hd ((ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp h)
+    have : Fact p.Prime := ⟨hp⟩
+    set j : ZMod p := -((((γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 : ℤ) : ZMod p)
+      * ((((γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod p))⁻¹) with hj
+    have hj' : j * (((γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod p)
+        = -(((γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 : ℤ) : ZMod p) := by
+      rw [hj, neg_mul, mul_assoc, inv_mul_cancel₀ hne, mul_one]
+    have h01 : ((ModularGroup.T ^ ((j.val : ℕ) : ℤ) * γ : SL(2, ℤ)) :
+          Matrix (Fin 2) (Fin 2) ℤ) 0 1
+        = (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1
+          + ((j.val : ℕ) : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 := by
+      rw [mul_apply_01, ModularGroup.coe_T_zpow]
+      simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
+        Matrix.cons_val_fin_one]
+      ring
+    have hvanish : ModularGroup.T ^ ((j.val : ℕ) : ℤ) * γ ∈ Gamma0Upper p := by
+      rw [mem_Gamma0Upper_iff_dvd, h01, ← ZMod.intCast_zmod_eq_zero_iff_dvd]
+      push_cast
+      rw [ZMod.natCast_zmod_val, hj']
+      ring
+    have hΓ₁ : ModularGroup.T ^ ((j.val : ℕ) : ℤ) * γ ∈ (Gamma1 N : Subgroup SL(2, ℤ)) :=
+      mul_mem (T_zpow_mem_Gamma1 N _) hγ
+    exact ⟨some ⟨j.val, ZMod.val_lt j⟩,
+      show ModularGroup.T ^ ((j.val : ℕ) : ℤ) * γ ∈ Lam N p from
+        Subgroup.mem_inf.mpr ⟨hΓ₁, hvanish⟩⟩
 
--- pin: rr_mul_rr_inv_mem (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:271)
+/-- `Λ` is upper triangular modulo `p`, so left multiplication by `g ∈ Λ` scales the upper row of
+a matrix by `g`'s upper-left entry. -/
+theorem upperRow_mul_of_mem_Lam {g : SL(2, ℤ)} (hg : g ∈ Lam N p) (γ : SL(2, ℤ)) :
+    (((g * γ) 0 0 : ZMod p), ((g * γ) 0 1 : ZMod p))
+      = (g 0 0 : ZMod p) • ((γ 0 0 : ZMod p), (γ 0 1 : ZMod p)) := by
+  have h01 : (g 0 1 : ZMod p) = 0 := mem_Gamma0Upper.mp hg.2
+  refine Prod.ext ?_ ?_
+  · rw [mul_apply_00, Prod.smul_fst, smul_eq_mul]; push_cast; rw [h01]; ring
+  · rw [mul_apply_01, Prod.smul_snd, smul_eq_mul]; push_cast; rw [h01]; ring
+
+/-- The representatives of `rr` are distinct modulo `Λ` — the other half of the decomposition
+`[Γ₁(N) : Lam] = p + 1`. An element of `Λ` scales the upper row, so `rr i = g * rr i'` forces the
+upper rows of `rr i` and `rr i'` to agree up to that scalar, which the representatives' rows
+`(u * p, -v)` and `(1, j)` never do. -/
 theorem rr_mul_rr_inv_mem (hpN : Nat.Coprime p N) (hp : p.Prime) (i i' : Option (Fin p))
     (h : rr hpN i * (rr hpN i')⁻¹ ∈ Lam N p) : i = i' := by
-  have hn := not_dvd_n hpN hp.one_lt.ne'
+  have : Fact p.Prime := ⟨hp⟩
+  set g := rr hpN i * (rr hpN i')⁻¹ with hg
+  set c : ZMod p := (g 0 0 : ZMod p) with hc
+  have hgmul : g * rr hpN i' = rr hpN i := by rw [hg, mul_assoc, inv_mul_cancel, mul_one]
+  have hrow : (((rr hpN i) 0 0 : ZMod p), ((rr hpN i) 0 1 : ZMod p))
+      = c • (((rr hpN i') 0 0 : ZMod p), ((rr hpN i') 0 1 : ZMod p)) := by
+    rw [← hgmul]
+    simpa [hc] using upperRow_mul_of_mem_Lam h (rr hpN i')
+  have hnone : (((rr hpN none) 0 0 : ZMod p), ((rr hpN none) 0 1 : ZMod p))
+      = (0, -((bezPair hpN).v : ZMod p)) := by
+    refine Prod.ext ?_ ?_ <;> simp [rr, gInf_coe]
+  have hsome : ∀ j : Fin p,
+      (((rr hpN (some j)) 0 0 : ZMod p), ((rr hpN (some j)) 0 1 : ZMod p))
+        = (1, ((j : ℕ) : ZMod p)) := by
+    intro j
+    have hj : ((rr hpN (some j) : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ)
+        = !![1, ((j : ℕ) : ℤ); 0, 1] := ModularGroup.coe_T_zpow ((j : ℕ) : ℤ)
+    refine Prod.ext ?_ ?_ <;> rw [hj] <;> simp
+  have hv : ((bezPair hpN).v : ZMod p) ≠ 0 := fun h0 =>
+    not_dvd_n hpN hp.one_lt.ne' ((ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp h0)
   cases i with
   | none =>
     cases i' with
     | none => rfl
     | some j' =>
       exfalso
-      have hb := h.2
-      simp only [rr] at hb
-      rw [← zpow_neg, mul_apply_01, gInf_coe, T_zpow_coe] at hb
-      simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.cons_val_fin_one, mul_one] at hb
-      apply hn
-      have : (p : ℤ) ∣ (bez hpN).1 * p * -((j' : ℕ) : ℤ) := ⟨(bez hpN).1 * -((j' : ℕ) : ℤ), by ring⟩
-      exact (Int.dvd_add_right this).mp hb
+      rw [hnone, hsome j'] at hrow
+      have hc0 : c = 0 := by simpa using (congrArg Prod.fst hrow).symm
+      exact hv (by simpa [hc0] using congrArg Prod.snd hrow)
   | some j =>
     cases i' with
     | none =>
       exfalso
-      have hb := h.2
-      simp only [rr] at hb
-      rw [mul_apply_01, T_zpow_coe] at hb
-      simp only [Matrix.SpecialLinearGroup.coe_inv, gInf_coe, Matrix.adjugate_fin_two,
-        Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.cons_val_fin_one, one_mul] at hb
-      apply hn
-      have : (p : ℤ) ∣ ((j : ℕ) : ℤ) * ((bez hpN).1 * p) := ⟨((j : ℕ) : ℤ) * (bez hpN).1, by ring⟩
-      have h2 := (Int.dvd_add_left this).mp hb
-      rwa [dvd_neg] at h2
+      rw [hsome j, hnone] at hrow
+      have h10 : (1 : ZMod p) = 0 := by simpa using congrArg Prod.fst hrow
+      exact one_ne_zero h10
     | some j' =>
-      have hb := h.2
-      simp only [rr] at hb
-      rw [← zpow_neg, ← zpow_add, T_zpow_coe] at hb
-      simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.cons_val_fin_one] at hb
+      rw [hsome j, hsome j'] at hrow
+      have hc1 : c = 1 := by simpa using (congrArg Prod.fst hrow).symm
       congr 1
-      apply Fin.ext
-      have hj := j.isLt
-      have hj' := j'.isLt
-      have habs : |((j : ℕ) : ℤ) + -((j' : ℕ) : ℤ)| < (p : ℤ) := by
-        rw [abs_lt]; constructor <;> omega
-      have := Int.eq_zero_of_abs_lt_dvd hb habs
-      omega
-
-section unfold
-
-variable {Γ Λ : Subgroup SL(2, ℤ)} (hΛΓ : Λ ≤ Γ)
-  {ι : Type*} (r : ι → SL(2, ℤ)) (hr : ∀ i, r i ∈ Γ)
-  (hex : ∀ γ ∈ Γ, ∃ i, r i * γ ∈ Λ) (huniq : ∀ i i', r i * (r i')⁻¹ ∈ Λ → i = i')
-
--- pin: eMap (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:323)
-def eMap (r : ι → SL(2, ℤ)) (x : (SL(2, ℤ) ⧸ Γ) × ι) : SL(2, ℤ) ⧸ Λ :=
-  QuotientGroup.mk (x.1.out * (r x.2)⁻¹)
-
-include hΛΓ hr hex huniq in
--- pin: eMap_bijective (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:327)
-theorem eMap_bijective : Function.Bijective (eMap (Γ := Γ) (Λ := Λ) r) := by
-  constructor
-  · rintro ⟨q, i⟩ ⟨q', i'⟩ h
-    have hmem : r i * q.out⁻¹ * q'.out * (r i')⁻¹ ∈ Λ := by
-      have := QuotientGroup.eq.mp h
-      simpa [mul_assoc, mul_inv_rev] using this
-    have hqq : q = q' := by
-      have hΓ : q.out⁻¹ * q'.out ∈ Γ := by
-        have h1 : (r i)⁻¹ * (r i * q.out⁻¹ * q'.out * (r i')⁻¹) * r i' ∈ Γ :=
-          mul_mem (mul_mem (inv_mem (hr i)) (hΛΓ hmem)) (hr i')
-        simpa [mul_assoc] using h1
-      rw [← QuotientGroup.out_eq' q, ← QuotientGroup.out_eq' q']
-      exact QuotientGroup.eq.mpr hΓ
-    subst hqq
-    have : r i * (r i')⁻¹ ∈ Λ := by simpa using hmem
-    rw [huniq i i' this]
-  · intro y
-    set σ := y.out
-    set q : SL(2, ℤ) ⧸ Γ := QuotientGroup.mk σ
-    have hγ : q.out⁻¹ * σ ∈ Γ := by
-      rw [← QuotientGroup.eq]
-      exact QuotientGroup.out_eq' q
-    obtain ⟨i, hi⟩ := hex _ hγ
-    refine ⟨(q, i), ?_⟩
-    rw [← QuotientGroup.out_eq' y]
-    show QuotientGroup.mk (q.out * (r i)⁻¹) = QuotientGroup.mk σ
-    rw [QuotientGroup.eq]
-    simpa [mul_assoc, mul_inv_rev] using hi
-
-variable [Fintype (SL(2, ℤ) ⧸ Γ)] [Fintype (SL(2, ℤ) ⧸ Λ)] [Fintype ι]
-
-include hΛΓ hr hex huniq in
-
--- pin: unfold_sum (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:360)
-theorem unfold_sum {X : Type*} [AddCommMonoid X] (Φ : ℍ → X)
-    (hΦ : ∀ h ∈ Λ, ∀ x : ℍ, Φ (h • x) = Φ x) (τ : ℍ) :
-    ∑ q' : SL(2, ℤ) ⧸ Λ, Φ ((q'.out⁻¹ : SL(2, ℤ)) • τ)
-      = ∑ q : SL(2, ℤ) ⧸ Γ, ∑ i, Φ ((r i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-  rw [← Fintype.sum_prod_type']
-  symm
-  refine Fintype.sum_bijective (eMap (Γ := Γ) (Λ := Λ) r)
-    (eMap_bijective hΛΓ r hr hex huniq) _ _ fun x => ?_
-  obtain ⟨h, hh⟩ := QuotientGroup.mk_out_eq_mul Λ (x.1.out * (r x.2)⁻¹)
-  show Φ ((r x.2 * x.1.out⁻¹ : SL(2, ℤ)) • τ) = Φ (((eMap r x).out⁻¹ : SL(2, ℤ)) • τ)
-  rw [eMap, hh, mul_inv_rev, mul_inv_rev, inv_inv, mul_smul ((h : SL(2, ℤ))⁻¹) (r x.2 * x.1.out⁻¹) τ,
-    hΦ _ (inv_mem h.2)]
-
-end unfold
+      exact Fin.ext (Nat.ModEq.eq_of_lt_of_lt
+        ((ZMod.natCast_eq_natCast_iff (j : ℕ) (j' : ℕ) p).mp
+          (by simpa [hc1] using congrArg Prod.snd hrow)) j.isLt j'.isLt)
 
 end Lam
 
@@ -462,19 +340,16 @@ variable {N p : ℕ} {k : ℤ}
 
 local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
 
--- pin: α (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:383)
 abbrev α (p : ℕ) : GL (Fin 2) ℝ := heckeMatrix p 0
 
--- pin: heckeMatrix_eq (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:385)
 theorem heckeMatrix_eq (hp : p ≠ 0) (j : ℕ) :
     heckeMatrix p j
       = α p * (Matrix.SpecialLinearGroup.mapGL ℝ (ModularGroup.T ^ (j : ℤ)) : GL (Fin 2) ℝ) := by
   apply Units.ext
-  rw [Units.val_mul, val_heckeMatrix hp, val_heckeMatrix hp, mapGL_coe_eq, T_zpow_coe]
+  rw [Units.val_mul, val_heckeMatrix hp, val_heckeMatrix hp, mapGL_coe_eq, ModularGroup.coe_T_zpow]
   ext i k; fin_cases i <;> fin_cases k <;>
     simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.map_apply]
 
--- pin: α_mul_gInf (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:393)
 theorem α_mul_gInf (hp : p ≠ 0) (hpN : Nat.Coprime p N) :
     α p * (Matrix.SpecialLinearGroup.mapGL ℝ (gInf hpN) : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ (sigP hpN) : GL (Fin 2) ℝ) * heckeDiagMatrix p := by
@@ -484,11 +359,9 @@ theorem α_mul_gInf (hp : p ≠ 0) (hpN : Nat.Coprime p N) :
   ext i k; fin_cases i <;> fin_cases k <;>
     (simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.map_apply]; try ring)
 
--- pin: Sc (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:402)
 def Sc (p : ℕ) (hp : p ≠ 0) : GL (Fin 2) ℝ :=
   upperTriangularGL p 0 p (by exact_mod_cast (mul_ne_zero hp hp))
 
--- pin: slash_Sc (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:405)
 theorem slash_Sc (k : ℤ) (hp : p ≠ 0) (f : ℍ → ℂ) :
     f ∣[k] Sc p hp = ((p : ℂ) ^ (k - 2)) • f := by
   have hqC : (p : ℂ) ≠ 0 := by exact_mod_cast hp
@@ -511,25 +384,15 @@ theorem slash_Sc (k : ℤ) (hp : p ≠ 0) (f : ℍ → ℂ) :
   rw [show ((p : ℂ) * p) = (p : ℂ) ^ (2 : ℤ) by rw [zpow_two], ← zpow_mul, mul_assoc,
     ← zpow_add₀ hqC, show (2 : ℤ) * (k - 1) + -k = k - 2 by ring, mul_comm]
 
--- pin: heckeDiagMatrix_mul_α (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:427)
 theorem heckeDiagMatrix_mul_α (hp : p ≠ 0) : heckeDiagMatrix p * α p = Sc p hp := by
   apply Units.ext
   rw [Units.val_mul, val_heckeMatrix hp, val_heckeDiagMatrix hp]
   show _ = ((upperTriangularGL (p : ℝ) 0 p _ : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ)
   rw [val_upperTriangularGL]
   ext i k; fin_cases i <;> fin_cases k <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
-
--- pin: σ_mapGL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:434)
-theorem σ_mapGL (γ : SL(2, ℤ)) (c : ℂ) :
-    UpperHalfPlane.σ (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) c = c := by
-  rw [UpperHalfPlane.σ, ite_eq_left (by simp)]
-  rfl
-
--- pin: heckeFun (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:439)
 def heckeFun (k : ℤ) (ε : DirichletCharacter ℂ N) (p : ℕ) (F : ℍ → ℂ) : ℍ → ℂ :=
   heckeU k p F + ε (p : ZMod N) • (F ∣[k] heckeDiagMatrix p)
 
--- pin: heckeFun_eq_sum (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:442)
 theorem heckeFun_eq_sum (hp : p ≠ 0) (hpN : Nat.Coprime p N) (ε : DirichletCharacter ℂ N)
     (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) :
     heckeFun k ε p ⇑f
@@ -538,38 +401,33 @@ theorem heckeFun_eq_sum (hp : p ≠ 0) (hpN : Nat.Coprime p N) (ε : DirichletCh
   rw [Fintype.sum_option, heckeFun, add_comm]
   congr 1
   ·
-    rw [rr, α_mul_gInf hp hpN, SlashAction.slash_mul, slash_eq_of_hasNebentypus ε f hf _ (sigP_mem hpN),
+    rw [rr, α_mul_gInf hp hpN, SlashAction.slash_mul, (hasNebentypus_iff ε f).mp hf _ (sigP_mem hpN),
       dd_sigP, ModularForm.smul_slash, σ_heckeDiagMatrix]
     rfl
   · rw [heckeU_def, Finset.sum_range]
     refine Finset.sum_congr rfl fun j _ => ?_
     rw [rr, heckeMatrix_eq hp]
 
--- pin: petersson_smul_left' (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:457)
 theorem petersson_smul_left' (k : ℤ) (f g : ℍ → ℂ) (c : ℂ) (τ : ℍ) :
     UpperHalfPlane.petersson k (c • f) g τ = conj c * UpperHalfPlane.petersson k f g τ := by
   simp only [UpperHalfPlane.petersson, Pi.smul_apply, smul_eq_mul, map_mul]; ring
 
--- pin: petersson_sum_left (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:461)
 theorem petersson_sum_left {ι : Type*} (s : Finset ι) (k : ℤ) (f : ι → ℍ → ℂ) (g : ℍ → ℂ)
     (τ : ℍ) : UpperHalfPlane.petersson k (∑ i ∈ s, f i) g τ
       = ∑ i ∈ s, UpperHalfPlane.petersson k (f i) g τ := by
   simp only [UpperHalfPlane.petersson, Finset.sum_apply, map_sum, Finset.sum_mul]
 
--- pin: petersson_sum_right (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:466)
 theorem petersson_sum_right {ι : Type*} (s : Finset ι) (k : ℤ) (f : ℍ → ℂ) (g : ι → ℍ → ℂ)
     (τ : ℍ) : UpperHalfPlane.petersson k f (∑ i ∈ s, g i) τ
       = ∑ i ∈ s, UpperHalfPlane.petersson k f (g i) τ := by
   simp only [UpperHalfPlane.petersson, Finset.sum_apply, Finset.mul_sum, Finset.sum_mul]
 
--- pin: petersson_smul_SL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:471)
 theorem petersson_smul_SL (k : ℤ) (F G : ℍ → ℂ) (γ : SL(2, ℤ)) (τ : ℍ) :
     UpperHalfPlane.petersson k (F ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ))
         (G ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ)) τ
       = UpperHalfPlane.petersson k F G (γ • τ) :=
   UpperHalfPlane.petersson_slash_SL k F G γ τ
 
--- pin: petersson_transport (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:477)
 theorem petersson_transport (hp : p ≠ 0) (f g : ℍ → ℂ) (y : ℍ) :
     UpperHalfPlane.petersson k f (g ∣[k] α p) y
       = UpperHalfPlane.petersson k (f ∣[k] heckeDiagMatrix p) g (α p • y) := by
@@ -587,25 +445,20 @@ theorem petersson_transport (hp : p ≠ 0) (f g : ℍ → ℂ) (y : ℍ) :
   rw [hconj] at h1
   exact mul_left_cancel₀ (zpow_ne_zero _ hpC) h1
 
--- pin: Φ (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:494)
 def Φ (k : ℤ) (p : ℕ) (f g : ℍ → ℂ) : ℍ → ℂ := UpperHalfPlane.petersson k (f ∣[k] α p) g
 
--- pin: Ψ (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:496)
 def Ψ (k : ℤ) (p : ℕ) (f g : ℍ → ℂ) : ℍ → ℂ := UpperHalfPlane.petersson k f (g ∣[k] α p)
 
--- pin: norm_char_p (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:498)
 theorem norm_char_p (ε : DirichletCharacter ℂ N) (hp : p.Prime) (hpN : ¬ p ∣ N) :
     ‖ε (p : ZMod N)‖ = 1 := by
   have hu : IsUnit ((p : ℕ) : ZMod N) := (ZMod.isUnit_prime_iff_not_dvd hp).mpr hpN
   have := DirichletCharacter.unit_norm_eq_one ε hu.unit
   rwa [IsUnit.unit_spec] at this
 
--- pin: char_p_ne_zero (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:504)
 theorem char_p_ne_zero (ε : DirichletCharacter ℂ N) (hp : p.Prime) (hpN : ¬ p ∣ N) :
     ε (p : ZMod N) ≠ 0 := by
   intro h; have := norm_char_p ε hp hpN; rw [h, norm_zero] at this; exact zero_ne_one this
 
--- pin: slash_heckeDiagMatrix_eq (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:508)
 theorem slash_heckeDiagMatrix_eq (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) :
     (⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix p
@@ -614,12 +467,11 @@ theorem slash_heckeDiagMatrix_eq (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : Dirichl
             GL (Fin 2) ℝ)) := by
   set hpN' := (Nat.Prime.coprime_iff_not_dvd hp).mpr hpN
   rw [← SlashAction.slash_mul, α_mul_gInf hp.ne_zero hpN', SlashAction.slash_mul,
-    slash_eq_of_hasNebentypus ε f hf _ (sigP_mem hpN'), dd_sigP, ModularForm.smul_slash,
+    (hasNebentypus_iff ε f).mp hf _ (sigP_mem hpN'), dd_sigP, ModularForm.smul_slash,
     σ_heckeDiagMatrix]
   change _ = (ε (p : ZMod N))⁻¹ • (ε (p : ZMod N) • ((⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix p))
   rw [smul_smul, inv_mul_cancel₀ (char_p_ne_zero ε hp hpN), one_smul]
 
--- pin: Ψ_eq (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:521)
 theorem Ψ_eq (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f g : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) (y : ℍ) :
     Ψ k p ⇑f ⇑g y = ε (p : ZMod N) *
@@ -640,210 +492,14 @@ end Hecke
 -- imported and opened above. The 18 declarations were statement-identical and are no
 -- longer duplicated here (2026-10-18).
 
-section glue
-
-variable {k : ℤ}
-
--- pin: Adm (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:736)
-structure Adm (Λ : Subgroup SL(2, ℤ)) (k : ℤ) (H : ℍ → ℂ) : Prop where
-  cont : Continuous H
-  inv : ∀ h ∈ Λ, H ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ h : GL (Fin 2) ℝ) = H
-  bdd : ∃ C, ∀ x : ℍ, ‖H x‖ ^ 2 * x.im ^ k ≤ C
-
-variable {Λ₀ : Subgroup SL(2, ℤ)}
-
--- pin: Adm.add (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:743)
-theorem Adm.add {F G : ℍ → ℂ} (hF : Adm Λ₀ k F) (hG : Adm Λ₀ k G) : Adm Λ₀ k (F + G) := by
-  refine ⟨hF.cont.add hG.cont, fun h hh => by rw [SlashAction.add_slash, hF.inv h hh, hG.inv h hh], ?_⟩
-  obtain ⟨C, hC⟩ := hF.bdd
-  obtain ⟨D, hD⟩ := hG.bdd
-  refine ⟨2 * C + 2 * D, fun x => ?_⟩
-  have hk : 0 ≤ x.im ^ k := zpow_nonneg x.im_pos.le _
-  have h1 : ‖(F + G) x‖ ^ 2 ≤ 2 * ‖F x‖ ^ 2 + 2 * ‖G x‖ ^ 2 := by
-    have h := norm_add_le (F x) (G x)
-    rw [Pi.add_apply]
-    have h2 : ‖F x + G x‖ ^ 2 ≤ (‖F x‖ + ‖G x‖) ^ 2 :=
-      pow_le_pow_left₀ (norm_nonneg _) h 2
-    nlinarith [sq_nonneg (‖F x‖ - ‖G x‖)]
-  calc ‖(F + G) x‖ ^ 2 * x.im ^ k ≤ (2 * ‖F x‖ ^ 2 + 2 * ‖G x‖ ^ 2) * x.im ^ k :=
-        mul_le_mul_of_nonneg_right h1 hk
-    _ = 2 * (‖F x‖ ^ 2 * x.im ^ k) + 2 * (‖G x‖ ^ 2 * x.im ^ k) := by ring
-    _ ≤ 2 * C + 2 * D := by linarith [hC x, hD x]
-
--- pin: Adm.smul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:760)
-theorem Adm.smul {F : ℍ → ℂ} (hF : Adm Λ₀ k F) (c : ℂ) : Adm Λ₀ k (c • F) := by
-  refine ⟨hF.cont.const_smul c, fun h hh => by
-    rw [← sl_slash, ModularForm.SL_smul_slash, sl_slash, hF.inv h hh], ?_⟩
-  obtain ⟨C, hC⟩ := hF.bdd
-  refine ⟨‖c‖ ^ 2 * C, fun x => ?_⟩
-  rw [Pi.smul_apply, smul_eq_mul, norm_mul, mul_pow, mul_assoc]
-  exact mul_le_mul_of_nonneg_left (hC x) (sq_nonneg _)
-
--- pin: Adm.neg (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:768)
-theorem Adm.neg {F : ℍ → ℂ} (hF : Adm Λ₀ k F) : Adm Λ₀ k (-F) := by
-  have := hF.smul (-1); rwa [neg_one_smul] at this
-
--- pin: Adm.sub (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:771)
-theorem Adm.sub {F G : ℍ → ℂ} (hF : Adm Λ₀ k F) (hG : Adm Λ₀ k G) : Adm Λ₀ k (F - G) := by
-  rw [sub_eq_add_neg]; exact hF.add hG.neg
-
--- pin: dens (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:774)
-def dens (H : ℍ → ℂ) (x : ℍ) : ℝ := ‖H x‖ ^ 2 * x.im ^ k
-
--- pin: dens_nonneg (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:776)
-theorem dens_nonneg (H : ℍ → ℂ) (x : ℍ) : 0 ≤ dens (k := k) H x :=
-  mul_nonneg (sq_nonneg _) (zpow_nonneg x.im_pos.le _)
-
--- pin: petersson_self_eq_dens (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:779)
-theorem petersson_self_eq_dens (H : ℍ → ℂ) (x : ℍ) :
-    UpperHalfPlane.petersson k H H x = ((dens (k := k) H x : ℝ) : ℂ) := by
-  unfold UpperHalfPlane.petersson dens
-  rw [Complex.conj_mul' (H x)]
-  push_cast
-  ring
-
--- pin: continuous_dens (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:786)
-theorem continuous_dens {H : ℍ → ℂ} (hH : Continuous H) : Continuous (dens (k := k) H) := by
-  unfold dens
-  refine ((continuous_norm.comp hH).pow 2).mul ?_
-  exact (UpperHalfPlane.continuous_im.zpow₀ k fun x => Or.inl (x.im_pos.ne'))
-
--- pin: dens_smul_of_inv (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:791)
-theorem dens_smul_of_inv {H : ℍ → ℂ} {h : SL(2, ℤ)}
-    (hh : H ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ h : GL (Fin 2) ℝ) = H) (x : ℍ) :
-    dens (k := k) H (h • x) = dens (k := k) H x := by
-  have := petersson_smul_SL k H H h x
-  rw [hh, petersson_self_eq_dens, petersson_self_eq_dens] at this
-  exact_mod_cast this.symm
-
-variable (Λ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ)]
-
-variable (Λ₂ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ₂)]
-
--- pin: integral_cosum_self (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:805)
-theorem integral_cosum_self (β : GL (Fin 2) ℝ) (c : Λ ≃ Λ₂)
-    (hc : ∀ h : Λ,
-      β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
-        = (Matrix.SpecialLinearGroup.mapGL ℝ ((c h : Λ₂) : SL(2, ℤ)) : GL (Fin 2) ℝ) * β)
-    {H : ℍ → ℂ} (hH : Adm Λ₂ k H) :
-    ∫ x in (𝒟 : Set ℍ), cosum Λ β (UpperHalfPlane.petersson k H H) x
-      = ∫ x in (𝒟 : Set ℍ), cosum Λ₂ 1 (UpperHalfPlane.petersson k H H) x := by
-  have hre : ∀ (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')] (g : GL (Fin 2) ℝ),
-      (cosum Λ' g (UpperHalfPlane.petersson k H H))
-      = fun x => ((∑ q : SL(2, ℤ) ⧸ Λ', dens (k := k) H (g • (q.out⁻¹ : SL(2, ℤ)) • x) : ℝ) : ℂ) := by
-    intro Λ' _ g; funext x
-    simp only [cosum, petersson_self_eq_dens, Complex.ofReal_sum]
-  have hmeas : ∀ (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')] (g : GL (Fin 2) ℝ),
-      Measurable fun x : ℍ => ∑ q : SL(2, ℤ) ⧸ Λ', dens (k := k) H (g • (q.out⁻¹ : SL(2, ℤ)) • x) := by
-    intro Λ' _ g
-    refine Finset.measurable_sum _ fun q _ => ?_
-    exact (continuous_dens hH.cont).measurable.comp ((measurable_smul_GL g).comp (measurable_smul_SL _))
-  have hnn : ∀ (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')] (g : GL (Fin 2) ℝ) (x : ℍ),
-      0 ≤ ∑ q : SL(2, ℤ) ⧸ Λ', dens (k := k) H (g • (q.out⁻¹ : SL(2, ℤ)) • x) :=
-    fun Λ' _ g x => Finset.sum_nonneg fun q _ => dens_nonneg H _
-  have hred : ∀ (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')] (g : GL (Fin 2) ℝ),
-      ∫ x in (𝒟 : Set ℍ), cosum Λ' g (UpperHalfPlane.petersson k H H) x
-        = ((∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ',
-            ENNReal.ofReal (dens (k := k) H (g • (q.out⁻¹ : SL(2, ℤ)) • x))).toReal : ℂ) := by
-    intro Λ' _ g
-    rw [hre Λ' g, integral_complex_ofReal, integral_eq_lintegral_of_nonneg_ae
-      (Filter.Eventually.of_forall (hnn Λ' g)) (hmeas Λ' g).aestronglyMeasurable]
-    congr 2
-    refine lintegral_congr fun x => ?_
-    rw [ENNReal.ofReal_sum_of_nonneg fun q _ => dens_nonneg H _]
-  rw [hred Λ β, hred Λ₂ 1]
-  congr 2
-  have hU : Measurable fun x => ENNReal.ofReal (dens (k := k) H x) :=
-    ENNReal.measurable_ofReal.comp (continuous_dens hH.cont).measurable
-  have := cvn_lintegral Λ Λ₂ β c hc
-    (fun x => ENNReal.ofReal (dens (k := k) H x)) hU
-    (fun h hh x => by simp only [dens_smul_of_inv (hH.inv h hh)])
-  simpa only [one_smul] using this
-
--- `petersson_polarization` is the definition layer's (moved with the coset block above).
-
-omit [Fintype (SL(2, ℤ) ⧸ Λ)] in
-
--- pin: integrable_cosum_self (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:857)
-theorem integrable_cosum_self (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')]
-    (g : GL (Fin 2) ℝ) {H : ℍ → ℂ} (hH : Adm Λ₀ k H) :
-    Integrable (cosum Λ' g (UpperHalfPlane.petersson k H H)) (volume.restrict (𝒟 : Set ℍ)) := by
-  obtain ⟨C, hC⟩ := hH.bdd
-  have hmeas : Measurable (cosum Λ' g (UpperHalfPlane.petersson k H H)) := by
-    refine Finset.measurable_sum _ fun q _ => ?_
-    exact (UpperHalfPlane.petersson_continuous k hH.cont hH.cont).measurable.comp
-      ((measurable_smul_GL g).comp (measurable_smul_SL _))
-  refine Measure.integrableOn_of_bounded (M := ∑ _q : SL(2, ℤ) ⧸ Λ', C)
-    FLT.FundamentalDomainVolume.volume_fd_lt_top.ne hmeas.aestronglyMeasurable ?_
-  refine Filter.Eventually.of_forall fun x => ?_
-  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun q _ => ?_)
-  rw [petersson_self_eq_dens, Complex.norm_real, Real.norm_of_nonneg (dens_nonneg H _)]
-  exact hC _
-
-omit [Fintype (SL(2, ℤ) ⧸ Λ)] in
-
--- pin: integral_cosum_polar (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:874)
-theorem integral_cosum_polar (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')]
-    (g : GL (Fin 2) ℝ) {F G : ℍ → ℂ} (hF : Adm Λ₀ k F) (hG : Adm Λ₀ k G) :
-    ∫ x in (𝒟 : Set ℍ), cosum Λ' g (UpperHalfPlane.petersson k F G) x
-      = (4 : ℂ)⁻¹ * ((∫ x in (𝒟 : Set ℍ), cosum Λ' g (UpperHalfPlane.petersson k (G + F) (G + F)) x)
-        + Complex.I * (∫ x in (𝒟 : Set ℍ), cosum Λ' g
-            (UpperHalfPlane.petersson k (G + Complex.I • F) (G + Complex.I • F)) x)
-        - (∫ x in (𝒟 : Set ℍ), cosum Λ' g (UpperHalfPlane.petersson k (G - F) (G - F)) x)
-        - Complex.I * (∫ x in (𝒟 : Set ℍ), cosum Λ' g
-            (UpperHalfPlane.petersson k (G - Complex.I • F) (G - Complex.I • F)) x)) := by
-  set H0 : ℍ → ℂ := G + F
-  set H1 : ℍ → ℂ := G + Complex.I • F
-  set H2 : ℍ → ℂ := G - F
-  set H3 : ℍ → ℂ := G - Complex.I • F
-  have hexp : cosum Λ' g (UpperHalfPlane.petersson k F G)
-      = fun x => (4 : ℂ)⁻¹ * (cosum Λ' g (UpperHalfPlane.petersson k H0 H0) x
-          + Complex.I * cosum Λ' g (UpperHalfPlane.petersson k H1 H1) x
-          - cosum Λ' g (UpperHalfPlane.petersson k H2 H2) x
-          - Complex.I * cosum Λ' g (UpperHalfPlane.petersson k H3 H3) x) := by
-    funext x
-    simp only [cosum, Finset.mul_sum, ← Finset.sum_add_distrib, ← Finset.sum_sub_distrib]
-    exact Finset.sum_congr rfl fun q _ => by rw [petersson_polarization]
-  have iA := integrable_cosum_self Λ' g (hG.add hF)
-  have iB := (integrable_cosum_self Λ' g (hG.add (hF.smul Complex.I))).const_mul Complex.I
-  have iC := integrable_cosum_self Λ' g (hG.sub hF)
-  have iD := (integrable_cosum_self Λ' g (hG.sub (hF.smul Complex.I))).const_mul Complex.I
-  have iAB : Integrable (fun x => cosum Λ' g (UpperHalfPlane.petersson k H0 H0) x
-      + Complex.I * cosum Λ' g (UpperHalfPlane.petersson k H1 H1) x)
-      (volume.restrict (𝒟 : Set ℍ)) := iA.add iB
-  have iABC : Integrable (fun x => cosum Λ' g (UpperHalfPlane.petersson k H0 H0) x
-      + Complex.I * cosum Λ' g (UpperHalfPlane.petersson k H1 H1) x
-      - cosum Λ' g (UpperHalfPlane.petersson k H2 H2) x)
-      (volume.restrict (𝒟 : Set ℍ)) := iAB.sub iC
-  rw [hexp, integral_const_mul]
-  congr 1
-  rw [integral_sub iABC iD, integral_sub iAB iC, integral_add iA iB, integral_const_mul,
-    integral_const_mul]
-
--- pin: integral_cosum_pair (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:911)
-theorem integral_cosum_pair (β : GL (Fin 2) ℝ) (c : Λ ≃ Λ₂)
-    (hc : ∀ h : Λ,
-      β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
-        = (Matrix.SpecialLinearGroup.mapGL ℝ ((c h : Λ₂) : SL(2, ℤ)) : GL (Fin 2) ℝ) * β)
-    {F G : ℍ → ℂ} (hF : Adm Λ₂ k F) (hG : Adm Λ₂ k G) :
-    ∫ x in (𝒟 : Set ℍ), cosum Λ β (UpperHalfPlane.petersson k F G) x
-      = ∫ x in (𝒟 : Set ℍ), cosum Λ₂ 1 (UpperHalfPlane.petersson k F G) x := by
-  rw [integral_cosum_polar Λ β hF hG, integral_cosum_polar Λ₂ 1 hF hG,
-    integral_cosum_self Λ Λ₂ β c hc (hG.add hF), integral_cosum_self Λ Λ₂ β c hc (hG.add (hF.smul _)),
-    integral_cosum_self Λ Λ₂ β c hc (hG.sub hF), integral_cosum_self Λ Λ₂ β c hc (hG.sub (hF.smul _))]
-
-end glue
-
 section Conj
 
 variable {N p : ℕ}
 
--- pin: conjMat (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:928)
 def conjMat (p : ℕ) (h : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ :=
   !![(h : Matrix (Fin 2) (Fin 2) ℤ) 0 0, (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1 / p;
     (p : ℤ) * (h : Matrix (Fin 2) (Fin 2) ℤ) 1 0, (h : Matrix (Fin 2) (Fin 2) ℤ) 1 1]
 
--- pin: det_conjMat (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:932)
 theorem det_conjMat (hp : p ≠ 0) {h : SL(2, ℤ)} (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1) :
     (conjMat p h).det = 1 := by
   obtain ⟨t, ht⟩ := hh
@@ -851,24 +507,20 @@ theorem det_conjMat (hp : p ≠ 0) {h : SL(2, ℤ)} (hh : (p : ℤ) ∣ (h : Mat
   rw [conjMat, Matrix.det_fin_two_of, ht, Int.mul_ediv_cancel_left _ hq]
   linear_combination det_entries h + (h : Matrix (Fin 2) (Fin 2) ℤ) 1 0 * ht
 
--- pin: conjSL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:939)
 def conjSL (hp : p ≠ 0) (h : SL(2, ℤ)) (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1) : SL(2, ℤ) :=
   ⟨conjMat p h, det_conjMat hp hh⟩
 
--- pin: conjSL_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:942)
 theorem conjSL_coe (hp : p ≠ 0) (h : SL(2, ℤ)) (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1) :
     ((conjSL hp h hh : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) = conjMat p h := rfl
 
--- pin: conjSL_mem_Gamma1 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:945)
 theorem conjSL_mem_Gamma1 (hp : p ≠ 0) {h : SL(2, ℤ)} (hh : h ∈ Lam N p) :
-    conjSL hp h hh.2 ∈ Gamma1 N := by
+    conjSL hp h (dvd_01_of_mem_Lam hh) ∈ Gamma1 N := by
   have h1 := (mem_Gamma1_iff N h).mp hh.1
   rw [mem_Gamma1_iff, conjSL_coe]
   simp only [conjMat, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
     Matrix.cons_val_fin_one]
   exact ⟨h1.1, h1.2.1, dvd_mul_of_dvd_right h1.2.2 _⟩
 
--- pin: conjSL_lowerLeft (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:953)
 theorem conjSL_lowerLeft (hp : p ≠ 0) {h : SL(2, ℤ)} (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1) :
     (p : ℤ) ∣ ((conjSL hp h hh : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 1 0 := by
   rw [conjSL_coe]
@@ -876,7 +528,6 @@ theorem conjSL_lowerLeft (hp : p ≠ 0) {h : SL(2, ℤ)} (hh : (p : ℤ) ∣ (h 
     Matrix.cons_val_fin_one]
   exact dvd_mul_right _ _
 
--- pin: α_mul_conj (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:960)
 theorem α_mul_conj (hp : p ≠ 0) (h : SL(2, ℤ)) (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1) :
     α p * (Matrix.SpecialLinearGroup.mapGL ℝ h : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ (conjSL hp h hh) : GL (Fin 2) ℝ) * α p := by
@@ -889,12 +540,10 @@ theorem α_mul_conj (hp : p ≠ 0) (h : SL(2, ℤ)) (hh : (p : ℤ) ∣ (h : Mat
     (simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.map_apply, conjMat, ht,
       Int.mul_ediv_cancel_left _ hq']; try ring)
 
--- pin: unconjMat (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:972)
 def unconjMat (p : ℕ) (h : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ :=
   !![(h : Matrix (Fin 2) (Fin 2) ℤ) 0 0, (p : ℤ) * (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1;
     (h : Matrix (Fin 2) (Fin 2) ℤ) 1 0 / p, (h : Matrix (Fin 2) (Fin 2) ℤ) 1 1]
 
--- pin: det_unconjMat (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:976)
 theorem det_unconjMat (hp : p ≠ 0) {h : SL(2, ℤ)} (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 1 0) :
     (unconjMat p h).det = 1 := by
   obtain ⟨t, ht⟩ := hh
@@ -902,23 +551,20 @@ theorem det_unconjMat (hp : p ≠ 0) {h : SL(2, ℤ)} (hh : (p : ℤ) ∣ (h : M
   rw [unconjMat, Matrix.det_fin_two_of, ht, Int.mul_ediv_cancel_left _ hq']
   linear_combination det_entries h + (h : Matrix (Fin 2) (Fin 2) ℤ) 0 1 * ht
 
--- pin: unconjSL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:983)
 def unconjSL (hp : p ≠ 0) (h : SL(2, ℤ)) (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 1 0) : SL(2, ℤ) :=
   ⟨unconjMat p h, det_unconjMat hp hh⟩
 
--- pin: unconjSL_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:986)
 theorem unconjSL_coe (hp : p ≠ 0) (h : SL(2, ℤ)) (hh : (p : ℤ) ∣ (h : Matrix (Fin 2) (Fin 2) ℤ) 1 0) :
     ((unconjSL hp h hh : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) = unconjMat p h := rfl
 
--- pin: gInf_inv_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:989)
 theorem gInf_inv_coe (hpN : Nat.Coprime p N) :
-    ((gInf hpN)⁻¹ : SL(2, ℤ)) = (⟨!![1, -(bez hpN).2; -(N : ℤ), (bez hpN).1 * p], by
-      rw [Matrix.det_fin_two_of]; linear_combination bez_spec hpN⟩ : SL(2, ℤ)) := by
+    ((gInf hpN)⁻¹ : SL(2, ℤ))
+      = (⟨!![1, (bezPair hpN).v; -(N : ℤ), (bezPair hpN).u * p], by
+        rw [Matrix.det_fin_two_of]; linear_combination (bezPair hpN).huv⟩ : SL(2, ℤ)) := by
   apply Subtype.ext
   rw [Matrix.SpecialLinearGroup.coe_inv, gInf_coe]
   simp [Matrix.adjugate_fin_two]
 
--- pin: dvd_sandwich_01 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:996)
 theorem dvd_sandwich_01 (hpN : Nat.Coprime p N) (X : SL(2, ℤ))
     (hX : (p : ℤ) ∣ (X : Matrix (Fin 2) (Fin 2) ℤ) 1 0) :
     (p : ℤ) ∣ ((gInf hpN * X * (gInf hpN)⁻¹ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 0 1 := by
@@ -926,12 +572,11 @@ theorem dvd_sandwich_01 (hpN : Nat.Coprime p N) (X : SL(2, ℤ))
   rw [mul_apply_01, mul_apply_00, mul_apply_01, gInf_inv_coe, gInf_coe]
   simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
     Matrix.cons_val_fin_one, hc]
-  exact ⟨-((bez hpN).2 * (bez hpN).1 * (X : Matrix (Fin 2) (Fin 2) ℤ) 0 0)
-      - (bez hpN).2 * (bez hpN).2 * c
-      + (bez hpN).1 * (bez hpN).1 * p * (X : Matrix (Fin 2) (Fin 2) ℤ) 0 1
-      + (bez hpN).2 * (bez hpN).1 * (X : Matrix (Fin 2) (Fin 2) ℤ) 1 1, by ring⟩
+  exact ⟨-(-(bezPair hpN).v * (bezPair hpN).u * (X : Matrix (Fin 2) (Fin 2) ℤ) 0 0)
+      - -(bezPair hpN).v * -(bezPair hpN).v * c
+      + (bezPair hpN).u * (bezPair hpN).u * p * (X : Matrix (Fin 2) (Fin 2) ℤ) 0 1
+      + -(bezPair hpN).v * (bezPair hpN).u * (X : Matrix (Fin 2) (Fin 2) ℤ) 1 1, by ring⟩
 
--- pin: dvd_sandwich_10 (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1008)
 theorem dvd_sandwich_10 (hpN : Nat.Coprime p N) (Y : SL(2, ℤ))
     (hY : (p : ℤ) ∣ (Y : Matrix (Fin 2) (Fin 2) ℤ) 0 1) :
     (p : ℤ) ∣ (((gInf hpN)⁻¹ * Y * gInf hpN : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) 1 0 := by
@@ -939,34 +584,34 @@ theorem dvd_sandwich_10 (hpN : Nat.Coprime p N) (Y : SL(2, ℤ))
   rw [mul_apply_10, mul_apply_10, mul_apply_11, gInf_inv_coe, gInf_coe]
   simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
     Matrix.cons_val_fin_one, hb]
-  exact ⟨-((N : ℤ) * (bez hpN).1 * (Y : Matrix (Fin 2) (Fin 2) ℤ) 0 0)
-      + (bez hpN).1 * (bez hpN).1 * p * (Y : Matrix (Fin 2) (Fin 2) ℤ) 1 0
+  exact ⟨-((N : ℤ) * (bezPair hpN).u * (Y : Matrix (Fin 2) (Fin 2) ℤ) 0 0)
+      + (bezPair hpN).u * (bezPair hpN).u * p * (Y : Matrix (Fin 2) (Fin 2) ℤ) 1 0
       - (N : ℤ) * N * b
-      + (bez hpN).1 * N * (Y : Matrix (Fin 2) (Fin 2) ℤ) 1 1, by ring⟩
+      + (bezPair hpN).u * N * (Y : Matrix (Fin 2) (Fin 2) ℤ) 1 1, by ring⟩
 
--- pin: cfwd (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1020)
 def cfwd (hp : p ≠ 0) (hpN : Nat.Coprime p N) (h : Lam N p) : Lam N p :=
-  ⟨gInf hpN * conjSL hp (h : SL(2, ℤ)) h.2.2 * (gInf hpN)⁻¹,
-    ⟨mul_mem (mul_mem (gInf_mem hpN) (conjSL_mem_Gamma1 hp h.2)) (inv_mem (gInf_mem hpN)),
-      dvd_sandwich_01 hpN _ (conjSL_lowerLeft hp h.2.2)⟩⟩
+  ⟨gInf hpN * conjSL hp (h : SL(2, ℤ)) (dvd_01_of_mem_Lam h.2) * (gInf hpN)⁻¹,
+    Subgroup.mem_inf.mpr
+      ⟨mul_mem (mul_mem (gInf_mem hpN) (conjSL_mem_Gamma1 hp h.2)) (inv_mem (gInf_mem hpN)),
+        mem_Gamma0Upper_iff_dvd.mpr
+          (dvd_sandwich_01 hpN _ (conjSL_lowerLeft hp (dvd_01_of_mem_Lam h.2)))⟩⟩
 
--- pin: cfwd_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1025)
 theorem cfwd_coe (hp : p ≠ 0) (hpN : Nat.Coprime p N) (h : Lam N p) :
-    ((cfwd hp hpN h : Lam N p) : SL(2, ℤ)) = gInf hpN * conjSL hp (h : SL(2, ℤ)) h.2.2 * (gInf hpN)⁻¹ :=
+    ((cfwd hp hpN h : Lam N p) : SL(2, ℤ))
+      = gInf hpN * conjSL hp (h : SL(2, ℤ)) (dvd_01_of_mem_Lam h.2) * (gInf hpN)⁻¹ :=
   rfl
 
--- pin: sandwich_mem (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1029)
 theorem sandwich_mem (hpN : Nat.Coprime p N) (h' : Lam N p) :
     (gInf hpN)⁻¹ * (h' : SL(2, ℤ)) * gInf hpN ∈ Gamma1 N :=
   mul_mem (mul_mem (inv_mem (gInf_mem hpN)) h'.2.1) (gInf_mem hpN)
 
--- pin: cbwd (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1033)
 def cbwd (hp : p ≠ 0) (hpN : Nat.Coprime p N) (h' : Lam N p) : Lam N p :=
-  ⟨unconjSL hp ((gInf hpN)⁻¹ * (h' : SL(2, ℤ)) * gInf hpN) (dvd_sandwich_10 hpN _ h'.2.2), by
+  ⟨unconjSL hp ((gInf hpN)⁻¹ * (h' : SL(2, ℤ)) * gInf hpN)
+      (dvd_sandwich_10 hpN _ (dvd_01_of_mem_Lam h'.2)), by
     have hY := (mem_Gamma1_iff N _).mp (sandwich_mem hpN h')
-    obtain ⟨t, ht⟩ := dvd_sandwich_10 hpN (h' : SL(2, ℤ)) h'.2.2
+    obtain ⟨t, ht⟩ := dvd_sandwich_10 hpN (h' : SL(2, ℤ)) (dvd_01_of_mem_Lam h'.2)
     have hq' : (p : ℤ) ≠ 0 := by exact_mod_cast hp
-    refine ⟨?_, ?_⟩
+    refine Subgroup.mem_inf.mpr ⟨?_, ?_⟩
     · rw [mem_Gamma1_iff, unconjSL_coe]
       simp only [unconjMat, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
         Matrix.cons_val_one, Matrix.cons_val_fin_one]
@@ -974,22 +619,21 @@ def cbwd (hp : p ≠ 0) (hpN : Nat.Coprime p N) (h' : Lam N p) : Lam N p :=
       rw [ht, Int.mul_ediv_cancel_left _ hq']
       have hcop : IsCoprime (N : ℤ) (p : ℤ) := Nat.isCoprime_iff_coprime.mpr hpN.symm
       exact hcop.dvd_of_dvd_mul_left (ht ▸ hY.2.2)
-    · rw [unconjSL_coe]
+    · rw [mem_Gamma0Upper_iff_dvd, unconjSL_coe]
       simp only [unconjMat, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
         Matrix.cons_val_one, Matrix.cons_val_fin_one]
       exact dvd_mul_right _ _⟩
 
--- pin: conjEquiv (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1051)
 def conjEquiv (hp : p ≠ 0) (hpN : Nat.Coprime p N) : Lam N p ≃ Lam N p where
   toFun := cfwd hp hpN
   invFun := cbwd hp hpN
   left_inv h := by
     have hq' : (p : ℤ) ≠ 0 := by exact_mod_cast hp
-    obtain ⟨t, ht⟩ := h.2.2
+    obtain ⟨t, ht⟩ := dvd_01_of_mem_Lam h.2
     apply Subtype.ext; apply Subtype.ext
     show unconjMat p ((gInf hpN)⁻¹ * ((cfwd hp hpN h : Lam N p) : SL(2, ℤ)) * gInf hpN) = _
     have hY : (gInf hpN)⁻¹ * ((cfwd hp hpN h : Lam N p) : SL(2, ℤ)) * gInf hpN
-        = conjSL hp (h : SL(2, ℤ)) h.2.2 := by
+        = conjSL hp (h : SL(2, ℤ)) (dvd_01_of_mem_Lam h.2) := by
       rw [cfwd_coe]; group
     rw [hY]
     ext i j
@@ -997,32 +641,30 @@ def conjEquiv (hp : p ≠ 0) (hpN : Nat.Coprime p N) : Lam N p ≃ Lam N p where
       simp [unconjMat, conjSL_coe, conjMat, ht, Int.mul_ediv_cancel_left _ hq']
   right_inv h' := by
     have hq' : (p : ℤ) ≠ 0 := by exact_mod_cast hp
-    obtain ⟨t, ht⟩ := dvd_sandwich_10 hpN (h' : SL(2, ℤ)) h'.2.2
+    obtain ⟨t, ht⟩ := dvd_sandwich_10 hpN (h' : SL(2, ℤ)) (dvd_01_of_mem_Lam h'.2)
     apply Subtype.ext
     rw [cfwd_coe]
-    have hX : conjSL hp ((cbwd hp hpN h' : Lam N p) : SL(2, ℤ)) (cbwd hp hpN h').2.2
+    have hX : conjSL hp ((cbwd hp hpN h' : Lam N p) : SL(2, ℤ)) (dvd_01_of_mem_Lam (cbwd hp hpN h').2)
         = (gInf hpN)⁻¹ * (h' : SL(2, ℤ)) * gInf hpN := by
       apply Subtype.ext
       rw [conjSL_coe]
       show conjMat p (unconjSL hp ((gInf hpN)⁻¹ * (h' : SL(2, ℤ)) * gInf hpN)
-        (dvd_sandwich_10 hpN _ h'.2.2)) = _
+        (dvd_sandwich_10 hpN _ (dvd_01_of_mem_Lam h'.2))) = _
       ext i j
       fin_cases i <;> fin_cases j <;>
         simp [unconjMat, unconjSL_coe, conjMat, ht, Int.mul_ediv_cancel_left _ hq']
     rw [hX]; group
 
--- pin: conjEquiv_apply (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1082)
 theorem conjEquiv_apply (hp : p ≠ 0) (hpN : Nat.Coprime p N) (h : Lam N p) :
     conjEquiv hp hpN h = cfwd hp hpN h := rfl
 
--- pin: beta_mul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1085)
 theorem beta_mul (hp : p ≠ 0) (hpN : Nat.Coprime p N) (h : Lam N p) :
     ((Matrix.SpecialLinearGroup.mapGL ℝ (gInf hpN) : GL (Fin 2) ℝ) * α p)
         * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ ((conjEquiv hp hpN h : Lam N p) : SL(2, ℤ)) : GL (Fin 2) ℝ)
         * ((Matrix.SpecialLinearGroup.mapGL ℝ (gInf hpN) : GL (Fin 2) ℝ) * α p) := by
   rw [conjEquiv_apply, cfwd_coe, map_mul, map_mul, map_inv, mul_assoc,
-    α_mul_conj hp (h : SL(2, ℤ)) h.2.2]
+    α_mul_conj hp (h : SL(2, ℤ)) (dvd_01_of_mem_Lam h.2)]
   group
 
 end Conj
@@ -1035,18 +677,17 @@ local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (G
 
 omit [NeZero N] in
 
--- pin: slash_α_inv (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1104)
 theorem slash_α_inv (hp : p ≠ 0) (f : CuspForm Γ₁(N) k) (h : SL(2, ℤ)) (hh : h ∈ Lam N p) :
     ((⇑f : ℍ → ℂ) ∣[k] α p) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ h : GL (Fin 2) ℝ)
       = (⇑f : ℍ → ℂ) ∣[k] α p := by
-  rw [← SlashAction.slash_mul, α_mul_conj hp h hh.2, SlashAction.slash_mul,
+  rw [← SlashAction.slash_mul, α_mul_conj hp h (dvd_01_of_mem_Lam hh), SlashAction.slash_mul,
     slash_mem f (conjSL_mem_Gamma1 hp hh)]
 
--- pin: adm_slash_α (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1110)
-theorem adm_slash_α (hp : p ≠ 0) (f : CuspForm Γ₁(N) k) : Adm (Lam N p) k ((⇑f : ℍ → ℂ) ∣[k] α p) := by
-  refine ⟨((CuspFormClass.holo f).slash k (α p)).continuous, fun h hh => slash_α_inv hp f h hh, ?_⟩
+theorem nice_slash_α (hp : p ≠ 0) (f : CuspForm Γ₁(N) k) :
+    Nice (Lam N p) k ((⇑f : ℍ → ℂ) ∣[k] α p) := by
   obtain ⟨C, hC⟩ := CuspFormClass.petersson_bounded_left k Γ₁(N) f f
-  refine ⟨(p : ℝ) ^ (k - 2) * C, fun x => ?_⟩
+  refine ⟨((CuspFormClass.holo f).slash k (α p)).continuous, ⟨(p : ℝ) ^ (k - 2) * C, fun x => ?_⟩,
+    fun h hh => slash_α_inv hp f h hh⟩
   have h1 : UpperHalfPlane.petersson k ((⇑f : ℍ → ℂ) ∣[k] α p) ((⇑f : ℍ → ℂ) ∣[k] α p) x
       = ((p : ℝ) ^ (k - 2) : ℝ) * UpperHalfPlane.petersson k ⇑f ⇑f (α p • x) := by
     rw [UpperHalfPlane.petersson_slash, σ_heckeMatrix, det_heckeMatrix hp]
@@ -1057,23 +698,20 @@ theorem adm_slash_α (hp : p ≠ 0) (f : CuspForm Γ₁(N) k) : Adm (Lam N p) k 
     Complex.ofReal_re] at h2
   have hle : dens (k := k) (⇑f) (α p • x) ≤ C := by
     have := hC (α p • x)
-    rwa [petersson_self_eq_dens, Complex.norm_real, Real.norm_of_nonneg (dens_nonneg _ _)] at this
+    rwa [petersson_self_eq_dens, Complex.norm_real, Real.norm_of_nonneg (dens_nonneg _ _ _)] at this
   have hpk : 0 ≤ (p : ℝ) ^ (k - 2) := zpow_nonneg (Nat.cast_nonneg p) _
   calc ‖((⇑f : ℍ → ℂ) ∣[k] α p) x‖ ^ 2 * x.im ^ k = dens (k := k) ((⇑f : ℍ → ℂ) ∣[k] α p) x := rfl
     _ = (p : ℝ) ^ (k - 2) * dens (k := k) (⇑f) (α p • x) := h2
     _ ≤ (p : ℝ) ^ (k - 2) * C := mul_le_mul_of_nonneg_left hle hpk
 
--- pin: adm_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1130)
-theorem adm_coe (g : CuspForm Γ₁(N) k) : Adm (Lam N p) k (⇑g : ℍ → ℂ) := by
-  refine ⟨(CuspFormClass.holo g).continuous, fun h hh => slash_mem g hh.1, ?_⟩
+theorem nice_coe (g : CuspForm Γ₁(N) k) : Nice (Lam N p) k (⇑g : ℍ → ℂ) := by
   obtain ⟨C, hC⟩ := CuspFormClass.petersson_bounded_left k Γ₁(N) g g
-  refine ⟨C, fun x => ?_⟩
+  refine ⟨(CuspFormClass.holo g).continuous, ⟨C, fun x => ?_⟩, fun h hh => slash_mem g hh.1⟩
   have := hC x
-  rwa [petersson_self_eq_dens, Complex.norm_real, Real.norm_of_nonneg (dens_nonneg _ _)] at this
+  rwa [petersson_self_eq_dens, Complex.norm_real, Real.norm_of_nonneg (dens_nonneg _ _ _)] at this
 
 variable [NeZero p]
 
--- pin: integrand_left (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1139)
 theorem integrand_left (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f g : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) :
     CuspForm.peterssonOnIntegrand (Gamma1 N) k (heckeFun k ε p ⇑f) ⇑g
@@ -1100,7 +738,6 @@ theorem integrand_left (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacte
       rw [Φ, ← petersson_smul_SL, slash_α_inv hp0 f h hh, slash_mem g hh.1]) τ]
   simp only [one_smul]
 
--- pin: integrand_right (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1165)
 theorem integrand_right (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f g : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) (hg : CuspForm.HasNebentypus ε g) :
     CuspForm.peterssonOnIntegrand (Gamma1 N) k ⇑f (heckeFun k ε p ⇑g)
@@ -1132,7 +769,6 @@ theorem integrand_right (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharact
   refine Finset.sum_congr rfl fun q _ => ?_
   rw [Ψ_eq hp hpN ε f g hf]
 
--- pin: main (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:1196)
 theorem main (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f g : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) (hg : CuspForm.HasNebentypus ε g) :
     CuspForm.peterssonOn (Gamma1 N) k (heckeFun k ε p ⇑f) ⇑g
@@ -1142,8 +778,8 @@ theorem main (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
   set β : GL (Fin 2) ℝ := (Matrix.SpecialLinearGroup.mapGL ℝ (gInf hpN') : GL (Fin 2) ℝ) * α p
   have hcvn : ∫ x in (𝒟 : Set ℍ), cosum (Lam N p) β (Φ k p ⇑f ⇑g) x
       = ∫ x in (𝒟 : Set ℍ), cosum (Lam N p) 1 (Φ k p ⇑f ⇑g) x :=
-    integral_cosum_pair (Lam N p) (Lam N p) β (conjEquiv hp0 hpN') (beta_mul hp0 hpN')
-      (adm_slash_α hp0 f) (adm_coe g)
+    integral_cosum_pair (Λ₁ := Lam N p) (Λ := Lam N p) β (conjEquiv hp0 hpN') (beta_mul hp0 hpN')
+      (nice_slash_α hp0 f) (nice_coe g)
   rw [CuspForm.peterssonOn_def, CuspForm.peterssonOn_def, integrand_left hp hpN ε f g hf,
     integrand_right hp hpN ε f g hf hg, integral_const_mul, hcvn, ← mul_assoc,
     ← Complex.inv_eq_conj (norm_char_p ε hp hpN), inv_mul_cancel₀ (char_p_ne_zero ε hp hpN), one_mul]

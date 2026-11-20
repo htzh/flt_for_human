@@ -25,6 +25,8 @@ namespace CohCarrier
 open CongruenceSubgroup
 open scoped MatrixGroups
 
+open ModularForm.Level (mem_Gamma0Upper)
+
 section RightCosets
 
 variable {Γ : Type*} [Group Γ] (S : Subgroup Γ)

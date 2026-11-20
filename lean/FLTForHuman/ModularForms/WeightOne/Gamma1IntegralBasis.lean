@@ -33,6 +33,7 @@
 
 import FLTForHuman.ModularForms.WeightOne.Gamma1Basis
 import FLTForHuman.ModularForms.Level.Diamond
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 import Mathlib.Algebra.Algebra.Hom.Rat
 import Mathlib.Analysis.Analytic.IsolatedZeros
 import Mathlib.Analysis.Analytic.Order
@@ -117,12 +118,6 @@ private def kN : IntermediateField ℚ ℂ :=
 
 private theorem kN_eq : kN N = IntermediateField.adjoin ℚ {Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))} := rfl
 
-private theorem Gamma_le_Gamma1 : CongruenceSubgroup.Gamma N ≤ Gamma1 N := by
-  intro g hg
-  rw [Gamma_mem] at hg
-  rw [Gamma1_mem]
-  exact ⟨hg.1, hg.2.2.2, hg.2.2.1⟩
-
 private theorem exists_abm {k : ℤ} (hk : Even k) :
     ∃ a b m : ℕ, k + 4 * (a : ℤ) + 6 * (b : ℤ) = 12 * (m : ℤ) := by
   obtain ⟨r, rfl⟩ := hk
@@ -155,7 +150,7 @@ private theorem main (N : ℕ) [NeZero N] (k : ℤ) (hk : Even k) :
               o.elim jf fun v => fricke N v.1) P τ} with hS
   have hspan : Submodule.span ℂ S = ⊤ :=
     CuspForm.span_frickeRational_E4_pow_E6_pow_eq_top N tauPair tauPair_spec (WW N) (WW_spec N)
-      (fricke N) (fricke_spec N) jf jf_spec (kN N) (kN_eq N) (Gamma1 N) (Gamma_le_Gamma1 N) k a b m habm
+      (fricke N) (fricke_spec N) jf jf_spec (kN N) (kN_eq N) (Gamma1 N) (CongruenceSubgroup.Gamma_le_Gamma1 (n := N)) k a b m habm
 
   have hcoef : ∀ f ∈ S, ∀ n : ℕ, ModularFormClass.qCoeff f n ∈ kN N := by
     rintro f ⟨P, Q, hP, hQ, hQ0, hid⟩ n

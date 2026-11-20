@@ -11,6 +11,7 @@ import FLTForHuman.ModularForms.EichlerShimura.BinaryForm
 import FLTForHuman.ModularForms.EichlerShimura.CoeffCohomology
 import FLTForHuman.ModularForms.EichlerShimura.EichlerIntegral
 import FLTForHuman.ModularForms.ModularGroup
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 import Mathlib.NumberTheory.ModularForms.Basic
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.NumberTheory.ModularForms.QExpansion
@@ -780,9 +781,6 @@ private theorem pm_periodic_slash_comp_ofComplex_of_conj_T_zpow_mem {k : ℤ} {�
   rw [← hTh, ← map_mul, ← map_inv, ← map_mul]
   exact Subgroup.mem_map_of_mem _ hmem
 
-private theorem pm_Gamma_le_Gamma0 (N : ℕ) : Gamma N ≤ Gamma0 N := fun _ hA =>
-  Gamma0_mem.mpr (Gamma_mem.mp hA).2.2.1
-
 theorem isParabolicCocycle_cocycle_of_isEichlerIntegral (N n : ℕ) [NeZero N]
     (f : CuspForm (CongruenceSubgroup.Gamma0 N) ((n : ℤ) + 2)) {F : UpperHalfPlane → ↥(HeckeEis.BinaryForm ℂ n)}
     (hEI : HeckeEis.IsEichlerIntegral n f F)
@@ -1066,7 +1064,7 @@ private theorem pm_conj_T_zpow_mem_Gamma0 (N : ℕ) (δ : SL(2, ℤ)) :
   have hTN : ModularGroup.T ^ (N : ℤ) ∈ Gamma N := by
     have := CongruenceSubgroup.ModularGroup_T_pow_mem_Gamma (N : ℤ) (N : ℤ) dvd_rfl
     simpa using this
-  exact pm_Gamma_le_Gamma0 N ((CongruenceSubgroup.Gamma_normal N).conj_mem _ hTN δ)
+  exact CongruenceSubgroup.Gamma_le_Gamma0 ((CongruenceSubgroup.Gamma_normal N).conj_mem _ hTN δ)
 
 /-! ### Injectivity — the tier's target
 
@@ -1074,7 +1072,7 @@ FLT `aa2d8b3`, `S_HeckeEis_eichlerShimuraMap_injective` (adapted to the linear
 `periodMap`). -/
 
 theorem periodMap_injective (n N : ℕ) [NeZero N] : Function.Injective (HeckeEis.periodMap n N) := by
-  have : (Gamma0 N).FiniteIndex := Subgroup.finiteIndex_of_le (pm_Gamma_le_Gamma0 N)
+  have : (Gamma0 N).FiniteIndex := Subgroup.finiteIndex_of_le (CongruenceSubgroup.Gamma_le_Gamma0 (n := N))
 
   suffices hker : ∀ f : CuspForm (Gamma0 N) ((n : ℤ) + 2), periodMap n N f = 0 → f = 0 by
     intro f g hfg

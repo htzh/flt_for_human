@@ -9,7 +9,9 @@
   `ModularForms/Defs/GammaH.lean` (`Gamma0_d_mul_a`, `gamma0Units`,
   `val_gamma0Units`, `GammaH`, `mem_GammaH_iff`, `GammaH_le_Gamma0`,
   `GammaH_top`, `H1`, `GammaH_normal_in_Gamma0`, `conj_mem_GammaH`, `conjHom`,
-  `diamondRaw`). The pin's `Carrier` section is an `instance` probe on `H1`
+  `diamondRaw`) and the two upper-triangular level declarations (`Gamma0Upper`,
+  `mem_Gamma0Upper`) homed in `ModularForms/Level/Upper.lean`. The pin's
+  `Carrier` section is an `instance` probe on `H1`
   (`Module R (H1 M H A)` from `AddCommGroup`+`Module`), which has no declaration
   to port; the instance exists in the port for the same reason.
 
@@ -24,6 +26,7 @@ import Mathlib.Algebra.Module.Hom
 import Mathlib.Data.ZMod.Units
 import Mathlib.Algebra.BigOperators.GroupWithZero.Action
 import FLTForHuman.ModularForms.Defs.GammaH
+import FLTForHuman.ModularForms.Level.Upper
 
 set_option autoImplicit false
 
@@ -32,6 +35,8 @@ open Matrix CongruenceSubgroup Matrix.SpecialLinearGroup
 open scoped MatrixGroups
 
 namespace CohCarrier
+
+open ModularForm.Level (Gamma0Upper mem_Gamma0Upper)
 
 /-! ### The transfer as an additive construction -/
 
@@ -111,34 +116,6 @@ theorem coresAdd_smul (K : Subgroup G) [K.FiniteIndex] {R B : Type*} [Semiring R
     AddMonoidHom.smul_apply]
 
 end TransferAdd
-
-/-! ### The upper-triangular level -/
-
-section UpperLevel
-
-/-- `Γ⁰(ℓ)`, the subgroup of `SL(2, ℤ)` whose upper-right entry vanishes mod `ℓ`. -/
-def Gamma0Upper (ℓ : ℕ) : Subgroup SL(2, ℤ) where
-  carrier := { g | (g 0 1 : ZMod ℓ) = 0 }
-  one_mem' := by simp
-  mul_mem' := by
-    intro a b ha hb
-    simp only [Set.mem_ofPred_eq] at *
-    have h := (Matrix.two_mul_expl a.1 b.1).2.1
-    simp only [coe_mul] at *
-    rw [h]
-    simp [ha, hb]
-  inv_mem' := by
-    intro a ha
-    simp only [Set.mem_ofPred_eq] at *
-    rw [SL2_inv_expl a]
-    simp only [cons_val_zero, cons_val_one, Int.cast_neg, neg_eq_zero] at *
-    exact ha
-
-@[simp]
-theorem mem_Gamma0Upper {ℓ : ℕ} {A : SL(2, ℤ)} : A ∈ Gamma0Upper ℓ ↔ (A 0 1 : ZMod ℓ) = 0 :=
-  Iff.rfl
-
-end UpperLevel
 
 section Operators
 
@@ -407,11 +384,10 @@ theorem Gamma_subgroupOf_le_range_iotaDeg [NeZero M'] [NeZero d] (h : LevelLE M 
   refine ⟨⟨A, mem_GammaH_iff.mpr ⟨hA0, hAH⟩⟩, Subtype.ext ?_⟩
   exact conjLowerMat_conjUpperMat d (γ : SL(2, ℤ)) hb hc
 
-set_option linter.style.haveILetI false in
 instance iotaDeg_range_finiteIndex [NeZero M'] [NeZero d] (h : LevelLE M M' H H' d) :
     ((iotaDeg M M' H H' d h).range).FiniteIndex := by
-  haveI : NeZero (M' * d) := ⟨mul_ne_zero (NeZero.ne M') (NeZero.ne d)⟩
-  haveI : ((Gamma (M' * d)).subgroupOf (GammaH M H)).FiniteIndex := inferInstance
+  have : NeZero (M' * d) := ⟨mul_ne_zero (NeZero.ne M') (NeZero.ne d)⟩
+  have : ((Gamma (M' * d)).subgroupOf (GammaH M H)).FiniteIndex := inferInstance
   exact Subgroup.finiteIndex_of_le (Gamma_subgroupOf_le_range_iotaDeg M M' H H' d h)
 
 theorem iotaDeg_injective [NeZero d] (h : LevelLE M M' H H' d) :

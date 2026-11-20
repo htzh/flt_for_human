@@ -78,6 +78,8 @@ noncomputable section
 open scoped MatrixGroups ModularForm
 open UpperHalfPlane CongruenceSubgroup CohCarrier
 
+open ModularForm.Level (mem_Gamma0Upper BezoutPair)
+
 namespace HeckeCoset
 
 section
@@ -309,9 +311,8 @@ variable (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (ℓ : ℕ) [Fact ℓ.Pr
 
 scoped instance : NeZero ℓ := ⟨(Fact.out : ℓ.Prime).ne_zero⟩
 
-structure BezoutData where
-  (u v : ℤ)
-  (huv : u * ℓ + v * M = 1)
+/-- A Bézout pair for `(ℓ, M)`, under the Hecke layer's name for it. -/
+abbrev BezoutData (M ℓ : ℕ) := BezoutPair (ℓ : ℤ) (M : ℤ)
 
 omit [NeZero M] in
 theorem exists_bezoutData (hℓM : ¬ ℓ ∣ M) : Nonempty (BezoutData M ℓ) := by

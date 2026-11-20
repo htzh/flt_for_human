@@ -1956,12 +1956,6 @@ section Level
 
 variable {M : ℕ} {k : ℤ}
 
-private theorem Gamma_le_Gamma1 (M : ℕ) : CongruenceSubgroup.Gamma M ≤ Gamma1 M := by
-  intro g hg
-  rw [Gamma_mem] at hg
-  rw [Gamma1_mem]
-  exact ⟨hg.1, hg.2.2.2, hg.2.2.1⟩
-
 end Level
 
 section Width
@@ -2031,7 +2025,7 @@ private theorem isBdd_mul (f : ModularForm Γ₁(M) k) (m : ℕ) {kE : ℤ} (E :
       have := congrFun hGΔ τ; simpa only [Pi.mul_apply, Pi.pow_apply, hH] using this
     exact mul_right_cancel₀ (hΔ τ) (h1.trans h3.symm)
   have hinv : ∀ g ∈ CongruenceSubgroup.Gamma M, ∀ τ : ℍ, G (g • τ) = G τ := fun g hg =>
-    hinv1 g (Gamma_le_Gamma1 M hg)
+    hinv1 g (CongruenceSubgroup.Gamma_le_Gamma1 hg)
 
   have hbd : ∀ α : SL(2, ℤ), IsBoundedAtImInfty ((fun τ => G (α • τ)) * Δ ^ m) := by
     intro α

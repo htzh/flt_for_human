@@ -1,27 +1,26 @@
 /-
-  A mathlib supplement: `Gamma1` is antitone along divisibility.
+  A mathlib supplement: the order structure of the congruence subgroups along divisibility.
 
-  `mathlib` has `CongruenceSubgroup.Gamma1` and `Gamma1_mem` but no order lemma for it, while the
-  level-monotonicity fact `m ∣ n → Gamma1 n ≤ Gamma1 m` is needed by every level-changing
-  construction: level restriction and level-raising (`DeligneSerre/Lifting.lean`), the diamond and
-  `GammaH` operators (`ModularCurve/{X1,XH,FullLevel}/*`), the integral-weight-one layers
-  (`ModularForms/WeightOne/*`) and the nebentypus Hecke bound
-  (`ModularForms/Analytic/NormSqLt.lean`).  The pin re-declares it in **12** files and uses it at
-  135 sites, and it proves it from `Gamma1_mem` in three lines:
+  `mathlib` has `CongruenceSubgroup.Gamma`, `Gamma1` and `Gamma0` with their membership lemmas but
+  no order lemmas at all, while the two facts every level argument needs are
 
-    `A ∈ Gamma1 n` means the three entries below `A 0 0`, `A 1 1` are `1` and `A 1 0` is `0`
-    in `ZMod n`; applying `ZMod.castHom h (ZMod m)` (which is available exactly because `m ∣ n`)
-    pushes those three equations to `ZMod m`, which is `A ∈ Gamma1 m`.
+    `m ∣ n → Gamma n ≤ Gamma m`  and  `Gamma n ≤ Gamma1 n`, `Gamma n ≤ Gamma0 n`
+
+  (the general chain being `Gamma n ≤ Gamma m ≤ Gamma1 m`, `Gamma0 m`).  The pin re-declares the
+  monotonicity in **12** files (135 sites) and the inclusions in seven more, each proved from the
+  `ZMod` membership in a few lines:
+
+    `A ∈ Gamma n` means `A 0 0`, `A 1 1` are `1` and `A 0 1`, `A 1 0` are `0` in `ZMod n`;
+    `ZMod.castHom h (ZMod m)` — available exactly because `m ∣ n` — pushes those entries to
+    `ZMod m`; dropping the two upper entries gives the `Gamma1` inclusion, the lower-left one the
+    `Gamma0` inclusion.
 
   This module is therefore a **tier-3 mathlib supplement** (playbook §2.3, §3.1): one mathlib
-  import, `namespace CongruenceSubgroup` so that the lemma is found by the `open
-  CongruenceSubgroup` that every consumer already has, and no port dependency at all.  Its shape
-  is the general one — both indices explicit — so consumers that cannot name it directly (the two
-  checker-listed silos, whose declarations must keep the pin's binder spellings) can wrap it in
-  one line.
-
-  `Gamma0_le_of_dvd` is the companion fact for `Gamma0` (also absent from mathlib, also re-derived
-  in `DeligneSerre/Lifting.lean`).
+  import, `namespace CongruenceSubgroup` so that the lemmas are found by the `open
+  CongruenceSubgroup` that every consumer already has, and no port dependency at all.  Their shape
+  is the general one — both indices explicit — so consumers that cannot name them directly (the
+  checker-listed silos, whose declarations must keep the pin's binder spellings) wrap them in one
+  line.
 
   Pin provenance: `Definitions/Def_ModularCurve_X1.lean:158` and eleven `P2M/Sol/S_*` files, all
   with the same body; the two spellings in use are `{M' : ℕ} (h : M ∣ M')` (the `ModularCurve`
@@ -31,14 +30,46 @@
   `S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd.lean` and is wrapped in
   `ModularForms/WeightOne/RationalityDvd.lean`.
 
-  A good candidate to upstream: with it in mathlib, `CongruenceSubgroup.Gamma1_le_of_dvd` would
-  replace this file and the port's four `private` copies disappear for good.
+  A good candidate to upstream: with these in mathlib, the port's four `private` copies of
+  `Gamma1_le_of_dvd` and its seven copies of `Gamma_le_Gamma1` disappear for good.
 -/
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 
 set_option autoImplicit false
 
 namespace CongruenceSubgroup
+
+/-- The principal congruence subgroup is `Γ₁`: congruent to the identity modulo `n` forces the
+`1 1`-entry to be `1` and the `1 0`-entry to be `0`.  Mathlib has neither inclusion. -/
+theorem Gamma_le_Gamma1 {n : ℕ} : Gamma n ≤ Gamma1 n := by
+  intro A hA
+  rw [Gamma_mem] at hA
+  rw [Gamma1_mem]
+  exact ⟨hA.1, hA.2.2.2, hA.2.2.1⟩
+
+/-- The principal congruence subgroup is `Γ₀`: congruent to the identity modulo `n` forces the
+`1 0`-entry to be `0`. -/
+theorem Gamma_le_Gamma0 {n : ℕ} : Gamma n ≤ Gamma0 n := by
+  intro A hA
+  rw [Gamma_mem] at hA
+  rw [Gamma0_mem]
+  exact hA.2.2.1
+
+/-- `Gamma` is antitone in the level: the principal congruence subgroup at a multiple of `m` sits
+in the one at `m`. -/
+theorem Gamma_le_of_dvd {m n : ℕ} (h : m ∣ n) : Gamma n ≤ Gamma m := by
+  intro A hA
+  rw [Gamma_mem] at hA ⊢
+  obtain ⟨h00, h01, h10, h11⟩ := hA
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · have := congrArg (ZMod.castHom h (ZMod m)) h00
+    rwa [map_intCast, map_one] at this
+  · have := congrArg (ZMod.castHom h (ZMod m)) h01
+    rwa [map_intCast, map_zero] at this
+  · have := congrArg (ZMod.castHom h (ZMod m)) h10
+    rwa [map_intCast, map_zero] at this
+  · have := congrArg (ZMod.castHom h (ZMod m)) h11
+    rwa [map_intCast, map_one] at this
 
 /-- `Gamma1` is antitone in the level: a matrix congruent to the identity modulo `n` is also
 congruent to the identity modulo any `m` dividing `n`. -/

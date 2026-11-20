@@ -7,6 +7,8 @@
   `UpperHalfPlane.petersson` (`Mathlib/NumberTheory/ModularForms/Petersson.lean`);
   what this module adds is the coset sum over `SL(2, ℤ) ⧸ Γ` and its integral
   against `volume.restrict 𝒟`.
+
+  spec-pin: Definitions/Def_CuspForm_PeterssonOn.lean
 -/
 import Mathlib.NumberTheory.Modular
 import Mathlib.NumberTheory.ModularForms.Petersson

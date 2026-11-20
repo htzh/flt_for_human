@@ -625,13 +625,8 @@ theorem changeLevel_apply_entry {N t : ℕ} (ht : t ∣ N) (ε' : DirichletChara
 
 theorem slash_eq_smul_of_hasNebentypus {M : ℕ} {ε : DirichletCharacter ℂ M}
     {g : CuspForm Γ₁(M) k} (hg : CuspForm.HasNebentypus ε g) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) :
-    (⇑g : ℍ → ℂ) ∣[k] (mapGL ℝ γ : GL (Fin 2) ℝ) = ε ((γ 1 1 : ℤ) : ZMod M) • (⇑g : ℍ → ℂ) := by
-  funext τ
-  rw [SL_slash_apply', hg γ hγ τ, Pi.smul_apply, smul_eq_mul]
-  have hne := denom_SL_ne_zero γ τ
-  have hk : (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ k ≠ 0 := zpow_ne_zero k hne
-  rw [_root_.zpow_neg]
-  field_simp
+    (⇑g : ℍ → ℂ) ∣[k] (mapGL ℝ γ : GL (Fin 2) ℝ) = ε ((γ 1 1 : ℤ) : ZMod M) • (⇑g : ℍ → ℂ) :=
+  (CuspForm.hasNebentypus_iff ε g).mp hg γ hγ
 
 theorem inv_of_hasNebentypus (D : ℕ) (ε : DirichletCharacter ℂ t)
     (E : CuspForm Γ₁(q * t) k)

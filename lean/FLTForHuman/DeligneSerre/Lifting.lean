@@ -164,6 +164,7 @@ private theorem hasNebentypus_of_hecke {N : ℕ} [NeZero N] (ε : DirichletChara
   have := congrArg (fun z => z * (((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ)) ^ (1 : ℤ)) hpt
   rw [mul_assoc, ← zpow_add₀ hne, neg_add_cancel, zpow_zero, mul_one] at this
   rw [this]
+  simp only [ModularForm.Level.dd]
   ring
 
 section Loc
@@ -861,6 +862,7 @@ private theorem engine :
     have h2 := hEχ γ hγL τ
     rw [hcoe]
     simp only [Pi.mul_apply, Pi.smul_apply, smul_eq_mul]
+    simp only [ModularForm.Level.dd] at h1 h2 ⊢
     rw [h1, h2, hη, MulChar.mul_apply, hεM, hχM, changeLevel_apply_entry hNM ε hγ,
       changeLevel_apply_entry hLM χ hγ, zpow_one, show (((2 : ℕ) : ℤ)) = 2 from rfl, zpow_two]
     ring

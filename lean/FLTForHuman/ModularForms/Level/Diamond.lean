@@ -39,10 +39,6 @@ import Mathlib.Tactic.LinearCombination
 
 set_option autoImplicit false
 
--- The pin's `haveI` walls are kept literal (as in the `WeilExchange` set and
--- `HeckeInvariance.lean`).
-set_option linter.style.haveILetI false
-
 noncomputable section
 
 open Matrix.SpecialLinearGroup UpperHalfPlane ModularForm CongruenceSubgroup
@@ -99,11 +95,30 @@ theorem lift_apply_one_one (σ : SL(2, ℤ)) (hσp : ((σ 1 1 : ℤ) : ZMod N) =
   | infty => exact hσp
   | coe j => simp
 
-theorem d_mul {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ CongruenceSubgroup.Gamma0 N)
+/-- The lower-right entry of any integral `SL₂`-matrix, read modulo `N`: the value of the
+`Γ₀`-character `d` at `γ`, stated without asking that `γ` lie in `Γ₀(N)`. -/
+def dd {N : ℕ} (γ : SL(2, ℤ)) : ZMod N := ((γ 1 1 : ℤ) : ZMod N)
+
+/-- `dd` read on the entry it names: the bridge for proofs that carry the entry form. -/
+@[simp] theorem dd_def {N : ℕ} (γ : SL(2, ℤ)) : dd (N := N) γ = ((γ 1 1 : ℤ) : ZMod N) := rfl
+
+@[simp] theorem dd_one {N : ℕ} : dd (N := N) (1 : SL(2, ℤ)) = 1 := by
+  simp [ModularForm.Level.dd]
+
+/-- The character `d` is multiplicative on `Γ₀(N)`: it is mathlib's `Gamma0Map`. -/
+theorem dd_mul {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ CongruenceSubgroup.Gamma0 N)
     (h₂ : γ₂ ∈ CongruenceSubgroup.Gamma0 N) :
-    (((γ₁ * γ₂) 1 1 : ℤ) : ZMod N) = ((γ₁ 1 1 : ℤ) : ZMod N) * ((γ₂ 1 1 : ℤ) : ZMod N) :=
+    dd (N := N) (γ₁ * γ₂) = dd (N := N) γ₁ * dd (N := N) γ₂ :=
   map_mul (CongruenceSubgroup.Gamma0Map N) ⟨γ₁, h₁⟩ ⟨γ₂, h₂⟩
 
+/-- `dd_mul` read on the entry that `dd` names. -/
+theorem d_mul {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ CongruenceSubgroup.Gamma0 N)
+    (h₂ : γ₂ ∈ CongruenceSubgroup.Gamma0 N) :
+    (((γ₁ * γ₂) 1 1 : ℤ) : ZMod N) = ((γ₁ 1 1 : ℤ) : ZMod N) * ((γ₂ 1 1 : ℤ) : ZMod N) := by
+  simpa only [dd] using dd_mul h₁ h₂
+
+/-- The upper-left entry inverts the character value inside `Γ₀(N)`: the lower-left entry
+vanishes, so the determinant reads `(0 0) * (1 1) = 1`. -/
 theorem det_mod {N : ℕ} (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
     ((γ 0 0 : ℤ) : ZMod N) * ((γ 1 1 : ℤ) : ZMod N) = 1 := by
   have hc : ((γ 1 0 : ℤ) : ZMod N) = 0 := by simpa using CongruenceSubgroup.Gamma0_mem.mp hγ
@@ -115,12 +130,14 @@ theorem det_mod {N : ℕ} (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
   rw [hc] at this
   linear_combination this
 
+/-- `Γ₁(N)` is the kernel of the character on `Γ₀(N)`: a matrix whose value is `1` lies in `Γ₁`. -/
 theorem mem_Gamma1_of_d_eq_one {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma0 N)
-    (hd : ((γ 1 1 : ℤ) : ZMod N) = 1) : γ ∈ CongruenceSubgroup.Gamma1 N := by
+    (hd : dd (N := N) γ = 1) : γ ∈ CongruenceSubgroup.Gamma1 N := by
   rw [CongruenceSubgroup.Gamma1_mem]
+  have hd' : ((γ 1 1 : ℤ) : ZMod N) = 1 := by simpa [dd] using hd
   have ha : ((γ 0 0 : ℤ) : ZMod N) = 1 := by
-    have := det_mod γ hγ; rw [hd, mul_one] at this; exact this
-  exact ⟨by simpa using ha, by simpa using hd, by simpa using CongruenceSubgroup.Gamma0_mem.mp hγ⟩
+    have := det_mod γ hγ; rw [hd', mul_one] at this; exact this
+  exact ⟨by simpa using ha, by simpa using hd', by simpa using CongruenceSubgroup.Gamma0_mem.mp hγ⟩
 
 end reps
 
@@ -159,9 +176,15 @@ section isUnit_d
 
 variable {N : ℕ}
 
+/-- The character value of a `Γ₀(N)`-matrix is a unit: it is the value of `gamma0Units`. -/
+theorem isUnit_dd {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma0 N) :
+    IsUnit (dd (N := N) γ) :=
+  (gamma0Units N ⟨γ, hγ⟩).isUnit
+
+/-- `isUnit_dd` read on the entry that `dd` names. -/
 theorem isUnit_d {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma0 N) :
     IsUnit ((γ 1 1 : ℤ) : ZMod N) :=
-  (gamma0Units N ⟨γ, hγ⟩).isUnit
+  isUnit_dd hγ
 
 end isUnit_d
 
@@ -176,15 +199,6 @@ theorem Gamma1_subgroupOf_eq_ker (N : ℕ) :
   rw [Subgroup.mem_subgroupOf, MonoidHom.mem_ker]
   show (x : SL(2, ℤ)) ∈ CongruenceSubgroup.Gamma1 N ↔ ((x : SL(2, ℤ)) 1 1 : ZMod N) = 1
   exact ⟨fun h => ((CongruenceSubgroup.Gamma1_mem N x).1 h).2.1, fun h => mem_Gamma1_of_d_eq_one x.2 h⟩
-
-/-- `Γ₁(M)` is the kernel of the lower-right character in its group-valued form
-(`gamma0Units`): a `Γ₀(M)`-matrix whose lower-right entry is `1` modulo `M` lies in `Γ₁(M)`. -/
-theorem mem_Gamma1_of_gamma0Units_eq_one {M : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M)
-    (h : gamma0Units M ⟨γ, hγ⟩ = 1) : γ ∈ Gamma1 M := by
-  have hker : (⟨γ, hγ⟩ : Gamma0 M) ∈ (Gamma1 M).subgroupOf (Gamma0 M) := by
-    rw [Gamma1_subgroupOf_eq_ker, MonoidHom.mem_ker]
-    simpa using congrArg (fun u : (ZMod M)ˣ => (u : ZMod M)) h
-  exact Subgroup.mem_subgroupOf.mp hker
 
 /-- `Γ₁(N)` is normal in `Γ₀(N)`: it is a kernel, so `Γ₀(N)`-conjugation preserves it. -/
 theorem Gamma1_normal_in_Gamma0 (N : ℕ) :
@@ -203,22 +217,68 @@ variable (M : ℕ)
 /-- A lift of the diamond `⟨d⟩` to `Γ₀(M)`: a matrix in `Γ₀(M)` whose lower-right
 entry is `d` modulo `M`. -/
 def IsDiamondLift (d : ℕ) (γ : SL(2, ℤ)) : Prop :=
-  γ ∈ Gamma0 M ∧ ((γ 1 1 : ℤ) : ZMod M) = (d : ZMod M)
+  γ ∈ Gamma0 M ∧ dd (N := M) γ = (d : ZMod M)
 
 variable {M}
 
-/-- Every coprime pair is the lower row of an integral `SL₂`-matrix: a Bézout pair
-`u * d + v * N = 1` gives `!![u, -v; N, d]`.  Every lift into `Γ₀` with a prescribed `1 1`-entry is
-this matrix. -/
-theorem exists_sl2_of_isCoprime {d N : ℤ} (h : IsCoprime d N) :
-    ∃ γ : SL(2, ℤ), γ 1 0 = N ∧ γ 1 1 = d := by
+/-- An integral Bézout pair for `(d, N)`: `u * d + v * N = 1`.  This is the one datum a `Γ₀`-lift
+of `d` is built from, and every such lift in the port is a Bézout pair in this normalization. -/
+structure BezoutPair (d N : ℤ) where
+  u : ℤ
+  v : ℤ
+  huv : u * d + v * N = 1
+
+theorem BezoutPair.exists {d N : ℤ} (h : IsCoprime d N) : Nonempty (BezoutPair d N) := by
   obtain ⟨u, v, huv⟩ := h
-  exact ⟨⟨!![u, -v; N, d], by rw [Matrix.det_fin_two_of]; linear_combination huv⟩, rfl, rfl⟩
+  exact ⟨⟨u, v, huv⟩⟩
+
+theorem BezoutPair.exists_of_coprime {d N : ℕ} (h : Nat.Coprime d N) :
+    Nonempty (BezoutPair (d : ℤ) (N : ℤ)) :=
+  BezoutPair.exists (Nat.isCoprime_iff_coprime.mpr h)
+
+/-- The matrix `!![u, -v; N, d]` of a Bézout pair: its lower row is `(N, d)`. -/
+def BezoutPair.mat {d N : ℤ} (b : BezoutPair d N) : SL(2, ℤ) :=
+  ⟨!![b.u, -b.v; N, d], by rw [Matrix.det_fin_two_of]; linear_combination b.huv⟩
+
+@[simp] theorem BezoutPair.mat_coe {d N : ℤ} (b : BezoutPair d N) :
+    (b.mat : Matrix (Fin 2) (Fin 2) ℤ) = !![b.u, -b.v; N, d] := rfl
+
+@[simp] theorem BezoutPair.mat_10 {d N : ℤ} (b : BezoutPair d N) :
+    (b.mat : Matrix (Fin 2) (Fin 2) ℤ) 1 0 = N :=
+  rfl
+
+@[simp] theorem BezoutPair.mat_11 {d N : ℤ} (b : BezoutPair d N) :
+    (b.mat : Matrix (Fin 2) (Fin 2) ℤ) 1 1 = d :=
+  rfl
+
+/-- The `d`-split matrix `!![u * d, -v; N, 1]` of a Bézout pair: the level-`d` lift of `1`, whose
+lower row is `(N, 1)`.  Its determinant is `u * d + v * N = 1`. -/
+def BezoutPair.matDiag {d N : ℤ} (b : BezoutPair d N) : SL(2, ℤ) :=
+  ⟨!![b.u * d, -b.v; N, 1], by rw [Matrix.det_fin_two_of, mul_one]; linear_combination b.huv⟩
+
+@[simp] theorem BezoutPair.matDiag_coe {d N : ℤ} (b : BezoutPair d N) :
+    (b.matDiag : Matrix (Fin 2) (Fin 2) ℤ) = !![b.u * d, -b.v; N, 1] := rfl
+
+@[simp] theorem BezoutPair.matDiag_10 {d N : ℤ} (b : BezoutPair d N) :
+    (b.matDiag : Matrix (Fin 2) (Fin 2) ℤ) 1 0 = N :=
+  rfl
+
+@[simp] theorem BezoutPair.matDiag_11 {d N : ℤ} (b : BezoutPair d N) :
+    (b.matDiag : Matrix (Fin 2) (Fin 2) ℤ) 1 1 = 1 :=
+  rfl
+
+/-- Every coprime pair is the lower row of an integral `SL₂`-matrix.  Every lift into `Γ₀` with a
+prescribed `1 1`-entry is `BezoutPair.mat` of a Bézout pair. -/
+theorem exists_sl2_of_isCoprime {d N : ℤ} (h : IsCoprime d N) :
+    ∃ γ : SL(2, ℤ), γ 1 0 = N ∧ γ 1 1 = d :=
+  let b := (BezoutPair.exists h).some
+  ⟨b.mat, b.mat_10, b.mat_11⟩
 
 theorem exists_isDiamondLift_of_coprime {d : ℕ} (h : Nat.Coprime d M) :
     ∃ γ : SL(2, ℤ), IsDiamondLift M d γ := by
   obtain ⟨γ, h10, h11⟩ := exists_sl2_of_isCoprime (Nat.isCoprime_iff_coprime.2 h)
-  exact ⟨γ, Gamma0_mem.mpr (by rw [h10]; simp), by rw [h11]; simp⟩
+  exact ⟨γ, Gamma0_mem.mpr (by rw [h10]; simp),
+    by rw [show dd (N := M) γ = ((γ 1 1 : ℤ) : ZMod M) from rfl, h11]; simp⟩
 
 /-- A lift of `⟨d⟩` exists only for `d` coprime to `M`: `d` is the lower-right entry of a member
 of `Γ₀(M)`, hence a unit of `ZMod M`. -/
@@ -290,15 +350,15 @@ element of `Γ₁(M)`, which acts trivially, so they slash a `Γ₁(M)`-form the
 theorem slash_eq_slash_of_isDiamondLift {d : ℕ} {γ γ' : SL(2, ℤ)} (hγ : IsDiamondLift M d γ)
     (hγ' : IsDiamondLift M d γ') (f : CuspForm (Γ₁ℝ M) k) :
     ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) = ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ') := by
-  have hγinv : γ⁻¹ ∈ Gamma0 M := inv_mem hγ.1
-  have hd : gamma0Units M ⟨γ', hγ'.1⟩ = gamma0Units M ⟨γ, hγ.1⟩ := by
-    ext
-    rw [val_gamma0Units, val_gamma0Units]
-    exact hγ'.2.trans hγ.2.symm
   have hmem : γ' * γ⁻¹ ∈ Gamma1 M := by
-    refine mem_Gamma1_of_gamma0Units_eq_one (mul_mem hγ'.1 hγinv) ?_
-    show gamma0Units M (⟨γ', hγ'.1⟩ * (⟨γ, hγ.1⟩ : Gamma0 M)⁻¹) = 1
-    rw [map_mul, map_inv, hd, mul_inv_cancel]
+    have hγinv : γ⁻¹ ∈ Gamma0 M := inv_mem hγ.1
+    refine mem_Gamma1_of_d_eq_one (mul_mem hγ'.1 hγinv) ?_
+    calc dd (N := M) (γ' * γ⁻¹)
+        = dd (N := M) γ' * dd (N := M) (γ⁻¹) := dd_mul hγ'.1 hγinv
+      _ = (d : ZMod M) * dd (N := M) (γ⁻¹) := by rw [hγ'.2]
+      _ = dd (N := M) γ * dd (N := M) (γ⁻¹) := by rw [hγ.2]
+      _ = dd (N := M) (γ * γ⁻¹) := (dd_mul hγ.1 hγinv).symm
+      _ = 1 := by simp
   have hslash : ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ (γ' * γ⁻¹)) = ⇑f :=
     SlashInvariantFormClass.slash_action_eq f _ (Subgroup.mem_map_of_mem _ hmem)
   calc ⇑f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ)
@@ -341,7 +401,9 @@ theorem diamondLinOne_of_not_coprime {d : ℕ} (h : ¬ Nat.Coprime d M) :
 
 theorem diamondLinOne_one : diamondLinOne M k 1 = LinearMap.id := by
   refine LinearMap.ext fun f => CuspForm.ext fun τ => ?_
-  have h1 : IsDiamondLift M 1 1 := ⟨Subgroup.one_mem _, by simp⟩
+  have h1 : IsDiamondLift M 1 1 :=
+    ⟨Subgroup.one_mem _,
+      by rw [show dd (N := M) (1 : SL(2, ℤ)) = ((1 : SL(2, ℤ)) 1 1 : ZMod M) from rfl]; simp⟩
   rw [diamondLinOne_apply_apply h1, map_one, SlashAction.slash_one, LinearMap.id_apply]
 
 end Diamond

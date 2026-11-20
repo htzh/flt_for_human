@@ -55,6 +55,7 @@ import Mathlib.NumberTheory.DirichletCharacter.Bounds
 import Mathlib.NumberTheory.ModularForms.Bounds
 import Mathlib.Tactic.LinearCombination
 import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
+import FLTForHuman.ModularForms.Level.Diamond
 
 set_option autoImplicit false
 
@@ -62,6 +63,8 @@ noncomputable section
 
 open MeasureTheory UpperHalfPlane ModularForm Filter CongruenceSubgroup
 open scoped MatrixGroups ModularForm ComplexConjugate Modular ENNReal Pointwise
+
+open ModularForm.Level (BezoutPair)
 
 namespace CuspForm
 
@@ -173,23 +176,23 @@ theorem heckeMatrix_eq_delta_mul (hℓ : ℓ ≠ 0) (j : ℕ) :
   fin_cases i <;> fin_cases i' <;> simp
 
 -- pin: gam0 (S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean:327)
+/-- The `Γ₀`-lift `!![u, -v; M, ℓ]` of `ℓ`: the Bézout matrix of `(ℓ, M)`. -/
 def gam0 (M ℓ : ℕ) (u v : ℤ) (h : u * ℓ + v * M = 1) : SL(2, ℤ) :=
-  ⟨!![u, -v; (M : ℤ), (ℓ : ℤ)], by rw [Matrix.det_fin_two_of]; linear_combination h⟩
+  (BezoutPair.mk u v h).mat
 
 -- pin: sig0 (S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean:330)
+/-- The level-`ℓ` lift `!![ℓ * u, -v; M, 1]` of `1`: the split Bézout matrix of `(ℓ, M)`. -/
 def sig0 (M ℓ : ℕ) (u v : ℤ) (h : u * ℓ + v * M = 1) : SL(2, ℤ) :=
-  ⟨!![(ℓ : ℤ) * u, -v; (M : ℤ), 1], by rw [Matrix.det_fin_two_of]; linear_combination h⟩
+  (BezoutPair.mk u v h).matDiag
 
 -- pin: gam0_mem (S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean:333)
 theorem gam0_mem (u v : ℤ) (h : u * ℓ + v * M = 1) : gam0 M ℓ u v h ∈ Gamma0 M := by
   rw [Gamma0_mem]
-  show ((((!![u, -v; (M : ℤ), (ℓ : ℤ)] : Matrix (Fin 2) (Fin 2) ℤ) 1 0 : ℤ)) : ZMod M) = 0
-  simp
+  simp [gam0]
 
 -- pin: gam0_apply_11 (S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean:338)
 theorem gam0_apply_11 (u v : ℤ) (h : u * ℓ + v * M = 1) : (gam0 M ℓ u v h) 1 1 = (ℓ : ℤ) := by
-  show (!![u, -v; (M : ℤ), (ℓ : ℤ)] : Matrix (Fin 2) (Fin 2) ℤ) 1 1 = ℓ
-  simp
+  simp [gam0]
 
 -- pin: gam0_mul_heckeDiag (S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean:342)
 theorem gam0_mul_heckeDiag (hℓ : ℓ ≠ 0) (u v : ℤ) (h : u * ℓ + v * M = 1) :
@@ -197,8 +200,8 @@ theorem gam0_mul_heckeDiag (hℓ : ℓ ≠ 0) (u v : ℤ) (h : u * ℓ + v * M =
       = heckeMatrix ℓ 0 * (Matrix.SpecialLinearGroup.mapGL ℝ (sig0 M ℓ u v h) : GL (Fin 2) ℝ) := by
   apply Units.ext
   rw [Units.val_mul, Units.val_mul, val_heckeDiagMatrix hℓ, val_heckeMatrix hℓ, val_mapGL_eq, val_mapGL_eq]
-  simp only [gam0, sig0, Matrix.SpecialLinearGroup.coe_mk, Matrix.of_apply, Matrix.cons_val',
-    Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_fin_one]
+  simp only [gam0, sig0, BezoutPair.mat_coe, BezoutPair.matDiag_coe, Matrix.of_apply,
+    Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_fin_one]
   push_cast
   simp only [Matrix.mul_fin_two]
   ext i j
@@ -436,7 +439,6 @@ theorem heckeMatrix_smul_heckeDiag_smul (hp : p ≠ 0) (σ : ℍ) :
 -- pin: eq_zero_of_slash_delta_eq (S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean:631)
 -- the `Fact (IsCusp OnePoint.infty (Γ₁(M)))` binding is load-bearing: it is the instance
 -- argument of `CuspFormClass.zero_at_infty` / `IsZeroAtImInfty.petersson_isZeroAtImInfty_left`.
-set_option linter.style.haveILetI false in
 theorem eq_zero_of_slash_delta_eq [NeZero M] (hp : p.Prime) (F : CuspForm Γ₁(M) k) {e : ℂ}
     (he : ‖e‖ = 1)
     (h : (⇑F : ℍ → ℂ) ∣[k] heckeMatrix p 0 = e • ((⇑F : ℍ → ℂ) ∣[k] heckeDiagMatrix p)) :
@@ -480,7 +482,7 @@ theorem eq_zero_of_slash_delta_eq [NeZero M] (hp : p.Prime) (F : CuspForm Γ₁(
       rw [Function.iterate_succ_apply', hdens, him, (ih σ).1, (ih σ).2, pow_succ]
       exact ⟨rfl, by ring⟩
 
-  haveI : Fact (IsCusp OnePoint.infty (Γ₁(M))) :=
+  have : Fact (IsCusp OnePoint.infty (Γ₁(M))) :=
     ⟨(Γ₁(M)).isCusp_of_mem_strictPeriods one_pos (one_mem_strictPeriods M)⟩
   have hZ : IsZeroAtImInfty (UpperHalfPlane.petersson k ⇑F ⇑F) :=
     UpperHalfPlane.IsZeroAtImInfty.petersson_isZeroAtImInfty_left k Γ₁(M)
@@ -524,7 +526,6 @@ local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (G
 variable {M : ℕ} {k : ℤ} {p : ℕ}
 
 -- pin: norm_sq_lt (S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean:717)
-set_option linter.style.haveILetI false in
 theorem norm_sq_lt [NeZero M] (ε : DirichletCharacter ℂ M) (F : CuspForm Γ₁(M) k) (hF0 : F ≠ 0)
     (hFneb : CuspForm.HasNebentypus ε F) (hp : p.Prime) (hpM : ¬ p ∣ M) (a : ℂ)
     (ha : ∀ n : ℕ, ModularFormClass.qCoeff F (p * n)
@@ -533,9 +534,9 @@ theorem norm_sq_lt [NeZero M] (ε : DirichletCharacter ℂ M) (F : CuspForm Γ�
     ‖a‖ ^ 2 < ((p : ℝ) + 1) ^ 2 * (p : ℝ) ^ (k - 2) := by
   have hp0 : p ≠ 0 := hp.ne_zero
   have hpR : (0 : ℝ) < p := by exact_mod_cast hp.pos
-  haveI : NeZero (M * p) := ⟨Nat.mul_ne_zero (NeZero.ne M) hp0⟩
-  haveI : Fact p.Prime := ⟨hp⟩
-  haveI : Fact (p ∣ M * p) := ⟨dvd_mul_left p M⟩
+  have : NeZero (M * p) := ⟨Nat.mul_ne_zero (NeZero.ne M) hp0⟩
+  have : Fact p.Prime := ⟨hp⟩
+  have : Fact (p ∣ M * p) := ⟨dvd_mul_left p M⟩
   have hpMp : p ∣ M * p := dvd_mul_left p M
 
   have hΛ₀le : Lam0 (M * p) p ≤ Gamma1 M :=

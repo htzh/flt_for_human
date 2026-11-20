@@ -3337,10 +3337,9 @@ SOURCES = [
     # `spec/UNWIRED-PUBLIC.md` can fill its pin-original column. Appended last.
     "Theorems/Thm_HahnSeries_isAlgClosed_rat.lean",
     "P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean",
-    # --- The Petersson adjointness on a nebentypus component. The wrapper is the tier-1
-    # headline's statement authority; the `S_` development is the pin original for the
-    # tier-3 engine `ModularForms/Analytic/PeterssonHecke.lean` (unlisted, registered in
-    # `spec/UNWIRED-PUBLIC.md`), so it is listed for the register's pin-original column.
+    # --- The Petersson adjointness on a nebentypus component: the `Theorems/` wrapper is the
+    # headline's statement authority and the `S_` development the engine's, both wired by
+    # `spec-pin:` lines now, so these rows are the pin files rather than a legacy port row.
     "Theorems/Thm_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean",
     "P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean",
     # --- The Petersson definition layer and the fundamental-domain ground it needs.
@@ -5146,15 +5145,15 @@ PORT_FILES = [
     # (`.../Engine/CommTriplet.lean`) stays unlisted, registered in
     # `spec/UNWIRED-PUBLIC.md`. Do not re-list it here.
     # --- The Petersson definition layer (`peterssonOn`) and the fundamental-domain
-    # ground (`goodSet`, the translate-double-counting identities). Both are transcribed
-    # verbatim and wired so they stay verified; the deferred exact-volume/L2 surface is in
-    # CARRY-FORWARD.md. Appended last.
-    "FLTForHuman/ModularForms/Analytic/Petersson.lean",
+    # ground (`goodSet`, the translate-double-counting identities). The deferred
+    # exact-volume/L2 surface is in CARRY-FORWARD.md. Appended last.
+    # FLTForHuman/ModularForms/Analytic/Petersson.lean — wired by its own `spec-pin:` header
+    # (3 ok against `Def_CuspForm_PeterssonOn`); its PORT_FILES row was retired.
     "FLTForHuman/AutomorphicForm/UpperHalfPlane/ModularFundamentalDomain.lean",
-    # --- The Petersson adjointness (tier 1): the headline façade only. Its tier-3
-    # engine `FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean` stays unlisted
-    # (registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
-    "FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean",
+    # --- The Petersson adjointness: both the headline façade and its engine are wired by
+    # their own `spec-pin:` headers (1 ok against the pin's `Theorems/` copy; 93 ok against
+    # the `S_` development, its per-declaration markers stripped). Their PORT_FILES rows were
+    # retired. The `SOURCES` rows above stay: they are the same pin files. Appended last.
     # --- The coset-space Petersson definition layer (set P1 of
     # `TOPIC-petersson-coset-and-level-prime-eigenvalue.md`): wired, because it is
     # the definition layer both `norm_sq` leaves consume. Appended last.
