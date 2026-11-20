@@ -5140,3 +5140,18 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
 - **rule for a work order**: state the audit's three buckets (`declared / imported / folded`) and
   require the worker to name any `imported` match that is not statement-identical.
 - **seen**: 2026-11-19, SET-AF89B/C.
+
+## FR-0238 [mathlib-drift] — `AdeleRing` and `InfiniteAdeleRing` are `def`s, so the pin's `rw`-into-the-character scripts fail at implicit transparency
+
+- **where**: SET-AF90B, `NumberField/AdelicLevel/ArchLevelLattice.lean`, the
+  `stdAddChar_single_half` conjunct of the `diagOne` row (pin `:171`).
+- **the pin**: `rw [psiK_apply, adelicTrace_apply, psiQ_apply]` and `rw [traceInfHom_apply]`
+  compute the standard character by unfolding the projection; at v4.34 `AdeleRing` is a `def` of a
+  product (not an `abbrev`; `InfiniteAdeleRing` too), and `rw` matches at `implicit` transparency,
+  so the unfolded goal is ill-typed and the script does not replay.
+- **fix (statement-neutral)**: name the components first — `set x : InfiniteAdeleRing F`,
+  `set u : AdeleRing (𝓞 F) F`, `set z : AdeleRing (𝓞 ℚ) ℚ` — and close with
+  `rw [psiK_apply, htr, hzpsi]`. This is FR-0219's def-transparency class, now on the two adele
+  ring abbreviations; every later `psiQ`/`traceInfHom` computation will pay the same one
+  substitution.
+- **seen**: 2026-11-20, SET-AF90B (one row, two sites).

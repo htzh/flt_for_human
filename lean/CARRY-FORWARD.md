@@ -10,6 +10,25 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ## Deferred API
 
+### The duplicated pin prelude of SET-AF90 — one home per lemma when the two sides next meet
+
+The four declarations below are the pin's own duplicated prelude, public in the `S_` file that states
+them as engine and `private` in the module that transcribed them for another row. The port mirrors
+the pin (SET-AF90 declared each at the public pin's name in the new module and left the private copy
+alone), so nothing is missing; what is owed is the fusion when either side is next opened.
+
+| declaration | public home (wire) | private copy |
+|---|---|---|
+| `LevelCovering.exists_algebraMap_eq_of_mem_integralFiniteAdeles` | `NumberTheory/AdelicLevel/ArchLevelLattice.lean` (B1 pin `:26`) | `LanglandsTunnell/WeightOneBound.lean` (501 pin) |
+| `ArchLevel.map_unipotentGL2` | `NumberTheory/AdelicLevel/ArchLevelLattice.lean` (B2 pin `:102`) | `AutomorphicForm/Adelic/Cusp/LevelOneObstruction.lean` |
+| `neg_mem_integralFiniteAdeles` | `NumberTheory/AdelicBox/Measure.lean` (D1 pin `:109`, D3 `:107`) | `AutomorphicForm/Adelic/FiniteIntegralConjugation.lean` |
+| `continuous_of_mem_cuspKFiniteSubmodule` | private in `Cusp/SpectrumConstituentClosure.lean` (A3 pin `:25`) | private in `Cusp/IrreducibleSpine.lean` (same 11-line lemma) |
+
+Price: one import line plus the deletion of each private copy (or, for the last row, of one of two
+private proofs); no statement changes, no wire changes, and `dedup --within` moves not at all.
+The end-state is one public declaration at the pin's name for the first three, and one private proof
+shared through a small public lemma for the fourth.
+
 ### The two `exists_digit`s — one general, one pinned, to be fused when `Place/ConstantFieldExtension.lean` is next opened
 
 `Place/ConstantFieldExtension.lean`'s `ConstantFieldPlaceLift.exists_digit` is a **pin
