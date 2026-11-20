@@ -27,12 +27,16 @@ python3 frontier.py --ds --ready --include-leaves --rank-by silo --top 0 --json 
 
 | figure | before (AF95 landing) | after this set's scaffolds |
 |---|---:|---:|
-| `needed [F terminal]` | 445 / 212,664 | **437 / 210,582** |
+| `needed [F terminal]` | 445 / 212,664 | **437 / 210,582** † |
 | ready rows | 12 / 3,072 | **13 / 4,538** |
 | leaves | 74 / 21,398 | **68 / 20,311** |
 | withheld (FR-0044 guard) | 4 / 831 | 4 / 831 |
 
-The delta is the eight cut rows exactly (−8 nodes / −2,082 lines). **Three rows become ready,
+The delta is the eight cut rows exactly (−8 nodes / −2,082 lines).
+
+† These are the figures the read produced on 2026-11-20. The front-end under-credited two rows
+(`AutomorphicForm.IsCuspidalFn.add`/`.smul`) until FR-0264, so a read with the fixed tool subtracts
+**2 nodes / 25 lines** from every figure in this section; the set's own delta is unaffected. **Three rows become ready,
 2,461 silo**, all of them AF-subject: `DihedralWeightOne.exists_smoothCuspRealizationAt_productionPinsGeneral_toFun_eq_weightOneLift_of_isPrimitiveForm`
 (**1,096**, 9 premises), `DihedralWeightOne.weightOneLift_ne_zero_and_apply_mul_finEmbed_eq_of_isPrimitiveForm`
 (**1,003**, 9 premises) and `AutomorphicForm.setLIntegral_rationalCentreUnipotentQuotientMeasure_shellZeroOutside_eq_mul_lintegral_sPartMeasure`
@@ -235,7 +239,7 @@ python3 frontier.py --ds --ready --include-leaves --rank-by silo --top 0 --json 
 
 | figure | before the set | after the landing |
 |---|---:|---:|
-| `needed [F terminal]` | 445 / 212,664 | **437 / 210,582** |
+| `needed [F terminal]` | 445 / 212,664 | **437 / 210,582** † |
 | ready rows | 12 / 3,072 | **13 / 4,538** |
 | leaves | 74 / 21,398 | **68 / 20,311** |
 | withheld | 4 / 831 | 4 / 831 |

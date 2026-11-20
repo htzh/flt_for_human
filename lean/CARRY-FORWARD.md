@@ -1338,3 +1338,65 @@ central scalar — as a **public** declaration at the pin's name. The pin declar
 and the two rows of the module consume it; a work order that calls it "private" is wrong and would
 make `check_port` skip it (FR-0242). It is also the natural import for anything that has to move
 between `globalPoints` and `centralScalar` without reproving the scalar-matrix identity.
+
+### The Haar quotient's density: four copies of one engine (SET-AF97G)
+
+`MeasureTheory/HaarQuotientDensity.lean` (SET-AF97) carries the pin's twelve declarations for
+`HaarQuotient.lintegral_density_mul_eq_one`. That mathematics is **already in the port**: the
+`private orb_density` of `MeasureTheory/HaarQuotient.lean:334–346` **is** this row, since the port's
+`orb H μH φ` (`:78–81`) is the pin's `orbit` generalised and the density is its `φ := weight` case.
+Mapping: `orbit` = `orb`, `orbit_mul` = `orb_mul_left`, `orbit_ne_zero` = `orb_weight_ne_zero`,
+`orbit_ne_top` = `orb_weight_lt_top` (proved on a different, absolute-bound route), `lintegral_density`
+= `orb_density`; `weight_eq`/`measurable_weight`/`coef` exist under the same names; only the pin's
+`weight_pos` has no counterpart.
+
+So the density block now exists in three places (`HaarQuotient.lean`, `HaarQuotientFubini.lean`,
+`HaarQuotientFubiniDead.lean`, the last in `Reserve/`) plus this pin-named copy, and `dedup --cross`
+over the four reads 33 clusters / 405 removable lines. The dedup is a manager decision, not a set's:
+either promote `orb`/`orb_density`/`orb_weight_*` in `HaarQuotient.lean` and let this module's headline
+become `exact orb_density …` (retiring eight engines), or hoist the pin-named engine into one module
+and have all four import it. `scaffold_audit` now skips `private` declarations in an import closure
+(FR-0258), so the private copy no longer counts as "satisfied" anywhere.
+
+### The two `IsCuspidalFn` rows are landed twice (SET-AF97E's finding)
+
+`AutomorphicForm/Adelic/ProductionPinsTail.lean` already declares `AutomorphicForm.IsCuspidalFn.add`
+and `.smul` from `S_AutomorphicForm_IsCuspidalFn_add.lean` / `…_smul.lean` (its wire lines 4–5 of its
+five), and SET-AF97's `AutomorphicForm/Adelic/CuspidalSpace.lean` declares them again from the same
+two pins. **The two modules must not be imported together** — identical full names — and
+`check_port` cannot see it (each module is green on its own wire) nor `dedup --within` (within-module
+only).
+
+The intended resolution, when the module is next touched: keep `CuspidalSpace.lean` as the owner (its
+whole 78-line surface *is* those two rows, and by subject they belong with the cuspidal space, not in
+a 286-line "production-pins tail" that bundles five unrelated facts), delete the
+`namespace IsCuspidalFn` block and the two pin wires from `ProductionPinsTail.lean`, and repoint
+`spec/AutomorphicFormSetAF92EConsumer.lean`'s import at `CuspidalSpace.lean`. It is deferred because
+three AF modules import `ProductionPinsTail` (`WeightOneLiftAdelic`, `…HeckeEigen`,
+`…CentralScalar`) and rebuilding that chain while a set is in flight costs more than the duplication
+does.
+
+### `SPart.continuous_diagOne` is public in one module and byte-identically `private` in another (SET-AF97B)
+
+`AutomorphicForm/Adelic/ShellMeasureIntegral.lean` declares `AutomorphicForm.SPart.continuous_diagOne`
+publicly (the pin has it public, and its wire needs it), while
+`AutomorphicForm/Adelic/BorelHaarDisintegration.lean:79` already holds the same lemma byte-identically
+as a `private` declaration. `port_advise` flags it as "only as a port-private declaration: promote or
+move to a home". The clean fix is a public home in `AutomorphicForm/Adelic/Basic.lean` (or a shared
+`SPart` module) imported by both — a manager decision, not a set's, and it was not taken mid-wave.
+Until then the two copies must not drift: `check_port`'s statement hash guards the public one only.
+
+Note also that after FR-0258's fix, `scaffold_audit` no longer credits a `private` copy in an import
+closure, so the private copy cannot mask a missing row.
+
+### Two rows the shelf would not credit — resolved by FR-0264
+
+`AutomorphicForm.IsCuspidalFn.add` and `.smul` read `needed` on every DSH read from SET-AF95 through
+SET-AF97 although the port has held both since AF95 (`Adelic/ProductionPinsTail.lean`, now
+`Adelic/CuspidalSpace.lean`), with the pin wired and `check_port` reading each `ok`. The cause was the
+front-end, not the port: the name scan drops a last name shorter than six characters with no
+underscore or capital (`add`, `smul`), and the sources reading only mapped `Thm_` sources, so an
+`S_`-only wire contributed nothing. `frontier.py` now credits the nodes of the pin
+sources a tracked module's header wires — file level, never statements (FR-0264/FR-0265). With the
+fix, `needed [F terminal]` is **417 / 206,821** and the two rows are off the shelf. The five
+over-broad wires the same rule admits are listed in FR-0265 and printed by `--selfcheck`.

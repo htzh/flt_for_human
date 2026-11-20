@@ -5492,3 +5492,188 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   `.lake/build.lock` (lake does), or a lock inside the workspace (e.g. `lean/tmp/.build.lock`), which
   does persist across calls.
 - **seen**: 2026-11-20, SET-AF96 (reported independently by orders B, C and G).
+
+## FR-0257 [mathlib-drift] — `AdeleRing` and `InfiniteAdeleRing` are `def`s at v4.34, so a pin `rw` *into* a `Prod.mk`/`Pi.single` fails at `implicit` transparency
+
+- **where**: SET-AF97C, `NumberTheory/StandardAddChar/GlobalAndInfinite.lean`, four sites in
+  `psiLocal_rat_eq_psiV` and the two infinite-place rows (pins' `AdelicTraceData.adelicTrace_apply`,
+  `psiQ_apply`, `traceInfHom_apply`, `FiniteAdeleRing.algebraMap_apply`, `adeleSingleAt_apply`).
+- **the pin**: writes `rw [adelicTrace_apply]` where the goal's argument is a literal `(a, b)` / `Pi.single`
+  tuple; at `v4.34` `AdeleRing R K` is a plain `def` (a product) and `InfiniteAdeleRing K` a `Pi` type,
+  so the tuple is not *syntactically* of type `AdeleRing …` and the rewrite is rejected with "the
+  target expression is not type-correct under the `implicit` transparency level".
+- **the cure (body only)**: a term-mode `have h : … := rfl` (or a `show` of the unfolded form), which
+  elaborates at the default transparency and does see through the `def`. Do **not** try more `rw`.
+- **the class, now four sets running** (FR-0238 `AdeleRing`/`InfiniteAdeleRing`, FR-0245
+  `SpecialLinearGroup`, FR-0249 `Nat.Primes`, this one on the same two types at the term level). The
+  general rule stands: a pin step that *rewrites through* a `def`-abbreviation needs `set`/`have`/`show`
+  rather than `rw`.
+- **seen**: 2026-11-20, SET-AF97C (AF97D was warned forward, being the same block).
+
+## FR-0258 [instrument] — `scaffold_audit` credited a pin engine as "satisfied by the import closure" when the imported copy was `private`
+
+- **where**: `tools/deps/scaffold_audit.py`, `closure_names`: it collected the last name of **every**
+  declaration in the module's import closure, `private` ones included. SET-AF97G's scaffold read
+  "12 pin public declarations, 1 port declaration, **3 satisfied by the import closure**" while those
+  three (`coef`, `weight_eq`, `measurable_weight`) exist in `MeasureTheory/HaarQuotient.lean` only as
+  `private` — i.e. not importable, so the audit was crediting a copy nothing can see.
+- **why it matters**: this is FR-0242's blind spot one level up. FR-0242 says a `private` declaration
+  is skipped by the checker, so a module that quietly keeps an engine `private` can look complete by
+  having it elsewhere — and the audit, whose whole job is to catch a missing row, agreed.
+- **the fix (landed)**: `closure_names` skips declarations with the private/anonymous flag, so a
+  "satisfied by the import closure" line now names a *public* declaration. Re-running the fix over
+  the already-landed SET-AF96 modules leaves them all `complete`, so nothing that was declared
+  complete on the old reading was false — but a future wave could have been.
+- **rule**: when a gate reports a *count* (here "N satisfied by the import closure"), read the names
+  it credits, not the number; and a tool that answers "is this row on the wire" must ask "is it
+  importable", which for Lean means public.
+- **seen**: 2026-11-20, SET-AF97G (reported), fix landed the same session.
+
+## FR-0259 [port-structure] — two modules must never declare the same *public* full name, and neither `check_port` nor `dedup --within` can see it
+
+- **where**: SET-AF97. Two cases in one set, both found by a consumer zone rather than by a gate:
+  (a) `AutomorphicForm.IsCuspidalFn.add`/`.smul` were declared in `Adelic/ProductionPinsTail.lean`
+  (its wire lines 4–5) *and* in the new `Adelic/CuspidalSpace.lean` (same two pins);
+  (b) `DihedralWeightOne.slash_eq` was declared in `LanglandsTunnell/WeightOneLiftNebentypus.lean`
+  (AF95C) *and* in the new `WeightOneLiftCuspidalRealization.lean` (AF97A), from two different pins
+  that both state it publicly.
+- **symptom**: importing both fails at *import* time — `environment already contains 'X' from Y` — so
+  the two modules can never be used together, and every consumer that wants both is blocked. Each
+  module is green on its own wire, and `dedup --within` is within-module by construction, so no gate
+  reports anything.
+- **the cure used**: (a) the two rows moved to `CuspidalSpace.lean`, `ProductionPinsTail` lost the
+  block and its two wires (and the old `spec/AutomorphicFormSetAF92EConsumer` now imports both, which
+  is legal once the duplicate is gone); (b) A's copy kept the **pin's own stage namespace**
+  (`namespace Ws1.L1`), so the full name is `DihedralWeightOne.Ws1.L1.slash_eq` and the pin's last
+  name — which is all the checker and the shelf read — still matches. Keeping the pin's stage
+  nesting where the flattening would collide is cheaper than a rename and stays pin-faithful.
+- **rule**: before a set lands, `grep` the new public declarations' full names against the tree
+  (`grep -rn "^theorem <last>\|^def <last>" FLTForHuman/`); and when a consumer zone will not compile
+  on an import, suspect this class before suspecting the consumer.
+- **seen**: 2026-11-20, SET-AF97 (E's and A's reports, confirmed by the set's consumer zone).
+
+## FR-0260 [build] — a `rw` list whose last entry instantiates a big term can burn the whole heartbeat budget; split it into `rw` + `exact`
+
+- **where**: SET-AF97D, `LanglandsTunnell/TateLocal/AddCharLevel.lean`, the first row.
+- **symptom**: `rw [hz, psiFin_eq_one_of_forall_mem _ (fun w => (traceInt K z w).2)]` took
+  **> 4,000,000 heartbeats** (> 100 s wall, no output, "deterministic timeout at whnf/isDefEq" on the
+  `rw` line). Replacing it by `rw [hz]` followed by
+  `exact psiFin_eq_one_of_forall_mem _ (fun w => …)` elaborated the **whole module in 5.7 s**
+  (< 8,000 heartbeats). Same proof, same statement.
+- **why**: the rewrite tactic re-elaborates its pattern under the accumulated instance state; a
+  combined list with a term argument that elaborates slowly is re-traversed per occurrence, and the
+  cost is not additive.
+- **rule**: end a proof with `exact`/`refine` rather than appending the closing lemma to a `rw` list,
+  and when a pin body stalls at a `rw` with a `(fun …)` argument, split it before touching
+  `maxHeartbeats` (which is forbidden by the no-linter/no-option rule anyway).
+- **seen**: 2026-11-20, SET-AF97D.
+
+## FR-0261 [port-structure] — a port module's flat namespace can shadow an opened prelude name, and the body then silently proves the wrong thing
+
+- **where**: SET-AF97A, `LanglandsTunnell/WeightOneLiftCuspidalRealization.lean` (and the same class in
+  SET-AF95/96 modules that `open LanglandsTunnell.RatArch` from inside `namespace DihedralWeightOne`).
+- **the hazard**: `LanglandsTunnell/WeightOneLiftLevel.lean` declares, *inside* `DihedralWeightOne`,
+  nine names that are also on the AF93 prelude — `ratArch_mul`, `ratArch_inv`, `ratArchHom_apply`,
+  `ratArch_eq_one_of_glArch_eq_one`, `ratArch_globalPoints`, `archPart`, `glFin_archPart`,
+  `ratArch_archPart`, `slash_eq_smul_of_hasNebentypus` — and all nine are about
+  `LanglandsTunnell.ratArchGL2` (the *delta* lift), not about the pin's `ratArch`. The pin's flat
+  search-stage namespaces never meet them; in the port the local name wins over the opened prelude,
+  so a body reading `ratArch_mul` silently gets the `ratArchGL2` law.
+- **symptom when it bites**: not a type error at the shadowed name, but a `rewrite` failure or a
+  mysteriously unprovable goal a few lines later (AF97A spent a build round on it, then cured it with
+  full qualification at two sites).
+- **rule**: when a module in `DihedralWeightOne` opens a `LanglandsTunnell` prelude namespace, qualify
+  every prelude name the module itself also declares; and when a *new* module re-declares a prelude
+  engine, check that name against `WeightOneLiftLevel.lean` first. Also relevant to FR-0259: the
+  collision that produced this list is why adding an import to A's module changed a proof.
+- **seen**: 2026-11-20, SET-AF97A.
+
+## FR-0262 [instrument] — `linter.style.haveILetI`'s cure is wrong for an *inlined* instance: `letI := (productionPinsCompact ℚ).mS` cannot become `let`/`have`
+
+- **where**: SET-AF97A, the two rows of `WeightOneLiftCuspidalRealization.lean`.
+- **what happened**: the pin installs the measurable-space instance as
+  `letI := (productionPinsCompact ℚ).mS`. The linter asks for `have`/`let`, but neither elaborates:
+  the goal's instance is the *inlined* `mS`, so `have : MeasurableSpace (AdeleRing …)` is not
+  definitionally equal to it ("synthesized type class instance is not definitionally equal…").
+  AF97A kept `letI` with `set_option linter.style.haveILetI false in`, **scoped to exactly those two
+  declarations**, with the precedent of `AutomorphicForm/Adelic/Cusp/BoundedGenuineRealization.lean`.
+- **rule**: FR-0255's blanket `haveI`/`letI` → `have`/`let` cure holds for a *pin-fresh* instance; it
+  does not hold when the instance is an inlined term from another module. Then a **declaration-scoped**
+  `set_option` is the honest cure, and the header must say why (house style for narrowed
+  suppressions). Do not lift that `set_option` to the file.
+- **seen**: 2026-11-20, SET-AF97A.
+
+## FR-0263 [instrument] — `port_advise` reports the wrong home namespace past an `open … in` reset
+
+- **where**: SET-AF97A, the substitute block for the two 1,000-line lift pins.
+- **symptom**: it printed `LanglandsTunnell.ArchLift.DetIntegral.*`, `ArchLift.ArchLift.*`,
+  `ArchLift.RatArch.*` for declarations whose true homes are `LanglandsTunnell.{weightOneLift_eq,
+  _mul_of_mem_U, _globalPoints_mul, _mul_eq, det_coe_SL}`, `LanglandsTunnell.DetIntegral.{mem_U_iff,
+  archDetNorm_default_eq}`, and only `weightOneArchLift_*` inside `ArchLift` — because the source's
+  `open ArchLift` at `:392` resets the nesting for everything after it, while the tool reads the
+  declared namespace of each declaration. It also placed `archDetNorm` under the prelude when it is
+  `NumberField.AdelicVolume.archDetNorm`. Cost: three `open`s and two probe rounds.
+- **rule**: treat a `port_advise` *namespace* as a hint, not a fact (the same way its substitution
+  tier is a hint); when a substitute does not resolve, `#check` the last name rather than trusting the
+  printed qualification.
+- **seen**: 2026-11-20, SET-AF97A.
+
+## FR-0264 [instrument] — the shelf could not credit a row whose last name is generic *and* whose only wire is an `S_` source, so ported rows came back as `needed`
+
+- **where**: `tools/deps/frontier.py`, the two ported-frontier readings. `AutomorphicForm.IsCuspidalFn.add`
+  and `.smul` read `needed` on every DSH read from SET-AF95 through SET-AF97 although the port declared
+  both (AF95's `Adelic/ProductionPinsTail.lean`, then `Adelic/CuspidalSpace.lean`), with the pin wired
+  and `check_port` reading each `ok`.
+- **the mechanism, two halves that must both be present**: (a) the name scan
+  (`port_decl_nodes` over `scan_port_decls`) drops a last name shorter than six characters with no
+  underscore and no upper-case letter or digit — `add`, `smul`, `mul`, … — because otherwise
+  `HahnSeries.HasRamBound.add` would read as ported; (b) the sources reading was built from the
+  checker's `SOURCES` list with `include_s=False`, so a *module header's* `spec-pin: P2M/Sol/S_….lean`
+  contributed nothing to it. A wired `S_` row with a generic last name therefore fell between the two
+  tiers, though the docs of `wired_sources` state that the sources tier exists exactly for the
+  hand-over direction. (The three documented exceptions relied on the row also being on a `Thm_`
+  `SOURCES` row, which a fresh wire is not.)
+- **the fix (landed, then narrowed the same day)**: `Frontier.wired_source_nodes` credits the graph
+  nodes of the pin sources a tracked port module's header wires. The first version required the module
+  to declare the node and, for a generic last name, a statement-hash match with the pin's `solution`;
+  that was withdrawn in favour of the **file-level** rule (FR-0265) — the frontier counts node files,
+  never statements, so a refactor that moves, renames or drops declarations cannot put a node back on
+  the shelf. The over-broad wires this admits are reported by `--selfcheck` and registered in
+  `spec/METADATA-ISSUES.md`.
+- **the measurement**: the file-level credit lifts `AutomorphicForm.IsCuspidalFn.add/.smul` off the
+  shelf and nothing else that the demand contains (the five extra nodes it admits lie outside the
+  D–S cone, FR-0265), so `needed [F terminal]` 419 / 20,846 → **417 / 206,821** and ready rows
+  28 / 12,637 → **27 / 12,612**. The ported-node set grows by 7 (2 in the demand, 5 outside it).
+- **the rule**: when a `needed = 1` looks suspicious, test *both* tiers — a non-distinctive last name
+  is invisible to the name scan, and an `S_`-only wire is invisible to the `Thm_` sources tier; and
+  when a landing's row does not leave the shelf, diff the ported-node set with and without the fix
+  (two lines of Python) rather than adding the row's lines to `needed` by hand.
+- **seen**: 2026-11-20, SET-AF97 (reported at landing; fixed the same session).
+
+## FR-0265 [instrument] — the frontier counts node *files*, not statements: that is the rule, and the `--selfcheck` list is where an over-broad wire is registered
+
+- **where**: `tools/deps/frontier.py` (after FR-0264). Settled with the user on 2026-11-20.
+- **the rule, confirmed by reading the code**: `frontier.py` reads (a) `spec/old_check_stmts.py`'s
+  `SOURCES`/`PORT_FILES` string lists, (b) each port module's header for `spec-pin:` lines, and
+  (c) each port module's *declaration names* (`DECL_RE`) for the last-name scan. It reads **no
+  statement** — `grep statement_db frontier.py` is empty. Statement fidelity is `spec/check_port.py`'s
+  job and completeness is `tools/deps/scaffold_audit.py`'s; the shelf only counts node files.
+- **consequence (the point of the rule)**: a node is ported once a *tracked* module's header wires its
+  pin source, whatever that member currently declares. Moving a declaration to another module,
+  renaming a helper, splitting a module or deleting a statement therefore cannot put a node back on
+  the shelf. Verified directly: a header-only module with **zero** declarations and one `spec-pin:`
+  line credits its node.
+- **the price, measured**: a wire credits *all* of a pin `S_` file's nodes, including the file's row
+  when the module only took that file's engines. Five such over-broad wires exist today
+  (`WeierstrassCurve.Affine.ncard_fibSet` from `FibSetFinite.lean`;
+  `ModularCurve.isInftySide_cuspInftyBar` from `LaurentGlue.lean`;
+  `ModularCurve.JOne.degeneracyPullbackInputs` from `Inputs.lean`;
+  `ModularCurve.FullLevel.laurentBaseChange_gamma0_le_fieldBar` from `Laurent.lean`;
+  `AlgebraicCurve.Annulus.abv_evalAt_le_max_of_isAttached_both_ends` from `PlaceEvaluation.lean`), and
+  **all five lie outside the D–S demand**, so they move no `needed` figure (417 / 206,821 either way).
+  `--selfcheck` prints them as "source node not covered by the name scan" — that list, plus
+  `spec/METADATA-ISSUES.md` for the registered ones (MD-005), *is* the register for this class.
+- **do not** re-introduce a statement read in `frontier.py` to narrow this. If a wire is genuinely
+  too broad, the cure is the wire (a module should name the pin sources it transposes — FR-0247), and
+  the checker is what proves it.
+- **seen**: 2026-11-20, SET-AF97 (FR-0264's hash gate removed the same day it was added).

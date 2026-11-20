@@ -1,15 +1,14 @@
 /-
-The production-pins tail: window counting, invariance, and cuspidal linearity.
+The production-pins tail: window counting and invariance.
 
-Five small facts: the ample-window rational points have a bounded `ncard`; an invariant function is
-determined by its finite part on the rational points; `U_mul` meets the rational points; and the
-cuspidal functions are closed under addition and scalar multiplication.
+Three small facts: the ample-window rational points have a bounded `ncard`; an invariant function is
+determined by its finite part on the rational points; `U_mul` meets the rational points. The two
+`IsCuspidalFn` linearity lemmas now live in `Adelic/CuspidalSpace.lean`, which owns their two pins
+(they were declared here too until SET-AF97; the two modules must not be imported together).
 
   spec-pin: P2M/Sol/S_AutomorphicForm_exists_forall_ncard_setOf_globalPoints_mul_mem_iUnion_centreCutSiegelSetAmple_le.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_ext_of_invariant_of_forall_glFin_eq_one_rat.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_exists_mem_productionPinsCompact_U_mul_eq_rat.lean
-  spec-pin: P2M/Sol/S_AutomorphicForm_IsCuspidalFn_add.lean
-  spec-pin: P2M/Sol/S_AutomorphicForm_IsCuspidalFn_smul.lean
 
 ## Port deltas
 
@@ -257,29 +256,6 @@ theorem exists_mem_productionPinsCompact_U_mul_eq_rat
         g = AutomorphicForm.globalPoints (NumberField.RingOfIntegers ℚ) ℚ γ * h * u
   := by
   exact LevelCoveringDecomp.exists_mem_productionPinsCompact_U_mul_eq_rat_impl hN g
-
-namespace IsCuspidalFn
-
-theorem add
-    {Q : Type*} [MeasurableSpace Q] {G : Type*} [Group G]
-    {μ : Measure Q} {u : Q → G} {f₁ f₂ : G → ℂ}
-    (hf₁ : IsCuspidalFn μ u f₁) (hf₂ : IsCuspidalFn μ u f₂)
-    (h₁ : ∀ g, Integrable (constantTermIntegrand u f₁ g) μ)
-    (h₂ : ∀ g, Integrable (constantTermIntegrand u f₂ g) μ) :
-    IsCuspidalFn μ u (fun x => f₁ x + f₂ x)
-  := by
-  intro g
-  rw [AutomorphicForm.constantTerm_add μ u g (h₁ g) (h₂ g), hf₁ g, hf₂ g, add_zero]
-
-theorem smul
-    {Q : Type*} [MeasurableSpace Q] {G : Type*} [Group G]
-    {μ : Measure Q} {u : Q → G} {f : G → ℂ}
-    (hf : IsCuspidalFn μ u f) (c : ℂ) : IsCuspidalFn μ u (fun x => c * f x)
-  := by
-  intro g
-  rw [constantTerm_smul, hf g, mul_zero]
-
-end IsCuspidalFn
 
 end AutomorphicForm
 

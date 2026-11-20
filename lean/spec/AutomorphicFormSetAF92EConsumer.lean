@@ -1,4 +1,5 @@
 import FLTForHuman.AutomorphicForm.Adelic.ProductionPinsTail
+import FLTForHuman.AutomorphicForm.Adelic.CuspidalSpace
 
 /-!
   SET-AF92E consumer: the cuspidal functions are closed under an affine combination.
