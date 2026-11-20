@@ -5088,3 +5088,55 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
 - **rule for a work order**: quote the tool commands with their working directory, not just their paths.
   A command that fails for a path reason costs a worker a detour and looks like a broken tree.
 - **seen**: 2026-11-14, SET-AF88C (reported by the worker; both tools work as documented from `tools/deps/`).
+
+## FR-0235 [port] — `haveI`/`letI` → `have`/`let` is not always safe: a `letI`-bound instance **in the goal type** needs the inlining
+
+- **where**: SET-AF89D1, `AutomorphicForm/Adelic/Cusp/BoundedGenuineRealization.lean` (the
+  `memLp_two_restrict_of_bound` statement and the 69 row's instance context).
+- **what FR-0223 said**: replacing `haveI`/`letI` by `have`/`let` is a statement-neutral v4.34
+  substitution (the `haveILetI` linter). It is, *when the instance is only used by the proof*.
+- **the failure**: at three sites the frozen goal **type** itself carries a `letI`-bound
+  `MeasurableSpace` (the `MemLp … ((adelicGLHaar …).restrict D)` conclusion). That instance is
+  opaque to synthesis in the goal, and `have`/`let` fails with `synthesized type class instance is
+  not definitionally equal … synth glBorel / pins.mS`. Only `letI`'s *inlining* of the value into
+  the goal type makes the statement elaborate.
+- **the fix (no silencer, no statement change)**: write the definition/theorem in **term
+  position** with `letI …` (`letI : MeasurableSpace … := …; body`), which keeps the inlining; no
+  linter fires and no `set_option` is needed. Do not "fix" the goal by restating it.
+- **rule**: FR-0223's substitution is safe only when no `letI`-bound instance appears in the goal
+  type; otherwise keep `letI` in term position.
+- **seen**: 2026-11-19, SET-AF89D1 (three sites).
+
+## FR-0236 [instrument] — a `sorry` body hides `linter.unusedVariables`
+
+- **where**: SET-AF89D1, the 69 row `exists_smoothCuspRealizationAt_productionPinsOf_toFun_eq_of_isBoundedOnSiegelWindows_of_coversModCentre`.
+  Its frozen `hd : d₁ < d₂` and `hcov : CoversModCentre …` are dead in the pin's proof.
+- **symptom**: the manager's scaffold was silent because a `sorry` body counts as using every
+  binder; the same theorem with `trivial` warns. So a scaffold's "silent + built" is not evidence
+  that its frozen binders will be spent, and a worker's first proof attempt meets a linter the
+  scaffold hid.
+- **fix**: spend the hypothesis once (`have hd' … := hd`) rather than renaming it (the binder name
+  is part of the wire) or silencing the linter (FR-0164).
+- **rule**: when a worker removes a `sorry`, expect `linter.unusedVariables` on binders the pin's
+  proof ignores; budget one line per dead binder and keep its name.
+- **seen**: 2026-11-19, SET-AF89D1 (two binders, one row).
+
+## FR-0237 [instrument] — `scaffold_audit.py` matches by **last name**, so an unrelated declaration can read a pin public as "satisfied"
+
+- **where**: SET-AF89 B and C. The audit's `imported` bucket is a last-name test over the module's
+  port-import closure, not a statement test (`scaffold_audit.py`'s `closure_names`).
+- **the instances**: the pin's `Kw` (a `Subgroup`) was credited to `AutomorphicForm.ArchInfra.Kw`
+  (a `Type`-valued abbrev) in B, and the pins' public `main` (C4 `:119`, C5 `:110`) to unrelated
+  `main`s in `ProductMeasure`/`ArchFiniteFactorization` in C. In both cases the audit read `complete`
+  while a pin public was not declared.
+- **effect**: `complete` is a **last-name coverage** test; it can be green on a collision. It is
+  still the only instrument that sees an *omitted* declaration (`check_port` iterates the module's
+  declarations and cannot), so the two must be read together with the wire's public count:
+  `declared + imported + folded = wire`, and every `imported` row should be checked for a same-name
+  collision when the declaration is mathematical, not glue.
+- **the resolution in this set**: B declared `Kw`/`W` at the pin's statements (collision removed);
+  C left the two `main`s folded into their rows (`solution`'s statement *is* `main`'s), so the
+  audit's `complete` there leans on a collision and the report says so.
+- **rule for a work order**: state the audit's three buckets (`declared / imported / folded`) and
+  require the worker to name any `imported` match that is not statement-identical.
+- **seen**: 2026-11-19, SET-AF89B/C.

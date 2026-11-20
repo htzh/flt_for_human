@@ -395,6 +395,12 @@ dropping them leaves no statement effect; record the drift): `Def_LocalNewvector
 (255, the `PSCarrier` `attribute [-instance]`/`[-simp]` prelude) and
 `Def_AutomorphicForm_DihedralWeightOneLift` (30, an `open … DihedralWeightOne`).
 
+**Update 2026-11-19 (SET-AF89):** `Def_AutomorphicForm_DihedralWeightOneLift` is no longer owed by
+this family — it was ported whole, with its own `Def_LanglandsTunnell_DeltaLift` dependency, at
+`FLTForHuman/LanglandsTunnell/DihedralWeightOneLift.lean` and `…/DeltaLift.lean` for the weight-one
+boundedness row. The `Def_LocalNewvector_PrincipalSeriesCarrier` half and the 864-line gate above
+remain open.
+
 Already homed and *not* owed: `LocalNewvector.padicK1`/`congruenceK0`
 (`RepTheory/LocalNewvector/CongruenceSubgroupK1.lean`), `AdelicDock.*`
 (`NumberTheory/AdelicDock/LocalEmbedding.lean`), `FLT.SmoothVectors` (`RepTheory/SmoothVectors.lean`),

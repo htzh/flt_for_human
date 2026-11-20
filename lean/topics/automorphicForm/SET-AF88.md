@@ -271,3 +271,9 @@ its definition work (the recipe's §7).
 `Def_HeckeCharacter_FiniteOrder`, which has since landed; the live gate is
 `Def_AutomorphicForm_ViaCompactCuspNotion` (74 lines, all four of its imports ported), which the same
 `Def_`-porting pass should take — it is the smallest of the four and unblocks a row with project leverage 16.
+
+*(Follow-up, SET-AF89 2026-11-19: the gate was paid as part of that set's manager layer. Measured
+there, the list above is one module short — `Def_LanglandsTunnell_DeltaLift` (46 lines, unported) is a
+hard dependency of `Def_AutomorphicForm_DihedralWeightOneLift` — so the weight-one row needed five
+`Def_` modules, not three. All five plus the two ordinary orders (1,179 and 552) landed; see
+[SET-AF89.md](SET-AF89.md) §7.)*

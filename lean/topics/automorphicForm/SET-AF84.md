@@ -89,7 +89,9 @@ half is `RepTheory` vocabulary that the generic `typeSubmodule` home debt
 The rest of the ready block stays deferred for the recorded reasons: `WeierstrassCurve` 697/599,
 `GaloisRep` 495, `MeasureTheory` 200, `ValuationSubring` 138, `NumberField.TateGlobal` 120,
 `AutomorphicForm.SmoothCuspRealizationAt.centralChar_eq_of_agreesAwayFromFinite` 113 (its `Def_` prefix pulls
-`Def_HeckeCharacter_FiniteOrder`, a different subject), `ModularForm`/`ModularCurve`/`AlgebraicCurve` rows (other
+`Def_HeckeCharacter_FiniteOrder`, a different subject; *(correction, SET-AF89: that module landed, and the
+row's live gate — `Def_AutomorphicForm_ViaCompactCuspNotion` — was paid there; the row is ported at
+`AutomorphicForm/Adelic/Cusp/CentralCharacter.lean`)*), `ModularForm`/`ModularCurve`/`AlgebraicCurve` rows (other
 columns), and `NumberField.AdelicHaar.isMulRightInvariant_…` 84.
 
 ## 2. The homes and the scaffolds

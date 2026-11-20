@@ -60,6 +60,9 @@ infinite-adele `GL₂`.
 for its `Def_HeckeCharacter_FiniteOrder` prefix; that module has since landed, but the row's *proof*
 closure still names `Def_AutomorphicForm_ViaCompactCuspNotion` (74 lines), which is unported. All four of
 that module's own imports are ported, so it is a one-module definition gate — a set of its own, not a rider.
+*(Correction, SET-AF89: the gate was in fact paid as a rider of the next set's definition layer; the row
+landed in `AutomorphicForm/Adelic/Cusp/CentralCharacter.lean` with the `ViaCompactCuspNotion` port at
+`AutomorphicForm/Adelic/Cusp/CompactCuspNotion.lean`.)*
 
 The rest of the ready block stays deferred for the recorded reasons: `WeierstrassCurve` 697 / 599 and
 `GaloisRep` 495 (other columns), `MeasureTheory.exists_integral_conj_apply_smul_ne_zero_…` 200,
