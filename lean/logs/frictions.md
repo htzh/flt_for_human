@@ -5155,3 +5155,19 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   ring abbreviations; every later `psiQ`/`traceInfHom` computation will pay the same one
   substitution.
 - **seen**: 2026-11-20, SET-AF90B (one row, two sites).
+
+## FR-0239 [port] — a scaffolded row cannot always stay at the top of its module
+
+- **where**: SET-AF91A, `AutomorphicForm/Adelic/WhittakerSum.lean`. The scaffold declared the row
+  at the top (the manager's convention: headline first, engines to be transcribed below it by the
+  worker). The pin's flattened file has the opposite order: its engine `innerSolution` at `:1060`,
+  its `solution` at `:1140`.
+- **the constraint**: Lean has no forward references, so a row at the top can only be a `sorry`;
+  once the proof is the pin's, it has to follow the engine. The worker moved the row to the end of
+  the module (`:1143`) with the name, visibility and statement byte-identical.
+- **why it is harmless**: `check_port` and `scaffold_audit` are declaration-position-blind; the
+  wire, the axioms, `dedup` and `move_dead` do not move. The only cost is that a reader comparing
+  the scaffold with the landed file sees the row at the bottom.
+- **rule for a work order**: a scaffolded row may be moved within its module once its proof is
+  transcribed; never re-spell it, and say in the report where it moved.
+- **seen**: 2026-11-20, SET-AF91A (one row, 1,161-line module).
