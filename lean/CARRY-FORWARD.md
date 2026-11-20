@@ -8,6 +8,63 @@ pin file's surface is deferred; delete it when the work lands. The general scopi
 
 Deferred API that has been ported and verified is in `Reserve/`, not here.
 
+### The cuspidality pin's unreachable delta-lift block, deferred by SET-AF93B
+
+`P2M/Sol/S_LanglandsTunnell_isCuspidalFn_weightOneLift.lean` carries **40 private declarations
+that nothing in the pin — its own `solution` included — reaches**: the `LanglandsTunnell.P4.I2`
+delta-lift construction, the `span_243` block, and a set of arch-lift leaves. SET-AF93B cut them
+(the module is `LanglandsTunnell/WeightOneLiftCuspidal.lean`, 47 declarations) so that `move_dead`
+reads `0 / 0`, and registered them here rather than in the module's surface.
+
+Their mathematics is another node's content, which the port already holds: the delta lift is
+`LanglandsTunnell/DeltaLift.lean` (`deltaArchLift`, `HasDeltaDecomp`, `deltaLift`) and the arch
+lift's boundedness is `LanglandsTunnell/WeightOneBound.lean`. They are therefore **not** port-once
+candidates — a future set that wants the cuspidality pin's *own* spelling of that block (its
+`deltaLiftFn` is the pin's private copy of `deltaLift`) should read `DeltaLift.lean` first.
+
+The pin's unreachable set is 55, not 40: 9 are shared-prelude declarations that other rows consume
+(they live in `LanglandsTunnell/WeightOneLiftAdelic.lean`), and 6 (`continuous_ratArch`,
+`continuous_num_I`, `continuous_archAdele`, `continuous_unipotentGL2`, `isOpen_detPos`,
+`unipotentGL2_inv_coe`) are dead in the pin but live in the port module, because the port's flat
+`LanglandsTunnell` namespace makes its own copy win where the pin's bare reference resolves to a
+same-named imported declaration.
+
+| declaration | pin | declaration | pin |
+|---|---|---|---|
+| `deltaArch` | `:31` | `deltaLiftFn_one` | `:391` |
+| `deltaArch_def` | `:34` | `deltaLiftFn_one_ne_zero` | `:394` |
+| `deltaArch_sl_mul` | `:38` | `exists_isDeltaDecomp_of_strongApprox` | `:398` |
+| `slash_scalar` | `:49` | `isDeltaDecomp_mul` | `:476` |
+| `deltaArch_scalar_mul` | `:78` | `deltaLiftFn_mul_eq` | `:490` |
+| `deltaArch_one` | `:103` | `deltaArch_eq_of_det_pos` | `:531` |
+| `deltaArch_one_ne_zero` | `:106` | `continuousOn_discriminant_smul_I` | `:548` |
+| `norm_deltaArch_le` | `:110` | `continuousOn_deltaArch` | `:555` |
+| `IsDeltaDecomp` | `:283` | `continuous_deltaLiftFn` | `:566` |
+| `deltaArch_ratArch_eq_of_isDeltaDecomp` | `:288` | `norm_deltaLiftFn_le` | `:600` |
+| `deltaLiftFn` | `:342` | `memLp_two_deltaLiftFn` | `:610` |
+| `deltaLiftFn_eq` | `:346` | `finPart_globalPoints_mapGL_mem_U` | `:716` |
+| `deltaLiftFn_of_not` | `:355` | `weightOneArchLift_one` | `:807` |
+| `deltaLiftFn_globalPoints_mul` | `:361` | `weightOneArchLift_iwasawa` | `:810` |
+| `deltaLiftFn_mul_of_mem_U` | `:373` | `span_243_ne_bot` | `:893` |
+| `isDeltaDecomp_one` | `:386` | `hasWeightOneDecomp_243` | `:898` |
+| `not_exists_not_hasWeightOneDecomp` | `:902` | `weightOneLift_eq_dif_pos` | `:906` |
+| `algebraMap_det_mem_integral` | `:1131` | `abs_det_eq_one_of_glFin_mem_finiteIntegralGL2` | `:1141` |
+| `det_ratArch_eq_archDetNorm` | `:1165` | `norm_weightOneLift_le_of_mem_D` | `:1188` |
+| `memLp_two_weightOneLift` | `:1321` | `gamma1_slash_binder_of_SL_slash` | `:1341` |
+
+Price to revive: the block is ~470 pin lines; the port's `DeltaLift.lean` already proves the
+corresponding statements, so a consumer should import it rather than transcribe.
+
+### `P2.Artin.absNorm_coprime_of_not_dvd` — inlined, not ported
+
+`P2M/Sol/S_LanglandsTunnell_isHeckeCosetEigenfunctionAt_weightOneLift.lean:1100` uses a private
+helper `P2.Artin.absNorm_coprime_of_not_dvd` that the port does not have. SET-AF93C inlined its
+proof as a `have` inside `exists_twist_data` rather than adding a lemma with one consumer.
+
+Price to promote: ~5 lines; it is only worth doing if a second consumer appears (then the lemma's
+name should be the pin's, with its own wire). No statement of the module changes either way.
+
+
 ## Deferred API
 
 ### The duplicated pin prelude of SET-AF90 — one home per lemma when the two sides next meet
@@ -19,10 +76,16 @@ alone), so nothing is missing; what is owed is the fusion when either side is ne
 
 | declaration | public home (wire) | private copy |
 |---|---|---|
-| `LevelCovering.exists_algebraMap_eq_of_mem_integralFiniteAdeles` | `NumberTheory/AdelicLevel/ArchLevelLattice.lean` (B1 pin `:26`) | `LanglandsTunnell/WeightOneBound.lean` (501 pin) |
+| `LevelCovering.exists_algebraMap_eq_of_mem_integralFiniteAdeles` | `NumberTheory/AdelicLevel/ArchLevelLattice.lean` (B1 pin `:26`) | `LanglandsTunnell/WeightOneLiftAdelic.lean` (SET-AF93 moved it here from `WeightOneBound.lean`, as the pin's own generic spelling `exists_algebraMap_eq_of_mem_integralFiniteAdeles`) |
 | `ArchLevel.map_unipotentGL2` | `NumberTheory/AdelicLevel/ArchLevelLattice.lean` (B2 pin `:102`) | `AutomorphicForm/Adelic/Cusp/LevelOneObstruction.lean` |
 | `neg_mem_integralFiniteAdeles` | `NumberTheory/AdelicBox/Measure.lean` (D1 pin `:109`, D3 `:107`) | `AutomorphicForm/Adelic/FiniteIntegralConjugation.lean` |
 | `continuous_of_mem_cuspKFiniteSubmodule` | private in `Cusp/SpectrumConstituentClosure.lean` (A3 pin `:25`) | private in `Cusp/IrreducibleSpine.lean` (same 11-line lemma) |
+
+SET-AF93 has since made the *pin's* generic spelling of the first row public in
+`LanglandsTunnell/WeightOneLiftAdelic.lean` (`DetIntegral.exists_algebraMap_eq_of_mem_integralFiniteAdeles`)
+and kept the `𝓞 ℚ`-specialised `DetIntegral.exists_algebraMap_eq_of_mem_integral` beside it, because
+the pin states both and both have consumers there; what is still owed for that row is the fusion
+with `ArchLevelLattice`'s section-variable form (a binder-spelling question, not a statement one).
 
 Price: one import line plus the deletion of each private copy (or, for the last row, of one of two
 private proofs); no statement changes, no wire changes, and `dedup --within` moves not at all.

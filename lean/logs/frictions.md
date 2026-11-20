@@ -5250,3 +5250,38 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   and counts it. A module whose surface includes scoped instances will report different counts from
   the two tools (here 23 vs 26), and the difference is expected.
 - **seen**: 2026-11-20, SET-AF92E.
+
+## FR-0244 [tree] — a module in the package imports a file that does not exist, so `lake build` of it fails
+
+- **where**: `FLTForHuman/LanglandsTunnell/TateLocal/DirichletIdele.lean:6` imports
+  `FLTForHuman.HeckeCharacter.Dirichlet`, and there is no such file (the directory
+  `FLTForHuman/HeckeCharacter/` exists, `Dirichlet.lean` does not). `lake build
+  FLTForHuman.LanglandsTunnell.TateLocal.DirichletIdele` fails with
+  `bad import 'FLTForHuman.HeckeCharacter.Dirichlet'`; the module has no `.olean`, so anything
+  importing it fails with "object file … does not exist".
+- **how it surfaced**: SET-AF93's central-scalar row needs `DirichletCharacter.dirichletIdeleChar`,
+  which the port declares *only* in that module, so the row's statement could not elaborate.
+- **the cure** (next touch of that module): either restore the missing import to the module that now
+  holds the Dirichlet-character development, or delete `DirichletIdele.lean` and let
+  `definitions/Def_DirichletCharacter_DirichletIdeleChar` be ported into `NumberTheory/RatIdele/`
+  (which is where its `RatIdele.unitPadicAt`/`unitResidue` block belongs) together with
+  `DirichletCharacter.dirichletIdeleChar`.
+- **rule**: a `--selfcheck`/`--ready` read does not see a broken *module*; only a build does. When a
+  row's statement names a definition, check that its home module actually builds (FR-0049's
+  vocabulary gate, one level down).
+- **seen**: 2026-11-20, SET-AF93 scoping.
+
+## FR-0245 [mathlib-drift] — `Matrix.SpecialLinearGroup` is a `def`, so the pin's `mapGL_coe_matrix` rewrite does not replay
+
+- **where**: SET-AF93A, `LanglandsTunnell/WeightOneLiftAdelic.lean`, the body of
+  `DetIntegral.exists_mapGL_eq_of_mem_finiteIntegralGL2` (pin 1 `:64`).
+- **the pin**: `rw [Matrix.SpecialLinearGroup.mapGL_coe_matrix]` to turn a `SL(2, ℤ)`-value into its
+  matrix of entries. At mathlib `v4.34` `Matrix.SpecialLinearGroup` is a `def` of
+  `{A : Matrix (Fin 2) (Fin 2) ℤ // A.det = 1}` (not an `abbrev`), so the rewrite is rejected with
+  "not type-correct under the implicit transparency level" — the same class as FR-0238, on the
+  special-linear group.
+- **fix (statement-neutral, body only)**: drop the `rw` and keep the `change (algebraMap ℤ ℚ) (A i j)
+  = _` that the pin writes immediately after it; it closes the goal on its own.
+- **rule**: any pin body that `rw`s a `…_coe_matrix`/`…_coe` lemma through `SpecialLinearGroup` or
+  `GLPos` needs the same treatment; the `change` form is what to write.
+- **seen**: 2026-11-20, SET-AF93A.

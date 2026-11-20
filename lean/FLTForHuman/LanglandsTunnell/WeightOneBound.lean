@@ -19,15 +19,22 @@
     last names; their statements are verbatim.
   - the pin's `p2m_export`/`p2m_open` staging lines are dropped (the flattening device), and the
     pin's repeated `noncomputable section`/`open` blocks are hoisted into one header; `ℍ` is
-    `UpperHalfPlane`, and `ratArch` stays the pin's own private copy of `ratArchGL2`
-    (`LanglandsTunnell/DeltaLift.lean`), so the pin's `rfl` at the archimedean-lift comparison
-    keeps working.
+    `UpperHalfPlane`.
+  - **SET-AF93**: the `RatArch` block (`glFin_globalPoints_apply`, `isReal_rat_infinitePlace`,
+    `ratArch`, `ratArch_eq_one_of_glArch_eq_one`, `ratArch_globalPoints`, `det_ratArch_globalPoints`)
+    and five declarations of the `DetIntegral` block (`finiteLevelZero_le_finiteIntegralGL2`,
+    `exists_algebraMap_eq_of_mem_integral`, `exists_intCast_eq_of_mem_integral`,
+    `abs_eq_one_of_mem_integral`, `archDetNorm_default_eq`) moved to the new shared engine
+    `LanglandsTunnell/WeightOneLiftAdelic.lean`, public and unchanged, because the five
+    `weightOneLift` rows of that set need the same private prelude. This module imports it; the
+    names, statements and proofs are the same, so nothing here changes mathematically.
   - two proof-body deprecations replaced by their v4.34 names, statement-neutral: `if_pos` →
     `ite_eq_left` (`norm_weightOneArchLift_le`) and `dif_neg` → `dite_eq_right`
     (`exists_bound_on_translate`).
   - heartbeat probe (`-DmaxHeartbeats`, one run per value): silent at **80000**; first failure at
     **50000** (`isDefEq` in the pin's `exists_bound_on_translate`). Never installed.
 -/
+import FLTForHuman.LanglandsTunnell.WeightOneLiftAdelic
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.BoundedGenuineRealization
 import FLTForHuman.LanglandsTunnell.DihedralWeightOneLift
 import Mathlib.NumberTheory.ModularForms.Bounds
@@ -44,34 +51,11 @@ namespace LanglandsTunnell
 
 namespace RatArch
 
-private theorem glFin_globalPoints_apply (γ : GL (Fin 2) ℚ) (i j : Fin 2) :
-    (glFin (𝓞 ℚ) ℚ (globalPoints (𝓞 ℚ) ℚ γ) : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 ℚ) ℚ)) i j
-      = algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) ((γ : Matrix (Fin 2) (Fin 2) ℚ) i j) := rfl
 
-private theorem isReal_rat_infinitePlace (v : InfinitePlace ℚ) : v.IsReal := IsTotallyReal.isReal v
 
-private def ratArch (g : GL (Fin 2) (AdeleRing (𝓞 ℚ) ℚ)) : GL (Fin 2) ℝ :=
-  GeneralLinearGroup.map
-    (InfinitePlace.Completion.ringEquivRealOfIsReal (isReal_rat_infinitePlace default)).toRingHom
-    (archComponent ℚ default (glArch (𝓞 ℚ) ℚ g))
 
-private theorem ratArch_eq_one_of_glArch_eq_one {u : GL (Fin 2) (AdeleRing (𝓞 ℚ) ℚ)}
-    (hu : glArch (𝓞 ℚ) ℚ u = 1) :
-    ratArch u = 1 := by
-  unfold ratArch
-  rw [hu, map_one, map_one]
 
-private theorem ratArch_globalPoints (γ : GL (Fin 2) ℚ) :
-    ratArch (globalPoints (𝓞 ℚ) ℚ γ) = GeneralLinearGroup.map (Rat.castHom ℝ) γ := by
-  refine Matrix.GeneralLinearGroup.ext fun i j => ?_
-  change ((InfinitePlace.Completion.ringEquivRealOfIsReal (isReal_rat_infinitePlace default)).toRingHom.comp
-      ((archEval ℚ default).comp ((adeleArch (𝓞 ℚ) ℚ).comp (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)))))
-      ((γ : Matrix (Fin 2) (Fin 2) ℚ) i j) = (Rat.castHom ℝ) ((γ : Matrix (Fin 2) (Fin 2) ℚ) i j)
-  rw [eq_ratCast, eq_ratCast]
 
-private theorem det_ratArch_globalPoints (γ : GL (Fin 2) ℚ) :
-    ((ratArch (globalPoints (𝓞 ℚ) ℚ γ)).det.val : ℝ) = (((GeneralLinearGroup.det γ : ℚˣ) : ℚ) : ℝ) := by
-  rw [ratArch_globalPoints, GeneralLinearGroup.map_det, Units.coe_map, MonoidHom.coe_coe, eq_ratCast]
 
 end RatArch
 
@@ -129,56 +113,10 @@ namespace DetIntegral
 
 open RatArch
 
-private theorem finiteLevelZero_le_finiteIntegralGL2 (N : Ideal (𝓞 ℚ)) :
-    finiteLevelZero (𝓞 ℚ) ℚ N ≤ finiteIntegralGL2 (𝓞 ℚ) ℚ := by
-  intro g hg
-  rw [mem_finiteLevelZero_iff] at hg
-  show g ∈ finiteLevelZero (𝓞 ℚ) ℚ ⊤
-  rw [mem_finiteLevelZero_iff]
-  have key : ∀ m : Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 ℚ) ℚ),
-      IsLevelZeroMatrix (𝓞 ℚ) ℚ N m → IsLevelZeroMatrix (𝓞 ℚ) ℚ ⊤ m := fun m hm =>
-    ⟨hm.integral, fun v => (hm.lowerLeft v).trans
-      ((idealBound_le_one N v).trans (idealBound_top v).ge)⟩
-  exact ⟨key _ hg.1, key _ hg.2⟩
 
-private theorem exists_algebraMap_eq_of_mem_integral {R : Type*} [CommRing R] [IsDedekindDomain R]
-    {K : Type*} [Field K] [Algebra R K] [IsFractionRing R K] {q : K}
-    (hq : algebraMap K (FiniteAdeleRing R K) q ∈ integralFiniteAdeles R K) :
-    ∃ r : R, algebraMap R K r = q := by
-  have h : ∀ v : HeightOneSpectrum R, v.valuation K q ≤ 1 := fun v => by
-    have h1 := hq v
-    rw [HeightOneSpectrum.mem_adicCompletionIntegers,
-      show (algebraMap K (FiniteAdeleRing R K) q) v = ((q : K) : v.adicCompletion K) from rfl,
-      HeightOneSpectrum.valuedAdicCompletion_eq_valuation'] at h1
-    exact h1
-  exact HeightOneSpectrum.mem_integers_of_valuation_le_one K q h
 
-private theorem exists_intCast_eq_of_mem_integral {q : ℚ}
-    (hq : algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) q ∈ integralFiniteAdeles (𝓞 ℚ) ℚ) :
-    ∃ n : ℤ, (n : ℚ) = q := by
-  obtain ⟨r, hr⟩ := exists_algebraMap_eq_of_mem_integral hq
-  exact ⟨Rat.ringOfIntegersEquiv r, by rw [← hr, Rat.ringOfIntegersEquiv_apply_coe]⟩
 
-private theorem abs_eq_one_of_mem_integral {q : ℚ} (hq0 : q ≠ 0)
-    (hq : algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) q ∈ integralFiniteAdeles (𝓞 ℚ) ℚ)
-    (hq' : algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) q⁻¹ ∈ integralFiniteAdeles (𝓞 ℚ) ℚ) : |q| = 1 := by
-  obtain ⟨a, ha⟩ := exists_intCast_eq_of_mem_integral hq
-  obtain ⟨b, hb⟩ := exists_intCast_eq_of_mem_integral hq'
-  have hab : a * b = 1 := by
-    have : ((a * b : ℤ) : ℚ) = 1 := by
-      rw [Int.cast_mul, ha, hb, mul_inv_cancel₀ hq0]
-    exact_mod_cast this
-  rw [← ha]
-  rcases Int.eq_one_or_neg_one_of_mul_eq_one hab with h1 | h1 <;> simp [h1]
 
-private theorem archDetNorm_default_eq (g : GL (Fin 2) (AdeleRing (𝓞 ℚ) ℚ)) :
-    archDetNorm (default : InfinitePlace ℚ) g = |(ratArch g).det.val| := by
-  unfold archDetNorm ratArch
-  rw [GeneralLinearGroup.map_det, Units.coe_map, MonoidHom.coe_coe, GeneralLinearGroup.val_det_apply,
-    ← Real.norm_eq_abs]
-  have hiso := InfinitePlace.Completion.isometry_extensionEmbeddingOfIsReal
-    (isReal_rat_infinitePlace (default : InfinitePlace ℚ))
-  exact (hiso.norm_map_of_map_zero (map_zero _) _).symm
 
 end DetIntegral
 
