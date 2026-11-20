@@ -275,17 +275,17 @@ variable {M : ℕ} {g : CuspForm (CongruenceSubgroup.Gamma1 M) 1} {φ : AdelicGL
 variable {M : ℕ} {g : CuspForm (CongruenceSubgroup.Gamma1 M) 1}
 variable {M : ℕ} {g : CuspForm (CongruenceSubgroup.Gamma1 M) 1} {φ : AdelicGL2 (𝓞 ℚ) ℚ → ℂ}
 
-private abbrev fn (y : AdelicSpan φ) : AdelicGL2 (𝓞 ℚ) ℚ → ℂ := (AdelicSpan.toFn φ y).toFn
+abbrev fn (y : AdelicSpan φ) : AdelicGL2 (𝓞 ℚ) ℚ → ℂ := (AdelicSpan.toFn φ y).toFn
 
 private theorem fn_smul_self (u : AdelicGL2 (𝓞 ℚ) ℚ) (z : AdelicGL2 (𝓞 ℚ) ℚ) :
     fn (u • AdelicSpan.self φ) z = φ (z * u) := by
   rw [fn, AdelicSpan.toFn_smul, AdelicFnCarrier.toFn_smul, AdelicSpan.toFn_self, AdelicFnCarrier.toFn_mk]
 
-private theorem fn_add (y₁ y₂ : AdelicSpan φ) (z : AdelicGL2 (𝓞 ℚ) ℚ) : fn (y₁ + y₂) z = fn y₁ z + fn y₂ z := rfl
+theorem fn_add (y₁ y₂ : AdelicSpan φ) (z : AdelicGL2 (𝓞 ℚ) ℚ) : fn (y₁ + y₂) z = fn y₁ z + fn y₂ z := rfl
 
-private theorem fn_csmul (c : ℂ) (y : AdelicSpan φ) (z : AdelicGL2 (𝓞 ℚ) ℚ) : fn (c • y) z = c * fn y z := rfl
+theorem fn_csmul (c : ℂ) (y : AdelicSpan φ) (z : AdelicGL2 (𝓞 ℚ) ℚ) : fn (c • y) z = c * fn y z := rfl
 
-private theorem fn_zero (z : AdelicGL2 (𝓞 ℚ) ℚ) : fn (0 : AdelicSpan φ) z = 0 := rfl
+theorem fn_zero (z : AdelicGL2 (𝓞 ℚ) ℚ) : fn (0 : AdelicSpan φ) z = 0 := rfl
 
 private theorem hasReading_iff (y : AdelicSpan φ) (F : UpperHalfPlane → ℂ) :
     HasReading y F ↔ ∀ h : AdelicGL2 (𝓞 ℚ) ℚ, glFin (𝓞 ℚ) ℚ h = 1 →

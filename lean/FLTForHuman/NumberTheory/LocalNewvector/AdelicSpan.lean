@@ -23,14 +23,12 @@
     and `Def_AdelicDock_LocalEmbedding` by `NumberTheory.AdelicDock.LocalEmbedding` (added here: it
     is what supplies `AdelicDock.padicToAdelic`, and through it `LocalNewvector.padicK1`). No module
     is imported that the file does not use.
-  * **Two `private` conductor-datum transcriptions.** The two `typeOf_*` statements at the end are
-    stated over the pin's conductor vocabulary, `fixedSubmodule` and `HasNewvectorConductor`, which
-    live in the pin's `Def_LocalNewvector_ConductorDatum.lean` — a file the port has not reached and
-    that nothing in the import closure provides. They are therefore transcribed here verbatim from
-    that pin file and declared `private`: `check_port` and `scaffold_audit` both skip `private`
-    declarations (FR-0242), so this module's public surface stays exactly the carrier pin's. They
-    are live, not dead: both are referenced by the statements of the two `typeOf_*` theorems. When
-    the conductor datum is ported, these become imports.
+  * **The conductor vocabulary is an import.** The two `typeOf_*` statements at the end are stated
+    over the pin's conductor datum, `fixedSubmodule` and `HasNewvectorConductor`; those live in the
+    pin's `Def_LocalNewvector_ConductorDatum.lean`, which the port now holds at
+    `NumberTheory/LocalNewvector/ConductorDatum.lean` (SET-AF96). This module imported `private`
+    transcriptions of the two until that module landed; it imports them now, and its public surface
+    is unchanged.
   * **Bodies.** All nine `sorry`s are the pin's proofs (`rfl` for the four instance-revealing
     lemmas — the two `padic_smul_def`s and the two `typeOf_*`s — and the pin's term/`span_induction`
     proofs for the other five).
@@ -79,6 +77,7 @@ import FLTForHuman.AutomorphicForm.Adelic.Basic
 import FLTForHuman.AutomorphicForm.Adelic.ArchType
 import FLTForHuman.NumberTheory.AdelicHaar.GeneralLinear
 import FLTForHuman.NumberTheory.AdelicDock.LocalEmbedding
+import FLTForHuman.NumberTheory.LocalNewvector.ConductorDatum
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Topology.Algebra.Module.Basic
 import Mathlib.RepresentationTheory.Basic
@@ -93,35 +92,6 @@ open NumberField IsDedekindDomain
 
 
 namespace LocalNewvector
-
-/- The two `typeOf_*` statements at the end are stated over the pin's conductor-datum vocabulary,
-   which lives in `Definitions/Def_LocalNewvector_ConductorDatum.lean` (not ported; see the header's
-   port deltas). Transcribed verbatim from that pin file and `private`, so that the public surface
-   of this module stays exactly the carrier pin's. -/
-
-section ConductorDatum
-
-variable (p : ℕ) [Fact p.Prime]
-
-private def fixedSubmodule {G : Type*} [Group G] (U : Subgroup G) (V : Type*) [AddCommGroup V]
-    [Module ℂ V] [DistribMulAction G V] [SMulCommClass G ℂ V] : Submodule ℂ V where
-  carrier := {v | ∀ g ∈ U, g • v = v}
-  add_mem' := by
-    intro v w hv hw g hg
-    rw [smul_add, hv g hg, hw g hg]
-  zero_mem' := by
-    intro g _
-    exact smul_zero g
-  smul_mem' := by
-    intro c v hv g hg
-    rw [smul_comm, hv g hg]
-
-private def HasNewvectorConductor (V : Type*) [AddCommGroup V] [Module ℂ V]
-    [DistribMulAction (GL (Fin 2) ℚ_[p]) V] [SMulCommClass (GL (Fin 2) ℚ_[p]) ℂ V]
-    (c : ℕ) : Prop :=
-  fixedSubmodule (padicK1 p c) V ≠ ⊥ ∧ ∀ m < c, fixedSubmodule (padicK1 p m) V = ⊥
-
-end ConductorDatum
 
 variable (F : Type*) [Field F] [NumberField F]
 

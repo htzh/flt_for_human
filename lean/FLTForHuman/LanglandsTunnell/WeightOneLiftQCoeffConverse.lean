@@ -302,7 +302,7 @@ section
 
 variable (p : ℕ) [hp : Fact p.Prime]
 
-private theorem coe_finComponent {R : Type*} [CommRing R] [IsDedekindDomain R]
+theorem coe_finComponent {R : Type*} [CommRing R] [IsDedekindDomain R]
     {K : Type*} [Field K] [Algebra R K] [IsFractionRing R K]
     (w : HeightOneSpectrum R) (g : GL (Fin 2) (FiniteAdeleRing R K)) :
     ((AdelicLevel.finComponent R K w g) : Matrix (Fin 2) (Fin 2) (w.adicCompletion K))
@@ -312,7 +312,7 @@ private theorem coe_finComponent {R : Type*} [CommRing R] [IsDedekindDomain R]
   rw [AdelicLevel.finComponent_apply, RingHom.mapMatrix_apply, Matrix.map_apply,
     AdelicLevel.finAdeleEval_apply]
 
-private theorem glEq_of_forall_finComponent_eq {R : Type*} [CommRing R] [IsDedekindDomain R]
+theorem glEq_of_forall_finComponent_eq {R : Type*} [CommRing R] [IsDedekindDomain R]
     {K : Type*} [Field K] [Algebra R K] [IsFractionRing R K]
     {g h : GL (Fin 2) (FiniteAdeleRing R K)}
     (H : ∀ w : HeightOneSpectrum R, AdelicLevel.finComponent R K w g = AdelicLevel.finComponent R K w h) :
@@ -321,7 +321,7 @@ private theorem glEq_of_forall_finComponent_eq {R : Type*} [CommRing R] [IsDedek
   refine matrix_eq_of_forall_mapMatrix_finAdeleEval_eq R K fun w => ?_
   rw [← coe_finComponent w g, ← coe_finComponent w h, H w]
 
-private theorem commute_of_finComponent_eq_one (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ))
+theorem commute_of_finComponent_eq_one (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ))
     {w x : GL (Fin 2) (FiniteAdeleRing (𝓞 ℚ) ℚ)} (hw : AdelicLevel.finComponent (𝓞 ℚ) ℚ v w = 1)
     (hx : ∀ w' : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ), w' ≠ v →
       AdelicLevel.finComponent (𝓞 ℚ) ℚ w' x = 1) :
@@ -332,13 +332,13 @@ private theorem commute_of_finComponent_eq_one (v : IsDedekindDomain.HeightOneSp
   · rw [hw, one_mul, mul_one]
   · rw [hx w' hw', mul_one, one_mul]
 
-private theorem mapMatrix_injective {A B : Type*} [Semiring A] [Semiring B] {f : A →+* B}
+theorem mapMatrix_injective {A B : Type*} [Semiring A] [Semiring B] {f : A →+* B}
     (hf : Function.Injective f) :
     Function.Injective ((RingHom.mapMatrix f : Matrix (Fin 2) (Fin 2) A →+* _)) := fun M N h => by
   ext i j
   exact hf (by simpa [RingHom.mapMatrix_apply, Matrix.map_apply] using congrFun (congrFun h i) j)
 
-private theorem exists_glMap_eq {R : Type*} [CommRing R] {K : Type*} [CommRing K]
+theorem exists_glMap_eq {R : Type*} [CommRing R] {K : Type*} [CommRing K]
     (f : R →+* K) (hf : Function.Injective f) (x : GL (Fin 2) K)
     (hx : ∀ i j, ∃ r, f r = (x : Matrix (Fin 2) (Fin 2) K) i j)
     (hx' : ∀ i j, ∃ r, f r = ((x⁻¹ : GL (Fin 2) K) : Matrix (Fin 2) (Fin 2) K) i j) :

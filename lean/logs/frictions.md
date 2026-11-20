@@ -5392,3 +5392,103 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   a `0 ok, 0 mismatch, 0 missing` summary with a header that visibly carries the line means the
   scanner did not see it.
 - **seen**: 2026-11-20, SET-AF95F.
+
+## FR-0252 [instrument] — a row's statement must be emitted from the pin `S_` file's `solution`, not from the `Theorems/` wrapper
+
+- **where**: SET-AF96's scaffold generator (`lean/tmp/af96/gen.py`), first run over the eight row pins.
+- **what happened**: the row theorem was emitted from the wrapper `Theorems/Thm_<node>.lean`, which is
+  the statement the *reader* wants — but the wrapper unqualifies names (`CuspForm (Gamma1 N) 1` for
+  the pin's `CuspForm (CongruenceSubgroup.Gamma1 N) 1`, `𝓞 ℚ` where the pin writes
+  `NumberField.RingOfIntegers ℚ`). `check_port` keys a renamed row by *content* (the module's last
+  name has no counterpart in the wire, so the name tiers miss) and the unqualified text does not
+  hash to the pin's `solution`, so the row read **`MISSING`** — the checker reporting a port
+  declaration the wire does not have, which is exactly the shape of a real defect.
+- **the cure**: emit the row from the pin's own `solution` text (renaming `solution` to the published
+  name) and keep the wrapper only as the source of that name. The statement then hashes to the pin's
+  and reads `ok  [pin name …solution]`, which is also the stronger property: the statement is the
+  pin's byte-for-byte (FR-0246).
+- **rule for the next manager**: the wrapper is the *name* source; the `S_` file's `solution` is the
+  *statement* source. A scaffold generator must be run over the eight row pins and must read
+  `check_port` before the order is written — `0 ok` on a module whose wire is not empty means the
+  scanner is not seeing the wire (FR-0251), and `MISSING` on a row means the statement is not the
+  pin's.
+- **seen**: 2026-11-20, SET-AF96.
+
+## FR-0253 [instrument] — an attribute written inline at column 0 (`@[simp] theorem …`) is not a declaration start, so a chunk-based scaffold drops the declaration and swallows it into its predecessor
+
+- **where**: SET-AF96's scaffold generator over `Definitions/Def_LanglandsTunnell_ArchPlace.lean`
+  (three `@[simp] theorem`s) and `Definitions/Def_RepTheory_GL2CongruenceSubgroup.lean`.
+- **symptom**: `pin_split.decl_starts` starts a declaration at a line matching
+  `privates/noncomputable? theorem…`, so `@[simp] theorem norm_anglePhase …` is passed over and the
+  *previous* chunk extends to the next recognised start — carrying the attribute, the theorem and its
+  body inside the previous declaration. The generated module then either drops the declaration (if
+  the chunk is trimmed at the attribute) or emits the body un-sorried (an "unsolved goals" error at
+  the attribute's line, not at the declaration's).
+- **the cure used**: derive the declaration list from `spec/statement_db.py`'s `parse_file` (whose
+  offsets already include the attribute lines), and trim a chunk at the first attribute line that is
+  *not* its own first line. `statement_db` also gets the `private` flag, the kind and the pin
+  statement text, so it is the better source for a generator on all three counts.
+- **rule**: a scaffold generator should read `statement_db.parse_file`, not a hand-rolled declaration
+  regex; and a chunk must be cut at an attribute line only when the attribute is not the chunk's own.
+- **seen**: 2026-11-20, SET-AF96.
+
+## FR-0254 [build] — a bare `import Mathlib` in a new module makes every elaboration cost ~100 s on this box, and poisons everything downstream of it
+
+- **where**: SET-AF96's ten scaffolds, all generated with `import Mathlib` as their first import
+  (the pin wrappers `Theorems/Thm_*.lean` all start that way, so the generator copied the habit).
+- **the measurement** (order AF96B): the `Mathlib` olean closure is **6.1 GB** against **7 GB** of
+  RAM, so it is never page-cached; a file containing only `import Mathlib` takes **101 s / 99 s**
+  wall on two back-to-back `lake env lean` runs with **~1 s** of user CPU — pure I/O thrash.
+  `import Mathlib.Tactic` alone is 67 s, `Mathlib.Data.Nat.Basic` 15 s. The gate `timeout 100 lake env
+  lean` then fails for a reason that has nothing to do with the mathematics, and because the cost is
+  transitive, every module that imports the affected scaffold pays it again.
+- **the cure**: replace it with the specific modules the file needs — the port's established practice,
+  documented in the header of `RepTheory/LocalLanglands/IntegralSubgroup.lean`. Worked measurement:
+  `RepTheory/LocalLanglands/IntegralSubgroupCompact.lean` went from >115 s (timeout) to **42 s**
+  silent on five narrow imports (`Mathlib.Topology.Algebra.Group.Units`,
+  `…Topology.Algebra.Monoid`, `…Topology.Compactness.Compact`, `…Topology.Instances.Matrix`,
+  `Mathlib.NumberTheory.Padics.ProperSpace`). Narrowing is statement-neutral, so it is a one-line
+  `## Port deltas` entry, not a discussion.
+- **rule for a scaffold generator**: emit the pin's *narrow* imports (the `Definitions/Def_*.lean`
+  files list them), never `import Mathlib`; and a work order must name this, because otherwise every
+  order in the wave meets the same 100 s wall and reports it as a blocker.
+- **seen**: 2026-11-20, SET-AF96B.
+
+## FR-0255 [mathlib-drift] — narrowing a scaffold's `import Mathlib` surfaces the deprecations the 100 s wall was hiding
+
+- **where**: SET-AF96D, `LanglandsTunnell/WeightOneLiftFactorizationBound.lean`, after the umbrella
+  import was replaced by seven leaf modules (FR-0254).
+- **what surfaced**, all in pin body text that the pin replays verbatim:
+  `zero_le'` -> `zero_le` (core deprecation 2026-07-21, six sites), `if_pos`/`if_neg` ->
+  `ite_eq_left`/`ite_eq_right`, and five `haveI : … := …` -> `have : … := …`
+  (`linter.style.haveILetI`; `have` still serves as the instance at every site, verified).
+  SET-AF96B separately found `Mathlib.Data.Complex.Basic` itself deprecated at v4.34 — the live path
+  is `Mathlib.Basic.Complex.Basic` — so even an *import* can fail the silence gate.
+- **why it was invisible**: with `import Mathlib` no run ever finished inside the two-minute cap, so
+  the warnings were never printed; the module "looked" silent because nothing was seen. That is the
+  general hazard: a wall-clock failure can masquerade as a clean gate.
+- **rule**: after narrowing imports, re-run the silence gate *before* believing a pin body replays;
+  budget for a deprecation sweep of the pin's body text (`zero_le'`, `if_pos`, `if_neg`, `haveI`), and
+  treat a deprecation inside an `import Mathlib.X` line as a statement-neutral import delta.
+- **seen**: 2026-11-20, SET-AF96D (and 96B for the import-level one).
+
+## FR-0256 [build] — `flock /tmp/flt-build.lock` serializes nothing in this harness, and a `timeout`-killed `lake build` leaves the target's oleans deleted
+
+- **where**: SET-AF96, all seven orders. Each shell call gets its own sandbox namespace with a per-call
+  tmpfs `/tmp`, so `/tmp/flt-build.lock` is a *fresh* file in every call: the `flock` wrapper the build
+  discipline prescribes is inert. What actually serializes builds is lake's in-project
+  `.lake/build.lock`; what actually caused the wave's races was that.
+- **the damage**: two orders lost rounds to it. A `timeout 100 lake build` killed *inside* lake's
+  rebuild leaves the tree **worse than before** — lake deletes the target's `.olean`/`.ilean` before
+  writing them, so a cancelled build removes an olean that existed, and every module importing it then
+  fails with "object file … does not exist" until something rebuilds it. On this wave that stripped
+  `GL2CongruenceSubgroup.olean` (and once `ConductorDatum.olean`) repeatedly, blocking two consumer
+  orders that were otherwise finished. The mirror image of FR-0033 (a stale olean that hides a
+  `sorry`): here an *absent* olean blocks elaboration outright.
+- **the cures**: (a) narrow a module's imports (FR-0254) *before* running its first build, so the build
+  fits the timeout; (b) run a build of a big target as a background job rather than under a foreground
+  `timeout`; (c) if a `lake build` is cancelled, rebuild that one module alone before touching anything
+  downstream; (d) do not rely on `flock /tmp/...` for mutual exclusion — use the project's own
+  `.lake/build.lock` (lake does), or a lock inside the workspace (e.g. `lean/tmp/.build.lock`), which
+  does persist across calls.
+- **seen**: 2026-11-20, SET-AF96 (reported independently by orders B, C and G).

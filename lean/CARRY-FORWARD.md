@@ -1304,3 +1304,37 @@ files until one instance is reconciled; the capstone
 `ModularCurve/ModularPolynomialEvalJ.lean` holds both because it reaches the producer without
 importing `Engine`. Rule for the column:
 [topics/velu/WORKORDER-P2-basechange.md](topics/velu/WORKORDER-P2-basechange.md) §3.1.
+
+### The nine engines SET-AF96 promoted out of the weight-one preludes
+
+The factorization row's pin (`S_DihedralWeightOne_factorization_le_of_mem_span_weightOneLift_of_mem_fixedSubmodule_padicK1.lean`,
+921 lines) is a self-contained development, but sixteen of its 48 declarations were already in the
+port, and nine of them were `private` where the pin also declares the same engine **public** in other
+`S_` files:
+
+| declaration | now public in |
+|---|---|
+| `coe_finComponent`, `glEq_of_forall_finComponent_eq`, `commute_of_finComponent_eq_one`, `mapMatrix_injective`, `exists_glMap_eq` | `LanglandsTunnell/WeightOneLiftQCoeffConverse.lean` |
+| `fn`, `fn_add`, `fn_csmul`, `fn_zero` | `LanglandsTunnell/WeightOneLiftNebentypusExists.lean` |
+
+They are public at the pin's names, the two modules re-read `17 ok` and `6 ok` on the checker, and
+`LanglandsTunnell/WeightOneLiftFactorizationBound.lean` imports them instead of re-proving ≈194 lines.
+A future set that wants the pin's *own* spelling of that block should read these two modules first —
+the pin's `DescentSupportA`/`DescentEngine` namespaces are flattened away in the port, so the pin's
+`DescentSupportA.coe_finComponent` is `coe_finComponent` here.
+
+The same reading applies to the fifteen engines of
+`S_LocalNewvector_AdelicSpan_exists_mem_span_fixed_padicK1_…`: the pin marks them `private`, the port
+holds them public in `NumberTheory/LocalNewvector/AdelicSpanConductor.lean` (each statement reads `ok`
+against the pin's copy, and the pin publishes the same family in other `S_` files). Nothing is
+deferred there; the note is for a reader looking for the pin's `Ws50Y`/`P63DockRows` namespaces, which
+are flattened away.
+
+### The Iwasawa shell index's shared helper is public (SET-AF96G)
+
+`AutomorphicForm/Adelic/IwasawaShellInvariance.lean` carries
+`AutomorphicForm.globalPoints_scalar_eq_centralScalar` — `globalPoints` of a scalar matrix is the
+central scalar — as a **public** declaration at the pin's name. The pin declares it publicly (`:17`)
+and the two rows of the module consume it; a work order that calls it "private" is wrong and would
+make `check_port` skip it (FR-0242). It is also the natural import for anything that has to move
+between `globalPoints` and `centralScalar` without reproving the scalar-matrix identity.
