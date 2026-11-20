@@ -5285,3 +5285,41 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
 - **rule**: any pin body that `rw`s a `…_coe_matrix`/`…_coe` lemma through `SpecialLinearGroup` or
   `GLPos` needs the same treatment; the `change` form is what to write.
 - **seen**: 2026-11-20, SET-AF93A.
+
+## FR-0246 [instrument] — flattening a pin's search-stage namespaces can change a *statement*, so a scaffold's `check_port` pass is the gate, not the transcription
+
+- **where**: SET-AF94A, `LanglandsTunnell/WeightOneLiftLevel.lean`, `repZ_eq_map` (pins
+  `S_…qCoeff_hecke_eq_…:192` and `S_…sum_weightOneLift_…:67`).
+- **the pin**: the declaration is
+  `HeckeCosets.repZ p i = (repMat p i).map (Int.castRingHom ℤ_[p])` — it qualifies `repZ` through
+  the search-stage namespace (`HeckeCosets`) because in the pin the definition lives there while
+  `repMat` lives in `DescentEngine`.
+- **what went wrong**: the port flattens those namespaces to `DihedralWeightOne` (the row's own
+  namespace), so the scaffold wrote `repZ p i = …` and `check_port` read **1 mismatch** out of 84.
+  The bodies compounded it: the pin's proofs say `unfold HeckeCosets.repZ`.
+- **the fix**: keep the pin's statement text verbatim (qualifier included) and add a `private`
+  `abbrev HeckeCosets.repZ := DihedralWeightOne.repZ` so the qualified name resolves; the alias is
+  `private`, so the checker and `scaffold_audit` skip it (FR-0242), and the statement hashes to the
+  pin's, which is the stronger property — no `decl_markers.tsv` row is needed.
+- **rule for a work order**: "the statements are the pin's byte-for-byte" is a claim the *checker*
+  has to make, not the generator. State in the order that a `check_port` mismatch on a *statement*
+  (not a body) is a scaffold defect to report, and that the cure is the pin's own text plus a
+  private alias for any qualifier the flattening dropped.
+- **seen**: 2026-11-20, SET-AF94A.
+
+## FR-0247 [instrument] — `scaffold_audit` and `check_port` read `spec-pin:` out of prose, so a header that mentions the token corrupts the wire
+
+- **where**: SET-AF94B, the `## Deferred pin surface` section of
+  `LanglandsTunnell/WeightOneLiftNebentypus.lean`.
+- **symptom**: `scaffold_audit` printed `(pin file not found: `)` — the scanner is
+  `spec-pin:\s*(\S+)` over the whole file, so prose of the form "the deferred pin's
+  spec-pin: `S_….lean` is …" (with a backtick or a full stop after the token) registers a bogus pin
+  source whose name is the punctuation.
+- **the cure**: write the deferral without the token — name the pin file and say it is deferred —
+  or quote it as `` `spec-pin` `` (no colon). Both tools share the scanner, so the same prose breaks
+  both.
+- **also worth carrying**: a module's wire must not name a pin source the module does **not**
+  transpose, even when the omission is deliberate; that is MD-001's false-ported-marker mechanism
+  (a wired-but-absent source hides a node from every planning read). Cutting a pin source's rows
+  means cutting its `spec-pin:` line in the same touch, and registering the deferral in prose.
+- **seen**: 2026-11-20, SET-AF94B.
