@@ -5171,3 +5171,82 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
 - **rule for a work order**: a scaffolded row may be moved within its module once its proof is
   transcribed; never re-spell it, and say in the report where it moved.
 - **seen**: 2026-11-20, SET-AF91A (one row, 1,161-line module).
+
+## FR-0240 [instrument] — the frontier's name tier rejects short generic last names, so a ported `add`/`smul` row never leaves the shelf
+
+- **where**: SET-AF92, `AutomorphicForm/Adelic/ProductionPinsTail.lean` ports
+  `AutomorphicForm.IsCuspidalFn.add` and `.smul` (check_port 5 ok, audit complete), yet both stay in
+  the `--ready` block after the landing read.
+- **cause**: `frontier.py`'s name tier filters the port's declared last names through
+  `_distinctive`, which drops short generic method names (`add`, `mul`, `pow`, `smul`, …) to avoid
+  crediting a node through an unrelated namesake. `IsCuspidalFn.add`/`.smul` are exactly such names,
+  so no port declaration can ever credit them — even the real one under their own namespace.
+- **effect**: the plain landing read under-counts by the rows with such names (here 2 nodes / 25
+  silo: 456 / 222,580 plain against 454 / 222,555 corrected). The corrected read is
+  `frontier.py … --port <node> --port <node>` (the dual of `--unport`); the two figures must be
+  quoted together, as for the FR-0047/MD-005 marker corrections.
+- **rule**: a landing read that moves by less than the cut is checked against the cut's *long-named*
+  rows first; for a row whose last name is generic, quote the `--port`-corrected figure and say so.
+- **seen**: 2026-11-20, SET-AF92 (2 rows, 25 silo).
+
+## FR-0241 [instrument] — `namespace_events` computes offsets on the line-comment-stripped text, so any `--` comment shifts every later `namespace`/`end` early
+
+- **where**: `spec/lean_parser.py:80` and `spec/statement_db.py:204`. `parse_file` passes
+  `code = flat_code(text)` (block comments blanked, newlines kept, **line comments kept**) and then
+  calls `P.namespace_events(code)`, which scans `strip_line_comments(text)` — a *shortened* copy.
+  The event offsets are therefore smaller than the corresponding offsets in `code`.
+- **repro**: `namespace Foo / -- a comment line / theorem a : True := trivial / end Foo` reports the
+  `end` at offset 43 while it starts at 60 in `code`; every event after a `--` line fires 17 bytes
+  early.
+- **symptom**: a declaration after a `--` comment is attributed to the **previous** namespace (or a
+  `--`-comment-heavy prelude makes an `end` fire inside the previous declaration's body). SET-AF92D
+  met it: a three-line `--` prelude note put `end WhittakerUnfolding` inside the previous body and
+  parsed `addChar_neg_eq_conj` as `AutomorphicForm.…` rather than `…WhittakerUnfolding.…` (no gate
+  moved: `check_port` matches by last name + statement hash, and `scaffold_audit` by last name).
+- **workaround used**: a `/- … -/` block comment for the prelude note (block comments are blanked
+  by `flat_code` with their offsets preserved).
+- **fix (to be made after the wave)**: make `strip_line_comments` length-preserving — replace each
+  `--[^\n]*` by spaces of the same length — so `namespace_events` offsets are offsets in the text it
+  is given; the parser's own callers (which strip first and then scan) are unaffected. Re-run
+  `python3 statement_db.py` selftest and `check_port --all` after the change, and expect the corpus's
+  full names (not the statement hashes) to move for `--`-commented files.
+- **seen**: 2026-11-20, SET-AF92D.
+
+## FR-0242 [instrument] — `check_port` skips private port declarations, so a private engine is unchecked
+
+- **where**: `spec/check_port.py:474` (`if priv: continue`). SET-AF92A/B/C are the extreme case:
+  modules of 134 / 134 / 101 declarations, of which one row is public and the rest are the pin's
+  private engine. `check_port --force` reads **1 ok** on all three however complete or incomplete
+  the engine.
+- **what this corrects**: SET-AF92's work order (and the standing phrasing) said the checker's
+  "dotted fallback reads" a private port declaration against the pin's private copy. It does not:
+  the fallback matches a *public* port declaration to a pin-private row; a `private` port
+  declaration is skipped outright. A private engine's only gates are the elaboration, the proof it
+  feeds, `#print axioms`, and a manual `statement_db.parse_file` diff.
+- **the measurement to use instead**: parse both sides and diff names + statement hashes, e.g.
+  `python3 - <<'PY'` with `statement_db.parse_file` over the pin and the module — AF92B did exactly
+  this (134/134 names, 133/133 private names, 0 statement-text differences) and so did AF92A (0
+  diffs). Record that diff in the report whenever a module's surface is mostly private.
+- **rule for a work order**: for a private-engine pin, state that `check_port`'s `N ok` counts only
+  the public surface, require the `parse_file` name/statement diff, and keep the elaboration +
+  proof + axioms as the substantive gates.
+- **seen**: 2026-11-20, SET-AF92A/B (both reported it; the brief had it wrong).
+
+## FR-0243 [instrument] — `move_dead` cannot see instance consumption, so a pin's `def` + `attribute [local instance]` has to become a `private instance`
+
+- **where**: SET-AF92E, `AutomorphicForm/Adelic/AdelicTraceTail.lean`. The pin declares
+  `algQK`/`algQL`/`finiteDimensional_QK`/`finiteDimensional_QL`/`isScalarTower_QKL` as
+  `def`/`theorem` plus `attribute [local instance]`; the port transcribed them verbatim and
+  `move_dead` read **6 declarations, 42 lines** — it sees declarations, not instance search, so the
+  local instances look dead.
+- **the accommodation**: declare them `private instance` with byte-identical bodies and statements
+  (`@[reducible]` kept); instance consumption then counts as a use and `move_dead` reads `0/0`. The
+  module stays silent and `linter.dangerousInstance` does not fire (the instances are private).
+- **why it is safe**: the declarations are `private`, so the checker skips them (FR-0242) and the
+  pin's own visibility is unchanged; only the keyword differs. A literal transcription cannot
+  satisfy gates 5–6 as written.
+- **also worth carrying**: a `private scoped instance` is invisible to `lean_parser.DECL_RE`, so the
+  corpus parser (and hence the checker and the audit) never sees it; `dedup.py` has its own scanner
+  and counts it. A module whose surface includes scoped instances will report different counts from
+  the two tools (here 23 vs 26), and the difference is expected.
+- **seen**: 2026-11-20, SET-AF92E.

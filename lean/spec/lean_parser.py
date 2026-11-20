@@ -73,8 +73,15 @@ ENCLOSE_RE = re.compile(
 
 
 def strip_line_comments(text: str) -> str:
-    """Drop `--` comments (used only for the namespace scan)."""
-    return re.sub(r"--[^\n]*", "", text)
+    """Blank `--` comments, keeping every offset.
+
+    Length-preserving on purpose: `namespace_events` returns *positions*, and callers compare them
+    against offsets in the text they passed in (e.g. `statement_db.parse_file`, whose `flat_code`
+    keeps line comments).  Deleting the comment text instead shortened the scanned text and shifted
+    every later `namespace`/`end` early — a declaration after a `--` comment was attributed to the
+    previous namespace (FR-0241).
+    """
+    return re.sub(r"--[^\n]*", lambda m: " " * len(m.group(0)), text)
 
 
 def namespace_events(text: str) -> list[tuple[int, str, str | None]]:
