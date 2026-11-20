@@ -116,6 +116,20 @@ restore pin 2's `solution` body argument in the q-expansion row. Roughly 40–60
 the surviving rows changes.
 
 
+### The conductor datum behind the `AdelicSpan` carrier
+
+`Definitions/Def_LocalNewvector_ConductorDatum.lean` declares the newvector datum — `fixedSubmodule`,
+`HasNewvectorConductor` and the conductor's API — which the span carrier's last two statements are
+stated over. SET-AF95A transcribed those two statements' *vocabulary* verbatim into
+`NumberTheory/LocalNewvector/AdelicSpan.lean` as `private` declarations (so its public surface stays
+exactly its own pin's, and both checkers skip them), which is enough for the carrier.
+
+What is owed: the conductor datum as its own public module (its subject is the local newvector, so
+`NumberTheory/LocalNewvector/ConductorDatum.lean`, with its own wire), and then the two `private`
+stubs deleted and replaced by the public names. Price: the `Def_` module's own surface; no consumer
+in this set needs it publicly yet.
+
+
 ## Deferred API
 
 ### The duplicated pin prelude of SET-AF90 — one home per lemma when the two sides next meet

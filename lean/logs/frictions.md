@@ -5323,3 +5323,72 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   (a wired-but-absent source hides a node from every planning read). Cutting a pin source's rows
   means cutting its `spec-pin:` line in the same touch, and registering the deferral in prose.
 - **seen**: 2026-11-20, SET-AF94B.
+
+## FR-0248 [process] — a scaffold generator re-run after a landing rewrote three finished modules; `git checkout --` is the cure, disarming the generator is the prevention
+
+- **where**: SET-AF95, 11:45: `lean/tmp/af93/gen3.py` (the AF94 scaffold generator) re-run to pick up an
+  `open`, which rewrote `LanglandsTunnell/WeightOneLiftLevel.lean` (1,164 → 622 lines),
+  `…WeightOneLiftNebentypus.lean` (506 → 439) and `…WeightOneLiftQCoeff.lean` (320 → 439) from their
+  *scaffold* templates, discarding the agents' proof bodies and header prose. The user had committed
+  them at `e55b790`, so `git checkout -- <three paths>` restored everything exactly.
+- **why it was not caught earlier**: the generators live in `lean/tmp/af93/` and write by
+  path (`OUT + 'LanglandsTunnell/…'`), so a run for a *new* set regenerates every module that
+  generator was ever pointed at, not only the new one. Nothing in the script says "these outputs are
+  landed".
+- **the cure used**: restore from the commit, rebuild the oleans from the restored sources under the
+  lock, and re-verify one row's `#print axioms` (a stale `sorry`-based olean is otherwise invisible —
+  the AF93/FR-0033 lesson).
+- **the prevention, now in force**: every generator in `lean/tmp/af93/` is renamed `gen*.py.used` the
+  moment its output is landed or handed to an agent, so a later `python3 gen…py` cannot run; and a
+  re-run for a new set must be a *new* script whose `OUT` paths are only the new modules.
+- **rule for the next manager**: a scaffold generator is a one-shot tool. Freeze it before dispatch
+  (SET-AF94's lesson) **and** disarm it after landing (this one). `git status` before and after any
+  generation is the cheap check: a tracked file listed as modified is a clobber.
+- **seen**: 2026-11-20, SET-AF95 (found by order AF95E, which noticed HEAD 1,164 lines vs a 622-line
+  working tree).
+
+## FR-0249 [mathlib-drift] — `Nat.Primes` is a `def`, so `rw [natGenerator_primesEquiv_symm]` does not replay (FR-0238/FR-0245 class, third instance)
+
+- **where**: SET-AF95B, `NumberTheory/RatIdele/UnitResidue.lean`, the two `rw [natGenerator_primesEquiv_symm]`
+  sites (pin `:90`, `:106`).
+- **symptom**: "not type-correct under the `implicit` transparency level" — at mathlib `v4.34`
+  `Nat.Primes` is a `def` of `{p // p.Prime}`, so the goal's `⟨↑p, ·⟩` argument is not syntactically
+  the subtype the lemma expects.
+- **fix (body only)**: name the place first — `set q : Nat.Primes := ⟨(p : ℕ), …⟩` — then the pin's
+  `rw` replays against `q`.
+- **the class, now three sets running**: FR-0238 (`AdeleRing`, `InfiniteAdeleRing`), FR-0245
+  (`Matrix.SpecialLinearGroup`), this one (`Nat.Primes`). The pattern is always the same: a pin body
+  that `rw`s a `…_def`/`…_coe` lemma through a `def`-abbreviation fails at `implicit` transparency;
+  the cure is to name the intermediate object with `set`/`have` and then rewrite.
+- **seen**: 2026-11-20, SET-AF95B.
+
+## FR-0250 [mathlib-drift] — three deprecation/ambiguity traps met in one row (deprecated lemma, `Matrix`-shadowed `mul_inv_rev`, a changed q-expansion extensionality)
+
+- **where**: SET-AF95E, `LanglandsTunnell/WeightOneLiftQCoeffConverse.lean`, the `exists_repZ_eq` and
+  `cusp_ext_of_qCoeff` proofs.
+- **(a) a deprecated lemma with no replacement**: `mul_lt_one_of_nonneg_of_lt_one_right` is deprecated
+  since 2026-07-28 and *aborts* the elaboration (not merely a warning), so it breaks the silence
+  gate. Inline it: `(mul_le_of_le_one_left (norm_nonneg _) (PadicInt.norm_le_one a)).trans_lt hjt`.
+- **(b) an open-namespace shadow**: `simp only [mul_inv_rev, inv_inv]` becomes ambiguous once `Matrix`
+  is open (`Matrix.mul_inv_rev` shadows the root lemma); write `_root_.mul_inv_rev`.
+- **(c) a changed extensionality**: v4.34's `UpperHalfPlane.eq_of_forall_qCoeff_eq` no longer takes
+  the pin's seven periodic/holomorphic/bounded arguments (`HasQCoeff` now carries them); the port's
+  `ModularFormClass.eq_of_forall_qCoeff_eq (one_mem_strictPeriods M) h` is the form to use.
+- **rule**: for a pin body, a *deprecated* name is not a warning to live with — it aborts. Prefer the
+  mathlib replacement, else inline the deprecated lemma's statement-neighbour form, and record it.
+- **seen**: 2026-11-20, SET-AF95E.
+
+## FR-0251 [instrument] — a module whose pin-wire line is missing is invisible to every planning read, and the loss can be silent
+
+- **where**: SET-AF95F, the first `write` of `AutomorphicForm/Adelic/WhittakerUnipotent.lean`: the
+  header's `spec-pin:` line did not persist (a second `edit` re-adding the identical line did), so
+  `check_port` read the file as **tier 3 / "not wired"** and the audit reported nothing to check.
+- **why it matters**: the frontier reads "ported" from the wire (`spec-pin:` lines and the checker's
+  `SOURCES`), so a module that builds and is correct but unwired does **not** reduce `needed`, does
+  not count as a consumer for its dependencies, and can put its own rows back on the ready shelf.
+  That is the mirror of MD-001 (a wire naming content the module lacks): here the content is there
+  and the wire is missing.
+- **the check**: after writing a new module, `grep -c 'spec-pin:'` on it and one `check_port` run —
+  a `0 ok, 0 mismatch, 0 missing` summary with a header that visibly carries the line means the
+  scanner did not see it.
+- **seen**: 2026-11-20, SET-AF95F.
