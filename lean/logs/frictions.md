@@ -6056,3 +6056,221 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   them, so "the module this row goes into" and "the module its premises are in" can be different and
   the work order should name the upstream one.
 - **seen**: 2026-11-21, SET-AF98F.
+
+## FR-0281 [build] — `nohup lake build … &` inside a tool call is silently killed; builds must be `run_in_background` jobs
+
+- **where**: SET-AF99C, two build attempts. `nohup lake build FLTForHuman/... > log 2>&1 &` inside a
+  bash tool call returned immediately, and the next call found **no process, no log file and no
+  error**: the sandbox runs the command under `bwrap --die-with-parent`, so the backgrounded child is
+  killed with its parent at the end of the call.
+- **why it matters**: the failure is silent in both directions — no build, no log to read, and nothing
+  in the exit status of the call that started it. A worker that then reads `lean/tmp/…/build.log`
+  concludes the build passed (or that it never started, and starts another).
+- **rule**: a build is a harness **background job** (`run_in_background`), never `nohup`/`setsid`/`&`
+  inside a call. The job's own log is the artifact; and builds are serialized **globally**, not per
+  order (FR-0278: lake deletes a target's `.olean` before rewriting it, so two concurrent builds
+  corrupt each other's imports).
+- **related**: FR-0256 (a `timeout`-killed build deletes the target's olean and blocks every importer),
+  FR-0278 (concurrent builds), and the workspace rule that `/tmp` is `tmpfs` and does not persist
+  across calls — a log written to `/tmp` is gone too.
+- **seen**: 2026-11-21, SET-AF99C.
+
+## FR-0282 [instrument] — `scaffold_audit`'s closure credit is a **last-name** match, so on a pin with short overloaded names `complete` is vacuous and points at a *different* declaration
+
+- **where**: SET-AF99A, `AutomorphicForm/Adelic/PeterssonUnfolding.lean`, pin
+  `S_AutomorphicForm_peterssonIntegral_mul_bruhatEisenstein_eq_integral_whittakerCoefficient_mul_conj_rationalCentreUnipotentQuotient`
+  (671 lines, 20 public declarations). On the **bare scaffold** (header prose + one `sorry` headline)
+  `scaffold_audit.py` printed "20 pin public declarations on the wire, 1 port declarations, **4
+  satisfied by the import closure**" and — with the 15 `MISSING` rows — that `4` was the only reason
+  the module needed any engine at all.
+- **the measurement** (the manager's `tmp/af99/credit_probe.py`, which emits `#check @<full name>` for
+  every pin public declaration the module does not declare, reading the *type*): two of those four
+  credits were false. The pin's `slab` (:70) was credited to **`NumberField.TateGlobal.slab`** — a
+  different object, `(v : HeightOneSpectrum (𝓞 F)) → Set (InfiniteAdeleRing F) → Set (AdeleRing (𝓞 F) F)`,
+  the finite-place slab of `TateGlobal/FiniteSlab.lean`, which is in scope only because the module
+  `open NumberField.TateGlobal`. The pin's `measurableSet_slab` (:73) likewise had no root-level copy.
+  The other two (`globalPoints_unipotentGL2`, `continuous_unipotentGL2`) are genuine.
+- **the tell, and it is cheap**: the scaffold's *next* helper statement did not elaborate —
+  `unipotentGL2_mul_mem_slab_iff` failed with "The argument `F` has type `Type` … but is expected to
+  have type `HeightOneSpectrum (𝓞 ?m)`", i.e. `slab` resolved to the finite-place slab. So the
+  false credit and the real defect announce themselves in the same elaboration error, one declaration
+  after the audit says `complete`.
+- **why**: `closure_names(path, depth=4)` collects `r[3].split('.')[-1]` for every public declaration
+  in the depth-4 import closure (SET-AF97G's fix stopped it crediting `private` copies — FR-0258 —
+  but the *name* match stayed). Short, mathematically overloaded last names (`slab`, `dn`, `μH`, `Γp`,
+  `W`, `coef`, `weight`) are exactly the ones a pin's engine is built from, and exactly the ones a
+  large tree has several of.
+- **rule**: `complete` is a *surface* claim only when the credit is resolved by full name, not by last
+  name. Before a module's `complete` is quoted as "the row is ported", run
+  `#check @<namespace>.<pin last name>` for every row the audit did not find declared in the module,
+  and require it to resolve (and, for a `def`, to be the pin's object — FR-0266). The two readings
+  belong side by side: this module's final gates are `18 ok / complete` **plus** "2 not declared, both
+  `#check`-resolve".
+- **seen**: 2026-11-21, SET-AF99A.
+
+## FR-0283 [port] — a 28-premise unfolding row: `port_advise`'s substitution block pointed at a *sub-namespace* copy, so a faithful statement did not elaborate; the row itself then replayed verbatim
+
+- **where**: SET-AF99A, the Petersson/Rankin–Selberg unfolding row (600 declaration lines, 460-line
+  `solution` body, 28 graph premises).
+- **what the instruments said**: `port_advise` reported "13 declarations already have this statement in
+  the port (≈592 lines not to re-prove)" and `port_plan` "NET NEW MATH LINES 71". Both were right about
+  the *mathematics* and wrong about the *surface*: the replacement homes printed for the pin's `RS11C9`
+  engine (`-> FLTForHuman/AutomorphicForm/Adelic/BorelFundamentalDomain.lean
+  AutomorphicForm.BorelUnfolding.slab`) are subject **sub-namespaces**, so `AutomorphicForm.slab`,
+  `AutomorphicForm.indicator_comp_globalPoints_mul`, … did not exist, and the pin's own helper
+  statements — which mention `slab` bare — could not be written at all. See FR-0282 for the audit side.
+- **what the row actually cost**: 17 helper declarations transcribed (9 of them the `RS11C9` slab
+  algebra, 8 the `det`/Borel-membership/`sqrt` lemmas), 2 genuine closure credits, and **the 460-line
+  proof transcribed verbatim** — the only body change is the identifier renaming
+  (`RS11C9.<name>` → `<name>`, plus two premises the port publishes under subject namespaces:
+  `AutomorphicForm.WhittakerUnipotent.integral_mul_conj_unipotent_…`,
+  `AutomorphicForm.norm_apply_eq_one_of_isGlobalAddChar`). Zero proof steps were open; a 28-premise
+  row is not *a priori* a stall.
+- **what made it cheap, in order of value**: (a) `BorelFundamentalDomain` (AF98) supplies the row's
+  only heavy premise `exists_isFundamentalDomain_borel_setIntegral_eq_peterssonIntegral_mul_bruhatEisenstein`
+  *and* is upstream, so one import closes the Borel/Petersson side; (b) the pin's `hSd : {g | …} = slab F d₁ d₂
+  := rfl` still closes because `slab` is a `def` with the pin's body — a `def`, not an `abbrev`,
+  is what makes the pin's later `simp only [slab, …]`/`rw [hindG]` steps work unchanged; (c) three of
+  the pin's premises are published by the port under a *different name shape*
+  (`NumberField.AdelicFourier.norm_apply_eq_one_of_isGlobalAddChar` →
+  `AutomorphicForm.norm_apply_eq_one_of_isGlobalAddChar`, `RS11C9.continuous_unipotentGL2` →
+  `AutomorphicForm.continuous_unipotentGL2` whose instance is `[ContinuousNeg R]` not
+  `[IsTopologicalRing R]`), and each is a one-token edit — the pin's `continuous_unipotentGL2 _`
+  passes the type explicitly, so the port's implicit-binder copy needs the `_` dropped.
+- **rule**: for a wide row, read the substitution block as a list of *mathematics* already present,
+  then `#check` each at the pin's full name before deciding to import; and expect the pin's
+  body to be reusable as text if the pin's engine names are declared at the pin's names (which is
+  cheaper than adapting 460 lines to sub-namespace qualification).
+- **seen**: 2026-11-21, SET-AF99A.
+
+## FR-0284 [build] — FR-0262 is one-directional: `haveI` → `have` *does* work for an inlined instance when the row consumes it only as a class hypothesis
+
+- **where**: SET-AF99A, the row's first eight proof lines; `haveI := isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 F) F`
+  (no type ascription, the shape FR-0262 says must stay `haveI`), plus seven typed
+  `haveI : SecondCountableTopology …`/`SigmaCompactSpace …`/`SigmaFinite …`/`SFinite …`/
+  `Countable …`/`IsProbabilityMeasure …` installs.
+- **the measurement**: all eight convert to `have`, and `linter.style.haveILetI` goes silent with no
+  other change and no scoped `set_option`. The elaboration succeeds because the row never needs the
+  instance *definitionally* — it needs `IsHaarMeasure μG`, `SecondCountableTopology …` etc. as
+  hypotheses for `Measure.IsHaarMeasure.sigmaFinite`, `sigmaCompactSpace_of_locallyCompact_secondCountable`,
+  `MeasureTheory.Measure.restrict` lemmas — and Lean's instance search does use a local `have` binding
+  of class type.
+- **why FR-0262 does not apply**: FR-0262's failure mode is a goal whose *instance argument* must be
+  definitionally equal to the inlined term (`MeasurableSpace`, `MulAction` — FR-0273's list). An
+  `IsHaarMeasure`-style property is consumed as a proposition, so proof irrelevance makes the
+  inlining irrelevant (the linter says exactly this: "the goal is a proposition").
+- **rule**: try `have` first even for an inline `haveI := <term>`; if it elaborates, no scoped
+  suppression is needed. Keep the suppression for the `MeasurableSpace`/`MulAction`/`MeasurableConstSMul`
+  class of installs, which is the class FR-0262 and FR-0273 actually measured.
+- **seen**: 2026-11-21, SET-AF99A.
+
+## FR-0285 [instrument] — a legacy module's bare-basename `-- pin:` markers fight a `spec-pin:` wire, and the frozen row then hides the live verdict
+
+- **where**: SET-AF99E, `EisensteinGeneral/LocalUnr.lean`. The module is in `spec/old_check_stmts.py`'s
+  `PORT_FILES`, and its 19 legacy markers name pin files by **bare basename**
+  (`-- pin: foo (S_X.lean:12)`). Adding the module's `spec-pin:` wire made `check_port` actually wire
+  the module — and it then read `0 ok / 0 mismatch / 19 missing`, because a bare basename is not a
+  pin-relative path (`UNKNOWN PIN FILE` × 6): every pre-existing declaration reads MISSING.
+- **cure**: give the markers the full pin rel path (`P2M/Sol/S_….lean`, `Theorems/Thm_….lean`) — 19
+  comment-line edits, wire only, zero statement change — and then **retire the `PORT_FILES` row**
+  (SOURCES untouched): the module now has a live wire that checks all 19 public declarations, so the
+  frozen row is redundant and is what prints the `MISSING IN FLT` line for a wrapper it was never told
+  about (`pin_markers` keys by the written name, and the frozen loop looks up by last name, so a
+  fully qualified marker is unreachable from it).
+- **rule**: migrating a legacy module is the same three-step in this column — wire with full pin paths
+  (never bare basenames), retire the `PORT_FILES` row, keep the markers as wire-only comments — and the
+  tell that it is needed is a frozen-only line that names a wrapper the live checker already proves.
+  Do not add an entry to `SOURCES` to placate the frozen checker; it is being retired.
+- **seen**: 2026-11-21, SET-AF99E.
+
+## FR-0286 [instrument] — `lean_parser.ENCLOSE_RE` lets `\s` cross newlines, so a bare `end` swallows the next opener
+
+- **where**: `spec/lean_parser.py`, `ENCLOSE_RE`: an `end`'s optional name is spelled `\s+[\w.']+`, and
+  `\s` matches a newline. So `end`⏎⏎`end Foo` reads the second `end Foo` as the first one's *name* —
+  one pop instead of two, `Foo` stays open — and `end`⏎⏎`namespace Foo` reads `endname = "namespace"`,
+  eats the opener, and never pushes `Foo`: every later declaration in that file gets the wrong namespace.
+- **found by**: SET-AF99F, whose first draft produced `ModularForm.LevelOneBasis.exists_polynomial_aeval_…`
+  — a name that does not exist — while `check_port` stayed green (it is hash-driven, so the drift is
+  invisible to it).
+- **blast radius (measured, `lean/FLTForHuman`)**: **780 bare-`end` sites in 141 files**, **285** of them
+  swallowing a `namespace`/`section`/`mutual` opener. So `statement_db`'s full names are unreliable
+  after such a site, and any check that keys on full names — FR-0274's collision intersection, the
+  corpus's `name` column, `scaffold_audit`'s promoted key — inherits the error. Statement **hashes** are
+  unaffected (they are parsed from the signature, not the name), which is why the fidelity gate held.
+- **cure (one character)**: `[ \t]+` instead of `\s+` in `ENCLOSE_RE`, then bump the corpus stamp
+  (`spec/statement_db.py build`) and re-check (`check_port --all`) — a checker round, not a set's.
+- **workaround until then**: a collision check must use an independent namespace-aware scanner that
+  honours `end X` (SET-AF99F ran one: 43 last names × the whole tree → 0 collisions, the only
+  `ModularForm.` hit being `ModularForm.HeckeFricke.main`, a different full name).
+- **seen**: 2026-11-21, SET-AF99F.
+
+## FR-0287 [build] — narrowing a pin written against `import Mathlib`: at v4.34 the *re-export chain* decides the list, so the minimum is far below the declaring-module set (3 modules from 19 pin-free imports)
+
+- **where**: SET-AF99G, the three new `MeasureTheory` modules. The nine `S_` pins list `import Mathlib`
+  and nothing else (FR-0254), so the whole list had to be measured, not recalled.
+- **what was measured** (a greedy single-pass minimizer over `lake env lean -DautoImplicit=false`, one
+  run per candidate import, ~6 s each — `lean/tmp/af99/narrow-AF99G.py`): the first-draft lists
+  (10 / 19 / 7 imports, each entry the `rg`-found *declaring* module of one name the statement uses)
+  minimized to **2 / 3 / 4**. Dropped as redundant: `MeasureTheory.Integral.Lebesgue.Add`,
+  `Topology.Instances.ENNReal.Lemmas`, `Integral.MeanInequalities`, `Measure.Prod`,
+  `Integral.Bochner.Basic`, `Order.LiminfLimsup`, `Basic.ENNReal.Inv` (11 pin imports for one module),
+  `Measure.Haar.Basic`, `Group.Measure`, `Group.Integral`, `Measure.GiryMonad`, `Measure.Regular`,
+  `Measure.Typeclasses.Probability`, `PiSystem`, `Integral.Lebesgue.Basic`, `Integral.Bochner.Set`,
+  `Topology.Algebra.OpenSubgroup`, `Topology.Algebra.Group.Quotient`, and both
+  `Topology.Algebra.Group.{Basic,Neighborhood}`.
+- **why**: mathlib at v4.34 carries `module` + `public import` headers, and a re-export chain is
+  transitive through `public import` only. Two measurements pin it down. `Mathlib.Analysis.Complex.Liouville`
+  alone gives `hasDerivAt_integral_of_dominated_loc_of_deriv_le` (a lemma declared in a module Liouville
+  never names) because Liouville `public import`s `CauchyIntegral` → `ParametricIntervalIntegral` →
+  `ParametricIntegral`; and `Mathlib.MeasureTheory.Measure.Haar.Unique` alone gives
+  `Measure.haarMeasure`/`haarMeasure_self`, declared in `Haar/Basic`, for the same reason. Conversely a
+  *dropped* import's absence is only visible as a cascade (`unknown identifier DifferentiableOn` when
+  both `Liouville` and `ParametricIntegral` were gone, although either one alone suffices).
+- **rule for a narrowing order**: (a) the draft list should be declaring modules, one `rg` per name —
+  that is what a reader needs; (b) the *gate* list is the measured minimum; (c) when the two differ,
+  keep the declaring module and say so, because "it compiles without it" is not "it is not needed"
+  under a re-export chain; (d) `rg -n "^public import|^import" <candidate>` is the five-second way to
+  see whether a candidate is a re-export hub. Do **not** infer from one failed trial that a module lacks
+  a lemma — drop the candidates one at a time (the greedy pass does) or the cascade misleads.
+- **seen**: 2026-11-21, SET-AF99G.
+
+## FR-0288 [instrument] — `scaffold_audit` credits a folded pin `main` and `port_omissions` calls it MISSING: two completeness gates disagree on the `main`/`solution` shape
+
+- **where**: SET-AF99G, `MeasureTheory/MoebiusIntegral.lean`. Each of the two pins states the row twice:
+  `ARCHA3C.main` (the proof) and `solution` (`exact ARCHA3C.main …`), and the two statements differ in
+  **one unused binder name** — `main`'s `(hdet : a * d - b * c ≠ 0)` against `solution`'s `(_hdet : …)`.
+- **the measurement**: with the row's proof written directly at the row (the fold), `scaffold_audit`
+  read `complete` — but only because it has a *statement-equality* tier: when the two statements are
+  byte-identical it prints `RENAMED? main (same statement, different last name)`, which is what
+  `ParametricIntegral`'s `RS11IC.main` gets. Where the binder is spelled `_hdet` vs `hdet` the tier does
+  not fire and the same fold reads **`MISSING main`, `incomplete`**. `port_omissions.py` has no such
+  tier at all: it read `1 MISSING` for `ParametricIntegral` and `2 MISSING` for `MoebiusIntegral` on the
+  same folded modules that `check_port` and `scaffold_audit` both passed.
+- **cure used**: keep the pin's two declarations — `Engine.main` (the pin's `hdet`, holding the proof)
+  plus the row (the pin's `_hdet`) as `exact Engine.main a b c d _hdet G`, in the subject namespaces
+  `MeasureTheory.MoebiusComplex` / `MeasureTheory.MoebiusReal` / `MeasureTheory.ParametricIntegral`.
+  Both gates then read green (`8 ok`, `complete`, `0 MISSING`), and `dedup --within` reports exactly the
+  pin's own pairs (one per row: `main` and the row, same statement), which the work order allows with
+  the reason.
+- **rule**: an order whose pin has the `main` + `solution` shape must keep both declarations public; a
+  fold is invisible to `port_omissions` and *sometimes* invisible to `scaffold_audit`, so "complete"
+  alone is not evidence. And an unused binder spelled `_hdet` in one copy of a statement and `hdet` in
+  the other is enough to drop a whole credit tier — read `scaffold_audit`'s `RENAMED?` lines, they are
+  the ones that say *which* statement was matched.
+- **seen**: 2026-11-21, SET-AF99G.
+
+## FR-0289 [mathlib-drift] — a dot-notation error names the *elaborated head* of the receiver, not the lemma you wrote
+
+- **where**: SET-AF99G, both Möbius rows: the pin's `h1.div h2 hz` on `HasDerivAt` proofs.
+- **symptom**: `error(lean.invalidField): Invalid field `div`: The environment does not contain
+  `HasFDerivAtFilter.div`, so it is not possible to project the field `div` from an expression h1 of
+  type HasFDerivAtFilter (fun y => b + y * d) (ContinuousLinearMap.toSpanSingleton ℂ d) (nhds z ×ˢ pure z)`.
+  There is no lemma named `HasFDerivAtFilter.div` in mathlib at any version, and `rg` for it finds
+  nothing — the missing declaration is `HasDerivAt.div` (`Analysis/Calculus/Deriv/Inv.lean:173`), and
+  the error prints the receiver's *unfolded* type head because dot notation resolves the field name
+  against that type once `HasDerivAt.div` is absent from the environment.
+- **cure**: `rg -n "^(theorem|lemma) <Receiver>\.<field>" Mathlib` on the spelling you wrote (here
+  `HasDerivAt.div`), then `import` its module (`Mathlib.Analysis.Calculus.Deriv.Inv`). The same session
+  lost a round to the mirror case in FR-0287's cascade, both being "the error names something that is
+  not the missing lemma".
+- **seen**: 2026-11-21, SET-AF99G.

@@ -1437,3 +1437,24 @@ on the namespace *is* dropped (`E40DCFN` → `DCFN`). The precedent in the same 
 Rectifying them is a refactor, and it is cheap to do *together with* a statement-wide touch of that
 module: the `spec/decl_markers.tsv` `own:` rows are keyed by `(module, full declaration name)`, so
 they must move with the rename or `--strict-markers` fails.
+
+### The Petersson-unfolding engine exists twice: root (SET-AF99 A) and `AutomorphicForm.BorelUnfolding` (SET-AF98 D)
+
+`AutomorphicForm/Adelic/PeterssonUnfolding.lean` (SET-AF99 A) and
+`AutomorphicForm/Adelic/BorelFundamentalDomain.lean` (SET-AF98 D) transcribe pins that copy the same
+`RS11C9` prelude. AF98 D put its copies under the sub-namespace `AutomorphicForm.BorelUnfolding` to
+avoid FR-0259 collisions; AF99 A needed them at the **root** because the pin's helper *statements* name
+`slab` bare (`unipotentGL2_mul_mem_slab_iff`, `preimage_slab`, `indicator_comp_globalPoints_mul`), and
+a sub-namespaced copy does not satisfy that spelling — the scaffold's statement did not even elaborate
+until root copies existed (`slab` silently resolved to `NumberField.TateGlobal.slab`, a different
+object; see SET-AF99 §8).
+
+Measured now: `dedup.py --cross --modules PeterssonUnfolding BorelFundamentalDomain` reports **one**
+cluster, `ofReal_sq_norm` (3 lines); the other six helpers differ enough in shape to escape it (they
+are the same mathematics at two namespaces). No consumer can fail on this (different full names), and
+the duplication is the price of the root spelling.
+
+The dedup, when a round takes it: point the root copies' bodies at the `BorelUnfolding` ones (or
+retire the sub-namespace and re-nest its 26 rows), one module at a time, and re-run the credit probe —
+the risk is that a root statement's `slab` stops elaborating if the root copy is removed without
+replacing its spelling.

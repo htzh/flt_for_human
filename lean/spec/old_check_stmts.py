@@ -5222,7 +5222,12 @@ PORT_FILES = [
     # --- WORKORDER-E2 (Set B): the two `EisensteinGeneral.LocalUnr` headlines and their
     # machinery, all in one listed module (see SOURCES for why the `S_` files are listed here and
     # not for Set A).
-    "FLTForHuman/EisensteinGeneral/LocalUnr.lean",
+    # MIGRATED 2026-11-21 (SET-AF99E, the twisted local integral): `LocalUnr.lean` now carries its
+    # own `spec-pin:` wire over `S_EisensteinGeneral_LocalUnr_integral_twisted_eq.lean` plus
+    # full-path `-- pin:` markers into the two Set-B pins, and is owned by `spec/check_port.py`
+    # (19 ok / 0 mismatch / 0 missing / 0 own). Handed over: do not re-list it here; its `SOURCES`
+    # entries stay, since the two `S_` files and their wrappers are the statement authority the
+    # per-declaration markers diff against.
     # --- WORKORDER-E3: the factorization silo. Five engines + one façade, all listed (see SOURCES
     # for why). Expected delta: every declaration of the six modules except the substituted
     # `integralOffSet`, whose port copy is a one-line alias of `TateGlobal.ShellSupport.integralOff`.

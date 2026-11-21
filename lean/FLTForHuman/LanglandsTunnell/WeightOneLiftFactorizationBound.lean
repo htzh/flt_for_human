@@ -4,6 +4,7 @@
 
   spec-pin: P2M/Sol/S_DihedralWeightOne_factorization_le_of_mem_span_weightOneLift_of_mem_fixedSubmodule_padicK1.lean
   spec-pin: P2M/Sol/S_DihedralWeightOne_hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isGenuineCuspRealizationAt_hasNewvectorConductor_adelicSpan_factorization_of_isPrimitiveForm_weightOne.lean
 
   The second row.  `hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm`
   (pin `P2M/Sol/S_…hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm.lean`,
@@ -983,6 +984,87 @@ theorem hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimit
   · rw [← heq]
     exact hc
 
+theorem exists_heightOneSpectrum_mem (p : ℕ) (hp : p.Prime) :
+    ∃ v : HeightOneSpectrum (𝓞 ℚ), (p : 𝓞 ℚ) ∈ v.asIdeal := by
+  have hne : Ideal.span {(p : 𝓞 ℚ)} ≠ ⊤ := by
+    rw [Ne, Ideal.span_singleton_eq_top]
+    intro hu
+    have h1 := hu.map Rat.ringOfIntegersEquiv.toRingHom
+    rw [map_natCast, Int.isUnit_iff_natAbs_eq, Int.natAbs_natCast] at h1
+    exact hp.one_lt.ne' h1
+  obtain ⟨M, hM, hle⟩ := Ideal.exists_le_maximal _ hne
+  have hp0 : (p : 𝓞 ℚ) ≠ 0 := Nat.cast_ne_zero.mpr hp.ne_zero
+  have hMne : M ≠ ⊥ := by
+    intro h
+    rw [h, le_bot_iff, Ideal.span_singleton_eq_bot] at hle
+    exact hp0 hle
+  exact ⟨⟨M, hM.isPrime, hMne⟩, hle (Ideal.subset_span rfl)⟩
+
 end DihedralWeightOne
+
+namespace AutomorphicForm
+
+open AutomorphicForm.SiegelCovering AutomorphicForm.WindowedSiegel NumberField.AdelicBox in
+theorem exists_isGenuineCuspRealizationAt_hasNewvectorConductor_adelicSpan_factorization_of_isPrimitiveForm_weightOne
+    (c u d₁ d₂ : ℝ) (T : Finset (AdelicGL2 (𝓞 ℚ) ℚ))
+    (hc : 0 < c) (hd₁ : 0 < d₁) (hd : d₁ < d₂)
+    (hcov : CoversModCentre ℚ (⋃ x ∈ T, (· * x) '' centreCutSiegelSet ℚ c u d₁ d₂))
+    (N : ℕ) [NeZero N] (ψ : DirichletCharacter ℂ N) (f : CuspForm (Gamma1 N) 1)
+    (hf : CuspForm.IsPrimitiveForm ψ f)
+    (Θ : HeckeEigensystem ℚ ℂ)
+    (hΘ : ∃ S : Finset ℕ, ∀ p : ℕ, p.Prime → p ∉ S → ¬ p ∣ N →
+      ∀ v : HeightOneSpectrum (𝓞 ℚ), (p : 𝓞 ℚ) ∈ v.asIdeal →
+        ModularFormClass.qCoeff f p = Θ.a v ∧ ψ (p : ZMod N) = Θ.b v) :
+    ∃ (Θ' : HeckeEigensystem ℚ ℂ) (_ : Θ'.AgreesAwayFromFinite Θ)
+      (R' : SmoothCuspRealizationAt ℚ (productionPinsOf ℚ (⋃ x ∈ T, (· * x) '' centreCutSiegelSet ℚ c u d₁ d₂)
+        (fun N => levelOne (𝓞 ℚ) ℚ N ⊓ finiteAdelicGL2Subgroup ℚ) (fun v => heckeGen (𝓞 ℚ) ℚ v) (adelicBox ℚ)) Θ'.toRawCentral),
+      IsGenuineCuspRealizationAt ℚ (productionPinsOf ℚ (⋃ x ∈ T, (· * x) '' centreCutSiegelSet ℚ c u d₁ d₂)
+        (fun N => levelOne (𝓞 ℚ) ℚ N ⊓ finiteAdelicGL2Subgroup ℚ) (fun v => heckeGen (𝓞 ℚ) ℚ v) (adelicBox ℚ)) Θ'.toRawCentral R' ∧
+      ∀ (q : ℕ) (_ : Fact q.Prime),
+        LocalNewvector.HasNewvectorConductor q (LocalNewvector.AdelicSpan R'.toFun) (N.factorization q) := by
+  classical
+
+  obtain ⟨Φ, R, hRf, hRg, hRb, S₁, hpk⟩ :=
+    DihedralWeightOne.exists_smoothCuspRealizationAt_productionPinsGeneral_toFun_eq_weightOneLift_of_isPrimitiveForm N ψ f hf
+
+  obtain ⟨R', hR'⟩ :=
+    AutomorphicForm.exists_smoothCuspRealizationAt_productionPinsOf_toFun_eq_of_isBoundedOnSiegelWindows_of_coversModCentre
+      c u d₁ d₂ T hc hd₁ hd hcov Φ.toRawCentral R hRg hRb
+  obtain ⟨S₂, hΘ⟩ := hΘ
+
+  have hfin : Set.Finite {v : HeightOneSpectrum (𝓞 ℚ) | Ideal.absNorm v.asIdeal ∈ S₁ ∪ S₂ ∪ N.primeFactors} := by
+    have hsub : {v : HeightOneSpectrum (𝓞 ℚ) | Ideal.absNorm v.asIdeal ∈ S₁ ∪ S₂ ∪ N.primeFactors} ⊆
+        ⋃ n ∈ (↑(S₁ ∪ S₂ ∪ N.primeFactors) : Set ℕ), {v : HeightOneSpectrum (𝓞 ℚ) | Ideal.absNorm v.asIdeal = n} := by
+      intro v hv
+      simp only [Set.mem_iUnion, Set.mem_ofPred_eq]
+      exact ⟨_, hv, rfl⟩
+    refine Set.Finite.subset (Set.Finite.biUnion (Finset.finite_toSet _) fun n _ => ?_) hsub
+    have hinj : Set.InjOn (fun v : HeightOneSpectrum (𝓞 ℚ) => v.asIdeal)
+        {v : HeightOneSpectrum (𝓞 ℚ) | Ideal.absNorm v.asIdeal = n} := fun v _ w _ h => HeightOneSpectrum.ext h
+    refine Set.Finite.of_finite_image ?_ hinj
+    refine (Ideal.finite_setOfPred_absNorm_eq (S := 𝓞 ℚ) n).subset ?_
+    rintro I ⟨v, hv, rfl⟩
+    exact hv
+  have hagree : Φ.AgreesAwayFromFinite Θ := by
+    refine ⟨hfin.toFinset, fun v hv => ?_⟩
+    rw [Set.Finite.mem_toFinset, Set.mem_ofPred_eq] at hv
+    obtain ⟨p, hp, hpv⟩ := exists_prime_mem v
+    have hnorm : Ideal.absNorm v.asIdeal = p := absNorm_asIdeal_eq hp v hpv
+    rw [hnorm] at hv
+    have hp1 : p ∉ S₁ := fun h => hv (Finset.mem_union_left _ (Finset.mem_union_left _ h))
+    have hp2 : p ∉ S₂ := fun h => hv (Finset.mem_union_left _ (Finset.mem_union_right _ h))
+    have hpN : ¬ p ∣ N := fun h => hv (Finset.mem_union_right _ (Nat.mem_primeFactors.2 ⟨hp, h, NeZero.ne N⟩))
+    obtain ⟨h1, h2⟩ := hpk p hp hp1 hpN v hpv
+    obtain ⟨h3, h4⟩ := hΘ p hp hp2 hpN v hpv
+    exact ⟨h1.trans h3, h2.trans h4⟩
+  refine ⟨Φ, hagree, R', ?_, fun q hq => ?_⟩
+  · change Continuous R'.toFun
+    rw [hR']
+    exact hRg
+  · rw [hR', hRf]
+    exact DihedralWeightOne.hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm N ψ f hf q
+
+
+end AutomorphicForm
 
 end
