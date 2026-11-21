@@ -5677,3 +5677,382 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   too broad, the cure is the wire (a module should name the pin sources it transposes — FR-0247), and
   the checker is what proves it.
 - **seen**: 2026-11-20, SET-AF97 (FR-0264's hash gate removed the same day it was added).
+
+## FR-0266 [instrument] — `port_advise`'s substitution tier matches a `def` on its *type*, so "already in the port, import it" can be a false positive
+
+- **where**: SET-AF98A, `AutomorphicForm/Adelic/WhittakerSystem.lean`. `port_advise` reported three of
+  the pin's `casWords`/`casCoeff`/`casBarCoeff` (`S_…su2String_gl2Complex_whittaker_system_…:174`,
+  `:181`, `:184`) as `byte-identical` to port declarations — `LeftCasimirComplex.W10` and
+  `LocalIntertwining.ComplexCasimirComm.sgn` — and `port_plan` counted them among 45 *trusted*
+  substitutions. The work order then instructed "the whole `casWords`/`casCoeff`/`casBarCoeff`
+  dictionary is already there … import those; do not re-declare".
+- **why it is false**: `statement_db` stores a `def`'s `stmt` as its **type** (`casCoeff`'s is
+  `def casCoeff : Fin 10 → ℂ`), so the hash tier matches *any* port `def` of the same type.
+  `LeftCasimirComplex.W10`/`c10`/`c10b` are the **left** Casimir dictionary (`Ld`-based) and `sgn` is
+  `![1,1,1,1,-1,-1,1,1,1,1]`; none of them is the pin's right-Casimir `Fin 10` dictionary, and no
+  port declaration has those last names at all. `port_plan` itself flags the class ("3 suspect (the
+  parser's type-only `def` matches)").
+- **cost**: the three deletions would have been `scaffold_audit` `MISSING` rows and a headline that
+  does not elaborate (its two Casimir steps are `← archCasimirAtComplex_eq_sum …` and a
+  `linear_combination` over `casCoeff`).
+- **rule**: for a `def`, the substitution tier is a *type* match, not a statement match — check the
+  body before believing it, and never let a work order's "already ported" list decide for a `def`.
+  A `def`'s pin-faithfulness is its body, which no checker hashes.
+- **seen**: 2026-11-21, SET-AF98A.
+
+## FR-0267 [mathlib-drift] — `Matrix.of` is no longer `fun f => f`, so a pin's `Matrix.of !![…]` needs a `show`, and the `!![…]` literal is already a `Matrix`
+
+- **where**: SET-AF98A, the two `archComplexGLAt_eq_lift_rot`/`…_irot` rows
+  (`S_…su2String_gl2Complex_whittaker_system_…:368`, `:384`). The pin's
+  `have hmat : (Matrix.of !![…] : Matrix (Fin 2) (Fin 2) ℂ) = (k : Matrix …) := by rw [hk]; ext i j;
+  fin_cases i <;> fin_cases j <;> simp [Complex.ofReal_cos, Complex.ofReal_sin]` leaves
+  `of !![…] 0 0 = Complex.cos ↑s` unsolved at v4.34.
+- **why**: `Matrix.of_apply` is `∀ (f : m → n → α) (i j), of f i j = f i j`, and the pin passes it a
+  term whose type is `Matrix (Fin 2) (Fin 2) ℂ` — a `def`, so `f` will not unify at `implicit`
+  transparency and the simp lemma reads *unused*. `unfold Matrix.of` shows this mathlib's `of` is
+  `Equiv.refl (Fin 2 → Fin 2 → ℂ)` applied, not the identity, so `rfl` does not close it either. In
+  the pin's mathlib `!![a,b;c,d]` was a plain `Fin 2 → Fin 2 → ℂ` and the `of` was needed; here it is
+  already a `Matrix` and the `of` is the defect.
+- **cure used**: `rw [hk]` then `show (!![…]) = !![…]` at the literal (the `of` is definitionally the
+  identity, so the `show` is accepted), then the pin's `ext`/`fin_cases`/`simp` — and the four
+  `Matrix.cons_val_*`/`Matrix.head_cons`/`Fin.isValue` arguments the pin lists in `simp only` are then
+  unused (`linter.unusedSimpArgs`), while `Matrix.cons_val_zero`/`_succ` are still load-bearing for the
+  `linear_combination` two declarations later.
+- **rule**: when a pin's matrix literal is `!![…]` under a `Matrix.of` and the goal survives `simp`,
+  `show` at the literal; and never trust the pin's `simp only` list to be *all* necessary or *all*
+  used after such a change — re-read `linter.unusedSimpArgs` per site.
+- **seen**: 2026-11-21, SET-AF98A.
+
+## FR-0268 [port] — `AdeleRing`-as-`def` breaks `rw`/`simp` *globally*, not locally: "not type-correct under the implicit transparency level" is the tell
+
+- **where**: SET-AF98A, the two unipotent-character steps of the real-place rows
+  (`S_…diagOne_satisfies_whittaker_ode…:243`, `S_…detOneTorus_eq_zero…:264`), both of the form
+  `have this : (((1 : (AdeleRing (𝓞 K) K)ˣ) : AdeleRing (𝓞 K) K)).1 w * e.symm (ε * x) = …`.
+- **symptom**: the pin's `rw [map_one, one_mul]` (or `simp only [one_mul]`) reports *either* "did not
+  find an occurrence of the pattern `1 * ?a`" in a goal that visibly contains `1 * (Pi.single …)`,
+  *or* "`simp` made no progress" with the note **"the target expression is not type-correct under the
+  `implicit` transparency level, which may have triggered the failure"**. That note is the whole
+  diagnosis: `((↑1 : AdeleRing …)).1` is a `Prod.fst` on the *unfolded* product, so the goal is
+  ill-typed at every transparency below `default` and **every** subsequent `simp`/`rw` on it fails,
+  at a site unrelated to the `rw` that introduced it.
+- **cure used**: do not rewrite the pin's identity into the goal at all — restate it. Prove
+  `ha : ((… : AdeleRing …) : InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K).1 w = 1` (by
+  `rw [Units.val_one]; rfl`) and then `hU : archRealGLAt hw (unipotentGL2 (ε * x)) = unipotentGL2
+  (show (AdeleRing …) from ((Pi.single w (e.symm (ε * x)), 0) : … × …))` by `rw [hE, ha, one_mul]`,
+  and rewrite with `hU` instead of the pin's `hE`. The rest of the pin's proof then replays verbatim,
+  and its `this` step disappears.
+- **rule**: when a pin step's argument contains `.1`/`.2` on a type the port spells as a `def`
+  (`AdeleRing`, `InfiniteAdeleRing`), do not insert it into the goal — restate it at the unfolded
+  type first. `set_option linter.tacticCheckInstances true` is what names the offender.
+- **seen**: 2026-11-21, SET-AF98A.
+
+## FR-0269 [instrument] — `scaffold_audit` keys the import-closure credit on the **last name**, so a pin law the port already has under another last name must be restated
+
+- **where**: SET-AF98C, `RankinSelbergShellIndicator.lean`. The pin states two laws twice, once in
+  its `RS24` block and once in its `Ws50CH1`/`T2` block: `units_inv_snd_apply` /
+  `T2_units_inv_snd_apply` (same statement, same proof) and `centralScalar_comm`-shaped
+  `T2_centralScalar_comm` (the port has `AutomorphicForm.centralScalar_mul_comm`, the same law in
+  the opposite orientation).
+- **what the audit does**: `scaffold_audit.py` compares `promoted_key(name).split('.')[-1]` on both
+  sides, and the import-closure credit (`inport`, FR-0258's fix) is a set of last names. So
+  `units_inv_snd_apply` is credited by `AutomorphicForm.UnipotentDepth.units_inv_snd_apply` while
+  `T2_units_inv_snd_apply` is **not** — the law is public and imported and the row still reads
+  `MISSING`. Same for `T2_centralScalar_comm` against `centralScalar_mul_comm`.
+- **what it costs, and the decision**: both are one-liners by reuse
+  (`T2_centralScalar_comm K z h := (centralScalar_mul_comm z h).symm`, and the `units_inv` one the
+  pin's three-line proof). That is cheaper than a `spec/decl_markers.tsv` row and it keeps the
+  auditor's `complete` honest, so AF98C transcribed both at the pin's names and said so in the
+  report. `port_advise` *does* report the pair — its per-name `how: binder spelling` line — so the
+  signal exists; the trap is reading the advise's totals ("33 declarations already in the port")
+  instead of its per-name rows.
+- **rule for a work order**: "import, do not re-prove" is a statement-level rule; when the *same*
+  law is on the wire under two last names, the audit's completeness gate needs both. Budget one
+  line per duplicate and name the duplicate in the report rather than treating the advise's
+  substitution count as the module's target surface.
+- **seen**: 2026-11-21, SET-AF98C.
+
+## FR-0270 [instrument] — a pin `set_option maxHeartbeats` is the generator's budget, not the port's cost; and a one-qualifier statement diff is cured with `open … in`
+
+- **where**: SET-AF98C, `RankinSelbergShellIndicator.lean`, `torus_at_S` — the pin's only
+  heartbeated declaration (`S_…:572`, `set_option maxHeartbeats 1600000 in`) and its only
+  qualifier-sensitive statement (`finEmbed` bare, because the pin opens `AdelicDock` at the section
+  head `:526`).
+- **the measurement**: transcribed verbatim with **no** option and no split, `torus_at_S` costs the
+  whole module under `100000`; the probe pair is silent at `70000` / fails at `65000`
+  (deterministic timeout at `isDefEq`/`whnf` inside it), against the default `200000` and the
+  project's own `4000000`. The pin's `1 600 000` is ≈24× the port's real cost — it is what the
+  search stage needed, not what the proof needs. Two corollaries worth carrying: (a) do not
+  pre-emptively split a 300-line pin proof because its declaration carries a budget — transcribe,
+  then probe; (b) `lake env lean` does **not** read the lakefile's `leanOptions`
+  (`#eval Lean.getMaxHeartbeats` → `200000000`, i.e. 200000, from `tmp/af98/probe.lean`), while
+  `lake build` uses `4000000` — so the edit loop is the *stricter* gate and a green build is not
+  evidence that the loop will be green.
+- **the qualifier diff**: the port's proof wants the qualified `AdelicDock.finEmbed` (the port's
+  `finEmbed` is not unambiguously in scope in this file), and writing it in the statement turns the
+  row into `MISMATCH — port: … (AdelicDock.finEmbed …)` vs `pin: … (finEmbed …)`, a one-token
+  difference that `alpha_stmt` cannot absorb (it renames binders, not constants). The cure is
+  FR-0246's shape with a cheaper instrument: put the pin's own `open AdelicDock in` back in front
+  of the declaration, spell the statement bare and keep the proof qualified — no private `abbrev`,
+  no `decl_markers.tsv` row, and the statement hashes to the pin's.
+- **rule**: a statement `MISMATCH` whose diff is a namespace qualifier is a *scope* defect, not a
+  mathematical one; restore the pin's `open … in` on that declaration. And treat a pin
+  `set_option maxHeartbeats` as documentation of difficulty, never as a floor to install (the work
+  order forbids installing it, and here it was not needed).
+- **seen**: 2026-11-21, SET-AF98C.
+
+## FR-0271 [mathlib-drift] — a `set`-abbreviation inside an `ae_eq_refl`/`inter` result is already delta-reduced, so the pin's `rwa [hcap] at h` no longer matches
+
+- **where**: SET-AF98D, `AutomorphicForm/Adelic/BorelFundamentalDomain.lean`, the row's
+  `have hScap : (S ∩ Sd) =ᵐ[μG] 𝓕` (pin `S_…bruhatEisenstein.lean:429-431`).
+- **the pin**:
+  ```
+  set Sd := slab F d₁ d₂ with hSd'             -- a local definition
+  have hS₀cap : (𝓕 ∪ (D \ Sd)) ∩ Sd = 𝓕 := …
+  have h := hSeq.inter (ae_eq_refl Sd)         -- hSeq : S =ᵐ 𝓕 ∪ (D \ slab F d₁ d₂)
+  rwa [hS₀cap] at h
+  ```
+- **what happened at v4.34**: the goal state of the `rwa` shows
+  `(S ∩ fun x => Set.Icc d₁ d₂ (ideleNorm F (det x))) =ᵐ … (𝓕 ∪ D \ <slab>) ∩ fun x => …` — the `Sd`
+  of `h`'s type has been zeta/delta-reduced to `slab`'s `setOf` body (and, asymmetrically, the
+  `𝓕 ∪ D \ ·` half still prints `slab`), while `hS₀cap`'s pattern still carries the `fvar Sd`.
+  `rw`'s matcher does not close that gap, so the rewrite reports "Did not find an occurrence of the
+  pattern", and re-stating the pattern in the unfolded `setOf` form fails too (the two halves are not
+  reduced alike).
+- **the cure (body only)**: do not rewrite. State the identity you need as its own `have` and
+  compose: `have h2 : ((𝓕 ∪ (D \ Sd)) ∩ Sd : Set _) =ᵐ[μG] 𝓕 := by rw [hS₀cap]` then
+  `exact h.trans h2`. The type ascription is checked up to `isDefEq`, which *does* unfold local
+  definitions, so `h2` is accepted where the rewrite pattern is not.
+- **rule**: a pin step that both `set`-abbreviates a term *and* rewrites with an identity whose two
+  sides are the abbreviation and its value is the FR-0238/0245/0249/0257 class at the
+  `EventuallyEq` level: replace the rewrite by a composition. Any `… =ᵐ …`/`=ᵐ` goal built by a
+  `Filter.EventuallyEq` combinator is a candidate, because those combinators run `isDefEq` and store
+  the unfolded form.
+- **seen**: 2026-11-21, SET-AF98D.
+
+## FR-0272 [instrument] — a premise declared with a dotted qualified name after `end <engine namespace>` is invisible to a `^theorem <name>` grep, so the "is it ported?" check gives a false negative
+
+- **where**: SET-AF98D, `AutomorphicForm/Adelic/BorelFundamentalDomain.lean`. The pin's
+  `obtain ⟨D, hD⟩ := AutomorphicForm.exists_isFundamentalDomain_globalPoints_range F` looked unported:
+  `grep -rn 'exists_isFundamentalDomain' FLTForHuman/` returns only the `…_restrict_ideleNorm_det_Icc`
+  variant, so the natural conclusion is "prerequisite missing, needs a port".
+- **the fact**: the row *is* in the port, at `AutomorphicForm/Adelic/GlobalPointsDomain.lean:193`,
+  declared as `theorem AutomorphicForm.exists_isFundamentalDomain_globalPoints_range (F : Type) …`
+  — outside the file's `namespace GlobalPointsDomain`, with the namespace spelled into the *name*.
+  Every declaration-shaped grep (`^theorem exists…`, `^def exists…`) misses it, and so does
+  `grep -n 'theorem <last name>'`.
+- **why it matters**: the work order's FR-0259 advice is "grep the new public names against the tree";
+  the same grep, read the other way, is how one decides a premise is missing. Both directions fail on
+  a dotted declaration, and the failure mode of the second is expensive (a needless port of a 165-line
+  pin) — or worse, a second public copy of a name that already exists.
+- **the instrument**: `grep -rn '\b<last name>\b' FLTForHuman/ | grep -v '^\S*:.*--'` (any position,
+  not declaration-anchored), or ask the dependency graph
+  (`port_advise`/`port_plan`'s premise block) rather than the source text. `statement_db.parse_file`
+  also sees the full dotted name.
+- **rule**: when checking whether a premise is ported, search the *name anywhere*, not the
+  declaration line; and when transcribing a pin whose `p2m_open`/`p2m_export` machinery re-homes a
+  declaration, expect the port to have kept a dotted name.
+- **seen**: 2026-11-21, SET-AF98D.
+
+## FR-0273 [build] — `open scoped` inside a `namespace` ends at `end`, and `linter.style.haveILetI` fires on *every* `letI`/`haveI` in a Prop goal (`MulAction` and `MeasurableSpace` included), so FR-0255's blanket `have` cure does not reach it
+
+- **where**: SET-AF98D, `AutomorphicForm/Adelic/BorelFundamentalDomain.lean`. Two symptoms, one cause
+  ("the row is not where the pin put it").
+- **(a) the notation loss.** The pin states its row at the root and its engines inside `RS11C9A`, so
+  its `open scoped Pointwise ENNReal` at `:37` lapses at `end RS11C9A` and the pin re-issues
+  `open scoped Pointwise ENNReal` at `:345`, just before the row. The port keeps the pin's stage
+  namespace (FR-0259) and writes the row outside it, but transcribed only the *body* lines — so
+  `→ ℝ≥0∞` in the row's proof died with `error: expected token` at the `0`, and the pin's
+  `‖·‖ₑ`/`γ • s` were silently unavailable. The tell is an `expected token` whose token is the second
+  character of a notation (`ℝ≥` parses because `NNReal` is open, `∞` does not).
+- **(b) the linter.** The pin's proof opens with
+  `haveI := isHaarMeasure_adelicGLHaar …`, `letI := ratAction F`, `letI := mGL F`,
+  `haveI := measurableSMul_rat F`. `linter.style.haveILetI` fires on all four — its rule is "the goal
+  is a proposition, so `have`/`let` is preferred", independent of the bound value's type, so even the
+  `MulAction` and `MeasurableSpace` binds are flagged. And the suggested cure does not work: `have :=
+  mGL F` gives "synthesized type class instance is not definitionally equal to expression inferred by
+  typing rules" (FR-0262's class, and the goal *is* stated with the inlined `mGL F`).
+- **the cures**: (a) re-issue the pin's `open scoped …` at **module** level whenever the row sits
+  outside the pin's engine namespace; (b) `set_option linter.style.haveILetI false in` scoped to the
+  one declaration (precedent `RepTheory/TypeReproducer.lean:656`). The option line does not disturb
+  the statement: `check_port` still reads the row `ok` and `scaffold_audit` `complete`.
+- **rule**: when a port moves a pin's row out of the pin's engine namespace (which FR-0259 often
+  forces), it must also move everything the *scope* was providing — the `open scoped` notations and
+  the `scoped instance`s. A missing `scoped instance` shows up as `failed to synthesize Countable ↥⊤`
+  deep in the proof, not as a scope error; a missing scoped notation shows up as `expected token`.
+- **seen**: 2026-11-21, SET-AF98D.
+
+## FR-0274 [port-structure] — two orders pinning the same private prelude declare the same public full names, and no gate reports it
+
+- **where**: SET-AF98, orders A and B. AF98A's `AutomorphicForm/Adelic/WhittakerSystem.lean` and
+  AF98B's `AutomorphicForm/Adelic/WhittakerDiagOneBound.lean` both transcribed the pin's `E40DCFN`
+  Casimir dictionary and its `E37K` `K`-type block, 15 public full names in all:
+  `DCFN.{hasDerivAt_W_string, archDelAt_apply', archDelBarAt_apply', archDerivAtComplex_sub'',
+  archDerivAtComplex_archDelAt', archDerivAtComplex_archDelBarAt', casWords, casCoeff, casBarCoeff,
+  archCasimirAtComplex_eq_sum, archCasimirBarAtComplex_eq_sum}` and
+  `KType.{archComplexGLAt_eq_lift_rot, archComplexGLAt_eq_lift_irot, hK_of_string, final_bound}`.
+- **why it happened**: the pins are different files, but each `S_` file copies the whole su(2)-string
+  prelude into itself (the pin's own generation habit), so *both* pins legitimately state these 15,
+  and each order's brief says "transcribe the pin". Neither order can tell from its own gates that a
+  sibling is writing the same names: `check_port` is per module, `scaffold_audit` is a name set,
+  `dedup --within` is within-module, and `port_advise` only sees what was in the port *when it ran*.
+- **the symptom, if it lands**: `environment already contains 'AutomorphicForm.DCFN.casWords' from
+  …` at *import* time, i.e. any consumer that wants both rows (and the set's consumer zone does).
+- **the measurement**: 14 of the 15 were byte-identical (`statement_db` `nhash`), the 15th
+  (`KType.final_bound`) alpha-equivalent only — one module had renamed the unused binder `hδ → _hδ`
+  to silence `linter.unusedVariables`. So the duplication is total, not accidental near-duplication.
+- **the cure used** (and the rule): write the prelude **once** in the module that owns it first, and
+  import it from the other. B was temporarily made self-contained by moving its copies to
+  `AutomorphicForm.DiagOneCasimir` / `…Su2KType`; when A landed green (no `sorry`, olean on disk,
+  `lake build` exit 0) B switched to `import …WhittakerSystem` and deleted its 14 copies, keeping only
+  the one name A does not have (`Su2KType.whittakerCoefficient_mul_right`, whose statement differs —
+  it takes `pins`/`ψ`). Statements do not move either way.
+- **the check to run before a set lands** (30 lines, and it should be a gate — `dedup --cross` or a
+  `name_collisions.py`): after a module compiles, take its `statement_db.parse_file` **full** names and
+  intersect with every other `FLTForHuman/**.lean`'s public full names; report any intersection. B
+  ran it and got 0 after the cure.
+- **also worth carrying**: an order cannot *verify* a cross-order import while the set is in flight.
+  The first `import …WhittakerSystem` failed with `object file … does not exist` because A's rebuild
+  had deleted the olean (FR-0256, second sighting). Sequence a set's shared-prelude module first, or
+  expect the import to be un-checkable until it lands.
+- **seen**: 2026-11-21, SET-AF98 (orders A and B).
+
+## FR-0275 [instrument] — `statement_db.parse_file` rows are 11-tuples, not the 9 the docstring documents, and the "is my pin already ported?" diff is a hash of `r[10]` against `r[4]`
+
+- **where**: SET-AF98B, the first cross-reference pass of its 87-declaration pin against the tree.
+- **symptom**: a pass keyed on the documented layout (`(line, end_line, name, last, kind, private,
+  stmt, raw, nhash)`) read **0 of 87** declarations as already ported — the opposite of
+  `port_advise`'s "854 lines already in the port" claim — and would have caused a full re-derivation
+  of 45 declarations that are in the tree byte-for-byte.
+- **the actual layout** (11 fields, as `check_port.check_module` unpacks it):
+  `(line, end_line, name, last_with_stage_label, short_name, kind, private, anonymous, stmt, raw,
+  nhash)`. So `r[4]` is the short name that `scaffold_audit` credits, `r[5]` is the kind, `r[6]` the
+  `private` flag, `r[10]` the normalised hash. `r[3]` is *not* the short name (it keeps the pin's
+  search-stage namespace: `E40DCFN.eC`).
+- **the check worth keeping**: for each pin public row, look for a port public declaration with the
+  same `r[4]` whose `r[10]` equals the pin's `r[10]`; `HASH` = byte-identical, `NAMEONLY` = a
+  same-named copy with a different statement (a real decision), `NEW` = transcribe. AF98B's pin read
+  49 `HASH` / 6 `NAMEONLY` / 32 `NEW`, which is what made the 20-declaration module possible.
+- **rule**: read `statement_db.parse_file`'s tuple off `check_port.check_module`, not off its
+  docstring; and prefer a hash+short-name join over a bare name grep for "is it already ported".
+- **seen**: 2026-11-21, SET-AF98B.
+
+## FR-0276 [process] — `lean/tmp/<set>/` is shared by every order of the set, so an un-suffixed scratch filename silently reads another order's file
+
+- **where**: SET-AF98, `lean/tmp/af98/`. Order B wrote `tmp/af98/axioms.lean` (a `#print axioms`
+  probe over its own module) and `tmp/af98/build.log`; another order overwrote both between the write
+  and the read.
+- **symptom**: the probe printed 16 declarations that are not in B's module (A's
+  `whittakerCoefficient_su2String_…`, `TorusOdeAux.*`) and 14 "failures" that were really *missing*
+  axioms lines — a plausible-looking gate failure with no defect behind it. Same for `build.log`,
+  which showed two interleaved "Build completed successfully" lines from two lake runs.
+- **the cure**: suffix every scratch artifact with the order letter (`axioms-AF98B.lean`,
+  `build-AF98B.log`, `out-AF98B.txt`). The work order says "write your build logs to
+  `lean/tmp/<set>/`", which is right for *discoverability* and wrong for *uniqueness*.
+- **rule for a work order**: name the per-order prefix in the same sentence that names the directory.
+- **seen**: 2026-11-21, SET-AF98B.
+
+## FR-0277 [instrument] — a pin whose surface is nearly all `private` makes *both* completeness gates vacuous: `scaffold_audit` reads `complete` on the bare `sorry` scaffold
+
+- **where**: SET-AF98E, `LanglandsTunnell/IsotypicCuspSubmodule.lean`, pin
+  `S_LanglandsTunnell_exists_mem_finset_inf_isotypicCuspSubmodule_inf_archCutSubmodule_ne_bot_of_mem_sup`
+  (836 lines). `statement_db.parse_file` over that pin: **47 declarations, 46 of them `private`**, and
+  the one public declaration is the pin's `solution` — the very row the scaffold already carries.
+- **the measurement**: on the scaffold as dispatched (header prose + one `sorry` headline),
+  `check_port --force` reads `1 ok, 0 mismatch, 0 missing` and `scaffold_audit` reads
+  `1 pin public declarations on the wire, … complete: every pin public declaration is declared here`
+  (`solution` lands in the `FOLDED` branch). Both are *green on a module whose entire content is a
+  `sorry`*. After the full transcription they read exactly the same two lines —
+  `1 ok` and `complete` — with 46 more declarations of engine in between, i.e. **neither gate moved**
+  between "nothing ported" and "everything ported".
+- **why**: `check_port` skips a `private` port declaration (FR-0242) and `scaffold_audit` skips a
+  `private` pin declaration, and this pin puts the whole engine on the private side. The two tools
+  are consistent; what fails is the *reading* — "the audit says `complete`" is being used in the
+  set's orders as a completeness gate, and for such a pin it is vacuous.
+- **the countermeasure used here**: FR-0242's prescribed substitute — parse both sides with
+  `statement_db.parse_file` and diff names, kind, private flag and statement text (and `nhash`).
+  Measured for this row: 47/47 names (one rename, `solution` → the row's name), 46/46 private on both
+  sides, **0** statement-text differences, 0 `nhash` differences. That diff is the gate; the two
+  tools' readings are recorded beside it, not instead of it.
+- **rule for a work order**: do not assert the private/public split of a set's pins from one row —
+  run `statement_db.parse_file` per pin and state the private count, because the completeness gates'
+  *meaning* depends on it. When the pin's public surface is the row itself, the required deliverable
+  is the `parse_file` diff plus the substantive gates (elaboration, the proof, `#print axioms`), and
+  the report must say so, or a later reader will take `1 ok / complete` as evidence of a transcription
+  that never happened.
+- **seen**: 2026-11-21, SET-AF98E.
+
+## FR-0278 [build] — two *concurrent* `lake build`s in one tree race on each other's oleans: the second build's rebuild deletes the first's dependency mid-elaboration
+
+- **where**: SET-AF98F, `lean/`: `lake build FLTForHuman.LanglandsTunnell.WeightOneLiftFactorizationBound`
+  (job 1) and `lake build FLTForHuman.MeasureTheory.HaarQuotient` (job 2) started a minute apart in
+  two background shells.
+- **symptom**: job 1 died with three *unrelated* modules failing at their `import` line —
+  `WeightOneLiftNebentypus.lean:119`, `WeightOneLiftQCoeff.lean:66`,
+  `WeightOneLiftCuspidalRealization.lean:110`, all with
+  `failed to open file '.lake/build/lib/lean/FLTForHuman/MeasureTheory/HaarQuotient.olean': No such
+  file or directory` — while job 2 reported `Build completed successfully` and the olean existed
+  again by the time job 1's log was read. Nothing was wrong with either module.
+- **why**: this is FR-0256's mechanism, but the trigger is not a `timeout` kill — lake deletes a
+  target's `.olean` *before* rewriting it, and a second lake process reading that target in the
+  window sees an absent file. Lake's `.lake/build.lock` serializes *writers*, not readers, so
+  `lake build A` and `lake build B` where `B` is in `A`'s import closure still corrupt each other,
+  and the failure is attributed to whichever module happened to be elaborating.
+- **the cure**: build one module at a time even across *orders*, and when a build reports an import
+  whose olean obviously exists, do not debug the sources — re-run that one build alone. The re-run
+  here was `4832 jobs` in 10 s with no failures.
+- **rule for a work order**: "run big builds as background jobs, one module at a time" must say
+  *globally* one at a time — a background job is not serialized by being one order's only job. When
+  several agents share a tree, a failed build whose errors are all `failed to open file …olean` is a
+  race, not a defect: re-run before reporting.
+- **seen**: 2026-11-21, SET-AF98F.
+
+## FR-0279 [instrument] — a work order's "these helpers are public in the pin" can be exactly backwards, and the checker makes the wrong choice fail
+
+- **where**: SET-AF98F, `LanglandsTunnell/TateLocal/AddCharLevel.lean`, the
+  `S_LanglandsTunnell_TateLocal_psiLocal_ne_one` pin (74 lines). The order says the pin's three
+  helpers (`trace_surjective`, `main_of_dock_of_base`, `main_of_docks`) "are public in the pin", and
+  the preamble of the same work order says `statement_db.parse_file` reads **0 private declarations**
+  across the set's twelve rows.
+- **the measurement**: `S_…psiLocal_ne_one.lean` is the counterexample — parse_file reads
+  `priv = 1` on all three helpers and `priv = 0` on the sole `solution` row (4 declarations, 3
+  private). Transcribing them *public* would have been a gate failure, not a fidelity gain: the wire
+  does not carry them, so `check_port` would have written them into the `own` column (the gate is
+  `0 own`), and `scaffold_audit` would still have skipped them on the pin side. `private` gives
+  `4 ok, 0 own` and `complete`.
+- **why the order got it backwards**: the pin's `-- pin:`-free helpers are written
+  `private theorem` inside a search-stage namespace (`SolED33`), which is exactly the shape that the
+  set's other pins use for their *public* engines; the prose generalised from those.
+- **the cure used**: keep the pin's `private` markers (the order's own rule "keep the pin's
+  `private` markers as the pin has them" governs over its per-row description), drop the
+  generation-label namespace, and record the deviation in the module header and the report.
+- **rule**: a per-row claim about a pin's visibility is a *measurement*; run
+  `statement_db.parse_file` on that row's pin before writing the declarations, and prefer the pin's
+  own markers when the order's prose and the pin disagree — the gates agree with the pin.
+- **seen**: 2026-11-21, SET-AF98F.
+
+## FR-0280 [port-structure] — a pin's two premises can live in modules that import the module the row is ordered into, so "import, do not re-prove" is impossible and the cure is the home module's own `private` engine
+
+- **where**: SET-AF98F, `MeasureTheory/HaarQuotient.lean`, the
+  `S_HaarQuotient_lintegral_comp_inv_mul_out_eq_mul_lintegral_of_mem_normalizer` pin.
+- **the trap**: the pin's three premises are `HaarQuotient.measurable_density`,
+  `HaarQuotient.lintegral_density_mul_eq_one` and
+  `HaarQuotient.lintegral_eq_lintegral_lintegral_mul_out`. The first is already in the ordered
+  module; the other two *are in the port*, but in `MeasureTheory/HaarQuotientDensity.lean` and
+  `MeasureTheory/HaarQuotientFubini.lean`, **both of which `import FLTForHuman.MeasureTheory.HaarQuotient`**.
+  Adding either as an import of the row's home is a cycle; a work order that says "its premises are
+  already in the port, import them" is unsatisfiable as written, and a `grep` for the names says
+  "ported" without saying "upstream of me".
+- **the cure**: the row's home module already carries the *same mathematics* on its private side —
+  `orb_density H hH μH g` is exactly `∫⁻ x : H, density H μH (↑x * g) ∂μH = 1` and
+  `lintegral_eq_lintegral_measure` is the Fubini row with the orbit integral still folded into
+  `orb H μH f q.out`. The pin's proof then replays verbatim against those two, with one `show` per
+  site to cross the folded/unfolded gap (`orb` is a `def`, so `show` is enough; no new helper and no
+  `dedup --within` cluster). Gates: `6 ok / 0 mismatch / 0 missing / 0 own`, `complete`, no new
+  import at all.
+- **rule**: before ordering a row into module `M`, check each pin premise's `module ≤ M` in the
+  import DAG — not merely that its name exists — and when a premise is downstream, look for the same
+  law on `M`'s private side before concluding the row needs a new module. Also worth carrying: the
+  sibling modules that *do* hold the public copies are the right home for a row whose proof needs
+  them, so "the module this row goes into" and "the module its premises are in" can be different and
+  the work order should name the upstream one.
+- **seen**: 2026-11-21, SET-AF98F.

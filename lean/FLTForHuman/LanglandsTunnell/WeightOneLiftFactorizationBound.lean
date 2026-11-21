@@ -3,6 +3,25 @@
   `p`-adic span forces `N.factorization q ≤ m`.
 
   spec-pin: P2M/Sol/S_DihedralWeightOne_factorization_le_of_mem_span_weightOneLift_of_mem_fixedSubmodule_padicK1.lean
+  spec-pin: P2M/Sol/S_DihedralWeightOne_hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm.lean
+
+  The second row.  `hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm`
+  (pin `P2M/Sol/S_…hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm.lean`,
+  SET-AF98F) states what the first row is *for*: for a primitive `f` and a prime `q`, the local
+  newvector conductor of `AdelicSpan (weightOneLift (N) f)` at `q` is exactly
+  `N.factorization q`.  The pin is a 41-line file with one declaration, and it is a two-line
+  corollary of this module's own first row plus three imported premises: `≤` is
+  `LocalNewvector.AdelicSpan.exists_hasNewvectorConductor_le_factorization`; `≥` is the `exfalso`
+  branch — a strictly smaller conductor `c < N.factorization q` would give a nonzero
+  `padicK1 q c`-fixed vector in the `q`-adic span
+  (`LocalNewvector.AdelicSpan.exists_mem_span_fixed_padicK1_of_fixedSubmodule_padicK1_ne_bot_of_apply_mul_finEmbed_eq`)
+  and then `N.factorization q ≤ c` by
+  `factorization_le_of_mem_span_weightOneLift_of_mem_fixedSubmodule_padicK1`.  Its two new imports
+  are `NumberTheory/LocalNewvector/AdelicSpanConductor.lean` (the two `AdelicSpan` rows) and
+  `LanglandsTunnell/WeightOneLiftCuspidalRealization.lean`
+  (`weightOneLift_ne_zero_and_apply_mul_finEmbed_eq_of_isPrimitiveForm`); neither imports this
+  module, and no public name is shared between them and it, so the additions are cycle- and
+  clash-free.
 
   The row.  Let `N ≥ 1`, `ψ` a Dirichlet character mod `N`, `f` a primitive cusp form of
   weight one on `Γ₁(N)` with Nebentypus `ψ`, `q` a prime and `m ≥ 0`.  If `y ≠ 0` lies in the
@@ -124,20 +143,22 @@
 
   ## Gate readings
 
-  `lake env lean -DautoImplicit=false`: no output.  `check_port --force`: `15 ok, 0 mismatch,
-  0 missing, 0 own, 0 kw` — the module is 29 declarations (15 public, 14 `private`); the
+  `lake env lean -DautoImplicit=false`: no output.  `check_port --force`: `16 ok, 0 mismatch,
+  0 missing, 0 own, 0 kw` — the module is 30 declarations (16 public, 14 `private`); the
   eighteen pin publics it does not carry are the import closure's (see Port deltas), and the
-  one pin public it carries is the row (`solution`, pin `:910`), which `check_port` reads as
-  `ok`.  `scaffold_audit`: `complete` — 18 pin public declarations on the wire, 29 port
+  two pin publics it carries are the row (`solution`, pin `:910`) and SET-AF98F's
+  `hasNewvectorConductor_…_of_isPrimitiveForm` row (pin `:23`), both of which `check_port` reads
+  as `ok`.  `scaffold_audit`: `complete` — 19 pin public declarations on the wire, 30 port
   declarations, 3 satisfied by the import closure.  `dedup --within`: 1 cluster, and it is the
   pin's own pair — `factorization_le_of_mem_span_weightOneLift` (pin `:768`) and the row (pin
   `:910`) have the same *shape* (`shape` tier, 17 lines) because the row's statement is the
   pin's `solution`, i.e. the engine applied at `M := N`; the pin duplicates them on purpose and
-  the row cannot be folded into the engine under `check_port`.  `move_dead --dry-run`: `0
-  declarations, 0 lines` (after the deferral above).  `#print axioms` on all fifteen public
-  declarations: `[propext, Classical.choice, Quot.sound]`, none else.  One
+  the row cannot be folded into the engine under `check_port`.  (SET-AF98F's new row is not in a
+  cluster: its statement is the `HasNewvectorConductor` form, not the engine's.)  `move_dead
+  --dry-run`: `0 declarations, 0 lines` (after the deferral above).  `#print axioms` on all
+  sixteen public declarations: `[propext, Classical.choice, Quot.sound]`, none else.  One
   `lake build FLTForHuman.LanglandsTunnell.WeightOneLiftFactorizationBound` under the build
-  lock: `Build completed successfully (4812 jobs)`, the module itself in 17 s.
+  lock: `Build completed successfully (4832 jobs)`, the module itself in 10 s.
 -/
 
 import Mathlib.Algebra.Group.Subgroup.Basic
@@ -151,7 +172,9 @@ import FLTForHuman.LanglandsTunnell.WeightOneLiftLevel
 import FLTForHuman.LanglandsTunnell.WeightOneLiftNebentypusExists
 import FLTForHuman.LanglandsTunnell.WeightOneLiftQCoeffConverse
 import FLTForHuman.NumberTheory.LocalNewvector.AdelicSpan
+import FLTForHuman.NumberTheory.LocalNewvector.AdelicSpanConductor
 import FLTForHuman.NumberTheory.LocalNewvector.ConductorDatum
+import FLTForHuman.LanglandsTunnell.WeightOneLiftCuspidalRealization
 
 set_option autoImplicit false
 
@@ -937,6 +960,28 @@ theorem factorization_le_of_mem_span_weightOneLift_of_mem_fixedSubmodule_padicK1
     (hy0 : y ≠ 0) :
     N.factorization q ≤ m :=
   factorization_le_of_mem_span_weightOneLift hf q y hy hfix hy0
+
+theorem hasNewvectorConductor_adelicSpan_weightOneLift_factorization_of_isPrimitiveForm
+    (N : ℕ) [NeZero N] (ψ : DirichletCharacter ℂ N) (f : CuspForm (Gamma1 N) 1)
+    (hf : CuspForm.IsPrimitiveForm ψ f) (q : ℕ) [Fact q.Prime] :
+    LocalNewvector.HasNewvectorConductor q
+      (LocalNewvector.AdelicSpan (weightOneLift (Ideal.span {(N : 𝓞 ℚ)}) (⇑f)))
+      (N.factorization q) := by
+  obtain ⟨hne, hlev⟩ :=
+    DihedralWeightOne.weightOneLift_ne_zero_and_apply_mul_finEmbed_eq_of_isPrimitiveForm N ψ f hf
+  obtain ⟨c, hce, hc⟩ :=
+    LocalNewvector.AdelicSpan.exists_hasNewvectorConductor_le_factorization _ hne (NeZero.ne N) hlev q
+  rcases Nat.lt_or_eq_of_le hce with hlt | heq
+  · exfalso
+    obtain ⟨y, hy, hy0, hfix⟩ :=
+      LocalNewvector.AdelicSpan.exists_mem_span_fixed_padicK1_of_fixedSubmodule_padicK1_ne_bot_of_apply_mul_finEmbed_eq
+        _ (NeZero.ne N) hlev q c hc.1
+    have hle :=
+      DihedralWeightOne.factorization_le_of_mem_span_weightOneLift_of_mem_fixedSubmodule_padicK1
+        N ψ f hf q c y hy hfix hy0
+    exact absurd hle (not_le.mpr hlt)
+  · rw [← heq]
+    exact hc
 
 end DihedralWeightOne
 

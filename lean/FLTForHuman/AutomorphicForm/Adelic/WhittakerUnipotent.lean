@@ -40,16 +40,17 @@
     instance at `AdeleRing (𝓞 F) F`; the module body calls it at
     `R := AdeleRing (𝓞 F) F` and `scaffold_audit` reports the pin's declaration as satisfied by the
     import closure.
-  * The pin's `namespace FibreParsevalC9B` (its search-stage label) is dropped, as ordered: the
-    declarations sit at `AutomorphicForm.*`, and the pin's `solution` is the row at the graph node's
-    name. The pin's `p2m_open`/`p2m_export` are not ported; `open NumberField.AdelicLevel` supplies
-    the pin's `diagOne` unqualified.
+  * The pin's search-stage namespace is dropped, as ordered, and the pin's `solution` is the row at
+    the graph node's name; the declarations sit under `AutomorphicForm.WhittakerUnipotent.*`. That
+    qualifier is the subject, not a stage label: the pin's `main` cannot sit at
+    `AutomorphicForm.main`, where `HeightWeylMass` already declares a *different* `main`, because
+    Lean then rejects any module importing both (`environment already contains
+    'AutomorphicForm.main' from …`). The pin's `p2m_open`/`p2m_export` are not ported; `open
+    NumberField.AdelicLevel` supplies the pin's `diagOne` unqualified.
   * The pin's two `attribute [local instance]` lines (`adeleBorel`, `borelSpace_adeleBorel`) are
     kept, as the module's proofs and the `ν`-integrals need them; the pin's `attribute [-instance]`
     / `attribute [-simp]` heads are dropped (they belong to the pin's `RestrictedProduct`
     vocabulary, which the row does not touch).
-  * Body-only: the row's body calls the pin's `main` unqualified instead of
-    `AutomorphicForm.FibreParsevalC9B.main`.
   * `main` and the row carry the pin's **own** duplicate statement — the pin's `main` (`:67`) and
     its `solution` (`:182`) are one proposition — so `dedup.py --within` reports exactly that one
     cluster (38 lines). It is kept: the pin declares both, and the row's body is the pin's
@@ -79,6 +80,8 @@ open MeasureTheory NumberField NumberField.AdelicHaar NumberField.AdelicBox Numb
 open scoped ENNReal NNReal ComplexConjugate
 
 namespace AutomorphicForm
+
+namespace WhittakerUnipotent
 
 attribute [local instance] NumberField.AdelicHaar.adeleBorel
   NumberField.AdelicHaar.borelSpace_adeleBorel
@@ -258,5 +261,7 @@ theorem integral_mul_conj_unipotent_eq_tsum_units_whittakerCoefficient_one_diagO
           (starRingEnd ℂ) (whittakerCoefficient F (productionPinsOf F D U gen (adelicBox F)) ψ y 1
             (globalPoints (𝓞 F) F (diagOne a) * g)) :=
   main F D U gen ψ hψ x y hxG hyG hxc hyc hx0 hxW g
+
+end WhittakerUnipotent
 
 end AutomorphicForm

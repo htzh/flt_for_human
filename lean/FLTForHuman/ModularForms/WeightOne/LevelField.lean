@@ -73,9 +73,10 @@ open scoped _root_.PeriodPair _root_.ModularForm _root_.CuspForm _root_.ModularF
 open UpperHalfPlane hiding I
 
 /-- The pin's `WLight.j`, a shim over the generic `ModularForm.j`
-(`FLTForHuman/ModularForms/JInvariant.lean`).  The mathematics is level-one and
-lives there; this name is kept for the pin and the weight-one consumers. -/
-def j : ℍ → ℂ := ModularForm.j
+(`FLTForHuman/ModularForms/Defs/JInvariant.lean`).  The mathematics is level-one and
+lives there; the name is kept for the pin but stays `private` to this module, so no
+other module can depend on the alias instead of on `ModularForm.j`. -/
+private def j : ℍ → ℂ := ModularForm.j
 
 /-- The pin's `WLight.j_surjective`, a shim over the generic
 `ModularForm.j_surjective`. -/

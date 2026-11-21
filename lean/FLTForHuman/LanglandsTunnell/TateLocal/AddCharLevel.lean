@@ -28,14 +28,26 @@
   `(1 - ψ x₁) * ∫ = 0`.  On the dual ball the integrand is `1` on the whole ball, so the
   integral is `μ.real B`; the shift by `a` contributes the factor `ψ (a * y)`.
 
-  The three public declarations are the pins' `solution` statements byte-for-byte, renamed to
+  `psiLocal_ne_one`: the local additive character is **nontrivial** at every finite place `v`
+  of a number field `K`.  `psiLocal K v` is the trace character against `ℚ`, so the reduction
+  is to a place `p` of `ℚ` under `v`: `psiLocal K v x = psiLocal ℚ p (trace x)`
+  (`psiLocal_eq_psiLocal_trace`), `psiLocal ℚ p = psiV p` (`psiLocal_rat_eq_psiV`), and
+  `psiV p` is nontrivial because its value at the inverse of a generator of `p` is a primitive
+  `p`-th root of unity (`psiV_algebraMap_inv_ne_one`).  Nontriviality descends along the trace
+  because the trace of a finite extension of completions is *surjective*
+  (`trace_surjective`: `c = trace ((c / finrank) • 1)`).
+
+  The four public declarations are the pins' `solution` statements byte-for-byte, renamed to
   the published names.  The pin's remaining declarations are `private`; of those, the two
-  engines of the third row are transcribed here (the first two pins are single-theorem files).
+  engines of the third row are transcribed here (the first two pins are single-theorem files),
+  and so are the `psiLocal_ne_one` pin's three `private` helpers (`trace_surjective`,
+  `main_of_dock_of_base`, `main_of_docks`), which stay `private` as the pin writes them.
 
   References (pin `aa2d8b3`):
   * <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_LanglandsTunnell_TateLocal_psiLocal_eq_one_of_mem_integers.lean>
   * <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_LanglandsTunnell_TateLocal_forall_eq_one_and_exists_ne_one_of_addCharLevel.lean>
   * <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_LanglandsTunnell_TateLocal_tateFourier_indicator_setOf_valued_sub_le.lean>
+  * <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_LanglandsTunnell_TateLocal_psiLocal_ne_one.lean>
 
   ## Port deltas
 
@@ -62,6 +74,19 @@
     past the heartbeat cap.
   - **Visibility.**  The pin's two engines stay `private`, so `check_port` reads the three
     public rows only (FR-0242) and `scaffold_audit` is complete over the pins' public surface.
+  - **`psiLocal_ne_one`.**  The pin's three helpers are `private` in the pin as well
+    (`statement_db.parse_file` reads `priv = 1` on all three), so they are transcribed
+    `private` here: they are the file's development, but they are not wire surface, and a
+    *public* copy would read `own` against a wire that does not carry them.  The pin's
+    search-stage namespace `SolED33` is dropped (it is a generation label, `Names`), so the
+    three live at `LanglandsTunnell.TateLocal`; being `private`, that is invisible to the
+    checker, the audit and every consumer.  The pin's `open NumberField.StandardAddChar` is
+    re-issued *after* the three pre-existing rows (it is what makes the pin's bare `psiLocal`
+    spell), so no earlier declaration sees a changed name resolution.  The three new imports
+    are `AutomorphicForm/Adelic/AdelicTraceTail.lean` (the trace row) and
+    `NumberTheory/StandardAddChar/GlobalAndInfinite.lean` + `…/StandardGlobalAddCharRat.lean`
+    (`psiLocal_rat_eq_psiV`, `psiV_algebraMap_inv_ne_one`); nothing imports this module, so the
+    additions are cycle-free.
 
   ## Build
 
@@ -73,6 +98,7 @@
   spec-pin: P2M/Sol/S_LanglandsTunnell_TateLocal_psiLocal_eq_one_of_mem_integers.lean
   spec-pin: P2M/Sol/S_LanglandsTunnell_TateLocal_forall_eq_one_and_exists_ne_one_of_addCharLevel.lean
   spec-pin: P2M/Sol/S_LanglandsTunnell_TateLocal_tateFourier_indicator_setOf_valued_sub_le.lean
+  spec-pin: P2M/Sol/S_LanglandsTunnell_TateLocal_psiLocal_ne_one.lean
 -/
 
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -80,6 +106,9 @@ import FLTForHuman.LanglandsTunnell.StandardLocalConstantsAt
 import FLTForHuman.LanglandsTunnell.TateLocalZeta
 import FLTForHuman.NumberTheory.AdelicLevel.Level
 import FLTForHuman.AlgebraicCurve.Tate.CommFinite
+import FLTForHuman.AutomorphicForm.Adelic.AdelicTraceTail
+import FLTForHuman.NumberTheory.StandardAddChar.GlobalAndInfinite
+import FLTForHuman.NumberTheory.NumberField.StandardGlobalAddCharRat
 
 set_option autoImplicit false
 
@@ -306,6 +335,69 @@ theorem tateFourier_indicator_setOf_valued_sub_le (K : Type) [Field K]
           * ψ (x * y) ∂μ := integral_const_mul _ _
     _ = _ := by
         rw [LanglandsTunnell.TateLocal.FourierBallF1.integral_indicator_ball_mul v μ ψ n hψn hψn' m y, mul_assoc]
+
+/-! ## Nontriviality of the local additive character
+
+The pin's `open NumberField.StandardAddChar` is re-issued here, after the rows above, so that the
+bare `psiLocal` of its statements spells without changing the name resolution of anything earlier
+in the file. -/
+
+open NumberField.StandardAddChar in
+private theorem trace_surjective (p : HeightOneSpectrum (𝓞 ℚ)) {K : Type} [Field K] [NumberField K]
+    (w : p.Extension (𝓞 K)) :
+    Function.Surjective
+      (Algebra.trace (p.adicCompletion ℚ) (w.1.adicCompletion K)) := by
+  intro c
+  have : CharZero (p.adicCompletion ℚ) :=
+    charZero_of_injective_algebraMap (algebraMap ℚ (p.adicCompletion ℚ)).injective
+  have hn : (Module.finrank (p.adicCompletion ℚ) (w.1.adicCompletion K) :
+      p.adicCompletion ℚ) ≠ 0 :=
+    Nat.cast_ne_zero.mpr Module.finrank_pos.ne'
+  refine ⟨algebraMap (p.adicCompletion ℚ) (w.1.adicCompletion K)
+    (c / (Module.finrank (p.adicCompletion ℚ) (w.1.adicCompletion K) :
+      p.adicCompletion ℚ)), ?_⟩
+  rw [Algebra.trace_algebraMap, nsmul_eq_mul, mul_comm, div_mul_cancel₀ _ hn]
+
+open NumberField.StandardAddChar in
+private theorem main_of_dock_of_base {K : Type} [Field K] [NumberField K]
+    (v : HeightOneSpectrum (𝓞 K))
+    (p : HeightOneSpectrum (𝓞 ℚ)) (w : p.Extension (𝓞 K)) (hw : w.1 = v)
+    (hdock : ∀ x : w.1.adicCompletion K,
+      psiLocal K w.1 x
+        = psiLocal ℚ p (Algebra.trace (p.adicCompletion ℚ) (w.1.adicCompletion K) x))
+    (hbase : psiLocal ℚ p ≠ 1) :
+    psiLocal K v ≠ 1 := by
+  subst hw
+  intro htriv
+  apply hbase
+  ext y
+  obtain ⟨x, hx⟩ := trace_surjective p w y
+  have := hdock x
+  rw [htriv] at this
+  simp only [AddChar.one_apply] at this
+  rw [AddChar.one_apply, ← hx, ← this]
+
+open NumberField.StandardAddChar in
+private theorem main_of_docks {K : Type} [Field K] [NumberField K]
+    (v : HeightOneSpectrum (𝓞 K))
+    (p : HeightOneSpectrum (𝓞 ℚ)) (w : p.Extension (𝓞 K)) (hw : w.1 = v)
+    (hdock : ∀ x : w.1.adicCompletion K,
+      psiLocal K w.1 x
+        = psiLocal ℚ p (Algebra.trace (p.adicCompletion ℚ) (w.1.adicCompletion K) x))
+    (hR2 : psiLocal ℚ p = psiV p) :
+    psiLocal K v ≠ 1 :=
+  main_of_dock_of_base v p w hw hdock
+    (fun h => psiV_algebraMap_inv_ne_one p (by rw [← hR2, h]; rfl))
+
+theorem psiLocal_ne_one (K : Type) [Field K] [NumberField K]
+    (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) :
+    NumberField.StandardAddChar.psiLocal K v ≠ 1 :=
+  main_of_docks v
+    (v.under (NumberField.RingOfIntegers ℚ)) ⟨v, rfl⟩ rfl
+    (NumberField.StandardAddChar.psiLocal_eq_psiLocal_trace ℚ K
+      (v.under (NumberField.RingOfIntegers ℚ)) ⟨v, rfl⟩)
+    (NumberField.StandardAddChar.psiLocal_rat_eq_psiV
+      (v.under (NumberField.RingOfIntegers ℚ)))
 
 end LanglandsTunnell.TateLocal
 

@@ -28,11 +28,37 @@
   at `ℂ`, with its two integrability conclusions); their engine is transcribed from the pin's
   `P2M/Sol/S_…` files and stays `private` here, so this module's public surface is the three
   definitions and the two headlines.
+
+  ## The normalizer twist
+
+  `lintegral_comp_inv_mul_out_eq_mul_lintegral_of_mem_normalizer` (pin
+  `P2M/Sol/S_HaarQuotient_lintegral_comp_inv_mul_out_eq_mul_lintegral_of_mem_normalizer.lean`,
+  SET-AF98F): for `b` normalizing `H` (`hb : ∀ y, y ∈ H ↔ b * y * b⁻¹ ∈ H`) and `D` the modulus of
+  the conjugation action of `b` on `H` (`hD`), the quotient integral of `f (b⁻¹ ·)` is `D` times
+  the quotient integral of `f`, for `f` measurable and `H`-left-invariant.  Its proof is the pin's,
+  run on this module's own engine: `lintegral_eq_lintegral_measure` is the pin's
+  `lintegral_eq_lintegral_lintegral_mul_out` with the orbit integral `orb H μH f q.out` still
+  folded, and `orb_density` is the pin's `lintegral_density_mul_eq_one` (`hsec`); both are
+  `private` here, so the row needs no import beyond this module and there is no cycle
+  (`HaarQuotientFubini`/`HaarQuotientDensity`, which carry the public copies, import *this*
+  module).  The pin's `measurable_weight`/`measurable_density` are already here as the module's
+  `private` engine — imported, not re-proved (FR-0259).
+
   spec-pin: Definitions/Def_HaarQuotient.lean
   spec-pin: Theorems/Thm_HaarQuotient_setLIntegral_eq_lintegral_setLIntegral_mul_out.lean
   spec-pin: P2M/Sol/S_HaarQuotient_setLIntegral_eq_lintegral_setLIntegral_mul_out.lean
   spec-pin: Theorems/Thm_HaarQuotient_integrable_setIntegral_mul_out_and_setIntegral_eq_integral_setIntegral_mul_out.lean
   spec-pin: P2M/Sol/S_HaarQuotient_integrable_setIntegral_mul_out_and_setIntegral_eq_integral_setIntegral_mul_out.lean
+  spec-pin: P2M/Sol/S_HaarQuotient_lintegral_comp_inv_mul_out_eq_mul_lintegral_of_mem_normalizer.lean
+
+  ## Build
+
+  Heartbeat probe pair (`-DmaxHeartbeats`, one run per value, never installed): silent at
+  `12000`, first failure at `10000` (a deterministic `isDefEq` timeout raised inside
+  `integrable_setIntegral_mul_out_and_setIntegral_eq_integral_setIntegral_mul_out`, `:938` — the
+  module's own `ℂ`-form row, not the normalizer twist, whose `ℝ≥0∞` proof is a fraction of
+  that).  The module's natural cost is far under the project's 4,000,000 cap, and it elaborates
+  with no output at the default as well.
 -/
 import Mathlib.MeasureTheory.Group.FundamentalDomain
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
@@ -941,6 +967,79 @@ theorem integrable_setIntegral_mul_out_and_setIntegral_eq_integral_setIntegral_m
   have h := (integral_re_add_im (𝕜 := ℂ) hS_int).symm
   simp only [RCLike.re_to_complex, RCLike.im_to_complex, RCLike.I_to_complex] at h
   exact h
+
+/-- **The quotient integral of a normalizer twist.**  For `b` normalizing `H` (`hb`), with `D` the
+modulus of the conjugation action of `b` on `H` (`hD`), the quotient integral of `f (b⁻¹ ·)` is `D`
+times the quotient integral of `f`, for `f` measurable and `H`-left-invariant. -/
+theorem lintegral_comp_inv_mul_out_eq_mul_lintegral_of_mem_normalizer
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
+    [SecondCountableTopology G] [MeasurableSpace G] [BorelSpace G]
+    (μ : Measure G) [μ.IsMulLeftInvariant] [SFinite μ]
+    (H : Subgroup G) (hH : IsClosed (H : Set G))
+    (μH : Measure H) [μH.IsHaarMeasure] [μH.IsMulRightInvariant]
+    (b : G) (hb : ∀ y : G, y ∈ H ↔ b * y * b⁻¹ ∈ H) (D : ℝ≥0∞)
+    (hD : ∀ F : H → ℝ≥0∞, Measurable F →
+      ∫⁻ x, F ⟨b * (x : G) * b⁻¹, (hb (x : G)).mp x.2⟩ ∂μH = D * ∫⁻ x, F x ∂μH)
+    (f : G → ℝ≥0∞) (hf : Measurable f) (hfH : ∀ x ∈ H, ∀ g : G, f (x * g) = f g) :
+    ∫⁻ q, f (b⁻¹ * q.out) ∂(HaarQuotient.measure μ H μH) =
+      D * ∫⁻ q, f q.out ∂(HaarQuotient.measure μ H μH) := by
+  set ρ := density H μH with hρ_def
+  set ν := HaarQuotient.measure μ H μH with hν_def
+  have hρ : Measurable ρ := measurable_density H hH μH
+  have hsec : ∀ g : G, ∫⁻ x : H, ρ ((x : G) * g) ∂μH = 1 := fun g => orb_density H hH μH g
+
+  have hf₁H : ∀ x ∈ H, ∀ g : G, f (b⁻¹ * (x * g)) = f (b⁻¹ * g) := by
+    intro x hx g
+    have hx' : b⁻¹ * x * b ∈ H := by
+      rw [hb]; simpa [mul_assoc] using hx
+    calc f (b⁻¹ * (x * g)) = f ((b⁻¹ * x * b) * (b⁻¹ * g)) := by congr 1; group
+      _ = f (b⁻¹ * g) := hfH _ hx' _
+
+  have hL : ∫⁻ q, f (b⁻¹ * q.out) ∂ν = ∫⁻ g, f (b⁻¹ * g) * ρ g ∂μ := by
+    have h1 : ∀ q : MulAction.orbitRel.Quotient H G,
+        f (b⁻¹ * q.out) = ∫⁻ x : H, f (b⁻¹ * ((x : G) * q.out)) * ρ ((x : G) * q.out) ∂μH := by
+      intro q
+      simp_rw [hf₁H _ (Subtype.mem _)]
+      have hm : Measurable fun x : H => ρ ((x : G) * q.out) :=
+        hρ.comp (continuous_subtype_val.mul continuous_const).measurable
+      rw [lintegral_const_mul _ hm, hsec, mul_one]
+    simp_rw [h1]
+    exact (lintegral_eq_lintegral_measure μ H hH μH
+      (f := fun g => f (b⁻¹ * g) * ρ g)
+      ((hf.comp (measurable_const_mul b⁻¹)).mul hρ)).symm
+
+  have hinv : ∫⁻ g, f (b⁻¹ * g) * ρ g ∂μ = ∫⁻ g, f g * ρ (b * g) ∂μ := by
+    rw [← lintegral_mul_left_eq_self _ b]
+    simp_rw [inv_mul_cancel_left]
+
+  have hR : ∫⁻ g, f g * ρ (b * g) ∂μ = ∫⁻ q, f q.out * D ∂ν := by
+    rw [lintegral_eq_lintegral_measure μ H hH μH
+      (f := fun g => f g * ρ (b * g))
+      (hf.mul (hρ.comp (measurable_const_mul b)))]
+    refine lintegral_congr fun q => ?_
+    show ∫⁻ x : H, f ((x : G) * q.out) * ρ (b * ((x : G) * q.out)) ∂μH = f q.out * D
+    simp_rw [hfH _ (Subtype.mem _)]
+    have hm : Measurable fun x : H => ρ (b * ((x : G) * q.out)) :=
+      hρ.comp (continuous_const.mul (continuous_subtype_val.mul continuous_const)).measurable
+    rw [lintegral_const_mul _ hm]
+    congr 1
+    have h2 : ∀ x : H, ρ (b * ((x : G) * q.out)) = ρ ((b * (x : G) * b⁻¹) * (b * q.out)) := by
+      intro x; congr 1; group
+    simp_rw [h2]
+    rw [hD (fun y : H => ρ ((y : G) * (b * q.out)))
+        (hρ.comp ((continuous_subtype_val.mul continuous_const).measurable)),
+      hsec, mul_one]
+
+  have hcomp : (fun q : MulAction.orbitRel.Quotient H G => f q.out) ∘ (Quotient.mk'' : G → _) = f := by
+    funext g
+    obtain ⟨x, hx⟩ := MulAction.mem_orbit_iff.mp
+      (MulAction.orbitRel_apply.mp (@Quotient.mk_out _ (MulAction.orbitRel H G) g))
+    simp only [Function.comp_apply]
+    rw [show (Quotient.mk'' g : MulAction.orbitRel.Quotient H G).out = (x : G) * g from hx.symm]
+    exact hfH _ x.2 g
+  have hmeas : Measurable (fun q : MulAction.orbitRel.Quotient H G => f q.out) :=
+    measurable_from_quotient.mpr (by rw [hcomp]; exact hf)
+  rw [hL, hinv, hR, lintegral_mul_const _ hmeas, mul_comm]
 
 end HaarQuotient
 

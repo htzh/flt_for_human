@@ -1400,3 +1400,40 @@ underscore or capital (`add`, `smul`), and the sources reading only mapped `Thm_
 sources a tracked module's header wires — file level, never statements (FR-0264/FR-0265). With the
 fix, `needed [F terminal]` is **417 / 206,821** and the two rows are off the shelf. The five
 over-broad wires the same rule admits are listed in FR-0265 and printed by `--selfcheck`.
+
+### The level-`N` alias `jAnalytic` is public; privatise it when the `LevelN` files are next touched
+
+`ModularCurve/LevelN/FunctionField.lean` defines the pin's `jAnalytic` as a delegation to
+`ModularForm.j`, so the tree holds one public definition of the invariant (`Defs/JInvariant.lean`)
+plus that one public alias. Every library use of the alias is inside `ModularCurve/LevelN/` — 78
+sites across the eight files — so it is not a cross-module dependency in the sense that matters
+(no module outside the subject names it; the only outside mention is
+`spec/ModularCurveReady2Consumer.lean:171,173`, a consumer test of the pin's row).
+
+Privatising it is a mechanical rewrite to `ModularForm.j` at those 78 sites, and it was deferred
+rather than done: several of them are in **public, pin-wired statements** (`isDomain_ring`,
+`exists_place_ord_sub_pos_forall_smul_eq`, `jAnalytic_smul`, `jAnalytic_transcendental`, the
+`jSub`/`coe_jSub` block, `jAnalytic_ρ`/`jAnalytic_I`), so the port's statement text moves off the
+pin's `jAnalytic` spelling, and `check_port` skips `private` port declarations — the pin's
+`Definitions/Def_ModularCurve_LevelNFunctionField.lean` row would no longer be readable. Checker
+questions are settled last (`topics/refactor.md`), so do this only together with that decision.
+
+Already done, for contrast: `WLight.j` (`ModularForms/WeightOne/LevelField.lean:78`) is `private`
+now, and its only external users (`ModularForms/WeightOne/LevelN.lean:120,129`) spell
+`ModularForm.j`; `LevelN.lean` and `LevelField.lean` build. That edit leaves the dependents of
+`LevelN.lean` stale (hash cascade only — no statement changed), which the next tree build pays.
+
+### The archimedean Whittaker pins' compressed names (`eC`, `W`, `Fstr`, …) are kept for the checker
+
+`AutomorphicForm/Adelic/WhittakerSystem.lean` transcribes the three `S_` pins of SET-AF98 order A,
+whose public surface carries the pin's compressed definitions `eC`, `iotaW`, `bprime`, `g0`, `W`,
+`Fstr`, `DFstr`, `DDstr`, `fstr`. They were **not** rectified: they occur inside the pins' public
+*statements* (`W D (x p) 1 (…) = lam * …` is the shape of two headlines), the statement check is
+textual, and a rename therefore turns every statement that mentions the token into a `MISMATCH` —
+one `own:` row per affected declaration in `spec/decl_markers.tsv` is the price. The pipeline label
+on the namespace *is* dropped (`E40DCFN` → `DCFN`). The precedent in the same column is `kIw`
+(`ArchWhittaker.lean`), kept for the same reason.
+
+Rectifying them is a refactor, and it is cheap to do *together with* a statement-wide touch of that
+module: the `spec/decl_markers.tsv` `own:` rows are keyed by `(module, full declaration name)`, so
+they must move with the rename or `--strict-markers` fails.

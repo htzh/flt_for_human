@@ -5131,7 +5131,10 @@ PORT_FILES = [
     # --- WORKORDER-TO4 (`topics/automorphicForm/WORKORDER-TO4-unit-factorizable-trio.md`): the
     # façade only (its tier-3 engine `AutomorphicForm/Adelic/UnitFactorizableEngine.lean` stays
     # unlisted, registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
-    "FLTForHuman/AutomorphicForm/Adelic/UnitFactorizableTheorems.lean",
+    # FLTForHuman/AutomorphicForm/Adelic/UnitFactorizableTheorems.lean — SET-AF98F migrated it to
+    # its own `spec-pin:` header (its three in-source markers stripped, 4 wires, and the fourth
+    # row's `P2M/Sol/` source added); its PORT_FILES row was retired. The `SOURCES` rows above
+    # stay: they are the same pin files.
     # --- The `CohCarrier` Hecke–diamond triplet's definition layer
     # (`topics/deligneSerre/TOPIC-cohcarrier-comm-triplet.md` §4–§6): the two pin
     # `Definitions/` modules homed whole. This ground is shared by all twelve needed

@@ -117,7 +117,7 @@ theorem _root_.WLight.levelN_structure_package
     ∧ (∀ F ∈ A_N, MDifferentiable 𝓘(ℂ) 𝓘(ℂ) F)
     ∧ (∀ a b : ℍ → ℂ, a ∈ A_N → b ∈ A_N → a * b = 0 → a = 0 ∨ b = 0) := by
 
-  obtain rfl : jf = j := funext fun τ ↦ hjf τ
+  obtain rfl : jf = ModularForm.j := funext fun τ ↦ hjf τ
   have hLp : ∀ τ, L τ = periodPairOfTau τ :=
     fun τ ↦ periodPair_eq_of_ω _ _ (hL τ).1 (hL τ).2
   obtain rfl : fricke = frickeF N := funext₂ fun v τ ↦ by
@@ -126,7 +126,7 @@ theorem _root_.WLight.levelN_structure_package
   have hAN : A_N = levelRing N := by
     simp only [A_N]
     congr 1
-    refine congrArg (insert j) (Set.ext fun g ↦ ?_)
+    refine congrArg (insert ModularForm.j) (Set.ext fun g ↦ ?_)
     exact ⟨fun ⟨v, hv, hg⟩ ↦ ⟨⟨v, hv⟩, hg.symm⟩, fun ⟨i, hi⟩ ↦ ⟨i.1, i.2, hi.symm⟩⟩
   have hvm : vecMul = vecMulSL N := rfl
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
