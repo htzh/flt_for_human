@@ -12,7 +12,7 @@
   **Port-owned, tier 3.** The pin is parked in
   `Reserve/ModularForms/PortOwnedSpecPins.lean` and the departures are registered in
   `topics/TOPIC-interface-changes.md` Entry 7; nothing here is statement-diffed. The
-  module carries 66 public declarations against the pin's 118. Two layers of the
+  module carries 70 public declarations against the pin's 118. Two layers of the
   pin's file are statement-identical to declarations the port already owns and are
   imported rather than re-proved.
 
@@ -411,6 +411,20 @@ theorem petersson_smul_left' (k : ℤ) (f g : ℍ → ℂ) (c : ℂ) (τ : ℍ) 
     UpperHalfPlane.petersson k (c • f) g τ = conj c * UpperHalfPlane.petersson k f g τ := by
   simp only [UpperHalfPlane.petersson, Pi.smul_apply, smul_eq_mul, map_mul]; ring
 
+/-- The density is additive in its first slot. -/
+theorem petersson_sum_left {ι : Type*} (s : Finset ι) (k : ℤ) (f : ι → ℍ → ℂ) (g : ℍ → ℂ)
+    (τ : ℍ) :
+    UpperHalfPlane.petersson k (∑ i ∈ s, f i) g τ
+      = ∑ i ∈ s, UpperHalfPlane.petersson k (f i) g τ := by
+  simp only [UpperHalfPlane.petersson, Finset.sum_apply, map_sum, Finset.sum_mul]
+
+/-- The density is additive in its second slot. -/
+theorem petersson_sum_right {ι : Type*} (s : Finset ι) (k : ℤ) (f : ℍ → ℂ) (g : ι → ℍ → ℂ)
+    (τ : ℍ) :
+    UpperHalfPlane.petersson k f (∑ i ∈ s, g i) τ
+      = ∑ i ∈ s, UpperHalfPlane.petersson k f (g i) τ := by
+  simp only [UpperHalfPlane.petersson, Finset.sum_apply, Finset.mul_sum, Finset.sum_mul]
+
 theorem petersson_smul_SL (k : ℤ) (F G : ℍ → ℂ) (γ : SL(2, ℤ)) (τ : ℍ) :
     UpperHalfPlane.petersson k (F ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ))
         (G ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ)) τ
@@ -437,6 +451,26 @@ theorem petersson_transport (hp : p ≠ 0) (f g : ℍ → ℂ) (y : ℍ) :
 def Φ (k : ℤ) (p : ℕ) (f g : ℍ → ℂ) : ℍ → ℂ := UpperHalfPlane.petersson k (f ∣[k] α p) g
 
 def Ψ (k : ℤ) (p : ℕ) (f g : ℍ → ℂ) : ℍ → ℂ := UpperHalfPlane.petersson k f (g ∣[k] α p)
+
+/-- `Φ` at a point translated by `γ ∈ Γ₁(N)` is the density of the Hecke summand `f ∣ α p * γ`
+paired with `g` at `τ`. The slash by `γ` is moved across `petersson`, which asks for it on the
+second slot as well, where `g`'s `Γ₁(N)`-invariance makes it free — so `γ` enters only through its
+membership. -/
+theorem Φ_slash_mem {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma1 N) (f g : CuspForm Γ₁(N) k) (τ : ℍ) :
+    Φ k p ⇑f ⇑g (γ • τ)
+      = UpperHalfPlane.petersson k
+          ((⇑f : ℍ → ℂ) ∣[k]
+            (α p * (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ))) ⇑g τ := by
+  rw [Φ, ← petersson_smul_SL, slash_mem g hγ, ← SlashAction.slash_mul]
+
+/-- `Ψ` at a point translated by `γ ∈ Γ₁(N)` is the density of the Hecke summand `g ∣ α p * γ`
+paired with `f` at `τ` — the same statement with the slashed slot second. -/
+theorem Ψ_slash_mem {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma1 N) (f g : CuspForm Γ₁(N) k) (τ : ℍ) :
+    Ψ k p ⇑f ⇑g (γ • τ)
+      = UpperHalfPlane.petersson k ⇑f
+          ((⇑g : ℍ → ℂ) ∣[k]
+            (α p * (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ))) τ := by
+  rw [Ψ, ← petersson_smul_SL, slash_mem f hγ, ← SlashAction.slash_mul]
 
 theorem norm_char_p (ε : DirichletCharacter ℂ N) (hp : p.Prime) (hpN : ¬ p ∣ N) :
     ‖ε (p : ZMod N)‖ = 1 := by
@@ -713,45 +747,14 @@ theorem main (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     funext τ
     unfold CuspForm.peterssonOnIntegrand cosum
     rw [finsum_eq_sum_of_fintype]
-    have hΓ : ∀ q : SL(2, ℤ) ⧸ Gamma1 N,
-        UpperHalfPlane.petersson k ((heckeFun k ε p ⇑f) ∣[k] (q.out⁻¹ : SL(2, ℤ)))
-            ((⇑g : ℍ → ℂ) ∣[k] (q.out⁻¹ : SL(2, ℤ))) τ
-          = ∑ i : Option (Fin p), Φ k p ⇑f ⇑g ((rr hpN' i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-      intro q
-      calc UpperHalfPlane.petersson k ((heckeFun k ε p ⇑f) ∣[k] (q.out⁻¹ : SL(2, ℤ)))
-              ((⇑g : ℍ → ℂ) ∣[k] (q.out⁻¹ : SL(2, ℤ))) τ
-          = UpperHalfPlane.petersson k (heckeFun k ε p ⇑f) ⇑g
-              ((q.out⁻¹ : SL(2, ℤ)) • τ) := UpperHalfPlane.petersson_slash_SL k _ _ _ _
-        _ = UpperHalfPlane.petersson k
-              (∑ i : Option (Fin p), (⇑f : ℍ → ℂ) ∣[k] (α p * (rr hpN' i : SL(2, ℤ)))) ⇑g
-              ((q.out⁻¹ : SL(2, ℤ)) • τ) := by
-            rw [heckeFun_eq_sum hp0 hpN' ε f hf]
-            rfl
-        _ = ∑ i : Option (Fin p), UpperHalfPlane.petersson k
-              ((⇑f : ℍ → ℂ) ∣[k] (α p * (rr hpN' i : SL(2, ℤ)))) ⇑g
-              ((q.out⁻¹ : SL(2, ℤ)) • τ) := by
-            simp only [UpperHalfPlane.petersson, Finset.sum_apply, map_sum, Finset.sum_mul]
-        _ = ∑ i : Option (Fin p), Φ k p ⇑f ⇑g ((rr hpN' i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-            refine Finset.sum_congr rfl fun i _ => ?_
-            calc UpperHalfPlane.petersson k
-                    ((⇑f : ℍ → ℂ) ∣[k] (α p * (rr hpN' i : SL(2, ℤ)))) ⇑g
-                    ((q.out⁻¹ : SL(2, ℤ)) • τ)
-                = UpperHalfPlane.petersson k
-                    (((⇑f : ℍ → ℂ) ∣[k] α p) ∣[k] (rr hpN' i : SL(2, ℤ))) ⇑g
-                    ((q.out⁻¹ : SL(2, ℤ)) • τ) := by rw [SlashAction.slash_mul]; rfl
-              _ = UpperHalfPlane.petersson k
-                    (((⇑f : ℍ → ℂ) ∣[k] α p) ∣[k] (rr hpN' i : SL(2, ℤ)))
-                    ((⇑g : ℍ → ℂ) ∣[k] (rr hpN' i : SL(2, ℤ)))
-                    ((q.out⁻¹ : SL(2, ℤ)) • τ) := by
-                  conv_lhs => rw [← slash_mem g (rr_mem hpN' i)]
-                  rfl
-              _ = UpperHalfPlane.petersson k ((⇑f : ℍ → ℂ) ∣[k] α p) ⇑g
-                    ((rr hpN' i : SL(2, ℤ)) • ((q.out⁻¹ : SL(2, ℤ)) • τ)) :=
-                  UpperHalfPlane.petersson_slash_SL k _ _ _ _
-              _ = Φ k p ⇑f ⇑g ((rr hpN' i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-                  rw [← mul_smul]
-                  rfl
-    simp_rw [hΓ]
+    have hγ : ∀ γ : SL(2, ℤ),
+        UpperHalfPlane.petersson k (heckeFun k ε p ⇑f ∣[k] γ) ((⇑g : ℍ → ℂ) ∣[k] γ) τ
+          = ∑ i : Option (Fin p), Φ k p ⇑f ⇑g ((rr hpN' i * γ) • τ) := by
+      intro γ
+      rw [UpperHalfPlane.petersson_slash_SL, heckeFun_eq_sum hp0 hpN' ε f hf, petersson_sum_left]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      rw [mul_smul, ← Φ_slash_mem (rr_mem hpN' i)]
+    simp_rw [hγ]
     rw [← unfold_sum (Lam_le N p) (rr hpN') (rr_mem hpN') (exists_rr_mul_mem hpN' hp)
       (fun i i' h => rr_mul_rr_inv_mem hpN' hp i i' h) (Φ k p ⇑f ⇑g)
       (fun h hh x => by
@@ -762,45 +765,14 @@ theorem main (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     funext τ
     unfold CuspForm.peterssonOnIntegrand cosum
     rw [finsum_eq_sum_of_fintype]
-    have hΓ : ∀ q : SL(2, ℤ) ⧸ Gamma1 N,
-        UpperHalfPlane.petersson k ((⇑f : ℍ → ℂ) ∣[k] (q.out⁻¹ : SL(2, ℤ)))
-            ((heckeFun k ε p ⇑g) ∣[k] (q.out⁻¹ : SL(2, ℤ))) τ
-          = ∑ i : Option (Fin p), Ψ k p ⇑f ⇑g ((rr hpN' i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-      intro q
-      calc UpperHalfPlane.petersson k ((⇑f : ℍ → ℂ) ∣[k] (q.out⁻¹ : SL(2, ℤ)))
-              ((heckeFun k ε p ⇑g) ∣[k] (q.out⁻¹ : SL(2, ℤ))) τ
-          = UpperHalfPlane.petersson k ⇑f (heckeFun k ε p ⇑g)
-              ((q.out⁻¹ : SL(2, ℤ)) • τ) := UpperHalfPlane.petersson_slash_SL k _ _ _ _
-        _ = UpperHalfPlane.petersson k ⇑f
-              (∑ i : Option (Fin p), (⇑g : ℍ → ℂ) ∣[k] (α p * (rr hpN' i : SL(2, ℤ))))
-              ((q.out⁻¹ : SL(2, ℤ)) • τ) := by
-            rw [heckeFun_eq_sum hp0 hpN' ε g hg]
-            rfl
-        _ = ∑ i : Option (Fin p), UpperHalfPlane.petersson k ⇑f
-              ((⇑g : ℍ → ℂ) ∣[k] (α p * (rr hpN' i : SL(2, ℤ))))
-              ((q.out⁻¹ : SL(2, ℤ)) • τ) := by
-            simp only [UpperHalfPlane.petersson, Finset.sum_apply, Finset.mul_sum, Finset.sum_mul]
-        _ = ∑ i : Option (Fin p), Ψ k p ⇑f ⇑g ((rr hpN' i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-            refine Finset.sum_congr rfl fun i _ => ?_
-            calc UpperHalfPlane.petersson k ⇑f
-                    ((⇑g : ℍ → ℂ) ∣[k] (α p * (rr hpN' i : SL(2, ℤ))))
-                    ((q.out⁻¹ : SL(2, ℤ)) • τ)
-                = UpperHalfPlane.petersson k ⇑f
-                    (((⇑g : ℍ → ℂ) ∣[k] α p) ∣[k] (rr hpN' i : SL(2, ℤ)))
-                    ((q.out⁻¹ : SL(2, ℤ)) • τ) := by rw [SlashAction.slash_mul]; rfl
-              _ = UpperHalfPlane.petersson k
-                    ((⇑f : ℍ → ℂ) ∣[k] (rr hpN' i : SL(2, ℤ)))
-                    (((⇑g : ℍ → ℂ) ∣[k] α p) ∣[k] (rr hpN' i : SL(2, ℤ)))
-                    ((q.out⁻¹ : SL(2, ℤ)) • τ) := by
-                  conv_lhs => rw [← slash_mem f (rr_mem hpN' i)]
-                  rfl
-              _ = UpperHalfPlane.petersson k ⇑f ((⇑g : ℍ → ℂ) ∣[k] α p)
-                    ((rr hpN' i : SL(2, ℤ)) • ((q.out⁻¹ : SL(2, ℤ)) • τ)) :=
-                  UpperHalfPlane.petersson_slash_SL k _ _ _ _
-              _ = Ψ k p ⇑f ⇑g ((rr hpN' i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-                  rw [← mul_smul]
-                  rfl
-    simp_rw [hΓ]
+    have hγ : ∀ γ : SL(2, ℤ),
+        UpperHalfPlane.petersson k ((⇑f : ℍ → ℂ) ∣[k] γ) (heckeFun k ε p ⇑g ∣[k] γ) τ
+          = ∑ i : Option (Fin p), Ψ k p ⇑f ⇑g ((rr hpN' i * γ) • τ) := by
+      intro γ
+      rw [UpperHalfPlane.petersson_slash_SL, heckeFun_eq_sum hp0 hpN' ε g hg, petersson_sum_right]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      rw [mul_smul, ← Ψ_slash_mem (rr_mem hpN' i)]
+    simp_rw [hγ]
     rw [← unfold_sum (Lam_le N p) (rr hpN') (rr_mem hpN') (exists_rr_mul_mem hpN' hp)
       (fun i i' h => rr_mul_rr_inv_mem hpN' hp i i' h) (Ψ k p ⇑f ⇑g)
       (fun h hh x => by
