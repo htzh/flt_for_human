@@ -1458,3 +1458,37 @@ The dedup, when a round takes it: point the root copies' bodies at the `BorelUnf
 retire the sub-namespace and re-nest its 26 rows), one module at a time, and re-run the credit probe —
 the risk is that a root statement's `slab` stops elaborating if the root copy is removed without
 replacing its spelling.
+
+### The AF-subject half of the ready shelf is empty after SET-AF100 — the next AF set is a leaves set
+
+SET-AF100's landing consumed the last fifteen AF-subject rows of the ready shelf. The rows that
+remain in `frontier.py --ds --ready --include-leaves` are the other columns' (`ModularCurve`,
+`ModularForm`, `WeierstrassCurve`, `GaloisRep`, `AlgebraicCurve`), so the next AF column set cannot
+be cut from the ready block at all: it has to be a **leaves** set (`--include-leaves`' second block,
+44 rows / 18,163 silo), and the block splits into three priced stories:
+
+* `NumberField.mixedEmbedding.*` (392 silo, four rows: `trace_mixedEmbedding`,
+  `summable_norm_schwartzMap_ringOfIntegers_translate`, `exists_forall_norm_embedding_sub_le`,
+  `exists_forall_tsum_fractionalIdeal_weight_le_rpow_neg`) — **blocked on a definition layer, not a
+  proof order**: `rg MixedEmbedding lean/` is empty, this is SET-AF99 §7's FR-0049 shape;
+* `TateCurve.*` (1,038 silo, ten rows) and the sixteen `WeierstrassCurve` leaves (≈3,000 silo) —
+  their own subject (the Tate curve / the modular-curve arithmetic), not the AF unfolding;
+* `NumberField`'s three small leaves (`summable_heightOneSpectrum_absNorm_rpow_neg_of_one_lt` 69 with
+  project fan-in 41, `…sign_norm_eq_prod_sign_embedding_of_isReal` 94, `Units.exists_forall_abs_sub_mult_mul_log_le`
+  98) — cheap, high fan-in, and the natural first leaves order.
+
+### `unipotentGL2_algebraMap` is declared twice in the port, identically — a refactor-round dedup
+
+`AutomorphicForm.TorusDecay.Aux.unipotentGL2_algebraMap` (SET-AF100A,
+`AutomorphicForm/Adelic/WhittakerTorusDecay.lean:149`) and
+`AutomorphicForm.UFnAux.unipotentGL2_algebraMap`
+(`LanglandsTunnell/WhittakerODELinearDependence.lean:1225`, SET-AF99B) are **byte-identical**, 8 lines
+each, and both are pin-public: each pin states the lemma inside its own copied prelude.
+
+SET-AF100A kept its copy rather than importing the other: the two sit in different subject
+namespaces, the `LanglandsTunnell` one sits under a **pipeline label** (`UFnAux`) that this column
+must not propagate into a new module, and the saving is 8 lines. The dedup, when a round takes it:
+give the lemma one public home in `AutomorphicForm/Adelic/Basic.lean` (or the `WhittakerCoefficient`
+module) at the pin's name, point both call sites at it, and re-run `check_port` on both modules — the
+content tier accepts the shared declaration for both wires. Do not re-key anything in
+`spec/decl_markers.tsv`: neither copy is a rename.

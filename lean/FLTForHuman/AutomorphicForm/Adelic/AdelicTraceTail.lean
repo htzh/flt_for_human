@@ -1,12 +1,29 @@
 /-
-The local standard character equals the trace character, and the idèle norm slice has finite Haar measure.
+The local standard character equals the trace character, and the idèle norm slices are Haar-measurable.
 
-Two measure/trace facts: the local additive character of the standard global character at a place is
-the local trace character, and the idèles whose norm lies in a positive interval have finite Haar
-measure.
+Three measure/trace facts: the local additive character of the standard global character at a place
+is the local trace character, the idèles whose norm lies in a positive interval have finite Haar
+measure, and the Haar measure of the *norm band* `{z | ‖z‖² r ∈ [e₁, e₂]}` cut by a fundamental
+domain of the principal idèles is independent of `r > 0` (`exists_setLIntegral_…_eq_const`,
+SET-AF100F).
 
   spec-pin: P2M/Sol/S_NumberField_StandardAddChar_psiLocal_eq_psiLocal_trace.lean
   spec-pin: P2M/Sol/S_NumberField_Idele_idelicHaar_inter_setOf_ideleNorm_mem_Icc_pos_and_lt_top.lean
+  spec-pin: P2M/Sol/S_NumberField_Idele_exists_setLIntegral_indicator_ideleNorm_sq_mul_mem_Icc_eq_const.lean
+
+## The norm-band row (SET-AF100F)
+
+`NumberField.Idele.exists_setLIntegral_indicator_ideleNorm_sq_mul_mem_Icc_eq_const` (pin 3 `:40`) is
+transcribed whole from
+`P2M/Sol/S_NumberField_Idele_exists_setLIntegral_indicator_ideleNorm_sq_mul_mem_Icc_eq_const.lean`
+(108 lines): the pin's argument is a fundamental-domain rewrite plus the scaling
+`S r = s * S 1` for an idèle `s` of norm `√r`
+(`NumberField.TateGlobal.exists_ideleNorm_eq_and_snd_eq_one`), the band's measurability, and the
+`f '' D` fundamental domain of `hDF.image_of_equiv`. It uses the module's existing private
+`IdeleNormSlice.ideleNorm_eq_one_of_mem` for the pin's `ideleNorm_eq_one_of_mem_principalIdeles`
+(FR-0259: the same private helper is already here from pin 2, so it is imported, not re-proved —
+the pin-3 row's statement hash lands on it). `check_port --force` stays **3 ok / 0 mismatch /
+0 missing / 0 own**.
 
 ## Port deltas
 
@@ -25,10 +42,12 @@ keeps the pin's own sub-namespace `LocalTraceCompat` (unchanged), and
 ## Heartbeat probe (recorded, never installed — FR-0225)
 
 `lake env lean -DautoImplicit=false -DmaxHeartbeats=N FLTForHuman/AutomorphicForm/Adelic/AdelicTraceTail.lean`
-is **silent at N = 6 250** and **fails at N = 3 125** (= 6 250 / 2), at
-`(deterministic) timeout at isDefEq` on `private instance finiteDimensional_QK` (the
-`inferInstanceAs (FiniteDimensional ℚp ((vp K v).1.adicCompletion K))` step). No
-`set_option maxHeartbeats` is in this module.
+is **silent at N = 12 500** and **fails at N = 6 250** (= 12 500 / 2), at a
+`(deterministic) timeout at isDefEq` in the norm-band row
+(`exists_setLIntegral_indicator_ideleNorm_sq_mul_mem_Icc_eq_const`, the `hS1` step). Before
+SET-AF100F the pair was 6 250 / 3 125, at `whnf` on `private instance finiteDimensional_QK` (the
+`inferInstanceAs (FiniteDimensional ℚp ((vp K v).1.adicCompletion K))` step), which is still the
+first site the 6 250 run reaches. No `set_option maxHeartbeats` is in this module.
 
 ## Dedup
 
@@ -43,7 +62,13 @@ declarations:
 
 In both pins the `solution` is a statement-identical specialization of the engine, so the pair is
 the wire's shape, not a port duplication; `check_port` in fact matches each row *through* its
-`main` (`[pin name …LocalTraceCompat.main]`). No other cluster exists.
+`main` (`[pin name …LocalTraceCompat.main]`). No other cluster exists — in particular the pin-3
+helper adds none, because it is the same declaration as pin 2's `ideleNorm_eq_one_of_mem`.
+
+## move_dead (gate 6)
+
+`move_dead.py --dry-run --source …/AdelicTraceTail.lean --target …/tmp/af100/shelf-F.lean`
+→ **0 declarations, 0 lines**.
 -/
 import FLTForHuman.NumberTheory.NumberField.AdelicTraceFin
 import FLTForHuman.RingTheory.DedekindDomain.CompletionBaseChange
@@ -357,6 +382,83 @@ theorem idelicHaar_inter_setOf_ideleNorm_mem_Icc_pos_and_lt_top
       (NumberField.Idele.idelicHaar K) (D ∩ {z | ideleNorm K z ∈ Set.Icc a b}) < ⊤
   :=
   IdeleNormSlice.main K D hD hDF a b ha hab
+
+end NumberField.Idele
+
+
+namespace NumberField.Idele
+
+/-- The idèle Haar measure of the norm band `{z | ‖z‖² r ∈ [e₁, e₂]}` cut by a fundamental domain
+of the principal idèles is independent of `r > 0`. -/
+theorem exists_setLIntegral_indicator_ideleNorm_sq_mul_mem_Icc_eq_const
+    (K : Type) [Field K] [NumberField K]
+    (D : Set (AdeleRing (𝓞 K) K)ˣ) (hD : MeasurableSet D)
+    (hDF : IsFundamentalDomain (M4aHerbrand.principalIdeles (𝓞 K) K) D (NumberField.Idele.idelicHaar K))
+    (e₁ e₂ : ℝ) (he₁ : 0 < e₁) (he : e₁ < e₂) :
+    ∃ C : ℝ≥0∞, C ≠ 0 ∧ C ≠ ∞ ∧ ∀ r : ℝ, 0 < r →
+      (NumberField.Idele.idelicHaar K) (D ∩ {z | ideleNorm K z ^ 2 * r ∈ Set.Icc e₁ e₂}) = C := by
+  have hhaar := NumberField.Idele.isHaarMeasure_idelicHaar K
+  have hKc : Countable K := (Module.finBasis ℚ K).equivFun.toEquiv.injective.countable
+  have hKuc : Countable Kˣ := Units.val_injective.countable
+  have hPc : Countable (M4aHerbrand.principalIdeles (𝓞 K) K) := by
+    have h : Countable (Set.range (Units.map (algebraMap K (AdeleRing (𝓞 K) K) : K →* AdeleRing (𝓞 K) K))) :=
+      (Set.countable_range _).to_subtype
+    exact h
+  set μ := NumberField.Idele.idelicHaar K with hμ
+  have hcont : Continuous (ideleNorm K) := NumberField.TateGlobal.continuous_ideleNorm K
+
+  set S : ℝ → Set (AdeleRing (𝓞 K) K)ˣ := fun r => {z | ideleNorm K z ^ 2 * r ∈ Set.Icc e₁ e₂} with hS
+  have hSm : ∀ r, MeasurableSet (S r) := fun r =>
+    (isClosed_Icc.preimage ((hcont.pow 2).mul continuous_const)).measurableSet
+
+  have he₂ : 0 < e₂ := he₁.trans he
+  have hS1 : S 1 = {z | ideleNorm K z ∈ Set.Icc (Real.sqrt e₁) (Real.sqrt e₂)} := by
+    ext z
+    simp only [hS, Set.mem_ofPred_eq, mul_one, Set.mem_Icc]
+    have hz : 0 ≤ ideleNorm K z := (ideleNorm_pos z).le
+    constructor
+    · rintro ⟨h1, h2⟩
+      refine ⟨?_, ?_⟩
+      · have := Real.sqrt_le_sqrt h1; rwa [Real.sqrt_sq hz] at this
+      · have := Real.sqrt_le_sqrt h2; rwa [Real.sqrt_sq hz] at this
+    · rintro ⟨h1, h2⟩
+      constructor
+      · nlinarith [Real.sq_sqrt he₁.le, Real.sqrt_nonneg e₁]
+      · nlinarith [Real.sq_sqrt he₂.le, Real.sqrt_nonneg e₂]
+  obtain ⟨hpos, hfin⟩ := NumberField.Idele.idelicHaar_inter_setOf_ideleNorm_mem_Icc_pos_and_lt_top K D hD hDF
+    (Real.sqrt e₁) (Real.sqrt e₂) (Real.sqrt_pos.mpr he₁) (Real.sqrt_lt_sqrt he₁.le he)
+  rw [← hS1] at hpos hfin
+  refine ⟨μ (D ∩ S 1), hpos.ne', hfin.ne, fun r hr => ?_⟩
+
+  obtain ⟨s, -, hs⟩ := NumberField.TateGlobal.exists_ideleNorm_eq_and_snd_eq_one K (Real.sqrt r) (Real.sqrt_pos.mpr hr)
+  set f : (AdeleRing (𝓞 K) K)ˣ → (AdeleRing (𝓞 K) K)ˣ := fun z => s * z with hf
+  have hSr : S r = f ⁻¹' (S 1) := by
+    ext z
+    simp only [hS, hf, Set.mem_preimage, Set.mem_ofPred_eq, ideleNorm_mul, hs, mul_one, mul_pow, Real.sq_sqrt hr.le]
+    rw [mul_comm]
+
+  have hpre : D ∩ f ⁻¹' (S 1) = f ⁻¹' (f '' D ∩ S 1) := by
+    ext z
+    simp only [Set.mem_inter_iff, Set.mem_preimage]
+    constructor
+    · rintro ⟨hz, h1⟩; exact ⟨⟨z, hz, rfl⟩, h1⟩
+    · rintro ⟨⟨w, hw, hwz⟩, h1⟩
+      have : w = z := mul_left_cancel (hwz : s * w = s * z)
+      exact ⟨this ▸ hw, h1⟩
+  have hsD : IsFundamentalDomain (M4aHerbrand.principalIdeles (𝓞 K) K) (f '' D) μ := by
+    have h := hDF.image_of_equiv (ν := μ) (Equiv.mulLeft s)
+      (by exact (measurePreserving_mul_left μ s⁻¹).quasiMeasurePreserving) (Equiv.refl _) (fun γ z => by
+        show s * ((γ : (AdeleRing (𝓞 K) K)ˣ) * z) = (γ : (AdeleRing (𝓞 K) K)ˣ) * (s * z)
+        rw [mul_left_comm])
+    exact h
+
+  have hinv : ∀ γ : M4aHerbrand.principalIdeles (𝓞 K) K, (fun z => γ • z) ⁻¹' (S 1) = S 1 := by
+    intro γ
+    ext z
+    simp only [Set.mem_preimage, hS, Set.mem_ofPred_eq, Subgroup.smul_def, smul_eq_mul, ideleNorm_mul,
+      IdeleNormSlice.ideleNorm_eq_one_of_mem K γ.2, one_mul]
+  show μ (D ∩ S r) = μ (D ∩ S 1)
+  rw [hSr, hpre, measure_preimage_mul, Set.inter_comm, hsD.measure_set_eq hDF (hSm 1) hinv, Set.inter_comm]
 
 end NumberField.Idele
 

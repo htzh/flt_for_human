@@ -1,8 +1,9 @@
 /-
   The irreducibility spine of the cuspidal constituent.
 
-  Four rows of the cuspidal `K`-finite subrepresentation, all of them of the form "the invariants of a
-  cusp subrepresentation are already inside finitely many irreducible archimedean types":
+  Five rows of the cuspidal `K`-finite subrepresentation. The first four are all of the form "the
+  invariants of a cusp subrepresentation are already inside finitely many irreducible archimedean
+  types":
 
   * `CuspidalConstituent.exists_inf_invariants_le_iSup_isIrreducible_of_isCuspSubrep`: for a compact
     open `U` of the finite level, `V ⊓ invariants U ⊓ archCut tys` lies in a finite supremum of
@@ -15,6 +16,10 @@
   * `CuspidalSpectrum.isClosedCuspSubrep_topologicalClosure_map_toCuspSubcarrier_of_isCuspSubrep`: the
     image of a cusp subrepresentation under the map to the cusp subcarrier, closed up, is a closed cusp
     subrepresentation.
+  * `CuspidalConstituent.iSup_inf_levelInvariantSubmodule_inf_archCutSubmodule_le`: the fifth row, one
+    cut down — the sup of a *finite* family of cusp subreps commutes with the level-`N`-invariant and
+    the archimedean cut (`(⨆ V ∈ 𝒱, V) ⊓ L ⊓ A ≤ ⨆ V ∈ 𝒱, V ⊓ L ⊓ A`), by averaging over the finite
+    level subgroup `Ulev = levelOne N ⊓ finiteAdelicGL2Subgroup`.
 
   The two constituent rows are single-headline files: each pin carries its row as a `solution` and 15
   `private` engine declarations behind it. Those 30 private declarations are ported here as 15 private
@@ -22,6 +27,17 @@
   text* in both files and is written once (the two pins differ only in their last helper, whose two
   forms are the two declarations `rightTranslate_rowIsometryInclAt₀_mem_inf_invariants` and
   `…_mem_inf_levelInvariantSubmodule`).
+
+  The fifth row (`S_…_iSup_inf_levelInvariantSubmodule_inf_archCutSubmodule_le.lean`, 364 lines) is the
+  flattened `CuspidalConstituent` pin: its 21 engine declarations are all **public**, and they are
+  transcribed in a `CuspidalConstituent` block of their own (the pin's `T2Cut` label dropped) at the
+  pin's own names — the three `abbrev`s `Kinf`, `kspan`, `Ulev` included, because they occur inside the
+  pin's public statements. `Kinf` is the sup of the archimedean row-isometry ranges and `kspan φ` the
+  span of the `Kinf`-right translates of `φ`; `exists_reps` (finite near-coset representatives of
+  `Ulev`) and `exists_levelAverage` (the average lands in the level-`N`-invariants and fixes them) are
+  the substantive rows, and `main` assembles them with the archimedean projector `Q`
+  (`exists_linearMap_archCutProjector_comm_rightTranslate`). The headline's proof is the pin's own
+  `exact main …`.
 
   The two `CuspidalSpectrum` rows are flattened files whose engine declarations are all public (10 + 2
   of them besides the row itself), in the pins' own in-file namespaces, which the port renames to
@@ -33,15 +49,18 @@
   `@[scoped simp]` on `compress_apply_coe`; the rest of that block works on the cusp subcarrier and
   follows the right-translation / right-convolution adjoint pairs.
 
-  Transcribed from the four `S_` files below (pinned `aa2d8b3`, 320 + 317 + 234 + 75 lines), the pins'
-  label namespaces dropped (`Ws48Perp` -> `Orthogonal`, `ClosureSubrep` -> `Closure`,
-  `S12Reduce` -> `ArchSplit`) — no tokens in names.
+  Transcribed from the five `S_` files below (pinned `aa2d8b3`, 320 + 317 + 234 + 75 + 364 lines), the
+  pins' label namespaces dropped (`Ws48Perp` -> `Orthogonal`, `ClosureSubrep` -> `Closure`,
+  `S12Reduce` -> `ArchSplit`, `T2Cut` -> the enclosing `CuspidalConstituent`) — no tokens in names.
 
   Deviations, all statement-preserving and recorded here:
 
   * The two constituent pins' private `eq_of_glArch_eq_of_glFin_eq'` (`:235` in each) is **not**
-    restated: the port has the same fact publicly at the pin's own name,
+    restated *for those two pins*: the port has the same fact publicly at the pin's own name,
     `AutomorphicForm.eq_of_glArch_eq_of_glFin_eq` (`AutomorphicForm/Adelic/LevelCompactness.lean`).
+    The fifth pin states the same theorem **publicly** (`:130`), so it *is* transcribed there (the
+    checker wants the pin's declaration) — with the pin's statement and a one-line body calling the
+    port's copy.
   * The rows' hypothesis binders `hU`/`hO` (compactness/openness of the level subgroups) are part of
     the frozen statement and are not consumed by the proof (`hUO` is what carries the level). They are
     named by `have _ := hU` / `have _ := hO` rather than renamed, which the checker would report.
@@ -49,6 +68,25 @@
     (the pin's `haveI`), the `linter.style.haveILetI` suggestion (FR-0223).
   * The pins' `attribute [-instance]`/`[-simp]` walls are dropped, as the port's practice; the module
     elaborates silent without them.
+
+  Deltas of the fifth row, all proof-side except two imports:
+
+  * One import is added to the scaffold's list: `FLTForHuman.MeasureTheory.HaarAveraging`, for
+    `exists_integral_eq_inv_card_mul_sum_of_isOpen_subgroup` (pin `:219`). The declaration was in the
+    port but **not** in this module's import closure.
+  * `haveI` → `have` / `letI` → `let` at seven instance binders (pin `:95`, `:98`, `:178`, `:179`,
+    `:184`, `:197`), the linter's own suggestion (FR-0223/FR-0224). The `letI : MeasurableSpace` and
+    the `Fintype`/`FiniteDimensional` instances still resolve as local instances through `have`/`let`.
+  * The pin's `scoped instance compactSpace_Ulev` (`:168`) is kept at the pin's own spelling and name;
+    `spec/statement_db.py` does not index a named `scoped instance`, so it is neither a row nor a
+    wire-side extra.
+
+  `tools/deps/dedup.py --within` reports two clusters, both the pin's own and both kept:
+  `main` ≡ the headline `iSup_inf_levelInvariantSubmodule_inf_archCutSubmodule_le` (18 lines, shape
+  tier — the pin states the row twice, `:269` and `:352 solution`, and the checker needs both), and
+  `continuous_of_mem_cuspKFiniteSubmodule` private in `ArchSplit` ≡ public in `CuspidalConstituent`
+  (8 lines, name tier — the two `ArchSplit` pins carry the helper privately, the `T2Cut` pin carries
+  the same text publicly). Removing either would edit a landed row's declaration or drop a pin row.
 
   The pin `S_…_exists_orthogonal_isIrreducibleCuspSubrep_sum_eq_of_apply_eq_smul` (`:23`, `:82`,
   `:168`, `:195`, `:217`) is transcribed verbatim at five declarations; deltas, all proof-side:
@@ -65,20 +103,24 @@
     its `Submodule` namespace); `HilbertExhaust` is kept as the namespace the scaffold froze, although
     the work order names it as a pin label — the row's name is the checker's.
 
-  Heartbeat probe (gate 6, a measurement — the module carries **no** `set_option maxHeartbeats`):
+  Heartbeat probe (gate 7, a measurement — the module carries **no** `set_option maxHeartbeats`):
   `lake env lean -DautoImplicit=false -DmaxHeartbeats=N` is silent at the edit-loop cap 200000 and at
   **N = 35000**, and fails at **N = 32000** and 30000 (one error, timeout at `whnf` on the row
   `exists_orthogonal_isIrreducibleCuspSubrep_sum_eq_of_apply_eq_smul`, which owns the module's floor
   since this wave), at 25000 (the same single error), at 22000 / 20000 / 18500 (that error plus one
   `isDefEq` inside the row's proof) and at 12000 / 9250 (9 errors, now reaching the landed rows'
   engines: `map_orthogonal_le_of_rightTranslate`, `map_orthogonal_le_of_rightConv`, `map_closure_le`
-  and the four landed rows).
+  and the four landed rows). The fifth row's 21 engines do **not** move the floor: re-measured after
+  they landed, the pair is unchanged (silent at 35000, one `whnf` timeout at 32000 on the same row),
+  and the fifth row's first casualty is at N = 20000 (6 errors there: `exists_levelAverage`'s header
+  plus two steps inside its proof, the rest on the older rows; 9 at N = 15000).
 
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalConstituent_exists_inf_invariants_le_iSup_isIrreducible_of_isCuspSubrep.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalConstituent_exists_inf_archCutSubmodule_le_iSup_isIrreducible_of_isCuspSubrep.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_isClosedCuspSubrep_orthogonal.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_isClosedCuspSubrep_topologicalClosure_map_toCuspSubcarrier_of_isCuspSubrep.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_exists_orthogonal_isIrreducibleCuspSubrep_sum_eq_of_apply_eq_smul.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalConstituent_iSup_inf_levelInvariantSubmodule_inf_archCutSubmodule_le.lean
 -/
 import FLTForHuman.Analysis.Normed.Operator.CompactFiniteDimensional
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
@@ -93,6 +135,7 @@ import FLTForHuman.AutomorphicForm.Adelic.IsotypicArchType
 import FLTForHuman.AutomorphicForm.Adelic.CarrierPins
 import FLTForHuman.AutomorphicForm.Adelic.WindowedSiegel.CentreCutSet
 import FLTForHuman.AutomorphicForm.Adelic.IsotypicCuspSpace
+import FLTForHuman.MeasureTheory.HaarAveraging
 import FLTForHuman.NumberTheory.AdelicBox
 import Mathlib.RepresentationTheory.Irreducible
 import Mathlib.RepresentationTheory.Invariants
@@ -1005,5 +1048,356 @@ theorem exists_orthogonal_isIrreducibleCuspSubrep_sum_eq_of_apply_eq_smul
     fun i => ⟨(hvs i).1, (hmemE₀ _).mp (hvs i).2⟩, hsum⟩
 
 end CuspidalSpectrum
+
+end AutomorphicForm
+
+namespace AutomorphicForm
+
+namespace CuspidalConstituent
+
+variable (F : Type) [Field F] [NumberField F]
+
+abbrev Kinf : Subgroup (AdelicGL2 (𝓞 F) F) := ⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range
+
+abbrev kspan (φ : AdelicGL2 (𝓞 F) F → ℂ) : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ) :=
+  Submodule.span ℂ {ψ : AdelicGL2 (𝓞 F) F → ℂ | ∃ k ∈ (⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range),
+    ψ = rightTranslate F k φ}
+
+theorem continuous_of_mem_cuspKFiniteSubmodule (pins : CarrierPins F) (ξ : pins.Z →* ℂˣ)
+    {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : φ ∈ cuspKFiniteSubmodule F pins ξ) : Continuous φ := by
+  refine Submodule.span_induction (p := fun φ _ => Continuous φ) ?_ ?_ ?_ ?_ hφ
+  · rintro φ ⟨-, hc, -⟩; exact hc
+  · exact continuous_const
+  · intro u w _ _ hu hw; exact hu.add hw
+  · intro c u _ hu; exact hu.const_smul c
+
+theorem isKfSmooth_add {φ ψ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsKfSmooth F φ) (hψ : IsKfSmooth F ψ) :
+    IsKfSmooth F (φ + ψ) :=
+  FLT.SmoothVectors.IsSmoothVector.add hφ hψ
+
+theorem isKfSmooth_smul (c : ℂ) {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : IsKfSmooth F φ) : IsKfSmooth F (c • φ) := by
+  unfold IsKfSmooth FLT.SmoothVectors.IsSmoothVector at hφ ⊢
+  refine Subgroup.isOpen_mono (H₁ := MulAction.stabilizer _ (FLT.SmoothVectors.RightTranslationFn.mk φ))
+    (fun g hg => ?_) hφ
+  rw [MulAction.mem_stabilizer_iff] at hg ⊢
+  refine FLT.SmoothVectors.RightTranslationFn.ext fun x => ?_
+  have hx := congrArg (fun f => FLT.SmoothVectors.RightTranslationFn.toFun f x) hg
+  simp only [Subgroup.smul_def, FLT.SmoothVectors.RightTranslationFn.toFun_smul,
+    FLT.SmoothVectors.RightTranslationFn.toFun_mk] at hx ⊢
+  show c • φ (x * _) = c • φ x
+  rw [hx]
+
+theorem isKfSmooth_of_mem_cuspKFiniteSubmodule (pins : CarrierPins F) (ξ : pins.Z →* ℂˣ)
+    {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : φ ∈ cuspKFiniteSubmodule F pins ξ) : IsKfSmooth F φ := by
+  refine Submodule.span_induction (p := fun φ _ => IsKfSmooth F φ) ?_ ?_ ?_ ?_ hφ
+  · rintro φ ⟨hsat, -, -⟩
+    have h1 := (hsat 1).2
+    rwa [show rightTranslate F 1 φ = φ from funext fun x => by rw [rightTranslate_apply, mul_one]] at h1
+  · exact isKfSmooth_zero F
+  · intro u w _ _ hu hw; exact isKfSmooth_add F hu hw
+  · intro c u _ hu; exact isKfSmooth_smul F c hu
+
+theorem kspan_add_le (φ ψ : AdelicGL2 (𝓞 F) F → ℂ) : kspan F (φ + ψ) ≤ kspan F φ ⊔ kspan F ψ := by
+  refine Submodule.span_le.mpr ?_
+  rintro _ ⟨k, hk, rfl⟩
+  rw [rightTranslate_add]
+  exact Submodule.add_mem_sup (Submodule.subset_span ⟨k, hk, rfl⟩) (Submodule.subset_span ⟨k, hk, rfl⟩)
+
+theorem kspan_smul_le (c : ℂ) (φ : AdelicGL2 (𝓞 F) F → ℂ) : kspan F (c • φ) ≤ kspan F φ := by
+  refine Submodule.span_le.mpr ?_
+  rintro _ ⟨k, hk, rfl⟩
+  rw [rightTranslate_smul]
+  exact Submodule.smul_mem _ c (Submodule.subset_span ⟨k, hk, rfl⟩)
+
+theorem kspan_zero : kspan F (0 : AdelicGL2 (𝓞 F) F → ℂ) = ⊥ := by
+  refine le_bot_iff.mp (Submodule.span_le.mpr ?_)
+  rintro _ ⟨k, hk, rfl⟩
+  rw [rightTranslate_zero]
+  exact Submodule.zero_mem _
+
+theorem finiteDimensional_kspan_of_mem_cuspKFiniteSubmodule (pins : CarrierPins F) (ξ : pins.Z →* ℂˣ)
+    {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : φ ∈ cuspKFiniteSubmodule F pins ξ) :
+    FiniteDimensional ℂ ↥(kspan F φ) := by
+  refine Submodule.span_induction (p := fun φ _ => FiniteDimensional ℂ ↥(kspan F φ)) ?_ ?_ ?_ ?_ hφ
+  · rintro φ ⟨-, -, tys, htys⟩
+    exact AutomorphicForm.finiteDimensional_span_rightTranslate_of_mem_archCutSubmodule F tys htys
+  · show FiniteDimensional ℂ ↥(kspan F 0)
+    rw [kspan_zero]; infer_instance
+  · intro u w _ _ hu hw
+    have := hu; have := hw
+    exact Submodule.finiteDimensional_of_le (kspan_add_le F u w)
+  · intro c u _ hu
+    have := hu
+    exact Submodule.finiteDimensional_of_le (kspan_smul_le F c u)
+
+theorem rightTranslate_one' (φ : AdelicGL2 (𝓞 F) F → ℂ) : rightTranslate F 1 φ = φ :=
+  funext fun x => by rw [rightTranslate_apply, mul_one]
+
+theorem rightTranslate_mul' (g h : AdelicGL2 (𝓞 F) F) (φ : AdelicGL2 (𝓞 F) F → ℂ) :
+    rightTranslate F (g * h) φ = rightTranslate F g (rightTranslate F h φ) :=
+  funext fun x => by simp only [rightTranslate_apply, mul_assoc]
+
+theorem rightTranslate_mem_of_mem_Kinf (S : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ))
+    (hS : ∀ (w : InfinitePlace F) (k : rowIsometrySubgroup₀ w.Completion), ∀ φ ∈ S,
+      rightTranslate F (rowIsometryInclAt₀ F w k) φ ∈ S)
+    {k : AdelicGL2 (𝓞 F) F} (hk : k ∈ Kinf F) : ∀ {φ : AdelicGL2 (𝓞 F) F → ℂ}, φ ∈ S → rightTranslate F k φ ∈ S := by
+  refine Subgroup.iSup_induction (fun w : InfinitePlace F => (rowIsometryInclAt₀ F w).range)
+    (C := fun k => ∀ {φ : AdelicGL2 (𝓞 F) F → ℂ}, φ ∈ S → rightTranslate F k φ ∈ S) hk ?_ ?_ ?_
+  · rintro w _ ⟨k, rfl⟩ φ hφ
+    exact hS w k φ hφ
+  · intro φ hφ
+    rwa [rightTranslate_one']
+  · intro g h hg hh φ hφ
+    rw [rightTranslate_mul']
+    exact hg (hh hφ)
+
+theorem kspan_le (S : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ))
+    (hS : ∀ (w : InfinitePlace F) (k : rowIsometrySubgroup₀ w.Completion), ∀ φ ∈ S,
+      rightTranslate F (rowIsometryInclAt₀ F w k) φ ∈ S)
+    {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : φ ∈ S) : kspan F φ ≤ S := by
+  refine Submodule.span_le.mpr ?_
+  rintro _ ⟨k, hk, rfl⟩
+  exact rightTranslate_mem_of_mem_Kinf F S hS hk hφ
+
+theorem eq_of_glArch_eq_of_glFin_eq' {x y : AdelicGL2 (𝓞 F) F}
+    (h₁ : AdelicLevel.glArch (𝓞 F) F x = AdelicLevel.glArch (𝓞 F) F y)
+    (h₂ : AdelicLevel.glFin (𝓞 F) F x = AdelicLevel.glFin (𝓞 F) F y) : x = y := by
+  apply Units.ext
+  apply Matrix.ext
+  intro i j
+  have h₁' := congrArg
+    (fun m : GL (Fin 2) (InfiniteAdeleRing F) => (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j) h₁
+  have h₂' := congrArg
+    (fun m : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F) =>
+      (m : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j) h₂
+  exact Prod.ext h₁' h₂'
+
+theorem commute_rowIsometryInclAt₀_of_mem_finiteAdelicGL2Subgroup {u : AdelicGL2 (𝓞 F) F}
+    (hu : u ∈ finiteAdelicGL2Subgroup F) (w : InfinitePlace F) (k : rowIsometrySubgroup₀ w.Completion) :
+    u * rowIsometryInclAt₀ F w k = rowIsometryInclAt₀ F w k * u := by
+  refine eq_of_glArch_eq_of_glFin_eq' F ?_ ?_
+  · rw [map_mul, map_mul, (mem_finiteAdelicGL2Subgroup_iff F u).mp hu, one_mul, mul_one]
+  · rw [map_mul, map_mul, glFin_rowIsometryInclAt₀, mul_one, one_mul]
+
+theorem rightTranslate_rowIsometryInclAt₀_mem_levelInvariantSubmodule (D : Set (AdelicGL2 (𝓞 F) F)) (N : Ideal (𝓞 F))
+    (w : InfinitePlace F) (k : rowIsometrySubgroup₀ w.Completion) {φ : AdelicGL2 (𝓞 F) F → ℂ}
+    (hφ : φ ∈ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N) :
+    rightTranslate F (rowIsometryInclAt₀ F w k) φ ∈ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N := by
+  intro x u hu
+  show φ (x * u * rowIsometryInclAt₀ F w k) = φ (x * rowIsometryInclAt₀ F w k)
+  have hu' : u ∈ finiteAdelicGL2Subgroup F := (Subgroup.mem_inf.mp hu).2
+  rw [mul_assoc, commute_rowIsometryInclAt₀_of_mem_finiteAdelicGL2Subgroup F hu' w k, ← mul_assoc]
+  exact hφ (x * rowIsometryInclAt₀ F w k) u hu
+
+section LevelAverage
+
+variable (N : Ideal (𝓞 F))
+
+abbrev Ulev : Subgroup (AdelicGL2 (𝓞 F) F) := levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F
+
+scoped instance compactSpace_Ulev : CompactSpace ↥(Ulev F N) :=
+  isCompact_iff_compactSpace.mp (AutomorphicForm.isCompact_levelOne_inf_finiteAdelicGL2Subgroup F N)
+
+theorem exists_reps {ι : Type} [Finite ι] (Φ : ι → (AdelicGL2 (𝓞 F) F → ℂ)) (hΦ : ∀ i, IsKfSmooth F (Φ i)) :
+    ∃ (n : ℕ) (r : Fin n → ↥(Ulev F N)) (H : Subgroup ↥(Ulev F N)), 0 < n ∧
+      (∀ v : ↥(Ulev F N), ∃ j, (r j)⁻¹ * v ∈ H) ∧
+      (∀ j j', (r j)⁻¹ * r j' ∈ H → j = j') ∧
+      (∀ h ∈ H, ∀ i, ∀ y : AdelicGL2 (𝓞 F) F, Φ i (y * (h : AdelicGL2 (𝓞 F) F)) = Φ i y) := by
+  classical
+
+  let : MeasurableSpace ↥(Ulev F N) := borel _
+  have : BorelSpace ↥(Ulev F N) := ⟨rfl⟩
+  let K₀ : TopologicalSpace.PositiveCompacts ↥(Ulev F N) :=
+    { carrier := Set.univ, isCompact' := isCompact_univ,
+      interior_nonempty' := by rw [interior_univ]; exact ⟨1, Set.mem_univ 1⟩ }
+  let μ : Measure ↥(Ulev F N) := Measure.haarMeasure K₀
+  have : IsProbabilityMeasure μ := ⟨Measure.haarMeasure_self (K₀ := K₀)⟩
+
+  let H : Subgroup ↥(Ulev F N) :=
+    { carrier := {v | ∀ i, ∀ y : AdelicGL2 (𝓞 F) F, Φ i (y * (v : AdelicGL2 (𝓞 F) F)) = Φ i y}
+      one_mem' := fun i y => by simp
+      mul_mem' := fun {a b} ha hb i y => by
+        rw [Subgroup.coe_mul, ← mul_assoc, hb i, ha i]
+      inv_mem' := fun {a} ha i y => by
+        have := ha i (y * ((a⁻¹ : ↥(Ulev F N)) : AdelicGL2 (𝓞 F) F))
+        rw [mul_assoc, Subgroup.coe_inv, inv_mul_cancel, mul_one] at this
+        exact this.symm }
+  have hHopen : IsOpen (H : Set ↥(Ulev F N)) := by
+
+    have : Fintype ι := Fintype.ofFinite ι
+    let incl : ↥(Ulev F N) → ↥(finiteAdelicGL2Subgroup F) := fun v => ⟨v, (Subgroup.mem_inf.mp v.2).2⟩
+    have hincl : Continuous incl := continuous_subtype_val.subtype_mk _
+    have hset : (H : Set ↥(Ulev F N)) = ⋂ i, incl ⁻¹'
+        ((MulAction.stabilizer ↥(finiteAdelicGL2Subgroup F) (FLT.SmoothVectors.RightTranslationFn.mk (Φ i)) :
+          Subgroup ↥(finiteAdelicGL2Subgroup F)) : Set ↥(finiteAdelicGL2Subgroup F)) := by
+      ext v
+      simp only [Set.mem_iInter, Set.mem_preimage, SetLike.mem_coe, MulAction.mem_stabilizer_iff]
+      constructor
+      · intro hv i
+        refine FLT.SmoothVectors.RightTranslationFn.ext fun y => ?_
+        rw [Subgroup.smul_def, FLT.SmoothVectors.RightTranslationFn.toFun_smul,
+          FLT.SmoothVectors.RightTranslationFn.toFun_mk]
+        exact hv i y
+      · intro hv i y
+        have := congrArg (fun f => FLT.SmoothVectors.RightTranslationFn.toFun f y) (hv i)
+        simp only [Subgroup.smul_def, FLT.SmoothVectors.RightTranslationFn.toFun_smul,
+          FLT.SmoothVectors.RightTranslationFn.toFun_mk] at this
+        exact this
+    rw [hset]
+    exact isOpen_iInter_of_finite fun i => (hΦ i).preimage hincl
+  obtain ⟨n, r, -, hn, hcov, hdis, -⟩ :=
+    MeasureTheory.exists_integral_eq_inv_card_mul_sum_of_isOpen_subgroup μ H hHopen
+  exact ⟨n, r, H, hn, hcov, hdis, fun h hh i y => hh i y⟩
+
+theorem exists_levelAverage (D : Set (AdelicGL2 (𝓞 F) F)) {ι : Type} [Finite ι]
+    (Φ : ι → (AdelicGL2 (𝓞 F) F → ℂ)) (hΦ : ∀ i, IsKfSmooth F (Φ i)) :
+    ∃ (n : ℕ) (u : Fin n → AdelicGL2 (𝓞 F) F), 0 < n ∧
+      (∀ j, u j ∈ levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F) ∧
+      (∀ i, (fun x => (n : ℂ)⁻¹ * ∑ j, Φ i (x * u j)) ∈ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N) ∧
+      (∀ ψ : AdelicGL2 (𝓞 F) F → ℂ, ψ ∈ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N →
+        (fun x => (n : ℂ)⁻¹ * ∑ j, ψ (x * u j)) = ψ) := by
+  classical
+  obtain ⟨n, r, H, hn, hcov, hdis, hfix⟩ := exists_reps F N Φ hΦ
+  refine ⟨n, fun j => (r j : AdelicGL2 (𝓞 F) F), hn, fun j => (r j).2, fun i => ?_, fun ψ hψ => ?_⟩
+  ·
+    intro x u hu
+    let v : ↥(Ulev F N) := ⟨u, hu⟩
+    choose σ hσ using fun j => hcov (v * r j)
+    have hσinj : Function.Injective σ := by
+      intro j j' hjj
+      apply hdis
+      have h1 := hσ j
+      have h2 := hσ j'
+      rw [← hjj] at h2
+      have := H.mul_mem (H.inv_mem h1) h2
+      simpa [mul_assoc] using this
+    have hσbij : Function.Bijective σ := (Finite.injective_iff_bijective).mp hσinj
+    let e : Fin n ≃ Fin n := Equiv.ofBijective σ hσbij
+    show (n : ℂ)⁻¹ * ∑ j, Φ i (x * u * (r j : AdelicGL2 (𝓞 F) F)) = (n : ℂ)⁻¹ * ∑ j, Φ i (x * (r j : AdelicGL2 (𝓞 F) F))
+    congr 1
+    have hterm : ∀ j, Φ i (x * u * (r j : AdelicGL2 (𝓞 F) F)) = Φ i (x * (r (σ j) : AdelicGL2 (𝓞 F) F)) := by
+      intro j
+
+      have hh : (r (σ j))⁻¹ * (v * r j) ∈ H := hσ j
+      have := hfix _ hh i (x * (r (σ j) : AdelicGL2 (𝓞 F) F))
+      rw [Subgroup.coe_mul, Subgroup.coe_mul, Subgroup.coe_inv] at this
+      rw [← this]
+      congr 1
+      simp only [v, mul_assoc, mul_inv_cancel_left]
+    simp_rw [hterm]
+    exact Equiv.sum_comp e (fun j => Φ i (x * (r j : AdelicGL2 (𝓞 F) F)))
+  · funext x
+    have hψ' : ∀ j, ψ (x * (r j : AdelicGL2 (𝓞 F) F)) = ψ x := fun j => hψ x _ (r j).2
+    simp_rw [hψ']
+    rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, ← mul_assoc,
+      inv_mul_cancel₀ (Nat.cast_ne_zero.mpr hn.ne'), one_mul]
+
+end LevelAverage
+
+theorem main
+    (F : Type) [Field F] [NumberField F] (D : Set (AdelicGL2 (𝓞 F) F))
+    (ξ : (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)).Z →* ℂˣ)
+    (N : Ideal (𝓞 F)) (tys : AutomorphicForm.ArchTypeFamily F)
+    (𝒱 : Finset (Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ)))
+    (h𝒱 : ∀ V ∈ 𝒱, IsCuspSubrep F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) ξ V) :
+    (⨆ V ∈ 𝒱, V) ⊓ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N ⊓ archCutSubmodule F tys ≤
+      ⨆ V ∈ 𝒱, (V ⊓ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N ⊓ archCutSubmodule F tys) := by
+  classical
+
+  set L : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ) := levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N with hL
+  set A : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ) := archCutSubmodule F tys with hA
+  intro φ hφ
+  obtain ⟨⟨hφsup, hφL⟩, hφA⟩ := hφ
+
+  have hsupKF : (⨆ V ∈ 𝒱, V) ≤ cuspKFiniteSubmodule F _ ξ := iSup₂_le fun V hV => (h𝒱 V hV).le
+  have hφc : Continuous φ := continuous_of_mem_cuspKFiniteSubmodule F _ ξ (hsupKF hφsup)
+
+  obtain ⟨c, hc⟩ := (Submodule.mem_iSup_finset_iff_exists_sum (s := 𝒱) (fun V => V) φ).mp hφsup
+
+  have hcKF : ∀ V : ↥𝒱, (c V : AdelicGL2 (𝓞 F) F → ℂ) ∈ cuspKFiniteSubmodule F _ ξ :=
+    fun V => (h𝒱 V V.2).le (c V).2
+  obtain ⟨n, u, hn, hu, hAinv, hAid⟩ := exists_levelAverage F N D (fun V : ↥𝒱 => (c V : AdelicGL2 (𝓞 F) F → ℂ))
+    (fun V => isKfSmooth_of_mem_cuspKFiniteSubmodule F _ ξ (hcKF V))
+  let Av : (AdelicGL2 (𝓞 F) F → ℂ) →ₗ[ℂ] (AdelicGL2 (𝓞 F) F → ℂ) :=
+    { toFun := fun ψ x => (n : ℂ)⁻¹ * ∑ j, ψ (x * u j)
+      map_add' := fun ψ ψ' => funext fun x => by
+        simp only [Pi.add_apply, Finset.sum_add_distrib, mul_add]
+      map_smul' := fun a ψ => funext fun x => by
+        simp only [Pi.smul_apply, smul_eq_mul, RingHom.id_apply, ← Finset.mul_sum]
+        ring }
+  have hAv_apply : ∀ ψ : AdelicGL2 (𝓞 F) F → ℂ, Av ψ = fun x => (n : ℂ)⁻¹ * ∑ j, ψ (x * u j) := fun _ => rfl
+
+  have hψV : ∀ V : ↥𝒱, Av (c V) ∈ (V : Submodule ℂ _) := by
+    intro V
+    rw [hAv_apply]
+    have : (fun x => (n : ℂ)⁻¹ * ∑ j, (c V : AdelicGL2 (𝓞 F) F → ℂ) (x * u j)) =
+        (n : ℂ)⁻¹ • ∑ j, rightTranslate F (u j) (c V : AdelicGL2 (𝓞 F) F → ℂ) := by
+      funext x
+      simp only [Pi.smul_apply, Finset.sum_apply, smul_eq_mul, rightTranslate_apply]
+    rw [this]
+    refine Submodule.smul_mem _ _ (Submodule.sum_mem _ fun j _ => ?_)
+    exact (h𝒱 V V.2).rightTranslate_fin_mem (u j) (Subgroup.mem_inf.mp (hu j)).2 _ (c V).2
+  have hψL : ∀ V : ↥𝒱, Av (c V) ∈ L := fun V => hAinv V
+  have hsumψ : ∑ V : ↥𝒱, Av (c V) = φ := by
+    rw [← map_sum, show (∑ V : ↥𝒱, (c V : AdelicGL2 (𝓞 F) F → ℂ)) = φ from ?_]
+    · exact hAid φ hφL
+    · rw [← hc]
+      exact (Finset.sum_coe_sort 𝒱 (fun V => (c V : AdelicGL2 (𝓞 F) F → ℂ)))
+
+  obtain ⟨Q, hQ1, hQ2, -⟩ := AutomorphicForm.exists_linearMap_archCutProjector_comm_rightTranslate F tys
+  have hθ : ∀ V : ↥𝒱, Q (Av (c V)) ∈ (V : Submodule ℂ _) ⊓ L ⊓ A := by
+    intro V
+    have hmemKF : Av (c V) ∈ cuspKFiniteSubmodule F _ ξ := (h𝒱 V V.2).le (hψV V)
+    have hcont : Continuous (Av (c V)) := continuous_of_mem_cuspKFiniteSubmodule F _ ξ hmemKF
+    have hfd : FiniteDimensional ℂ ↥(kspan F (Av (c V))) :=
+      finiteDimensional_kspan_of_mem_cuspKFiniteSubmodule F _ ξ hmemKF
+    obtain ⟨hQA, hQspan⟩ := Submodule.mem_inf.mp (hQ2 (Av (c V)) hcont hfd)
+    have hstab : ∀ (w : InfinitePlace F) (k : rowIsometrySubgroup₀ w.Completion), ∀ g ∈ (V : Submodule ℂ _) ⊓ L,
+        rightTranslate F (rowIsometryInclAt₀ F w k) g ∈ (V : Submodule ℂ _) ⊓ L := fun w k g hg =>
+      ⟨(h𝒱 V V.2).rightTranslate_arch_mem w k g hg.1,
+        rightTranslate_rowIsometryInclAt₀_mem_levelInvariantSubmodule F D N w k hg.2⟩
+    have hle : kspan F (Av (c V)) ≤ (V : Submodule ℂ _) ⊓ L := kspan_le F _ hstab ⟨hψV V, hψL V⟩
+    exact ⟨hle hQspan, hQA⟩
+  have hsumθ : ∑ V : ↥𝒱, Q (Av (c V)) = φ := by
+    rw [← map_sum, hsumψ]
+    exact hQ1 φ hφc hφA
+
+  rw [← hsumθ]
+  refine Submodule.sum_mem _ fun V _ => ?_
+  exact (le_iSup₂ (f := fun (W : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ)) (_ : W ∈ 𝒱) => W ⊓ L ⊓ A) V.1 V.2) (hθ V)
+
+
+end CuspidalConstituent
+
+end AutomorphicForm
+
+namespace AutomorphicForm
+
+namespace CuspidalConstituent
+
+theorem iSup_inf_levelInvariantSubmodule_inf_archCutSubmodule_le
+    (F : Type) [Field F] [NumberField F] (D : Set (AdelicGL2 (𝓞 F) F))
+    (ξ : (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)).Z →* ℂˣ)
+    (N : Ideal (𝓞 F)) (tys : AutomorphicForm.ArchTypeFamily F)
+    (𝒱 : Finset (Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ)))
+    (h𝒱 : ∀ V ∈ 𝒱, IsCuspSubrep F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) ξ V) :
+    (⨆ V ∈ 𝒱, V) ⊓ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N ⊓ archCutSubmodule F tys ≤
+      ⨆ V ∈ 𝒱, (V ⊓ levelInvariantSubmodule F (productionPinsOf F D (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => heckeGen (𝓞 F) F v) (adelicBox F)) N ⊓ archCutSubmodule F tys) := by
+  exact main F D ξ N tys 𝒱 h𝒱
+
+end CuspidalConstituent
 
 end AutomorphicForm

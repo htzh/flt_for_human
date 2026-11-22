@@ -50,12 +50,35 @@
     above the finite `solution` is **not** transcribed: both headlines elaborate under the port's
     `-DmaxHeartbeats=200000` (the finite one at the first try).
 
+  **The double-coset average (SET-AF100F).** `exists_integral_rightTranslate_eq_inv_card_mul_sum`
+  (pin `P2M/Sol/S_AutomorphicForm_exists_integral_rightTranslate_eq_inv_card_mul_sum.lean`, 78
+  lines) is the whole of that pin, and its proof is transcribed whole: the conjugate subgroup
+  `Hs = {v : U | g⁻¹ v g ∈ U}` is open (from `hO` and `hUf`), the Haar average
+  `MeasureTheory.exists_integral_eq_inv_card_mul_sum_of_isOpen_subgroup` gives the coset
+  representatives `r : Fin n → U`, and the average of `x ↦ φ (x * u * g)` over `U` is read off at
+  the representatives `(r i : GL₂) * g`. The port does **not** carry that premise in its import
+  closure (`MeasureTheory/HaarAveraging.lean` was imported by nothing), so one import was added —
+  the pin's own `Theorems/Thm_MeasureTheory_exists_integral_eq_inv_card_mul_sum_of_isOpen_subgroup`
+  (`S_…:2`); the module now reaches it directly. `check_port --force` stays **6 ok / 0 mismatch /
+  0 missing / 2 own** (the two `own:` rows are the pre-existing `AvgLift` drifts recorded above).
+
+  Heartbeat probe pair (recorded, never installed — FR-0225): with
+  `lake env lean -DautoImplicit=false -DmaxHeartbeats=N` the module is **silent at N = 120 000**
+  and **fails at N = 100 000** (a `«tactic execution»` timeout inside the pre-existing `AvgLift`
+  prelude, not the new row; at 80 000 the `isDefEq` failure is in the archimedean prelude).  No
+  `set_option maxHeartbeats` is in this module.
+
+  `dedup.py --within --module SpectrumIntegration` → 0 clusters;
+  `move_dead.py --dry-run --source …/SpectrumIntegration.lean --target …/tmp/af100/shelf-F.lean`
+  → 0 declarations, 0 lines.
+
   **Wiring.** `spec/check_port.py` owns the public declarations here: the shared prelude is the pin's
   (public in both `S_` files) and the two headlines are the wrappers'.
   spec-pin: Theorems/Thm_AutomorphicForm_CuspidalSpectrum_integral_smul_apply_toCuspSubcarrier_eq_toCuspSubcarrier_integral_mul_apply_mul_of_isCompact.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_integral_smul_apply_toCuspSubcarrier_eq_toCuspSubcarrier_integral_mul_apply_mul_of_isCompact.lean
   spec-pin: Theorems/Thm_AutomorphicForm_CuspidalSpectrum_integral_smul_apply_toCuspSubcarrier_eq_toCuspSubcarrier_integral_mul_rightTranslate.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_integral_smul_apply_toCuspSubcarrier_eq_toCuspSubcarrier_integral_mul_rightTranslate.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_integral_rightTranslate_eq_inv_card_mul_sum.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity.ArchInfra
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.SpectrumCarrier
@@ -69,6 +92,11 @@ import FLTForHuman.AutomorphicForm.Adelic.TestFnNearIdentity
 import FLTForHuman.NumberTheory.AdelicLevel.Projections
 import FLTForHuman.NumberTheory.AdelicLevel.Countability
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.Defs
+-- The `Theorems/` wrapper the pin's `S_` file imports
+-- (`Thm_MeasureTheory_exists_integral_eq_inv_card_mul_sum_of_isOpen_subgroup`); the port's home of
+-- the row is `MeasureTheory/HaarAveraging.lean`, which no other module of this file's closure
+-- reaches.
+import FLTForHuman.MeasureTheory.HaarAveraging
 
 set_option autoImplicit false
 
@@ -1027,5 +1055,82 @@ theorem integral_smul_apply_toCuspSubcarrier_eq_toCuspSubcarrier_integral_mul_ri
   exact (integral_integral_swap hH).symm
 
 end CuspidalSpectrum
+
+end AutomorphicForm
+
+namespace AutomorphicForm
+
+/-- Averaging a `U`-right-invariant function over the right translate by `g`: for a compact open
+`U = O ⊓ finiteAdelicGL2Subgroup` and `g` in the finite adelic subgroup, the double coset `U g U` has
+finitely many `U`-cosets, and the average of `x ↦ φ (x * u * g)` over `U` is the mean of `φ` at the
+coset representatives. -/
+theorem exists_integral_rightTranslate_eq_inv_card_mul_sum
+    (F : Type) [Field F] [NumberField F]
+    (U : Subgroup (AdelicGL2 (𝓞 F) F)) (hU : IsCompact (U : Set (AdelicGL2 (𝓞 F) F)))
+    (O : Subgroup (AdelicGL2 (𝓞 F) F)) (hO : IsOpen (O : Set (AdelicGL2 (𝓞 F) F)))
+    (hUO : U = O ⊓ finiteAdelicGL2Subgroup F)
+    [MeasurableSpace U] [BorelSpace U] (μ : Measure U) [μ.IsHaarMeasure] [IsProbabilityMeasure μ]
+    {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : ∀ x : AdelicGL2 (𝓞 F) F, ∀ u ∈ U, φ (x * u) = φ x)
+    {g : AdelicGL2 (𝓞 F) F} (hg : g ∈ finiteAdelicGL2Subgroup F) :
+    ∃ (n : ℕ) (reps : Fin n → AdelicGL2 (𝓞 F) F),
+      (∀ i, ∃ u ∈ U, ∃ u' ∈ U, reps i = u * g * u') ∧
+      (∀ x : AdelicGL2 (𝓞 F) F, (∃ u ∈ U, ∃ u' ∈ U, x = u * g * u') → ∃ i, ∃ u ∈ U, x = reps i * u) ∧
+      (∀ i j, (reps i)⁻¹ * reps j ∈ U → i = j) ∧ 0 < n ∧
+      ∀ x : AdelicGL2 (𝓞 F) F, ∫ u, φ (x * (u : AdelicGL2 (𝓞 F) F) * g) ∂μ = (n : ℂ)⁻¹ * ∑ i, φ (x * reps i) := by
+  have hUc : CompactSpace U := isCompact_iff_compactSpace.mp hU
+  have hUf : U ≤ finiteAdelicGL2Subgroup F := hUO ▸ inf_le_right
+
+  let Hs : Subgroup U :=
+    { carrier := {v | g⁻¹ * (v : AdelicGL2 (𝓞 F) F) * g ∈ U}
+      one_mem' := by simp [U.one_mem]
+      mul_mem' := fun {a b} ha hb => by
+        have : g⁻¹ * ((a : AdelicGL2 (𝓞 F) F) * b) * g =
+            (g⁻¹ * a * g) * (g⁻¹ * b * g) := by group
+        show g⁻¹ * ((a : AdelicGL2 (𝓞 F) F) * b) * g ∈ U
+        rw [this]; exact U.mul_mem ha hb
+      inv_mem' := fun {a} ha => by
+        have : g⁻¹ * (a : AdelicGL2 (𝓞 F) F)⁻¹ * g = (g⁻¹ * a * g)⁻¹ := by group
+        show g⁻¹ * (a : AdelicGL2 (𝓞 F) F)⁻¹ * g ∈ U
+        rw [this]; exact U.inv_mem ha }
+  have hmemHs : ∀ v : U, v ∈ Hs ↔ g⁻¹ * (v : AdelicGL2 (𝓞 F) F) * g ∈ U := fun v => Iff.rfl
+  have hHo : IsOpen (Hs : Set U) := by
+    have hc : Continuous fun v : U => g⁻¹ * (v : AdelicGL2 (𝓞 F) F) * g :=
+      (continuous_const.mul continuous_subtype_val).mul continuous_const
+    have hset : (Hs : Set U) = (fun v : U => g⁻¹ * (v : AdelicGL2 (𝓞 F) F) * g) ⁻¹' (O : Set _) := by
+      ext v
+      simp only [SetLike.mem_coe, Set.mem_preimage, hmemHs]
+      have hmemU : ∀ y : AdelicGL2 (𝓞 F) F, y ∈ U ↔ y ∈ O ∧ y ∈ finiteAdelicGL2Subgroup F := fun y => by
+        rw [hUO]; exact Subgroup.mem_inf
+      rw [hmemU]
+      refine ⟨fun hv => hv.1, fun hv => ⟨hv, ?_⟩⟩
+      exact Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.inv_mem _ hg) (hUf v.2)) hg
+    rw [hset]; exact hO.preimage hc
+  obtain ⟨n, r, -, hn0, hcov, hdist, hint⟩ :=
+    MeasureTheory.exists_integral_eq_inv_card_mul_sum_of_isOpen_subgroup μ Hs hHo
+  refine ⟨n, fun i => (r i : AdelicGL2 (𝓞 F) F) * g, ?_, ?_, ?_, hn0, ?_⟩
+  · intro i
+    exact ⟨r i, (r i).2, 1, U.one_mem, by rw [mul_one]⟩
+  · rintro x ⟨u, hu, u', hu', rfl⟩
+    obtain ⟨i, hi⟩ := hcov ⟨u, hu⟩
+    rw [hmemHs] at hi
+    refine ⟨i, (g⁻¹ * ((r i : AdelicGL2 (𝓞 F) F)⁻¹ * u) * g) * u', U.mul_mem hi hu', ?_⟩
+    group
+  · intro i j hij
+    apply hdist i j
+    rw [hmemHs]
+    have : g⁻¹ * (((r i)⁻¹ * r j : U) : AdelicGL2 (𝓞 F) F) * g =
+        ((r i : AdelicGL2 (𝓞 F) F) * g)⁻¹ * ((r j : AdelicGL2 (𝓞 F) F) * g) := by
+      simp only [Subgroup.coe_mul, InvMemClass.coe_inv]; group
+    rw [this]; exact hij
+  · intro x
+    have hinv : ∀ v : U, ∀ w ∈ Hs, φ (x * ((v * w : U) : AdelicGL2 (𝓞 F) F) * g) =
+        φ (x * (v : AdelicGL2 (𝓞 F) F) * g) := by
+      intro v w hw
+      rw [hmemHs] at hw
+      have : x * ((v * w : U) : AdelicGL2 (𝓞 F) F) * g =
+          (x * (v : AdelicGL2 (𝓞 F) F) * g) * (g⁻¹ * (w : AdelicGL2 (𝓞 F) F) * g) := by
+        simp only [Subgroup.coe_mul]; group
+      rw [this, hφ _ _ hw]
+    simpa [mul_assoc] using hint (fun v : U => φ (x * (v : AdelicGL2 (𝓞 F) F) * g)) hinv
 
 end AutomorphicForm

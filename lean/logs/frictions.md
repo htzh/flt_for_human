@@ -6274,3 +6274,122 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   lost a round to the mirror case in FR-0287's cascade, both being "the error names something that is
   not the missing lemma".
 - **seen**: 2026-11-21, SET-AF99G.
+
+## FR-0290 [instrument] — an `S_` pin whose `solution` states every name *fully qualified* cannot match the port's short-spelled headline: wire the wrapper
+
+- **where**: SET-AF100F, `S_NumberField_AdelicHaar_exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa.lean:241`
+  (`theorem solution` written with `AutomorphicForm.AdelicGL2`, `NumberField.AdelicHaar.adelicGLHaar`,
+  `AutomorphicForm.unipotentGL2`, `NumberField.AdelicLevel.diagOne`, … throughout), while its
+  `Theorems/Thm_…` wrapper states the same theorem with the short spellings the port writes.
+- **symptom**: `check_port` on the freshly scaffolded module reads `1 ok, 0 mismatch, 1 missing` —
+  the headline is **MISSING (no match)**, not `MISMATCH`, because the wire named only the `S_` file,
+  whose `solution` text differs from the port's by qualified names alone; the content tier is
+  gated on the statement hash, so a text difference in any identifier is a non-match.
+- **cure**: add the wrapper line to the module's `spec-pin:` block (the playbook's "list the copy
+  whose statement text the port transcribes — in practice the `Theorems/` wrapper"). Never a marker,
+  never a name change. The `S_` line stays (its other declarations are the engine). Two of this
+  set's 15 rows needed it; the other 13 spelled their `solution` with the short names and matched
+  the `S_` file directly.
+- **seen**: 2026-11-22, SET-AF100 (scaffold phase).
+
+## FR-0291 [build] — `attribute [local instance]` is scoped to its namespace, so an appended namespace block loses the measurable-space instances
+
+- **where**: SET-AF100F, `AutomorphicForm/Adelic/BorelHaarDisintegration.lean`: the new
+  `namespace NumberField.AdelicHaar` block for the Iwasawa row was appended *after* `end AutomorphicForm`,
+  where the module's `attribute [local instance] NumberField.AdelicHaar.glBorel
+  NumberField.AdelicHaar.borelSpace_glBorel …` block no longer applies.
+- **symptom**: `failed to synthesize instance of type class MeasurableSpace (AdelicGL2 (𝓞 K) K)`
+  at the `Measurable φ` binder of the headline, although the identical binder elaborates 30 lines
+  above inside the other namespace.
+- **cure**: re-declare the two (or six) local-instance pairs at the head of the new namespace block.
+  A local instance attribute lives exactly as long as its enclosing `namespace`/`section`, which is
+  also why a new module always carries its own copy of the block its statements need.
+- **seen**: 2026-11-22, SET-AF100 (scaffold phase).
+
+## FR-0292 [port-structure] — appending a headline to an existing module: read the file's last *three* `end`s first
+
+- **where**: SET-AF100 D/F, four insertions into existing modules (`HaarQuotient`,
+  `SpectrumIntegration`, `Cusp/IrreducibleSpine`, `Cusp/SpectrumTranslation`).
+- **symptom**, two mirror cases: (a) the file's last line is a bare `end` closing a
+  `noncomputable section`, so appending after it puts the new `end HaarQuotient` at top level —
+  `error: Unexpected name HaarQuotient after end: The current section is unnamed`; (b) the append
+  instead removes that bare `end` and keeps `end AutomorphicForm`, so re-opening
+  `namespace AutomorphicForm` **nests** inside itself — the declaration is then named
+  `AutomorphicForm.AutomorphicForm.…` and `linter.dupNamespace` warns (the checker reports
+  `MISSING (no match)` on the double name, which looks like a statement defect).
+- **cure**: `grep -n '^end' <file> | tail -4` and `tail -3 <file>` before appending: decide whether
+  the last `end` is the namespace's or the section's, and append *inside* the file's subject
+  namespace when it is the section that closes last (HaarQuotient), or after the outer namespace
+  and re-open it explicitly when it is the namespace that closes last (SpectrumIntegration).
+  Verify with `check_port` — a doubled namespace shows up there as a missing row.
+- **seen**: 2026-11-22, SET-AF100 (scaffold phase).
+
+## FR-0293 [tooling] — `move_dead.py --dry-run` still requires `--target`, so a work order's "dry-run gate" line is unusable as usually written
+
+- **where**: SET-AF100C, the per-order gate 6: `python3 tools/deps/move_dead.py --dry-run --source
+  lean/FLTForHuman/<module>.lean` → `error: --source and --target are required`.
+- **symptom**: the command exits non-zero with the argparse message above; `--dry-run` is a flag on
+  the *apply* action, not a mode that removes the target, and every SET-AF100 order would have hit
+  it (all eight are told to run the same line).
+- **cure**: always pass `--target`, e.g.
+  `python3 move_dead.py --dry-run --source ../../lean/FLTForHuman/<M>.lean --target ../../lean/tmp/af100/shelf-<X>.lean`
+  (the path is only used by `--apply`; `--dry-run` writes nothing). The preamble now carries this
+  form. A `0 declarations, 0 lines` plus `live private helpers needed: 0` is the gate.
+- **seen**: 2026-11-22, SET-AF100C.
+
+## FR-0294 [mathlib-drift] — `ring` can *succeed* through its `ring_nf` fallback and log `Try this: [apply] ring_nf`, which breaks the silence gate
+
+- **where**: SET-AF100C, `AtomReal.jacobian_identity` (the pin's final `congr 2; ring`).
+- **symptom**: the proof closes, but the declaration logs `Try this: [apply] ring_nf` — an
+  information message, not a warning, yet it is output at the edit loop, and the port's gate is "the
+  module is silent". Under v4.34.0 `ring` no longer normalises the exponent goal the pin's `ring`
+  did, and falls back to `ring_nf` with a suggestion; the fallback is a *successful* tactic run, so
+  no error appears and the pin's text "works".
+- **cure**: spell the fallback the message suggests — `congr 2; ring_nf`. This is proof-side, so the
+  statement is untouched; record it in the module header as the order did. The general rule: a
+  `Try this:` line at the edit loop is a finding, not noise — take the suggestion rather than
+  tolerating the message.
+- **seen**: 2026-11-22, SET-AF100C.
+
+## FR-0295 [mathlib-drift] — `Mathlib.MeasureTheory.Group.ModularCharacter` is an orphan module in v4.34; reach it through a module that imports it
+
+- **where**: SET-AF100F, `BorelHaarDisintegration.lean`'s compact-group `isInvInvariant_of_compactSpace`
+  (the pin's proof of the Iwasawa disintegration's invariance step).
+- **symptom**: the needed instances/lemmas (`IsInvInvariant` of a Haar measure under a compact group)
+  live in `Mathlib/MeasureTheory/Group/ModularCharacter.lean`, which **no mathlib module imports**
+  (`Mathlib.MeasureTheory.Measure.Haar.Unique` does not re-export it), so neither `import Mathlib`-free
+  name search nor the elaboration's "unknown identifier" points at it; a `rg` over the mathlib clone
+  for the lemma names is what finds the file.
+- **cure**: import a module that already imports it — here `FLTForHuman.NumberTheory.Adelhaar.MulRightInvariant`
+  is enough. The alternative (re-deriving the compact-group `IsInvInvariant` from
+  `isMulLeftInvariant_eq_smul`) is a from-scratch proof of a mathlib result; do not do it. General
+  rule: when an `unknown identifier` is real but no `import` in the tree provides it, `rg` the
+  declaration name in the mathlib clone and check whether its module is an orphan.
+- **seen**: 2026-11-22, SET-AF100F.
+
+## FR-0296 [instrument] — a pin declaration written with the `variable` lines of an enclosing `section` reads as `mismatch` when transcribed with explicit binders
+
+- **where**: SET-AF100F, `S_HaarQuotient_lintegral_mul_comp_out_eq_tsum_zpow_mul_setLIntegral_of_mem_normalizer.lean`:
+  the engine's statements take `G`, `H`, `[MeasurableSpace G]`, `[BorelSpace G]` from `variable`s
+  declared in the file's section, not from inline binders.
+- **symptom**: transcribed with the same hypotheses as explicit binders, all **15 engine rows read
+  `15 mismatch`** even though the mathematics and binder order agree — the statement text differs
+  because the pin's copy of `norm` keeps a section variable invisible while the port's copy spells it.
+- **cure**: re-open the pin's namespace with the **same `variable` lines** and write the declarations
+  under them, exactly as the pin does (the playbook's "keep a `def`'s pin binders in their
+  `variable … in` form"). The 15 rows then read `ok` with no other change.
+- **seen**: 2026-11-22, SET-AF100F.
+
+## FR-0297 [instrument] — `move_dead.py` reads a `scoped instance`'s body as unreachable and reports live private helpers as dead
+
+- **where**: SET-AF100F, `BorelHaarDisintegration.lean`: `move_dead --dry-run` reports **14
+  declarations / 225 lines** "dead" in a module whose new proof is entirely live, and the count was
+  15 / 229 before the order — i.e. the report is pre-existing and unrelated to the new row.
+- **symptom**: the reported set includes private declarations that are only referenced from inside
+  `scoped instance` definitions and their `where` fields (`isMulLeftInvariant_kappa`,
+  `isFiniteMeasureOnCompacts_kappa` in this module), which the scanner does not walk. The tool's
+  `live private helpers needed:` line names one real helper, so the two numbers disagree.
+- **cure**: treat a `move_dead` report on a module carrying `scoped instance` bodies as an upper
+  bound, read the reported names, and do not `--apply` without checking that each one really has no
+  referrer. A `scoped instance` is invisible to the scanner, like it is invisible to `check_port`.
+- **seen**: 2026-11-22, SET-AF100F.

@@ -18,10 +18,81 @@
   (pinned `aa2d8b3`, 429 lines / 36 declarations) and its statement from the wrapper
   `Theorems/Thm_AutomorphicForm_exists_lintegral_adelicBorel_eq_mul_lintegral_coord_of_isMulLeftInvariant.lean`.
 
+  ## The `GL₂(𝔸_K)` companion (SET-AF100F)
+
+  `AutomorphicForm.IwasawaCoord.exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa'` is the same
+  disintegration one level up, on the whole of `GL₂(𝔸_K)` against the Iwasawa coordinates
+  `n(x) · z(u) · diag(t) · k`: the module's own Borel row supplies the Borel half, a
+  compactly-supported-left-invariant-functional uniqueness step
+  (`Measure.exists_eq_smul_map_smul_of_forall_map_smul_eq_of_isCompact_stabilizer`, on the
+  pretransitive action of `B(𝔸_K) × K_max` with compact stabilizer) supplies the constant, and the
+  headline `NumberField.AdelicHaar.exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa`
+  (`Theorems/Thm_…:19`, the statement authority) is its `IwasawaCoord` call.
+
+  Transcribed from `P2M/Sol/S_NumberField_AdelicHaar_exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa.lean`
+  (`:32`–`:232`): the 14 public engine declarations plus the headline, at the pin's names and
+  visibility, in the pin's `AutomorphicForm.IwasawaCoord` subject namespace. The pin's three
+  *anonymous* `scoped instance`s (`:36`, `:163`, `:173`) are transcribed as the pin states them
+  (the checker skips them); its named `scoped instance`s (`action` `:56`, `continuousSMul` `:71`,
+  `isPretransitive` `:84`, `compactSpace_BK` `:92`, `sigmaFinite_*`, …) are the pin's too and stay
+  `scoped`. Two imports carry the pin's `Theorems/` premises: `MeasureTheory/HaarAveraging.lean`
+  (the stabilizer uniqueness) and `NumberTheory/AdelicHaar/MulRightInvariant.lean`
+  (`isMulRightInvariant_adelicGLHaar`, and with it mathlib's modular-character lemma that the pin's
+  `isInvInvariant_of_compactSpace` uses — `Mathlib.MeasureTheory.Group.ModularCharacter` is not
+  re-exported by `Haar.Unique`).
+
+  `check_port --force`: **16 ok / 0 mismatch / 0 missing / 0 own** (the two Borel rows + the 14
+  `IwasawaCoord` engine rows + the `Iwasawa` headline). Engine diff against the pin's two files:
+  14 `S_` engine rows byte-identical by statement hash, the `S_` `solution` row is the same theorem
+  as the wrapper row spelled with every name qualified (the wrapper, `:19`, is the authority and is
+  what the port headline matches); no port declaration claims a hash that is in neither pin.
+
+  ## Dedup (gate 5)
+
+  `dedup.py --within --module BorelHaarDisintegration` reports 4 intra-module clusters, and all
+  four are the **pins' own pairs** (the two pins this module transcribes each carry all four), so
+  no copy is deleted:
+
+  * shape: `IwasawaCoord.exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa'` (the pin's engine,
+    `S_…iwasawa.lean:175`) against the headline
+    `NumberField.AdelicHaar.exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa` (`:241`, and the
+    `Theorems/` wrapper) — FR-0221 keeps the `main`/`solution` pair as two declarations;
+  * name: `BorelCoord.isClosed_adelicBorel` (private, Borel pin `:221`) against
+    `IwasawaCoord.isClosed_adelicBorel` (Iwasawa pin `:45`);
+  * name: `BorelCoord.secondCountableTopology_borel` (`:218`) against its `IwasawaCoord` twin
+    (`:39`);
+  * body: `BorelCoord.locallyCompactSpace_borel` (`:228`) against its `IwasawaCoord` twin (`:52`).
+
+  The last three are the same three instances/lemmas stated twice by the two pins, each in its own
+  subject namespace; `check_port` matches each row through its own pin.
+
+  ## move_dead (gate 6)
+
+  `move_dead.py --dry-run --source …/BorelHaarDisintegration.lean --target …/tmp/af100/shelf-F.lean`
+  → **14 declarations, 225 lines** — the documented escape clause, and **pre-existing** (at HEAD it
+  is 15 / 229, the one difference being `isClosed_adelicBorel`, which the new `IwasawaCoord`
+  `locallyCompactSpace_borel` now references). These are the pin's own `private` helpers of the
+  Borel engine (`theta`, `psiHomeo`, `lmul`, `psi_mul`, `map_lmul_rho`, `continuous_lmul`, …): the
+  only declarations that reference them are the module's `scoped instance`s
+  (`isMulLeftInvariant_kappa`, `isFiniteMeasureOnCompacts_kappa`), which `move_dead`'s scanner does
+  not model as declarations, so they read as unreachable. Nothing is moved or deleted.
+
+  ## Heartbeat probe pair (recorded, never installed — FR-0225)
+
+  `lake env lean -DautoImplicit=false -DmaxHeartbeats=N FLTForHuman/AutomorphicForm/Adelic/BorelHaarDisintegration.lean`
+  is **silent at N = 12 000** and **fails at N = 10 000**, at a `(deterministic) timeout at
+  isDefEq` raised inside `exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa'` (the `calc` step
+  that reads `hc₂`); at N = 8 000 the same engine row times out a step earlier and at 6 000 the
+  failure is a `whnf` timeout in the same proof. No `set_option maxHeartbeats` is in this module.
+
   spec-pin: Theorems/Thm_AutomorphicForm_exists_lintegral_adelicBorel_eq_mul_lintegral_coord_of_isMulLeftInvariant.lean
   spec-pin: P2M/Sol/S_AutomorphicForm_exists_lintegral_adelicBorel_eq_mul_lintegral_coord_of_isMulLeftInvariant.lean
+  spec-pin: Theorems/Thm_NumberField_AdelicHaar_exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa.lean
+  spec-pin: P2M/Sol/S_NumberField_AdelicHaar_exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.BorelSubgroup
+import FLTForHuman.AutomorphicForm.Adelic.AdelicMaximalCompact
+import FLTForHuman.AutomorphicForm.Adelic.AdelicIwasawa
 import FLTForHuman.NumberTheory.NumberField.IdeleProductMeasure
 import FLTForHuman.NumberTheory.AdelicHaar.GeneralLinear
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.Defs
@@ -33,6 +104,16 @@ import FLTForHuman.NumberTheory.NumberField.TateGlobal.Defs
 import FLTForHuman.NumberTheory.NumberField.TateGlobalContinuousIdeleNorm
 import FLTForHuman.NumberTheory.AdelicLevel.Countability
 import FLTForHuman.NumberTheory.AdelicHaar.ProductFormula
+-- The pin's `Theorems/Thm_MeasureTheory_Measure_exists_eq_smul_map_smul_of_forall_map_smul_eq_of_isCompact_stabilizer`
+-- import (`S_…iwasawa.lean:6`): the Haar-uniqueness engine the Iwasawa row opens with. The port's
+-- home is `MeasureTheory/HaarAveraging.lean` (no module of this file's closure reaches it, and it
+-- imports none of this file's closure, so there is no cycle).
+import FLTForHuman.MeasureTheory.HaarAveraging
+-- The pin's `Theorems/Thm_NumberField_AdelicHaar_isMulRightInvariant_adelicGLHaar` import
+-- (`S_…iwasawa.lean:9`): the port's home of `isMulRightInvariant_adelicGLHaar`, and (through its
+-- own `Mathlib.MeasureTheory.Group.ModularCharacter` import) of the modular-character lemma the
+-- pin's `isInvInvariant_of_compactSpace` uses.
+import FLTForHuman.NumberTheory.AdelicHaar.MulRightInvariant
 
 set_option autoImplicit false
 
@@ -529,4 +610,269 @@ theorem exists_lintegral_adelicBorel_eq_mul_lintegral_coord_of_isMulLeftInvarian
   refine lintegral_congr fun t => ?_
   simp only [Pi.mul_apply, hΦ_def, dens, psiG, mul_comm]
 
+
+namespace IwasawaCoord
+
+/-! ### The Iwasawa coordinates and the disintegration on `GL₂(𝔸_K)`
+
+  Transcribed from
+  `P2M/Sol/S_NumberField_AdelicHaar_exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa.lean`
+  (`:32`–`:232`). The pin's `variable (K : Type) [Field K] [NumberField K]` is kept as a
+  `variable`, so the declarations are the pin's text. The three anonymous `scoped instance`s
+  (`:36`, `:163`, `:173`) are transcribed as the pin states them; the named instances
+  (`action`, `continuousSMul`, `isPretransitive`, `compactSpace_BK`, `sigmaFinite_*`, …) are the
+  pin's too and stay `scoped`. -/
+
+variable (K : Type) [Field K] [NumberField K]
+
+-- pin `:36`
+scoped instance : SecondCountableTopology (AdelicGL2 (𝓞 K) K) :=
+  NumberField.AdeleRing.secondCountableTopology_generalLinearGroup_finTwo K
+
+-- pin `:39`
+scoped instance secondCountableTopology_borel : SecondCountableTopology (adelicBorel (𝓞 K) K) :=
+  TopologicalSpace.Subtype.secondCountableTopology _
+
+-- pin `:42`
+scoped instance secondCountableTopology_maxCpt : SecondCountableTopology (adelicMaximalCompact K) :=
+  TopologicalSpace.Subtype.secondCountableTopology _
+
+-- pin `:45`
+theorem isClosed_adelicBorel : IsClosed (adelicBorel (𝓞 K) K : Set (AdelicGL2 (𝓞 K) K)) := by
+  have hpre : (adelicBorel (𝓞 K) K : Set (AdelicGL2 (𝓞 K) K)) =
+      (fun g : AdelicGL2 (𝓞 K) K => (g : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 K) K)) 1 0) ⁻¹' {0} := by
+    ext g; exact mem_borelSubgroup_iff (A := AdeleRing (𝓞 K) K)
+  rw [hpre]
+  exact isClosed_singleton.preimage
+    ((Units.continuous_val (M := Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 K) K))).matrix_elem 1 0)
+
+-- pin `:52`
+scoped instance locallyCompactSpace_borel : LocallyCompactSpace (adelicBorel (𝓞 K) K) :=
+  (isClosed_adelicBorel K).locallyCompactSpace
+
+-- pin `:54`
+abbrev L := adelicBorel (𝓞 K) K × adelicMaximalCompact K
+
+-- pin `:56`
+scoped instance action : MulAction (L K) (AdelicGL2 (𝓞 K) K) where
+  smul l g := (l.1 : AdelicGL2 (𝓞 K) K) * g * ((l.2 : adelicMaximalCompact K) : AdelicGL2 (𝓞 K) K)⁻¹
+  one_smul g := by
+    change ((1 : adelicBorel (𝓞 K) K) : AdelicGL2 (𝓞 K) K) * g * (((1 : adelicMaximalCompact K)) : AdelicGL2 (𝓞 K) K)⁻¹ = g
+    simp
+  mul_smul l l' g := by
+    change ((l * l').1 : AdelicGL2 (𝓞 K) K) * g * (((l * l').2 : adelicMaximalCompact K) : AdelicGL2 (𝓞 K) K)⁻¹ =
+      (l.1 : AdelicGL2 (𝓞 K) K) * ((l'.1 : AdelicGL2 (𝓞 K) K) * g * ((l'.2 : adelicMaximalCompact K) : AdelicGL2 (𝓞 K) K)⁻¹) *
+        ((l.2 : adelicMaximalCompact K) : AdelicGL2 (𝓞 K) K)⁻¹
+    simp only [Prod.fst_mul, Prod.snd_mul, Subgroup.coe_mul, mul_inv_rev]
+    group
+
+-- pin `:68`
+theorem smul_def (l : L K) (g : AdelicGL2 (𝓞 K) K) :
+    l • g = (l.1 : AdelicGL2 (𝓞 K) K) * g * ((l.2 : adelicMaximalCompact K) : AdelicGL2 (𝓞 K) K)⁻¹ := rfl
+
+-- pin `:71`
+scoped instance continuousSMul : ContinuousSMul (L K) (AdelicGL2 (𝓞 K) K) := by
+  refine ⟨?_⟩
+  change Continuous fun p : L K × AdelicGL2 (𝓞 K) K =>
+    (p.1.1 : AdelicGL2 (𝓞 K) K) * p.2 * ((p.1.2 : adelicMaximalCompact K) : AdelicGL2 (𝓞 K) K)⁻¹
+  exact ((continuous_subtype_val.comp (continuous_fst.comp continuous_fst)).mul continuous_snd).mul
+    (continuous_subtype_val.comp (continuous_snd.comp continuous_fst)).inv
+
+-- pin `:78`
+theorem exists_smul_one_eq (g : AdelicGL2 (𝓞 K) K) : ∃ l : L K, l • (1 : AdelicGL2 (𝓞 K) K) = g := by
+  obtain ⟨b, k, hb, hk1, hk2, rfl⟩ := AutomorphicForm.exists_mem_adelicBorel_mul_eq K g
+  refine ⟨(⟨b, hb⟩, ⟨k, mem_adelicMaximalCompact_iff.mpr ⟨hk1, hk2⟩⟩⁻¹), ?_⟩
+  rw [smul_def]
+  simp
+
+-- pin `:84`
+scoped instance isPretransitive : MulAction.IsPretransitive (L K) (AdelicGL2 (𝓞 K) K) := by
+  refine ⟨fun g₁ g₂ => ?_⟩
+  obtain ⟨l₁, h₁⟩ := exists_smul_one_eq K g₁
+  obtain ⟨l₂, h₂⟩ := exists_smul_one_eq K g₂
+  exact ⟨l₂ * l₁⁻¹, by rw [← h₁, ← h₂, mul_smul, inv_smul_smul]⟩
+
+-- pin `:90`
+abbrev BK := {k : adelicMaximalCompact K // (k : AdelicGL2 (𝓞 K) K) ∈ adelicBorel (𝓞 K) K}
+
+-- pin `:92`
+scoped instance compactSpace_BK : CompactSpace (BK K) := by
+  refine isCompact_iff_compactSpace.mp ?_
+  exact ((isClosed_adelicBorel K).preimage continuous_subtype_val).isCompact
+
+-- pin `:96`
+def toStab (k : BK K) : L K := (⟨(k.1 : AdelicGL2 (𝓞 K) K), k.2⟩, k.1)
+
+-- pin `:98`
+theorem continuous_toStab : Continuous (toStab K) :=
+  ((continuous_subtype_val.comp continuous_subtype_val).subtype_mk _).prodMk continuous_subtype_val
+
+-- pin `:101`
+theorem stabilizer_eq_range : (MulAction.stabilizer (L K) (1 : AdelicGL2 (𝓞 K) K) : Set (L K)) = Set.range (toStab K) := by
+  ext l
+  rw [SetLike.mem_coe, MulAction.mem_stabilizer_iff, smul_def, mul_one, mul_inv_eq_one]
+  constructor
+  · intro h
+    refine ⟨⟨l.2, ?_⟩, ?_⟩
+    · rw [← h]; exact l.1.2
+    · refine Prod.ext (Subtype.ext ?_) rfl
+      exact h.symm
+  · rintro ⟨k, rfl⟩; rfl
+
+-- pin `:112`
+theorem isCompact_stabilizer : IsCompact (MulAction.stabilizer (L K) (1 : AdelicGL2 (𝓞 K) K) : Set (L K)) := by
+  rw [stabilizer_eq_range]; exact isCompact_range (continuous_toStab K)
+
+-- pin `:115`
+theorem map_smul_adelicGLHaar (l : L K) :
+    (adelicGLHaar (Fin 2) (𝓞 K) K).map (fun g : AdelicGL2 (𝓞 K) K => l • g) = adelicGLHaar (Fin 2) (𝓞 K) K := by
+  have hhaar : (adelicGLHaar (Fin 2) (𝓞 K) K).IsHaarMeasure := isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 K) K
+  have hright : (adelicGLHaar (Fin 2) (𝓞 K) K).IsMulRightInvariant :=
+    NumberField.AdelicHaar.isMulRightInvariant_adelicGLHaar K
+  have hcomp : (fun g : AdelicGL2 (𝓞 K) K => l • g) =
+      (fun g => (l.1 : AdelicGL2 (𝓞 K) K) * g) ∘ (fun g => g * ((l.2 : adelicMaximalCompact K) : AdelicGL2 (𝓞 K) K)⁻¹) := by
+    funext g; rw [Function.comp_apply, smul_def, mul_assoc]
+  rw [hcomp, ← Measure.map_map (measurable_const_mul _) (measurable_mul_const _), map_mul_right_eq_self,
+    map_mul_left_eq_self]
+
+-- pin `:125`
+theorem isInvInvariant_of_compactSpace {H : Type*} [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
+    [CompactSpace H] [SecondCountableTopology H] [MeasurableSpace H] [BorelSpace H]
+    (μ : Measure H) [μ.IsHaarMeasure] : μ.IsInvInvariant := by
+
+  have hright : μ.IsMulRightInvariant := by
+    refine ⟨fun g => ?_⟩
+    have h := Measure.map_right_mul_eq_modularCharacterFun_smul μ g
+    have huniv : (μ.map (· * g)) Set.univ = μ Set.univ := by
+      rw [Measure.map_apply (measurable_mul_const g) MeasurableSet.univ, Set.preimage_univ]
+    have hc : Measure.modularCharacterFun g = 1 := by
+      have h2 := congrArg (fun ν : Measure H => ν Set.univ) h
+      simp only [huniv] at h2
+      have hne : μ Set.univ ≠ 0 := isOpen_univ.measure_ne_zero μ Set.univ_nonempty
+      have htop : μ Set.univ ≠ ∞ := measure_ne_top μ _
+      have : (Measure.modularCharacterFun g : ℝ≥0∞) = 1 := by
+        rw [← ENNReal.mul_left_inj hne htop, one_mul]; exact h2.symm
+      exact_mod_cast this
+    rw [h, hc, one_smul]
+
+  have h := Measure.isMulLeftInvariant_eq_smul μ.inv μ
+  have huniv : μ.inv Set.univ = μ Set.univ := by
+    rw [Measure.inv_def, Measure.map_apply measurable_inv MeasurableSet.univ, Set.preimage_univ]
+  have hc : Measure.haarScalarFactor μ.inv μ = 1 := by
+    have h2 := congrArg (fun ν : Measure H => ν Set.univ) h
+    simp only [huniv] at h2
+    have hne : μ Set.univ ≠ 0 := isOpen_univ.measure_ne_zero μ Set.univ_nonempty
+    have htop : μ Set.univ ≠ ∞ := measure_ne_top μ _
+    have : (Measure.haarScalarFactor μ.inv μ : ℝ≥0∞) = 1 := by
+      rw [← ENNReal.mul_left_inj hne htop, one_mul]; exact h2.symm
+    exact_mod_cast this
+  refine ⟨?_⟩
+  rw [h, hc, one_smul]
+
+-- pin `:158`
+scoped instance isInvInvariant_maximalCompactHaar : (maximalCompactHaar K).IsInvInvariant :=
+  isInvInvariant_of_compactSpace (maximalCompactHaar K)
+
+-- pin `:161`
+def borelHaar : Measure (adelicBorel (𝓞 K) K) := Measure.haar
+
+-- pin `:163`
+scoped instance : (borelHaar K).IsHaarMeasure := by unfold borelHaar; infer_instance
+
+-- pin `:165`
+scoped instance sigmaFinite_borelHaar : SigmaFinite (borelHaar K) := by
+  have hσ : SigmaCompactSpace (adelicBorel (𝓞 K) K) := sigmaCompactSpace_of_locallyCompact_secondCountable
+  infer_instance
+
+-- pin `:169`
+scoped instance sigmaFinite_maximalCompactHaar : SigmaFinite (maximalCompactHaar K) := inferInstance
+
+-- pin `:171`
+def LHaar : Measure (L K) := (borelHaar K).prod (maximalCompactHaar K)
+
+-- pin `:173`
+scoped instance : (LHaar K).IsHaarMeasure := by unfold LHaar; infer_instance
+
+-- pin `:175`
+theorem exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa' :
+    ∃ c : ℝ≥0∞, c ≠ 0 ∧ c ≠ ∞ ∧
+      ∀ φ : AdelicGL2 (𝓞 K) K → ℝ≥0∞, Measurable φ →
+        ∫⁻ g, φ g ∂(adelicGLHaar (Fin 2) (𝓞 K) K) =
+          c * ∫⁻ x, ∫⁻ u, ∫⁻ t, ∫⁻ k,
+                φ (unipotentGL2 x * centralScalar (𝓞 K) K u * diagOne t * (k : AdelicGL2 (𝓞 K) K)) *
+                  ENNReal.ofReal ((NumberField.TateGlobal.ideleNorm K t)⁻¹)
+              ∂(maximalCompactHaar K) ∂(NumberField.Idele.idelicHaar K) ∂(NumberField.Idele.idelicHaar K)
+            ∂(adelicAddHaar (𝓞 K) K) := by
+  have hhaar : (adelicGLHaar (Fin 2) (𝓞 K) K).IsHaarMeasure := isHaarMeasure_adelicGLHaar (Fin 2) (𝓞 K) K
+  set μ := adelicGLHaar (Fin 2) (𝓞 K) K with hμ
+
+  obtain ⟨c₁, hc₁top, hc₁⟩ :=
+    MeasureTheory.Measure.exists_eq_smul_map_smul_of_forall_map_smul_eq_of_isCompact_stabilizer (LHaar K)
+      (X := AdelicGL2 (𝓞 K) K) (1 : AdelicGL2 (𝓞 K) K) (isCompact_stabilizer K) μ (map_smul_adelicGLHaar K)
+  have hc₁0 : c₁ ≠ 0 := by
+    intro h0
+    have huniv : μ Set.univ = 0 := by rw [hc₁, h0, zero_smul]; rfl
+    exact isOpen_univ.measure_ne_zero μ Set.univ_nonempty huniv
+
+  obtain ⟨c₂, hc₂0, hc₂top, hc₂⟩ :=
+    AutomorphicForm.exists_lintegral_adelicBorel_eq_mul_lintegral_coord_of_isMulLeftInvariant K (borelHaar K)
+  refine ⟨c₁ * c₂, mul_ne_zero hc₁0 hc₂0, ENNReal.mul_ne_top hc₁top hc₂top, fun φ hφ => ?_⟩
+
+  have hsm : Measurable fun l : L K => l • (1 : AdelicGL2 (𝓞 K) K) :=
+    (continuous_id.smul continuous_const).measurable
+  have hF : Measurable fun g : AdelicGL2 (𝓞 K) K => ∫⁻ k, φ (g * (k : AdelicGL2 (𝓞 K) K)) ∂(maximalCompactHaar K) := by
+    refine Measurable.lintegral_prod_right ?_
+    exact hφ.comp (continuous_fst.mul (continuous_subtype_val.comp continuous_snd)).measurable
+  calc ∫⁻ g, φ g ∂μ = c₁ * ∫⁻ l, φ (l • (1 : AdelicGL2 (𝓞 K) K)) ∂(LHaar K) := by
+        rw [hc₁, lintegral_smul_measure, lintegral_map hφ hsm, smul_eq_mul]
+    _ = c₁ * ∫⁻ b, ∫⁻ k, φ ((b : AdelicGL2 (𝓞 K) K) * ((k : AdelicGL2 (𝓞 K) K))⁻¹) ∂(maximalCompactHaar K) ∂(borelHaar K) := by
+        congr 1
+        rw [LHaar, lintegral_prod _ (show Measurable (fun l : L K => φ (l • (1 : AdelicGL2 (𝓞 K) K))) from hφ.comp hsm).aemeasurable]
+        refine lintegral_congr fun b => lintegral_congr fun k => ?_
+        rw [smul_def, mul_one]
+    _ = c₁ * ∫⁻ b, ∫⁻ k, φ ((b : AdelicGL2 (𝓞 K) K) * (k : AdelicGL2 (𝓞 K) K)) ∂(maximalCompactHaar K) ∂(borelHaar K) := by
+        congr 1
+        refine lintegral_congr fun b => ?_
+        have hψ : Measurable fun k : adelicMaximalCompact K => φ ((b : AdelicGL2 (𝓞 K) K) * (k : AdelicGL2 (𝓞 K) K)) :=
+          hφ.comp (continuous_const.mul continuous_subtype_val).measurable
+        calc ∫⁻ k, φ ((b : AdelicGL2 (𝓞 K) K) * ((k : AdelicGL2 (𝓞 K) K))⁻¹) ∂(maximalCompactHaar K)
+            = ∫⁻ k, φ ((b : AdelicGL2 (𝓞 K) K) * (k : AdelicGL2 (𝓞 K) K)) ∂((maximalCompactHaar K).inv) := by
+              rw [Measure.inv_def, lintegral_map hψ measurable_inv]
+              rfl
+          _ = _ := by rw [Measure.IsInvInvariant.inv_eq_self]
+    _ = c₁ * (c₂ * ∫⁻ x, ∫⁻ u, ∫⁻ t, (∫⁻ k, φ (unipotentGL2 x * centralScalar (𝓞 K) K u * diagOne t *
+          (k : AdelicGL2 (𝓞 K) K)) ∂(maximalCompactHaar K)) * ENNReal.ofReal ((NumberField.TateGlobal.ideleNorm K t)⁻¹)
+          ∂(NumberField.Idele.idelicHaar K) ∂(NumberField.Idele.idelicHaar K) ∂(adelicAddHaar (𝓞 K) K)) := by
+        rw [hc₂ _ hF]
+    _ = _ := by
+        rw [mul_assoc]
+        congr 2
+        refine lintegral_congr fun x => lintegral_congr fun u => lintegral_congr fun t => ?_
+        rw [lintegral_mul_const _ ?_]
+        exact hφ.comp (continuous_const.mul continuous_subtype_val).measurable
+
+end IwasawaCoord
+
 end AutomorphicForm
+
+namespace NumberField.AdelicHaar
+
+attribute [local instance] NumberField.AdelicHaar.glBorel NumberField.AdelicHaar.borelSpace_glBorel
+  NumberField.AdelicHaar.adeleBorel NumberField.AdelicHaar.borelSpace_adeleBorel
+
+/-- The Iwasawa disintegration of the Haar integral on `GL₂(𝔸_K)`: up to one constant it is the
+four-fold integral over the unipotent radical, the centre, the diagonal torus and the adelic
+maximal compact, against the density `‖t‖⁻¹`. -/
+theorem exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa
+    (K : Type) [Field K] [NumberField K] :
+    ∃ c : ℝ≥0∞, c ≠ 0 ∧ c ≠ ∞ ∧
+      ∀ φ : AdelicGL2 (𝓞 K) K → ℝ≥0∞, Measurable φ →
+        ∫⁻ g, φ g ∂(adelicGLHaar (Fin 2) (𝓞 K) K) =
+          c * ∫⁻ x, ∫⁻ u, ∫⁻ t, ∫⁻ k,
+                φ (unipotentGL2 x * centralScalar (𝓞 K) K u * diagOne t * (k : AdelicGL2 (𝓞 K) K)) *
+                  ENNReal.ofReal ((NumberField.TateGlobal.ideleNorm K t)⁻¹)
+              ∂(maximalCompactHaar K) ∂(NumberField.Idele.idelicHaar K) ∂(NumberField.Idele.idelicHaar K)
+            ∂(adelicAddHaar (𝓞 K) K) := by
+  exact AutomorphicForm.IwasawaCoord.exists_lintegral_adelicGLHaar_eq_mul_lintegral_iwasawa' K
+
+end NumberField.AdelicHaar
