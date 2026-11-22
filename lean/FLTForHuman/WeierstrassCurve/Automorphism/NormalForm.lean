@@ -14,15 +14,56 @@
   of the same names.  The pin label namespaces `P2MKcLegendreLocal` and `AutFinitePort` are rectified to
   `LegendreNormalForm` and `AutomorphismFiniteness`.
 
+  The final section is the transcendental `j` pair, transcribed from
+  `P2M/Sol/S_WeierstrassCurve_transcendental_j_perturb.lean` (156 lines, headline at `:54`) and
+  `P2M/Sol/S_WeierstrassCurve_exists_valuationSubring_with_transcendental_of_charZero.lean`
+  (70 lines, headline at `:35`).  Both headlines sit at the pin's own `solution` statement and are
+  published under the names the wire already carried; the pin's label namespaces `JPerturb` and
+  `D0Aux` are dropped into the module's `WeierstrassCurve` namespace, the declaration names
+  themselves staying the pin's.
+
+  Gates measured on this module.  `check_port --force`: **35 ok, 0 mismatch, 0 missing, 0 own,
+  0 kw**.  The pin-vs-module declaration diff has all 11 engine rows (`WX` `:13`, `WX_c₄` `:16`,
+  `WX_Δ` `:21`, `natDegree_WX_c₄_le` `:35`, `natDegree_WX_Δ_le` `:38`, `coeff_WX_c₄_one` `:41`,
+  `coeff_WX_Δ_four` `:44`, `map_WX` `:47`, `isLocalHom_powerSeriesC` `:11`,
+  `powerSeriesC_injective` `:15`, `eval₂_C_X_powerSeries` `:18`) matching by last name and by
+  public flag; the only pin-only row is `solution` (twice), which the wire publishes under the two
+  headline names.  `#print axioms` on all 15 public declarations gives
+  `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.  `dedup --within`: one cluster, the pin's
+  own pair — `WeierstrassCurve.exists_variableChange_eq_legendreCurve_of_isUnit_two` restates
+  `LegendreNormalForm.main` verbatim, exactly as the pin's `Theorems` wrapper restates its `Sol`
+  file; kept, because the wrapper *is* the published statement.  `move_dead --dry-run`: 0
+  declarations, 0 lines.
+
+  Heartbeat probe (FR-0225, recorded and **never installed**): the module is silent at
+  `-DmaxHeartbeats=17000` and first fails at `16000` (inside `WX_Δ`'s `ring`), a factor of ~12 under
+  the default.  The pin's `set_option maxHeartbeats 12800000` and
+  `set_option synthInstance.maxHeartbeats 1600000` on the valuation-subring row are therefore not
+  transcribed and not needed.  `IsFractionRing.charZero` — the pin's route to
+  `CharZero (FractionRing (PowerSeries k))` — does not exist in mathlib v4.34, so the port goes
+  through `charZero_of_injective_algebraMap` applied to `IsFractionRing.injective`, and obtains
+  `CharZero (AlgebraicClosure …)` from the instance rather than from the pin's explicit `haveI`.
+  The pin's three `haveI` bindings are written as term-mode `letI`, because the
+  `linter.style.haveILetI` linter fires on a tactic-mode instance binder in a `Prop` goal and no
+  `set_option` is added for it.
+
   spec-pin: Theorems/Thm_WeierstrassCurve_exists_variableChange_eq_legendreCurve_of_isUnit_two.lean
   spec-pin: P2M/Sol/S_WeierstrassCurve_exists_variableChange_eq_legendreCurve_of_isUnit_two.lean
   spec-pin: Theorems/Thm_WeierstrassCurve_finite_stabilizer_variableChange.lean
   spec-pin: P2M/Sol/S_WeierstrassCurve_finite_stabilizer_variableChange.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_transcendental_j_perturb.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_exists_valuationSubring_with_transcendental_of_charZero.lean
 -/
 import FLTForHuman.WeierstrassCurve.Defs.HasseInvariant
 import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.FieldTheory.RatFunc.Basic
+import Mathlib.RingTheory.PowerSeries.Basic
+import Mathlib.RingTheory.PowerSeries.Inverse
+import Mathlib.RingTheory.PowerSeries.NoZeroDivisors
+import Mathlib.RingTheory.Localization.FractionRing
+import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+import Mathlib.RingTheory.Valuation.LocalSubring
 import Mathlib.Tactic
 
 set_option autoImplicit false
@@ -580,3 +621,226 @@ theorem WeierstrassCurve.finite_stabilizer_variableChange (F : Type*) [Field F] 
 
 
 end
+
+/-! ## The transcendental `j`
+
+The two rows that make the perturbation of `j` transcendental: an `a₄`/`a₆` perturbation by a
+transcendental `t` gives a curve whose `j` is transcendental over `ℚ`, and the valuation subring
+carrying that perturbation exists over any characteristic-`0` field. -/
+
+open Polynomial WeierstrassCurve
+
+universe u
+
+namespace WeierstrassCurve
+
+section JPerturb
+
+variable {R : Type*} [CommRing R]
+
+noncomputable def WX (W : WeierstrassCurve R) : WeierstrassCurve (Polynomial R) :=
+  ⟨C W.a₁, C W.a₂, C W.a₃, C W.a₄ + X, C W.a₆ + X ^ 2⟩
+
+theorem WX_c₄ (W : WeierstrassCurve R) : (WX W).c₄ = C (-48 : R) * X + C W.c₄ := by
+  simp only [WX, WeierstrassCurve.c₄, WeierstrassCurve.b₂, WeierstrassCurve.b₄, map_add, map_sub,
+    map_mul, map_pow, map_neg, map_ofNat]
+  ring
+
+theorem WX_Δ (W : WeierstrassCurve R) : (WX W).Δ =
+    C (-432 : R) * X ^ 4
+    + C (72*W.a₁^2 + 288*W.a₂ - 64) * X ^ 3
+    + C (-W.a₁^6 - 12*W.a₁^4*W.a₂ + W.a₁^4 + 36*W.a₁^3*W.a₃ - 48*W.a₁^2*W.a₂^2 + 8*W.a₁^2*W.a₂
+        + 72*W.a₁^2*W.a₄ + 144*W.a₁*W.a₂*W.a₃ - 96*W.a₁*W.a₃ - 64*W.a₂^3 + 16*W.a₂^2
+        + 288*W.a₂*W.a₄ - 216*W.a₃^2 - 192*W.a₄ - 864*W.a₆) * X ^ 2
+    + C (W.a₁^5*W.a₃ + 2*W.a₁^4*W.a₄ + 8*W.a₁^3*W.a₂*W.a₃ + 16*W.a₁^2*W.a₂*W.a₄ - 30*W.a₁^2*W.a₃^2
+        + 72*W.a₁^2*W.a₆ + 16*W.a₁*W.a₂^2*W.a₃ - 192*W.a₁*W.a₃*W.a₄ + 32*W.a₂^2*W.a₄
+        + 72*W.a₂*W.a₃^2 + 288*W.a₂*W.a₆ - 192*W.a₄^2) * X
+    + C W.Δ := by
+  simp only [WX, WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄, WeierstrassCurve.b₆,
+    WeierstrassCurve.b₈, map_add, map_sub, map_mul, map_pow, map_neg, map_ofNat]
+  ring
+
+theorem natDegree_WX_c₄_le (W : WeierstrassCurve R) : (WX W).c₄.natDegree ≤ 1 := by
+  rw [WX_c₄]; compute_degree
+
+theorem natDegree_WX_Δ_le (W : WeierstrassCurve R) : (WX W).Δ.natDegree ≤ 4 := by
+  rw [WX_Δ]; compute_degree
+
+theorem coeff_WX_c₄_one (W : WeierstrassCurve R) : (WX W).c₄.coeff 1 = -48 := by
+  rw [WX_c₄]; simp only [coeff_add, coeff_C_mul_X, coeff_C]; norm_num
+
+theorem coeff_WX_Δ_four (W : WeierstrassCurve R) : (WX W).Δ.coeff 4 = -432 := by
+  rw [WX_Δ]; simp only [coeff_add, coeff_C_mul_X_pow, coeff_C_mul_X, coeff_C]; norm_num
+
+theorem map_WX {L : Type*} [CommRing L] (φ : R →+* L) (t : L) (W : WeierstrassCurve R) :
+    (WX W).map (eval₂RingHom φ t) = ⟨φ W.a₁, φ W.a₂, φ W.a₃, φ W.a₄ + t, φ W.a₆ + t ^ 2⟩ := by
+  simp [WX, WeierstrassCurve.map]
+
+end JPerturb
+
+theorem transcendental_j_perturb
+    {R : Type*} [CommRing R] [IsDomain R] [CharZero R] {L : Type*} [Field L] [CharZero L]
+    (φ : R →+* L) (t : L) (ht : ∀ P : Polynomial R, P ≠ 0 → P.eval₂ φ t ≠ 0)
+    (W : WeierstrassCurve R) :
+    ∃ hΔ : (⟨φ W.a₁, φ W.a₂, φ W.a₃, φ W.a₄ + t, φ W.a₆ + t ^ 2⟩ : WeierstrassCurve L).Δ ≠ 0,
+      Transcendental ℚ (@WeierstrassCurve.j L _
+        (⟨φ W.a₁, φ W.a₂, φ W.a₃, φ W.a₄ + t, φ W.a₆ + t ^ 2⟩ : WeierstrassCurve L)
+        ⟨isUnit_iff_ne_zero.mpr hΔ⟩) := by
+  have h432 : (-432 : R) ≠ 0 := by norm_num
+  have h48 : (-48 : R) ≠ 0 := by norm_num
+  have hDne : (WX W).Δ ≠ 0 := fun h => h432 (by simpa [h] using (coeff_WX_Δ_four W).symm)
+  have hCne : (WX W).c₄ ≠ 0 := fun h => h48 (by simpa [h] using (coeff_WX_c₄_one W).symm)
+  have hDdeg : (WX W).Δ.natDegree = 4 :=
+    natDegree_eq_of_le_of_coeff_ne_zero (natDegree_WX_Δ_le W) (by rw [coeff_WX_Δ_four]; exact h432)
+  have hDlead : (WX W).Δ.leadingCoeff = -432 := by
+    rw [leadingCoeff, hDdeg, coeff_WX_Δ_four]
+
+  set δ : L := (WX W).Δ.eval₂ φ t with hδ
+  set γ : L := (WX W).c₄.eval₂ φ t with hγ
+  have hδne : δ ≠ 0 := ht _ hDne
+  have hγne : γ ≠ 0 := ht _ hCne
+  have hΔt : (⟨φ W.a₁, φ W.a₂, φ W.a₃, φ W.a₄ + t, φ W.a₆ + t ^ 2⟩ : WeierstrassCurve L).Δ = δ := by
+    rw [← map_WX φ t W, map_Δ]; rfl
+  have hc₄t : (⟨φ W.a₁, φ W.a₂, φ W.a₃, φ W.a₄ + t, φ W.a₆ + t ^ 2⟩ : WeierstrassCurve L).c₄ = γ := by
+    rw [← map_WX φ t W, map_c₄]; rfl
+  refine ⟨by rw [hΔt]; exact hδne, ?_⟩
+
+  set Wt : WeierstrassCurve L := ⟨φ W.a₁, φ W.a₂, φ W.a₃, φ W.a₄ + t, φ W.a₆ + t ^ 2⟩ with hWt
+  have hE : Wt.Δ ≠ 0 := by rw [hΔt]; exact hδne
+  let inst : Wt.IsElliptic := ⟨isUnit_iff_ne_zero.mpr hE⟩
+  have hj : @WeierstrassCurve.j L _ Wt inst = γ ^ 3 / δ := by
+    rw [WeierstrassCurve.j, Units.val_inv_eq_inv_val, coe_Δ', hΔt, hc₄t, div_eq_inv_mul]
+  show Transcendental ℚ (@WeierstrassCurve.j L _ Wt inst)
+
+  intro halg
+  obtain ⟨m, hm0, hm⟩ : IsAlgebraic ℤ (@WeierstrassCurve.j L _ Wt inst) :=
+    (IsFractionRing.isAlgebraic_iff ℤ ℚ L).mpr halg
+  rw [hj] at hm
+
+  set d := m.natDegree with hd
+  set c4 := (WX W).c₄ with hc4
+  set Δx := (WX W).Δ with hΔx
+  set P : Polynomial R := ∑ i ∈ Finset.range (d + 1), C ((m.coeff i : ℤ) : R) * (c4 ^ (3 * i) * Δx ^ (d - i))
+    with hP
+
+  have hPt : P.eval₂ φ t = 0 := by
+    have hsum : P.eval₂ φ t = ∑ i ∈ Finset.range (d + 1), (m.coeff i : L) * (γ ^ (3 * i) * δ ^ (d - i)) := by
+      rw [hP, eval₂_finsetSum]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      rw [eval₂_mul, eval₂_C, eval₂_mul, eval₂_pow, eval₂_pow, map_intCast]
+    have hm' : ∑ i ∈ Finset.range (d + 1), (m.coeff i : L) * (γ ^ 3 / δ) ^ i = 0 := by
+      rw [aeval_def, eval₂_eq_sum_range] at hm
+      simpa using hm
+    have hscale : ∑ i ∈ Finset.range (d + 1), (m.coeff i : L) * (γ ^ (3 * i) * δ ^ (d - i))
+        = δ ^ d * ∑ i ∈ Finset.range (d + 1), (m.coeff i : L) * (γ ^ 3 / δ) ^ i := by
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl fun i hi => ?_
+      have hi' : i ≤ d := Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)
+      rw [div_pow, ← pow_mul, pow_sub₀ δ hδne hi']
+      field_simp
+    rw [hsum, hscale, hm', mul_zero]
+
+  have hc4deg : c4.natDegree = 1 :=
+    natDegree_eq_of_le_of_coeff_ne_zero (natDegree_WX_c₄_le W) (by rw [coeff_WX_c₄_one]; exact h48)
+  have hc4lead : c4.leadingCoeff = -48 := by rw [leadingCoeff, hc4deg, coeff_WX_c₄_one]
+  set i₀ := m.natTrailingDegree with hi₀
+  have hi₀d : i₀ ≤ d := natTrailingDegree_le_natDegree m
+  have htrail : m.coeff i₀ ≠ 0 := by
+    rw [hi₀, ← trailingCoeff]; exact trailingCoeff_nonzero_iff_nonzero.mpr hm0
+  have hdegpow : ∀ i, (c4 ^ (3 * i) * Δx ^ (d - i)).natDegree = 3 * i + 4 * (d - i) := by
+    intro i
+    rw [natDegree_mul (pow_ne_zero _ hCne) (pow_ne_zero _ hDne), natDegree_pow, natDegree_pow,
+      hc4deg, hDdeg]
+    ring
+  have hleadpow : ∀ i, (c4 ^ (3 * i) * Δx ^ (d - i)).leadingCoeff = (-48) ^ (3 * i) * (-432) ^ (d - i) := by
+    intro i
+    rw [leadingCoeff_mul, leadingCoeff_pow, leadingCoeff_pow, hc4lead, hDlead]
+  have hcoeffP : P.coeff (3 * i₀ + 4 * (d - i₀))
+      = ((m.coeff i₀ : ℤ) : R) * ((-48) ^ (3 * i₀) * (-432) ^ (d - i₀)) := by
+    rw [hP, finsetSum_coeff]
+    rw [Finset.sum_eq_single i₀]
+    · rw [coeff_C_mul, ← hleadpow i₀, ← hdegpow i₀, coeff_natDegree]
+    · intro i hi hne
+      rcases lt_or_gt_of_ne hne with hlt | hgt
+      ·
+        have hmi : m.coeff i = 0 := coeff_eq_zero_of_lt_natTrailingDegree (by rw [← hi₀]; exact hlt)
+        rw [hmi, Int.cast_zero, map_zero, zero_mul, coeff_zero]
+      ·
+        have hid : i ≤ d := Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)
+        have hdeg_lt : (c4 ^ (3 * i) * Δx ^ (d - i)).natDegree < 3 * i₀ + 4 * (d - i₀) := by
+          rw [hdegpow i]; omega
+        rw [coeff_C_mul, coeff_eq_zero_of_natDegree_lt hdeg_lt, mul_zero]
+    · intro h
+      exact absurd (Finset.mem_range.mpr (Nat.lt_succ_of_le hi₀d)) h
+  have hPne : P ≠ 0 := by
+    intro h
+    have h0 : P.coeff (3 * i₀ + 4 * (d - i₀)) = 0 := by rw [h, coeff_zero]
+    rw [hcoeffP] at h0
+    rcases mul_eq_zero.mp h0 with h1 | h2
+    · exact htrail (Int.cast_eq_zero.mp h1)
+    · rcases mul_eq_zero.mp h2 with h3 | h4
+      · exact pow_ne_zero _ h48 h3
+      · exact pow_ne_zero _ h432 h4
+  exact ht P hPne hPt
+
+section D0Aux
+
+theorem isLocalHom_powerSeriesC (R : Type*) [CommRing R] : IsLocalHom (PowerSeries.C (R := R)) := by
+  refine ⟨fun a ha => ?_⟩
+  rwa [PowerSeries.isUnit_iff_constantCoeff, PowerSeries.constantCoeff_C] at ha
+
+theorem powerSeriesC_injective (R : Type*) [CommRing R] : Function.Injective (PowerSeries.C (R := R)) :=
+  Function.LeftInverse.injective (g := PowerSeries.constantCoeff) fun a => PowerSeries.constantCoeff_C a
+
+theorem eval₂_C_X_powerSeries {R : Type*} [CommRing R] (P : Polynomial R) :
+    P.eval₂ (PowerSeries.C (R := R)) PowerSeries.X = (P : PowerSeries R) := by
+  have h : Polynomial.eval₂RingHom (PowerSeries.C (R := R)) PowerSeries.X =
+      Polynomial.coeToPowerSeries.ringHom := by
+    refine Polynomial.ringHom_ext (fun a => ?_) ?_
+    · rw [Polynomial.coe_eval₂RingHom, Polynomial.eval₂_C]
+      exact (Polynomial.coe_C a).symm
+    · rw [Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X]
+      exact Polynomial.coe_X.symm
+  exact congrArg (fun φ : Polynomial R →+* PowerSeries R => φ P) h
+
+end D0Aux
+
+theorem exists_valuationSubring_with_transcendental_of_charZero
+    (k : Type u) [Field k] [CharZero k] :
+    ∃ (L : Type u) (_ : Field L) (_ : IsAlgClosed L) (_ : CharZero L)
+      (A : ValuationSubring L) (φ : k →+* L) (hφ : ∀ x, φ x ∈ A)
+      (ι : k →+* IsLocalRing.ResidueField A),
+      (∀ a : k, IsLocalRing.residue A ⟨φ a, hφ a⟩ = ι a) ∧
+      ∃ (t : L) (ht : t ∈ A), (⟨t, ht⟩ : A) ∈ IsLocalRing.maximalIdeal A ∧
+        ∀ P : Polynomial k, P ≠ 0 → P.eval₂ φ t ≠ 0 := by
+  classical
+  refine (letI : CharZero (PowerSeries k) :=
+      charZero_of_injective_ringHom (f := PowerSeries.C (R := k)) (powerSeriesC_injective k)
+    letI : CharZero (FractionRing (PowerSeries k)) :=
+      charZero_of_injective_algebraMap (IsFractionRing.injective (PowerSeries k) _)
+    ?_)
+  have hL : CharZero (AlgebraicClosure (FractionRing (PowerSeries k))) := inferInstance
+  let ψ : PowerSeries k →+* AlgebraicClosure (FractionRing (PowerSeries k)) :=
+    (algebraMap (FractionRing (PowerSeries k)) _).comp (algebraMap (PowerSeries k) (FractionRing (PowerSeries k)))
+  have hψ : Function.Injective ψ :=
+    (algebraMap (FractionRing (PowerSeries k)) _).injective.comp (IsFractionRing.injective (PowerSeries k) _)
+  obtain ⟨A, hAmem, hAloc⟩ := IsLocalRing.exists_factor_valuationRing ψ
+  let g : PowerSeries k →+* A := ψ.codRestrict A.toSubring hAmem
+  refine (letI : IsLocalHom g := hAloc; ?_)
+  let φ : k →+* AlgebraicClosure (FractionRing (PowerSeries k)) := ψ.comp (PowerSeries.C (R := k))
+  have hφ : ∀ x, φ x ∈ A := fun x => hAmem _
+  refine ⟨AlgebraicClosure (FractionRing (PowerSeries k)), inferInstance, inferInstance, hL,
+    A, φ, hφ, (IsLocalRing.residue A).comp (g.comp (PowerSeries.C (R := k))), fun a => rfl,
+    ψ PowerSeries.X, hAmem _, ?_, ?_⟩
+  · rw [IsLocalRing.mem_maximalIdeal, mem_nonunits_iff]
+    intro hu
+    have hX : IsUnit (PowerSeries.X : PowerSeries k) := IsUnit.of_map g _ hu
+    rw [PowerSeries.isUnit_iff_constantCoeff, PowerSeries.constantCoeff_X] at hX
+    exact not_isUnit_zero hX
+  · intro P hP h0
+    apply hP
+    rw [show P.eval₂ φ (ψ PowerSeries.X) = ψ (P.eval₂ (PowerSeries.C (R := k)) PowerSeries.X)
+      from (Polynomial.hom_eval₂ P _ ψ PowerSeries.X).symm, eval₂_C_X_powerSeries] at h0
+    exact Polynomial.coe_eq_zero_iff.mp (hψ (by rw [h0, map_zero]))
+
+end WeierstrassCurve

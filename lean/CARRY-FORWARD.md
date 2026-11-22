@@ -1492,3 +1492,66 @@ give the lemma one public home in `AutomorphicForm/Adelic/Basic.lean` (or the `W
 module) at the pin's name, point both call sites at it, and re-run `check_port` on both modules — the
 content tier accepts the shared declaration for both wires. Do not re-key anything in
 `spec/decl_markers.tsv`: neither copy is a rename.
+
+### The Tate curve's torsion parametrisation is a definition layer, and two points-law leaves sit on it
+
+`TateCurve.point_mul_eq_add_of_norm_le_one` (471 silo) and `…_of_norm_eq_one` (247) were cut from
+SET-AF101 after their work order hit the definition gate (FR-0049, and FR-0298 for the read that
+missed it). The port holds `TateCurve/QSeries.lean` and `TateCurve/PointSeries.lean` — the `q`-series
+and the point coordinates — but **not** the structure the law is proved in:
+
+* `Definitions/Def_TateCurve_XMultStructure.lean` — `OffLattice q w : Prop := ∀ n : ℤ, q ^ n * w ≠ 1`
+  (`:63`), its `.zpow_mul`/`.q_mul`/`.inv` rows (`:65–75`), `AddParams` (`:89`),
+  `offLattice_of_norm_eq_one` (`:326`), `ne_zero_of_norm_eq_one` (`:394`);
+* `Definitions/Def_TateCurve_TorsionParametrization.lean` — `SymAddHyps` (`:51`-ish),
+  `point_mul_eq_add_of_symAddHyps_of_diffHyp` (`:361`);
+* `Definitions/Def_TateCurve_XMultDistinctRouteB.lean` — `eq_or_mul_eq_one_of_pointX_eq` (`:306`),
+  `two_nsmul_point_ne_zero` (`:572`); `Definitions/Def_TateCurve_XMultAlignment.lean` —
+  `nonsingular_point` (`:76`), `SymAddHyps` (`:51`);
+* three `Theorems/` rows: `TateCurve_symAddHyps_unconditional`, `TateCurve_diffHyp_unconditional`,
+  and `TateCurve_pointX_inv` (the last is used at `S_…_norm_le_one.lean:123`).
+
+The import closure reachable from `Def_TateCurve_TorsionParametrization` alone is **28 pin files,
+≈9,859 lines**: a definition-layer set of its own, not a row of another set. The four layer files are
+`Def_TateCurve_XMultStructure` (697 lines, 59 public declarations), `…_XMultAlignment` (331),
+`…_XMultDistinctRouteB` (1452) and `…_TorsionParametrization` (1088), and `XMultStructure` itself is
+**not** self-contained either: it imports `Def_TateCurve_QShift` plus the `Theorems/` rows
+`pointX_inv` and `pointX_zpow_mul`, none of which is in the port (`TateCurve/` holds only
+`QSeries.lean` and `PointSeries.lean`).
+
+**A four-step order for that set** (measured by the T1 worker, whose proofs for steps 1 are already
+verified in `lean/tmp/af101/T1-offlattice-rows.lean`): (1) the `OffLattice`/`AddParams` slice of
+`XMultStructure` (`:63–96`, `:326`, `:394`) — mathlib-only once the `abbrev` exists, and it makes
+seven of T1's nineteen engine rows *statable*; (2) `Δ_ne_zero` + `equation_pointX_pointY` →
+`nonsingular_point`; (3) `eq_or_mul_eq_one_of_pointX_eq`; (4) the `SymAddHyps`/`DiffHyp` stack → both
+`point_mul_eq_add_generic` → `main_of_le` → the two `'` wrappers → the two headline one-liners.
+**FR-0274 warning for step 1**: `TateCurve.pointX_q_mul` and `pointY_q_mul` are already public in
+`Automorphic…` no — in `FLTForHuman/TateCurve/SeriesIdentities.lean:58`/`:62` (SET-AF101T2), so the
+layer imports them instead of re-declaring; the same holds for `ne_zero_of_norm_eq_one` if step 1
+transcribes it. Seven of the two pins' 19
+engine rows cannot even be *stated* without `OffLattice` (they appear in their statements), so the
+leaf is not "1 node / 1 premise" in any useful sense. The dossier with the row-by-row inventory and the
+five rows that *were* proved in full before the cut is `lean/tmp/af101/AF101T1-REPORT.md` (untracked;
+quote it into the layer order when that set is cut).
+
+**Update (2026-11-22, after SET-AF101T2 landed).** One of the layer's prerequisites is now a *ready
+row* rather than part of the closure: `TateCurve.pointX_zpow_mul` (22 silo) and
+`TateCurve.pointY_zpow_mul` (22) appeared on the ready shelf when T2's `pointX_q_mul`/`pointY_q_mul`
+landed, together with `TateCurve.sOne_eq_tsum_xfun` (101) and `TateCurve.defectCoeff_zero` (13). So the
+layer set's first steps are cheaper than the dossier priced: port those two 22-line rows first and the
+`pointX_inv`/`pointX_zpow_mul` half of `XMultStructure`'s import list shrinks to `pointX_inv` alone.
+
+### The `D0Aux` block of the transcendental-`j` pin exists twice in the port
+
+`WeierstrassCurve/Automorphism/NormalForm.lean` (SET-AF101W3) declares the pin's three-row `D0Aux`
+engine verbatim — `isLocalHom_powerSeriesC`, `powerSeriesC_injective`, `eval₂_C_X_powerSeries` — and
+`RingTheory/WittVector/Lift.lean:136,140,143` already declares the **same three statements, verbatim**,
+under `namespace WittVector`. Different full names, so it is not an FR-0274 collision, and
+`dedup --within` is intra-module, so no gate reports it.
+
+W3 kept the copies: they are pin-public rows on that module's wire, and the alternative is importing
+`RingTheory/WittVector/Lift` into a Weierstrass-automorphism module to alias three one-line helpers.
+The dedup, when a refactor round takes it, is either (a) aliases —
+`theorem isLocalHom_powerSeriesC ... := WittVector.isLocalHom_powerSeriesC` — with the same import, or
+(b) one public home in `RingTheory/PowerSeries/…` that both namespaces point at. Statement hashes are
+identical either way, so `check_port` stays green through the change.

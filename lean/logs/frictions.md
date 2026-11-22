@@ -6393,3 +6393,20 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   bound, read the reported names, and do not `--apply` without checking that each one really has no
   referrer. A `scoped instance` is invisible to the scanner, like it is invisible to `check_port`.
 - **seen**: 2026-11-22, SET-AF100F.
+
+## FR-0298 [instrument] — a leaf's readiness is computed from the wrapper, but the *proof's* definition layer lives in the `S_` file's own `Definitions` imports
+
+- **where**: SET-AF101T1, the two `TateCurve.point_mul_eq_add_of_norm_{le,eq}_one` leaves.
+- **symptom**: the row reads `needed = 1`, `premises = 0` (a graph leaf), and its
+  `Theorems/Thm_…` wrapper imports only `Definitions.Def_TateCurve_PointSeries` — which **is** ported.
+  The `S_` file, which is the proof source, additionally imports
+  `Definitions.Def_TateCurve_TorsionParametrization`, whose 28-file / ≈9,859-line closure is not in the
+  port at all; 7 of the 19 engine rows cannot be *stated* without it (`OffLattice` is in their
+  statements). The worker's first report caught it before transcribing anything.
+- **cure**: when scoping a leaves row, read the **`S_` file's** `import Definitions.…` lines and diff
+  them against the port, not the wrapper's — the wrapper's import list is what the *statement* needs
+  and the `S_` file's is what the *proof* needs, and for a flattened pin the two differ. The
+  vocabulary check the scoping note prescribes ("read the wrapper's `import Definitions.…` lines") is
+  therefore half a check; run it on both files. A row whose `S_` closure is out of scope is
+  cut-and-registered (§2.3's exception), not ordered.
+- **seen**: 2026-11-22, SET-AF101T1.
