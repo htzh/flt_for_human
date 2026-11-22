@@ -79,6 +79,18 @@
   `Definitions/Def_CuspForm_PeterssonCoset.lean`, which `ModularForms/Analytic/PeterssonCoset.lean`
   carries and is diffed against; this module keeps no copy of it.
 
+  ModularForms/NebentypusEigenbasis — the `ε`-eigenspace. The invariance statement is proved for
+  the diamond-twisted `T_p` instead of for the pin's `U_p + ε(p) • (· ∣[k] heckeDiagMatrix p)`:
+  `SSbasis.heckeTOne_slash` says `T_p f ∣[k] γ = ε(dd γ) • T_p f` for `f` of nebentypus `ε`, and
+  the pin's shape is recovered through `coe_heckeTOne_nebentypus` (on a nebentypus form the
+  diamond `⟨p⟩` acts by `ε(p)`, which is `heckeT` in the shared `CuspForm.heckeFun`). The
+  `Γ₀(N)`-equivariance that this rests on is `HeckeTLinOneQCoeff.heckeTLinOne_slashOfMemGamma0`,
+  not a local coset computation (topics/TOPIC-interface-changes.md Entry 8). The module's other two
+  wires — the eigenbasis theorem and its `S_` file — stay in its own header.
+
+    spec-pin: Theorems/Thm_ModularForm_heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0.lean
+    spec-pin: P2M/Sol/S_ModularForm_heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0.lean
+
   Re-wiring a parked module needs `own:` rows back for the declarations whose pin has no
   comparable statement: `ModularFormClass.qCoeff_add'`, `…qCoeff_sub'` and
   `…qCoeff_const_smul'` are the general spellings of the pin's concrete per-file copies.

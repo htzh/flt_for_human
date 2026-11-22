@@ -30,7 +30,8 @@ MD-002 for the measurement).
 node the source tier claims (a `Thm_` source in `SOURCES` or a `spec-pin:` line) that no
 port declaration carries by last name.  **The live inventory is MD-005** (fifteen phi-refactor
 `ModularCurve` rows — ten opened 2026-11-12, five more added by the `jq refactor` commit of
-2026-11-13).  On 2026-10-27 the inventory was MD-001..003 below;
+2026-11-13) together with MD-007 (one re-spelled statement, deliberate: its wire is in the
+Reserve register).  On 2026-10-27 the inventory was MD-001..003 below;
 SET 7 fixed MD-002 and MD-003, and SET MC-7 fixed MD-001, so the live inventory was
 **empty** (`--selfcheck` PASSes).  MD-004 was the mirror case — a node the port does not
 declare at all, read as ported — and was found and resolved by SET-AF18 (2026-11-07); with
@@ -312,6 +313,39 @@ for the next edit of their module.
   node and 176 lines below the uncorrected **1,704 / 828,508**;
   `python3 spec/check_port.py --force` on the two modules → unchanged (44 and 35 `ok`).
 - **status**: **open (recorded 2026-11-12, SET-AF48 §6.2)**.
+
+## MD-007 — the `NebentypusEigenbasis` invariance wire is in Reserve, so its node is ported without a declaration of that name
+
+- **module**: `FLTForHuman/ModularForms/NebentypusEigenbasis.lean` (header wires) and
+  `lean/Reserve/ModularForms/PortOwnedSpecPins.lean` (where those wires now sit).
+- **metadata**: the two lines
+  `spec-pin: Theorems/Thm_ModularForm_heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0.lean`
+  and its `P2M/Sol/S_` file were moved out of the module header into the Reserve register, because
+  the statement is now proved as `SSbasis.heckeTOne_slash` — for the diamond-twisted `T_p` — rather
+  than under the pin's name and hypothesis shape (`topics/TOPIC-interface-changes.md` Entry 8).
+- **symptom**: `frontier.py --selfcheck` reports
+  `source node not covered by the name scan: ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0`.
+  The source tier claims the node (a `spec-pin:` line anywhere under the port roots, `Reserve`
+  included) and no port declaration carries that last name.
+- **effect**: the node reads **ported**, which is the intent —
+  `frontier.py --target ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0`
+  prints `needed 0` and `target hops to F (shortest) 0   (target is ported)`. This is not a
+  false-ported node of the MD-001 kind: the mathematics is in the port, under a spelling the name
+  scan cannot match.
+- **not a missing statement**: `twin_scan.py --node
+  ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0` reads `new`, because it
+  compares statements and the port's differs (operator `heckeTOne` instead of
+  `U_p + ε(p) • (· ∣ diag)`, hypothesis `HasNebentypus` instead of the function-level law). The
+  bridge is `SSbasis.coe_heckeTOne_nebentypus`, so the row must not be read as "mathematics
+  absent".
+- **correction**: none open. If the port ever wants the pin's name back, add a `CuspForm`-level
+  wrapper stating the pin's form, wire it in the module header, and delete the two Reserve lines
+  and this entry.
+- **verification**: the two frontier commands above, and
+  `python3 spec/check_port.py --force FLTForHuman/ModularForms/NebentypusEigenbasis.lean` — it
+  stays `[ok]`, since all 50 of its matches come from the eigenbasis pin pair, not from this one.
+- **status**: **open by design (recorded 2026-11-22)** — expected while the statement keeps the
+  `heckeTOne` spelling; Entry 8 is the decision it records.
 
 ## Resolved / not metadata
 

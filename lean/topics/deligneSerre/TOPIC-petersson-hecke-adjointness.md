@@ -125,8 +125,8 @@ The engine names corresponding to the mathematical steps of
 | the unfolding | `unfold_sum` |
 | Φ, Ψ | `Φ`, `Ψ` |
 | the character identity (math §5.3) | `slash_heckeDiagMatrix_eq`, `Ψ_eq`, `norm_char_p` |
-| the two integrands | `integrand_left`, `integrand_right` |
-| the integral invariance | `integral_cosum_pair`, `adm_slash_α`, `adm_coe` |
+| the two integrands | `main`'s `hleft`/`hright` (proof steps, inlined) |
+| the integral invariance | `integral_cosum_pair`, `nice_slash_α`, `nice_coe` |
 | assembly | `main` |
 
 `v4.34.0` adaptations (five, no statement change):

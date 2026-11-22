@@ -342,3 +342,42 @@ admissibility proofs now produce `Nice`, and `main` calls the coset layer's
 Bézout pair or a lift matrix: take `Level.BezoutPair` (`.huv`, `.mat`, `.matDiag`) and, for a lift
 into `Γ₀` with a prescribed `1 1`-entry, `Level.exists_sl2_of_isCoprime`. Read the upper-right
 entry of `gInf * γ` or `T ^ t * γ` as a local `have`, as `exists_rr_mul_mem` does.
+
+## Entry 8 — the `ε`-eigenspace invariance is stated for the diamond-twisted `T_p`
+
+**Status: applied, the pin parked.** `ModularForms/NebentypusEigenbasis.lean` keeps the
+nebentypus eigenbasis; the invariance statement whose own pin file it used to name is proved there
+for `heckeTOne`, so that pin's wire is carried by
+`Reserve/ModularForms/PortOwnedSpecPins.lean` instead of the module header.
+
+**Pin shape.** `heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0` takes a raw function
+`f : ℍ → ℂ` with the pointwise nebentypus law as a hypothesis and concludes
+`(heckeU k p f + ε(p) • (f ∣[k] heckeDiagMatrix p)) ∣[k] mapGL γ = ε (γ 1 1) • (…)` for
+`γ ∈ Γ₀(N)`. Its proof computes the `Γ₀`-cocycle of the double coset: the `p + 1` representatives
+(`sum_eq` over `OnePoint (ZMod p)`, `lift`/`redMatrix`), the reweighted sum (`sum_slash_mapGL`), and
+a Bézout lift of `p` (`exists_diamondLift`).
+
+**Port shape.** `T_p` on `Γ₁(N)` is `CuspForm.heckeTOne` (diamond-twisted, `ε`-free); its `ε`-view
+is the shared `CuspForm.heckeFun = U_p + ε(p) • (· ∣[k] heckeDiagMatrix p)`. The invariance is
+`SSbasis.heckeTOne_slash`:
+
+```
+⇑(heckeTOne k hp hpN f) ∣[k] mapGL γ = ε (dd γ) • ⇑(heckeTOne k hp hpN f)
+```
+
+for `f : CuspForm Γ₁(N) k` of nebentypus `ε` and `γ ∈ Γ₀(N)` — a three-line consequence of the
+operator's `Γ₀`-equivariance, not a coset computation.
+
+**Bridges.** `SSbasis.coe_heckeTOne_nebentypus : ⇑(heckeTOne k hp hpN f) = heckeFun k ε p ⇑f`
+turns the port statement into the pin's, `dd γ = γ 1 1` holding definitionally. The cocycle
+computation itself is not repeated: `HeckeTLinOneQCoeff.heckeTLinOne_slashOfMemGamma0` gives
+`T_p (f ∣[k] γ) = (T_p f) ∣[k] γ`, and with the nebentypus law `f ∣[k] γ = ε (dd γ) • f` and
+`T_p`'s `ℂ`-linearity the pin's conclusion follows. The coset layer the pin re-derives is
+`CuspForm.Gamma1Hecke.sum_eq`/`sum_slash_mapGL_of_mem_Gamma0` and
+`Level.exists_isDiamondLift_of_coprime`.
+
+**A dropped pin, not a dropped statement.** The pin's declaration has no counterpart *by name*, so
+`frontier.py --selfcheck` lists the node as not covered by the name scan and
+`twin_scan.py --node` reads it `new` (the statement is re-spelled, not renamed). The node stays
+**ported** for the frontier because its `spec-pin:` lines sit in the Reserve register; the residue
+is recorded as MD-007 in `spec/METADATA-ISSUES.md`.

@@ -5,10 +5,15 @@
   leaves of the D-S cone rest on.
 
   FLT provenance, pinned `aa2d8b3`: `Definitions/Def_CuspForm_PeterssonCoset.lean`,
-  the whole 744-line module (56 public declarations, none `private`), restated at
-  the pin's names; the module's wire is the `spec-pin:` header below, so every
-  declaration is statement-diffed against it. The pin's
-  `set_option maxHeartbeats 800000` is not carried (playbook §3.5).
+  the whole 744-line module, restated at the pin's names. The `spec-pin:` header
+  below wires the public surface — 27 declarations; the 25 coset-integral and
+  `Nice`-closure steps behind it are `private`, and three of the pin's proof steps
+  are inlined where their mathematics is stated: the pointwise weight identity into
+  `ae_tsum_wt_smul`, its unfolded form into `weight_lintegral`, and the coset
+  reindexing `eMap`/`eMap_bijective` into `unfold_sum`. `mapGL_apply` is public
+  although this module is its only user, because the pin's `S_` files name it to
+  disable the simp lemma. The pin's `set_option maxHeartbeats 800000` is not
+  carried (playbook §3.5).
 
   The coset-integral layer here was written twice in the pin — this module and the
   `S_CuspForm_peterssonOn_…` file our `ModularForms/Analytic/PeterssonHecke.lean`
@@ -57,11 +62,11 @@ theorem det_entries (γ : SL(2, ℤ)) : γ 0 0 * γ 1 1 - γ 0 1 * γ 1 0 = 1 :=
   have h := γ.det_coe
   rwa [Matrix.det_fin_two] at h
 
-theorem hact (γ : SL(2, ℤ)) (x : ℍ) :
+private theorem hact (γ : SL(2, ℤ)) (x : ℍ) :
     γ • x = (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) • x :=
   MulAction.compHom_smul_def _ γ x
 
-theorem mp_smul_SL (γ : SL(2, ℤ)) : MeasurePreserving (fun x : ℍ => γ • x) volume volume := by
+private theorem mp_smul_SL (γ : SL(2, ℤ)) : MeasurePreserving (fun x : ℍ => γ • x) volume volume := by
   have hemb : MeasurableEmbedding (fun w : ℍ => γ • w) :=
     (Homeomorph.smul γ (α := ℍ)).measurableEmbedding
   exact ⟨hemb.measurable, by
@@ -69,7 +74,7 @@ theorem mp_smul_SL (γ : SL(2, ℤ)) : MeasurePreserving (fun x : ℍ => γ • 
     rw [Measure.map_apply hemb.measurable hs, Set.preimage_smul,
       FLT.HyperbolicMeasure.volume_smul_sl2z]⟩
 
-theorem mp_smul_GL (g : GL (Fin 2) ℝ) : MeasurePreserving (fun x : ℍ => g • x) volume volume := by
+private theorem mp_smul_GL (g : GL (Fin 2) ℝ) : MeasurePreserving (fun x : ℍ => g • x) volume volume := by
   have hemb : MeasurableEmbedding (fun w : ℍ => g • w) :=
     (Homeomorph.smul g (α := ℍ)).measurableEmbedding
   exact ⟨hemb.measurable, by
@@ -77,17 +82,17 @@ theorem mp_smul_GL (g : GL (Fin 2) ℝ) : MeasurePreserving (fun x : ℍ => g �
     rw [Measure.map_apply hemb.measurable hs, Set.preimage_smul,
       FLT.HyperbolicMeasure.volume_smul_gl]⟩
 
-theorem measurable_smul_SL (γ : SL(2, ℤ)) : Measurable (fun x : ℍ => γ • x) :=
+private theorem measurable_smul_SL (γ : SL(2, ℤ)) : Measurable (fun x : ℍ => γ • x) :=
   (continuous_const_smul γ).measurable
 
-theorem measurable_smul_GL (g : GL (Fin 2) ℝ) : Measurable (fun x : ℍ => g • x) :=
+private theorem measurable_smul_GL (g : GL (Fin 2) ℝ) : Measurable (fun x : ℍ => g • x) :=
   (continuous_const_smul g).measurable
 
 section weight
 
 variable (Λ : Subgroup SL(2, ℤ))
 
-def splitEquiv : SL(2, ℤ) ≃ (SL(2, ℤ) ⧸ Λ) × Λ where
+private def splitEquiv : SL(2, ℤ) ≃ (SL(2, ℤ) ⧸ Λ) × Λ where
   toFun σ := (QuotientGroup.mk σ, ⟨(QuotientGroup.mk σ : SL(2, ℤ) ⧸ Λ).out⁻¹ * σ, by
     rw [← QuotientGroup.eq]; exact QuotientGroup.out_eq' _⟩)
   invFun x := x.1.out * x.2
@@ -100,36 +105,38 @@ def splitEquiv : SL(2, ℤ) ≃ (SL(2, ℤ) ⧸ Λ) × Λ where
     simp only [hq]
     rw [inv_mul_cancel_left]
 
-theorem tsum_SL_eq (F : SL(2, ℤ) → ℝ≥0∞) :
+private theorem tsum_SL_eq (F : SL(2, ℤ) → ℝ≥0∞) :
     ∑' σ : SL(2, ℤ), F σ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ, F (q.out * (h : SL(2, ℤ))) := by
   rw [← (splitEquiv Λ).symm.tsum_eq, ENNReal.tsum_prod']
   rfl
 
-theorem tsum_SL_inv (F : SL(2, ℤ) → ℝ≥0∞) : ∑' σ : SL(2, ℤ), F σ = ∑' σ : SL(2, ℤ), F σ⁻¹ :=
+private theorem tsum_SL_inv (F : SL(2, ℤ) → ℝ≥0∞) : ∑' σ : SL(2, ℤ), F σ = ∑' σ : SL(2, ℤ), F σ⁻¹ :=
   ((Equiv.inv SL(2, ℤ)).tsum_eq F).symm
 
-theorem tsum_Λ_inv (F : Λ → ℝ≥0∞) : ∑' h : Λ, F h = ∑' h : Λ, F h⁻¹ :=
+private theorem tsum_Λ_inv (F : Λ → ℝ≥0∞) : ∑' h : Λ, F h = ∑' h : Λ, F h⁻¹ :=
   ((Equiv.inv Λ).tsum_eq F).symm
 
 variable [Fintype (SL(2, ℤ) ⧸ Λ)]
 
-def wt (x : ℍ) : ℝ≥0∞ :=
+private def wt (x : ℍ) : ℝ≥0∞ :=
   ∑ q : SL(2, ℤ) ⧸ Λ, (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) ((q.out : SL(2, ℤ)) • x)
 
-theorem measurable_wt : Measurable (wt Λ) := by
+private theorem measurable_wt : Measurable (wt Λ) := by
   refine Finset.measurable_sum _ fun q _ => ?_
   exact (measurable_const.indicator ModularGroup.isClosed_fd.measurableSet).comp
     (measurable_smul_SL _)
 
-theorem indicator_smul (σ : SL(2, ℤ)) (x : ℍ) :
+private theorem indicator_smul (σ : SL(2, ℤ)) (x : ℍ) :
     (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) (σ • x)
       = (σ⁻¹ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x := by
   by_cases h : σ • x ∈ (𝒟 : Set ℍ)
   · rw [Set.indicator_of_mem h, Set.indicator_of_mem (Set.mem_inv_smul_set_iff.mpr h)]
   · rw [Set.indicator_of_notMem h, Set.indicator_of_notMem (fun h' => h (Set.mem_inv_smul_set_iff.mp h'))]
 
-theorem tsum_wt_smul {x : ℍ} (hx : x ∈ FLT.ModularFundamentalDomain.goodSet) :
-    ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x) = 2 := by
+private theorem ae_tsum_wt_smul : ∀ᵐ x : ℍ, ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x) = 2 := by
+  filter_upwards [measure_eq_zero_iff_ae_notMem.mp FLT.ModularFundamentalDomain.volume_compl_goodSet]
+    with x hx
+  have hxmem : x ∈ FLT.ModularFundamentalDomain.goodSet := by simpa using hx
   calc ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x)
       = ∑' h : Λ, ∑' q : SL(2, ℤ) ⧸ Λ,
           (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) ((q.out : SL(2, ℤ)) • (h : SL(2, ℤ)) • x) :=
@@ -146,39 +153,9 @@ theorem tsum_wt_smul {x : ℍ} (hx : x ∈ FLT.ModularFundamentalDomain.goodSet)
         tsum_congr fun σ => indicator_smul σ x
     _ = ∑' σ : SL(2, ℤ), (σ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x := by
         rw [tsum_SL_inv (fun σ => (σ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x)]
-    _ = 2 := FLT.ModularFundamentalDomain.tsum_indicator_smul_fd hx
+    _ = 2 := FLT.ModularFundamentalDomain.tsum_indicator_smul_fd hxmem
 
-theorem ae_tsum_wt_smul : ∀ᵐ x : ℍ, ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x) = 2 := by
-  filter_upwards [measure_eq_zero_iff_ae_notMem.mp FLT.ModularFundamentalDomain.volume_compl_goodSet]
-    with x hx
-  exact tsum_wt_smul Λ (by simpa using hx)
-
-theorem tsum_G_eq (U w : ℍ → ℝ≥0∞) (hUinv : ∀ h ∈ Λ, ∀ x : ℍ, U (h • x) = U x) (x : ℍ)
-    (hwt : ∀ q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ, w ((h : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) = 2) :
-    ∑' σ : SL(2, ℤ), U (σ • x) * w (σ • x)
-      = 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-  calc ∑' σ : SL(2, ℤ), U (σ • x) * w (σ • x)
-      = ∑' σ : SL(2, ℤ), U (σ⁻¹ • x) * w (σ⁻¹ • x) :=
-        tsum_SL_inv (fun σ => U (σ • x) * w (σ • x))
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
-          U (((q.out : SL(2, ℤ)) * h)⁻¹ • x) * w (((q.out : SL(2, ℤ)) * h)⁻¹ • x) :=
-        tsum_SL_eq Λ (fun σ => U (σ⁻¹ • x) * w (σ⁻¹ • x))
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
-          U ((q.out⁻¹ : SL(2, ℤ)) • x) * w (((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) := by
-        refine tsum_congr fun q => tsum_congr fun h => ?_
-        have h1 : ((q.out : SL(2, ℤ)) * h)⁻¹ • x = ((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x := by
-          rw [mul_inv_rev, mul_smul, Subgroup.coe_inv]
-        rw [h1, hUinv _ (h⁻¹).2]
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) *
-          ∑' h : Λ, w (((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) :=
-        tsum_congr fun q => ENNReal.tsum_mul_left
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) * 2 := by
-        refine tsum_congr fun q => ?_
-        rw [← tsum_Λ_inv Λ (fun h => w ((h : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x)), hwt q]
-    _ = 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-        rw [ENNReal.tsum_mul_right, tsum_fintype, mul_comm]
-
-theorem weight_lintegral (U w : ℍ → ℝ≥0∞) (hU : Measurable U) (hw : Measurable w)
+private theorem weight_lintegral (U w : ℍ → ℝ≥0∞) (hU : Measurable U) (hw : Measurable w)
     (hUinv : ∀ h ∈ Λ, ∀ x : ℍ, U (h • x) = U x)
     (hwt : ∀ᵐ x : ℍ, ∑' h : Λ, w ((h : SL(2, ℤ)) • x) = 2) :
     ∫⁻ x, U x * w x = ∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
@@ -199,7 +176,27 @@ theorem weight_lintegral (U w : ℍ → ℝ≥0∞) (hU : Measurable U) (hw : Me
       = ∫⁻ x in (𝒟 : Set ℍ), 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
     refine lintegral_congr_ae (ae_restrict_of_ae ?_)
     filter_upwards [hae] with x hx
-    exact tsum_G_eq Λ U w hUinv x hx
+    calc ∑' σ : SL(2, ℤ), U (σ • x) * w (σ • x)
+        = ∑' σ : SL(2, ℤ), U (σ⁻¹ • x) * w (σ⁻¹ • x) :=
+          tsum_SL_inv (fun σ => U (σ • x) * w (σ • x))
+      _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
+            U (((q.out : SL(2, ℤ)) * h)⁻¹ • x) * w (((q.out : SL(2, ℤ)) * h)⁻¹ • x) :=
+          tsum_SL_eq Λ (fun σ => U (σ⁻¹ • x) * w (σ⁻¹ • x))
+      _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
+            U ((q.out⁻¹ : SL(2, ℤ)) • x) * w (((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) := by
+          refine tsum_congr fun q => tsum_congr fun h => ?_
+          have h1 : ((q.out : SL(2, ℤ)) * h)⁻¹ • x
+              = ((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x := by
+            rw [mul_inv_rev, mul_smul, Subgroup.coe_inv]
+          rw [h1, hUinv _ (h⁻¹).2]
+      _ = ∑' q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) *
+            ∑' h : Λ, w (((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) :=
+          tsum_congr fun q => ENNReal.tsum_mul_left
+      _ = ∑' q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) * 2 := by
+          refine tsum_congr fun q => ?_
+          rw [← tsum_Λ_inv Λ (fun h => w ((h : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x)), hx q]
+      _ = 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
+          rw [ENNReal.tsum_mul_right, tsum_fintype, mul_comm]
   have hmeasS : Measurable fun x : ℍ => ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) :=
     Finset.measurable_sum _ fun q _ =>
       (hU.comp (measurable_smul_SL _) : Measurable fun x => U ((q.out⁻¹ : SL(2, ℤ)) • x))
@@ -218,7 +215,7 @@ section cvn
 
 variable (Λ₁ Λ₂ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ₁)] [Fintype (SL(2, ℤ) ⧸ Λ₂)]
 
-theorem cvn_lintegral (β : GL (Fin 2) ℝ) (c : Λ₁ ≃ Λ₂)
+private theorem cvn_lintegral (β : GL (Fin 2) ℝ) (c : Λ₁ ≃ Λ₂)
     (hc : ∀ h : Λ₁, β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ ((c h : Λ₂) : SL(2, ℤ)) : GL (Fin 2) ℝ) * β)
     (U : ℍ → ℝ≥0∞) (hU : Measurable U) (hUinv : ∀ h ∈ Λ₂, ∀ x : ℍ, U (h • x) = U x) :
@@ -273,7 +270,7 @@ structure Nice (Λ : Subgroup SL(2, ℤ)) (k : ℤ) (H : ℍ → ℂ) : Prop whe
 
 variable {Λ : Subgroup SL(2, ℤ)} {k : ℤ}
 
-theorem Nice.add {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) : Nice Λ k (F + G) := by
+private theorem Nice.add {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) : Nice Λ k (F + G) := by
   obtain ⟨C₁, hC₁⟩ := hF.bdd
   obtain ⟨C₂, hC₂⟩ := hG.bdd
   refine ⟨hF.cont.add hG.cont, ⟨2 * C₁ + 2 * C₂, fun x => ?_⟩, fun h hh => ?_⟩
@@ -307,7 +304,7 @@ theorem Nice.neg {F : ℍ → ℂ} (hF : Nice Λ k F) : Nice Λ k (-F) := by
 theorem Nice.sub {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) : Nice Λ k (F - G) := by
   rw [sub_eq_add_neg]; exact hF.add hG.neg
 
-theorem Nice.zero : Nice Λ k (0 : ℍ → ℂ) :=
+private theorem Nice.zero : Nice Λ k (0 : ℍ → ℂ) :=
   ⟨continuous_const, ⟨0, fun x => by simp [dens]⟩, fun _ _ => SlashAction.zero_slash k _⟩
 
 theorem Nice.sum {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ} (hF : ∀ i, Nice Λ k (F i)) :
@@ -320,19 +317,19 @@ theorem Nice.sum {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ} (hF : ∀
 theorem Nice.mono {Λ' : Subgroup SL(2, ℤ)} {F : ℍ → ℂ} (hF : Nice Λ k F) (h : Λ' ≤ Λ) : Nice Λ' k F :=
   ⟨hF.cont, hF.bdd, fun g hg => hF.inv g (h hg)⟩
 
-theorem Nice.dens_smul {F : ℍ → ℂ} (hF : Nice Λ k F) {h : SL(2, ℤ)} (hh : h ∈ Λ) (x : ℍ) :
+private theorem Nice.dens_smul {F : ℍ → ℂ} (hF : Nice Λ k F) {h : SL(2, ℤ)} (hh : h ∈ Λ) (x : ℍ) :
     dens k F (h • x) = dens k F x := by
   have := UpperHalfPlane.petersson_slash_SL k F F h x
   rw [ModularForm.SL_slash, show ((h : GL (Fin 2) ℝ)) = (Matrix.SpecialLinearGroup.mapGL ℝ h : GL (Fin 2) ℝ)
     from rfl, hF.inv h hh, petersson_self_eq_dens, petersson_self_eq_dens] at this
   exact_mod_cast this.symm
 
-theorem continuous_dens {F : ℍ → ℂ} (hF : Continuous F) : Continuous (dens k F) := by
+private theorem continuous_dens {F : ℍ → ℂ} (hF : Continuous F) : Continuous (dens k F) := by
   unfold dens
   refine ((continuous_norm.comp hF).pow 2).mul ?_
   exact (UpperHalfPlane.continuous_im.zpow₀ k fun x => Or.inl (x.im_pos.ne'))
 
-theorem norm_petersson_le {F G : ℍ → ℂ} (x : ℍ) :
+private theorem norm_petersson_le {F G : ℍ → ℂ} (x : ℍ) :
     ‖UpperHalfPlane.petersson k F G x‖ ≤ (dens k F x + dens k G x) / 2 := by
   unfold UpperHalfPlane.petersson dens
   rw [norm_mul, norm_mul, Complex.norm_conj, Complex.norm_zpow, Complex.norm_real,
@@ -348,7 +345,7 @@ def cosum (g : GL (Fin 2) ℝ) (Φ : ℍ → ℂ) (x : ℍ) : ℂ :=
 def pair (k : ℤ) (F G : ℍ → ℂ) : ℂ :=
   ∫ x in (𝒟 : Set ℍ), cosum Λ 1 (UpperHalfPlane.petersson k F G) x
 
-theorem integrable_cosum {F G : ℍ → ℂ} (hFc : Continuous F) (hGc : Continuous G)
+private theorem integrable_cosum {F G : ℍ → ℂ} (hFc : Continuous F) (hGc : Continuous G)
     (hFb : ∃ C, ∀ x, dens k F x ≤ C) (hGb : ∃ C, ∀ x, dens k G x ≤ C) (g : GL (Fin 2) ℝ) :
     Integrable (cosum Λ g (UpperHalfPlane.petersson k F G)) (volume.restrict (𝒟 : Set ℍ)) := by
   obtain ⟨C₁, hC₁⟩ := hFb
@@ -366,7 +363,7 @@ theorem integrable_cosum {F G : ℍ → ℂ} (hFc : Continuous F) (hGc : Continu
   · exact hC₁ _
   · exact hC₂ _
 
-theorem integral_cosum_self {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) ⧸ Λ₁)] (β : GL (Fin 2) ℝ)
+private theorem integral_cosum_self {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) ⧸ Λ₁)] (β : GL (Fin 2) ℝ)
     (c : Λ₁ ≃ Λ)
     (hc : ∀ h : Λ₁,
       β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
@@ -405,7 +402,7 @@ theorem integral_cosum_self {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) �
     (fun x => ENNReal.ofReal (dens k H x)) hU (fun h hh x => by simp only [hH.dens_smul hh])
   simpa only [one_smul] using this
 
-theorem petersson_polarization (F G : ℍ → ℂ) (x : ℍ) :
+private theorem petersson_polarization (F G : ℍ → ℂ) (x : ℍ) :
     UpperHalfPlane.petersson k F G x
       = (4 : ℂ)⁻¹ * (UpperHalfPlane.petersson k (G + F) (G + F) x
           + Complex.I * UpperHalfPlane.petersson k (G + Complex.I • F) (G + Complex.I • F) x
@@ -418,7 +415,7 @@ theorem petersson_polarization (F G : ℍ → ℂ) (x : ℍ) :
 
 omit [Fintype (SL(2, ℤ) ⧸ Λ)] in
 
-theorem integral_cosum_polar (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')]
+private theorem integral_cosum_polar (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')]
     (g : GL (Fin 2) ℝ) {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) :
     ∫ x in (𝒟 : Set ℍ), cosum Λ' g (UpperHalfPlane.petersson k F G) x
       = (4 : ℂ)⁻¹ * ((∫ x in (𝒟 : Set ℍ), cosum Λ' g (UpperHalfPlane.petersson k (G + F) (G + F)) x)
@@ -637,39 +634,6 @@ section unfold
 variable (hΛΓ : Λ ≤ Γ'') {ι : Type*} (r : ι → SL(2, ℤ)) (hr : ∀ i, r i ∈ Γ'')
   (hex : ∀ γ ∈ Γ'', ∃ i, r i * γ ∈ Λ) (huniq : ∀ i i', r i * (r i')⁻¹ ∈ Λ → i = i')
 
-def eMap (r : ι → SL(2, ℤ)) (x : (SL(2, ℤ) ⧸ Γ'') × ι) : SL(2, ℤ) ⧸ Λ :=
-  QuotientGroup.mk (x.1.out * (r x.2)⁻¹)
-
-include hΛΓ hr hex huniq in
-theorem eMap_bijective : Function.Bijective (eMap (Γ'' := Γ'') (Λ := Λ) r) := by
-  constructor
-  · rintro ⟨q, i⟩ ⟨q', i'⟩ h
-    have hmem : r i * q.out⁻¹ * q'.out * (r i')⁻¹ ∈ Λ := by
-      have := QuotientGroup.eq.mp h
-      simpa [mul_assoc, mul_inv_rev] using this
-    have hqq : q = q' := by
-      have hΓ : q.out⁻¹ * q'.out ∈ Γ'' := by
-        have h1 : (r i)⁻¹ * (r i * q.out⁻¹ * q'.out * (r i')⁻¹) * r i' ∈ Γ'' :=
-          mul_mem (mul_mem (inv_mem (hr i)) (hΛΓ hmem)) (hr i')
-        simpa [mul_assoc] using h1
-      rw [← QuotientGroup.out_eq' q, ← QuotientGroup.out_eq' q']
-      exact QuotientGroup.eq.mpr hΓ
-    subst hqq
-    have : r i * (r i')⁻¹ ∈ Λ := by simpa using hmem
-    rw [huniq i i' this]
-  · intro y
-    set σ := y.out
-    set q : SL(2, ℤ) ⧸ Γ'' := QuotientGroup.mk σ
-    have hγ : q.out⁻¹ * σ ∈ Γ'' := by
-      rw [← QuotientGroup.eq]
-      exact QuotientGroup.out_eq' q
-    obtain ⟨i, hi⟩ := hex _ hγ
-    refine ⟨(q, i), ?_⟩
-    rw [← QuotientGroup.out_eq' y]
-    show QuotientGroup.mk (q.out * (r i)⁻¹) = QuotientGroup.mk σ
-    rw [QuotientGroup.eq]
-    simpa [mul_assoc, mul_inv_rev] using hi
-
 variable [Fintype (SL(2, ℤ) ⧸ Γ'')] [Fintype (SL(2, ℤ) ⧸ Λ)] [Fintype ι]
 
 include hΛΓ hr hex huniq in
@@ -678,33 +642,56 @@ theorem unfold_sum {X : Type*} [AddCommMonoid X] (Φ : ℍ → X)
     (hΦ : ∀ h ∈ Λ, ∀ x : ℍ, Φ (h • x) = Φ x) (τ : ℍ) :
     ∑ q' : SL(2, ℤ) ⧸ Λ, Φ ((q'.out⁻¹ : SL(2, ℤ)) • τ)
       = ∑ q : SL(2, ℤ) ⧸ Γ'', ∑ i, Φ ((r i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
+  let e : (SL(2, ℤ) ⧸ Γ'') × ι → SL(2, ℤ) ⧸ Λ :=
+    fun x => QuotientGroup.mk (x.1.out * (r x.2)⁻¹)
+  have e_bij : Function.Bijective e := by
+    constructor
+    · rintro ⟨q, i⟩ ⟨q', i'⟩ h
+      have hmem : r i * q.out⁻¹ * q'.out * (r i')⁻¹ ∈ Λ := by
+        have := QuotientGroup.eq.mp h
+        simpa [mul_assoc, mul_inv_rev] using this
+      have hqq : q = q' := by
+        have hΓ : q.out⁻¹ * q'.out ∈ Γ'' := by
+          have h1 : (r i)⁻¹ * (r i * q.out⁻¹ * q'.out * (r i')⁻¹) * r i' ∈ Γ'' :=
+            mul_mem (mul_mem (inv_mem (hr i)) (hΛΓ hmem)) (hr i')
+          simpa [mul_assoc] using h1
+        rw [← QuotientGroup.out_eq' q, ← QuotientGroup.out_eq' q']
+        exact QuotientGroup.eq.mpr hΓ
+      subst hqq
+      have : r i * (r i')⁻¹ ∈ Λ := by simpa using hmem
+      rw [huniq i i' this]
+    · intro y
+      set σ := y.out
+      set q : SL(2, ℤ) ⧸ Γ'' := QuotientGroup.mk σ
+      have hγ : q.out⁻¹ * σ ∈ Γ'' := by
+        rw [← QuotientGroup.eq]
+        exact QuotientGroup.out_eq' q
+      obtain ⟨i, hi⟩ := hex _ hγ
+      refine ⟨(q, i), ?_⟩
+      rw [← QuotientGroup.out_eq' y]
+      show QuotientGroup.mk (q.out * (r i)⁻¹) = QuotientGroup.mk σ
+      rw [QuotientGroup.eq]
+      simpa [mul_assoc, mul_inv_rev] using hi
   rw [← Fintype.sum_prod_type']
   symm
-  refine Fintype.sum_bijective (eMap (Γ'' := Γ'') (Λ := Λ) r)
-    (eMap_bijective hΛΓ r hr hex huniq) _ _ fun x => ?_
+  refine Fintype.sum_bijective e e_bij _ _ fun x => ?_
   obtain ⟨h, hh⟩ := QuotientGroup.mk_out_eq_mul Λ (x.1.out * (r x.2)⁻¹)
-  show Φ ((r x.2 * x.1.out⁻¹ : SL(2, ℤ)) • τ) = Φ (((eMap r x).out⁻¹ : SL(2, ℤ)) • τ)
-  rw [eMap, hh, mul_inv_rev, mul_inv_rev, inv_inv, mul_smul ((h : SL(2, ℤ))⁻¹) (r x.2 * x.1.out⁻¹) τ,
-    hΦ _ (inv_mem h.2)]
+  show Φ ((r x.2 * x.1.out⁻¹ : SL(2, ℤ)) • τ) = Φ (((e x).out⁻¹ : SL(2, ℤ)) • τ)
+  rw [show e x = QuotientGroup.mk (x.1.out * (r x.2)⁻¹) from rfl, hh, mul_inv_rev, mul_inv_rev,
+    inv_inv, mul_smul ((h : SL(2, ℤ))⁻¹) (r x.2 * x.1.out⁻¹) τ, hΦ _ (inv_mem h.2)]
 
 end unfold
 
 variable [Fintype (SL(2, ℤ) ⧸ Γ'')] [Fintype (SL(2, ℤ) ⧸ Λ)]
 
-theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
+/-- A pointwise summand invariant under the overgroup: the `Λ`-coset sum is `[Γ'' : Λ]` times
+the `Γ''`-coset sum. -/
+private theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
     (hΦ : ∀ h ∈ Γ'', ∀ x : ℍ, Φ (h • x) = Φ x) (τ : ℍ) :
     cosum Λ 1 Φ τ = (Λ.relIndex Γ'' : ℂ) * cosum Γ'' 1 Φ τ := by
 
-  have hne : (Λ.subgroupOf Γ'').index ≠ 0 := by
-    have h := Subgroup.relIndex_mul_index hle
-    intro h0
-    rw [Subgroup.relIndex, h0, zero_mul] at h
-    have hΛ : Λ.index ≠ 0 := by
-      rw [Subgroup.index_eq_card, Nat.card_eq_fintype_card]; exact Fintype.card_ne_zero
-    exact hΛ h.symm
-  have : (Λ.subgroupOf Γ'').FiniteIndex := ⟨hne⟩
-  have : Finite (Γ'' ⧸ Λ.subgroupOf Γ'') := Subgroup.finite_quotient_of_finiteIndex
-  let : Fintype (Γ'' ⧸ Λ.subgroupOf Γ'') := Fintype.ofFinite _
+  have : Λ.FiniteIndex := Subgroup.finiteIndex_of_finite_quotient
+  let : Fintype (Γ'' ⧸ Λ.subgroupOf Γ'') := Subgroup.fintypeQuotientOfFiniteIndex
   set r : (Γ'' ⧸ Λ.subgroupOf Γ'') → SL(2, ℤ) := fun i => ((i.out : Γ'') : SL(2, ℤ))⁻¹ with hr
   have hr' : ∀ i, r i ∈ Γ'' := fun i => inv_mem (i.out).2
   have hex : ∀ γ ∈ Γ'', ∃ i, r i * γ ∈ Λ := by
@@ -730,6 +717,8 @@ theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
   congr 1
   rw [Subgroup.relIndex, Subgroup.index_eq_card, Nat.card_eq_fintype_card]
 
+/-- The pairing sees the level only through its index: averaging the `Γ''`-invariant pairing over
+the finer coset space `SL(2, ℤ) ⧸ Λ` multiplies it by `[Γ'' : Λ]`. -/
 theorem pair_eq_relIndex_mul (hle : Λ ≤ Γ'') {k : ℤ} {F G : ℍ → ℂ} (hF : Nice Γ'' k F) (hG : Nice Γ'' k G) :
     pair Λ k F G = (Λ.relIndex Γ'' : ℂ) * pair Γ'' k F G := by
   unfold pair
@@ -749,6 +738,8 @@ section indexeq
 
 variable (Λ₁ Λ₂ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ₁)] [Fintype (SL(2, ℤ) ⧸ Λ₂)]
 
+/-- Conjugate lattices have equal index: an index is a covolume ratio, and conjugation by any
+`GL(2, ℝ)`-element preserves the covolume. -/
 theorem card_quotient_eq_of_conj (β : GL (Fin 2) ℝ) (c : Λ₁ ≃ Λ₂)
     (hc : ∀ h : Λ₁, β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ ((c h : Λ₂) : SL(2, ℤ)) : GL (Fin 2) ℝ) * β) :

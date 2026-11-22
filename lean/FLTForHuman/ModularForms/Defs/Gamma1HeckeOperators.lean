@@ -20,6 +20,7 @@
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Topology.Compactification.OnePoint.ProjectiveLine
+import Mathlib.NumberTheory.DirichletCharacter.Basic
 import FLTForHuman.ModularForms.Defs.HeckeOperator
 import FLTForHuman.ModularForms.Defs.HeckeRepresentatives
 import FLTForHuman.ModularForms.Level.Diamond
@@ -242,6 +243,12 @@ theorem heckeTLinOne_apply_apply (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) (f : 
   rfl
 
 end Hecke
+
+/-- The `ε`-twisted Hecke operator on functions,
+`T_p f = U_p f + ε(p) • (f ∣[k] heckeDiagMatrix p)`.  On a form of nebentypus `ε` the
+diamond `⟨p⟩` acts through `ε(p)`, so this is the diamond-twisted `T_p` (`heckeTOne`). -/
+def heckeFun {N : ℕ} (k : ℤ) (ε : DirichletCharacter ℂ N) (p : ℕ) (F : ℍ → ℂ) : ℍ → ℂ :=
+  heckeU k p F + ε (p : ZMod N) • (F ∣[k] heckeDiagMatrix p)
 
 end CuspForm
 

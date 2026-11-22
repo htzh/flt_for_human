@@ -1,48 +1,35 @@
 /-
   The simultaneous eigenbasis of the nebentypus and the Hecke operators on `Γ₁(N)`.
 
-  * `ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0`: the Hecke operator
-    `T_p f = heckeU k p f + ε(p) • (f ∣[k] heckeDiagMatrix p)` preserves the weight-`k` nebentypus law
-    on `Γ₀(N)` — the operator acts on the `ε`-eigenspace.  The proof reduces `T_p` to the double coset
-    sum over the `p + 1` representatives (`heckeRep`, `sum_eq`), then computes the `Γ₀(N)`-cocycle by
-    the lift `lift`/`redMatrix` and the diamond `exists_diamondLift` (`σ ∈ Γ₀(N)` with
-    `σ 1 1 ≡ p`).
   * `CuspForm.exists_basis_hasNebentypus_qCoeff_hecke_eigen`: the space of `Γ₁(N)`-cusp forms of
-    weight `k` has a basis of forms that are simultaneously eigenforms for the nebentypus and for every
-    `T_p` with `p ∤ N` — the `ε`-eigenspaces `nebSpace` are finite dimensional and invariant under the
-    pairwise-commuting `T_p` (`heckeLin_comm`), the Petersson product is positive definite on them
-    (the ported `peterssonOn_self_re_nonneg_im_eq_zero_eq_zero_iff`), so the commuting family
+    weight `k` has a basis of forms that are simultaneously eigenforms for the nebentypus and for
+    every `T_p` with `p ∤ N`.  The `ε`-eigenspaces `nebSpace` are finite dimensional and invariant
+    under the pairwise-commuting `T_p` (`heckeT_comm`), the Petersson product is positive definite
+    on them (`peterssonOn_self_re_nonneg_im_eq_zero_eq_zero_iff`), so the commuting family
     `heckeFamily` is simultaneously diagonalizable (`span_eigen_eq_top`).
 
-  Transcribed from the pin's proof files (pinned `aa2d8b3`)
-  `P2M/Sol/S_ModularForm_heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0.lean` (406 lines,
-  37 declarations) and `P2M/Sol/S_CuspForm_exists_basis_hasNebentypus_qCoeff_hecke_eigen.lean` (864
-  lines, 81 declarations), with the statements from the wrappers of the same names.  Both pin label
-  namespaces are word names and are kept: `ModularForm.HeckeNebentypus` and `SimulEigen`/`SSbasis`.
-  The first file's prelude is not re-declared: the `Γ₁`/representative vocabulary (`wt`, `lift`,
-  `isUnit_wt`, `d_mul`, `det_mod`, `mem_Gamma1_of_d_eq_one`) is `ModularForm.Level`'s, and
-  `heckeRep`/`redMatrix`/`heckeRep_mul` with the matrix and reindexing lemmas are
-  `ModularForm.HeckeRepresentatives`'s.  What the pin writes out because it has no shared module, and
-  what is genuinely new here, is the `ε`-eigenspace computation: `sum_eq`, `σ_mapGL`/`σ_heckeRep`,
-  `sum_slash_mapGL` and `exists_diamondLift`.
-  The second file's prelude is imported for the same reason: `ModularForm`'s
-  `heckeDiagMatrix_mul_T`/`periodic_of_slash_T`/`slash_heckeDiagMatrix_slash_T`/
-  `isBoundedAtImInfty_slash_heckeDiagMatrix`, `ModularForm.Level`'s `conj_mem_Gamma1`, and
-  `CuspForm.HeckeEigenNebentypus`'s
-  `dd`/`dd_mul`/`isUnit_dd`/`mem_Gamma1_iff_dd`/`inv_mul_mem_Gamma1`/`T_mem_Gamma1`.  What stays
-  local is the `Γ₁(N)`-indexed `SSbasis` layer itself: `diamond`, `nebSpace`, `proj`, the
-  `heckeForm`/`heckeLin` operators, the coefficient recursion `cT`, `B`/`heckeFamily` and the
-  assembly.
+  The operator itself is not re-developed here.  `T_p` on `Γ₁(N)` is the diamond-twisted
+  `heckeTOne` of `ModularForms/Defs/Gamma1HeckeOperators.lean`, whose `ε`-view is the shared
+  `CuspForm.heckeFun`; `T_p` is `Γ₀(N)`-equivariant (`heckeTLinOne_slashOfMemGamma0`), so on the
+  `ε`-eigenspace it is `ε`-linear (`heckeTOne_slash`), and `heckeT` is its restriction to `nebSpace`.  What is
+  local here is the `Γ₁(N)`-indexed `SSbasis` layer — the nebentypus projection `proj`, `nebSpace`,
+  `heckeT`, the coefficient recursion `cT`, `B`/`heckeFamily`, and the
+  eigenbasis assembly — together with the generic simultaneous-diagonalization statement
+  `SimulEigen.IsPosDefHerm.span_common_eigen`.
 
-  Assumes from earlier modules: `ModularForms/Analytic/HeckeEigenvalueConj.lean` (the Petersson pair),
-  `ModularForms/Defs/HeckeRepresentatives.lean` (the coset representatives),
+  Assumes from earlier modules: `ModularForms/Analytic/HeckeEigenvalueConj.lean` (the Petersson
+  pair), `ModularForms/HeckeTLinOneQCoeff.lean` (the coefficient law and the `Γ₀`-equivariance of
+  `T_ℓ`), `ModularForms/Defs/HeckeRepresentatives.lean` (the coset representatives),
   `ModularForms/HeckeEigenNebentypus.lean` (the `dd` vocabulary, hence `Γ₁(N) = ker dd`),
   `ModularForms/{HeckePrelude,HeckeQCoeff,HeckeAnalytic,HeckeCusps}.lean` (the `T`-periodicity, the
   `q`-coefficient action, the analyticity and cusp vocabulary) and `ModularForms/SturmBound.lean`
   (`finiteDimensional_of_isArithmetic`).
 
-  spec-pin: Theorems/Thm_ModularForm_heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0.lean
-  spec-pin: P2M/Sol/S_ModularForm_heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0.lean
+  The invariance half of the pin — `heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0`
+  and its `S_` file — is stated here for the diamond-twisted `T_p` (`heckeTOne_slash`) rather than
+  for `U_p + ε(p) • (· ∣[k] diag p)`, so its wire is port-owned and carried by
+  `Reserve/ModularForms/PortOwnedSpecPins.lean`; this header wires the eigenbasis pair only.
+
   spec-pin: Theorems/Thm_CuspForm_exists_basis_hasNebentypus_qCoeff_hecke_eigen.lean
   spec-pin: P2M/Sol/S_CuspForm_exists_basis_hasNebentypus_qCoeff_hecke_eigen.lean
 -/
@@ -50,6 +37,7 @@ import FLTForHuman.ModularForms.Analytic.HeckeEigenvalueConj
 import FLTForHuman.ModularForms.Defs.HeckeRepresentatives
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import FLTForHuman.ModularForms.HeckePrelude
+import FLTForHuman.ModularForms.HeckeTLinOneQCoeff
 import FLTForHuman.ModularForms.HeckeQCoeff
 import FLTForHuman.ModularForms.HeckeAnalytic
 import FLTForHuman.ModularForms.Gamma1CuspStructure
@@ -69,116 +57,7 @@ noncomputable section
 
 open Matrix.SpecialLinearGroup UpperHalfPlane
 open MatrixGroups ModularForm OnePoint
-namespace ModularForm
-open ModularForm
-namespace HeckeNebentypus
-
-open ModularForm.Level ModularForm.HeckeRepresentatives
-
-section heckeT
-
-variable {p : ℕ} [Fact p.Prime]
-
-variable {N : ℕ} (k : ℤ)
-
-theorem sum_eq (f : ℍ → ℂ) (σ : SL(2, ℤ)) :
-    heckeU k p f + (f ∣[k] mapGL ℝ σ) ∣[k] heckeDiagMatrix p
-      = ∑ x : OnePoint (ZMod p), f ∣[k] (mapGL ℝ (lift σ x) * heckeRep p x) := by
-  rw [heckeU_eq_sum_zmod, add_comm, ← SlashAction.slash_mul]
-  refine Eq.trans ?_
-    (Fintype.sum_option (fun x : OnePoint (ZMod p) ↦ f ∣[k] (mapGL ℝ (lift σ x) * heckeRep p x))).symm
-  congr 1
-  refine Finset.sum_congr rfl fun j _ => ?_
-  change f ∣[k] heckeMatrix p j.val = f ∣[k] (mapGL ℝ (lift σ (j : OnePoint (ZMod p))) * heckeRep p j)
-  rw [lift_coe, map_one, one_mul, heckeRep_coe]
-
-theorem σ_mapGL (γ : SL(2, ℤ)) (c : ℂ) : UpperHalfPlane.σ (mapGL ℝ γ : GL (Fin 2) ℝ) c = c := by
-  rw [UpperHalfPlane.σ, ite_eq_left (by simp)]
-  rfl
-
-omit [Fact p.Prime] in
-theorem σ_heckeRep (x : OnePoint (ZMod p)) (c : ℂ) : UpperHalfPlane.σ (heckeRep p x) c = c := by
-  induction x using OnePoint.rec with
-  | infty => rw [heckeRep_infty, σ_heckeDiagMatrix]; rfl
-  | coe j => rw [heckeRep_coe, σ_heckeMatrix]; rfl
-
-theorem sum_slash_mapGL (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N) (f : ℍ → ℂ)
-    (hf : ∀ γ : SL(2, ℤ), γ ∈ CongruenceSubgroup.Gamma0 N →
-      f ∣[k] (mapGL ℝ γ) = ε ((γ 1 1 : ℤ) : ZMod N) • f)
-    (σ : SL(2, ℤ)) (hσ : σ ∈ CongruenceSubgroup.Gamma0 N) (hσp : ((σ 1 1 : ℤ) : ZMod N) = p)
-    (g : SL(2, ℤ)) (hg : g ∈ CongruenceSubgroup.Gamma0 N) :
-    (∑ x : OnePoint (ZMod p), f ∣[k] (mapGL ℝ (lift σ x) * heckeRep p x)) ∣[k] (mapGL ℝ g)
-      = ε ((g 1 1 : ℤ) : ZMod N) • ∑ x : OnePoint (ZMod p), f ∣[k] (mapGL ℝ (lift σ x) * heckeRep p x) := by
-  rw [SlashAction.sum_slash]
-  calc ∑ x : OnePoint (ZMod p), (f ∣[k] (mapGL ℝ (lift σ x) * heckeRep p x)) ∣[k] mapGL ℝ g
-      = ∑ x : OnePoint (ZMod p), ε ((g 1 1 : ℤ) : ZMod N) • f ∣[k] (mapGL ℝ (lift σ (redMatrix p g • x))
-          * heckeRep p (redMatrix p g • x)) := by
-        refine Finset.sum_congr rfl fun x _ ↦ ?_
-        obtain ⟨g', hg', hd', hmul⟩ := Gamma1Hecke.heckeRep_mul hpN g hg x
-        have hg'N : g' ∈ CongruenceSubgroup.Gamma0 N :=
-          CongruenceSubgroup.Gamma0_mem.mpr ((ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr hg')
-        set D : SL(2, ℤ) := lift σ x * g' * (lift σ (redMatrix p g • x))⁻¹ with hD
-        have hDmem0 : D ∈ CongruenceSubgroup.Gamma0 N :=
-          mul_mem (mul_mem (lift_mem σ hσ x) hg'N) (inv_mem (lift_mem σ hσ _))
-        have hDd : ((D 1 1 : ℤ) : ZMod N) = ((g 1 1 : ℤ) : ZMod N) := by
-          have hprod : D * lift σ (redMatrix p g • x) = lift σ x * g' := by
-            rw [hD, inv_mul_cancel_right]
-          have h1 := congrArg (fun γ : SL(2, ℤ) => ((γ 1 1 : ℤ) : ZMod N)) hprod
-          rw [d_mul hDmem0 (lift_mem σ hσ _), d_mul (lift_mem σ hσ x) hg'N,
-            lift_apply_one_one σ hσp, lift_apply_one_one σ hσp, mul_comm (wt N p x), hd'] at h1
-          have hu : IsUnit (wt N p (redMatrix p g • x)) := isUnit_wt hpN _
-          exact hu.mul_left_injective h1
-        have hfactor : mapGL ℝ (lift σ x) * heckeRep p x * mapGL ℝ g
-            = mapGL ℝ D * (mapGL ℝ (lift σ (redMatrix p g • x)) * heckeRep p (redMatrix p g • x)) := by
-          rw [mul_assoc, hmul, ← mul_assoc, ← map_mul, hD, ← mul_assoc, ← map_mul,
-            inv_mul_cancel_right]
-        rw [← SlashAction.slash_mul, hfactor, SlashAction.slash_mul, hf D hDmem0, hDd,
-          ModularForm.smul_slash, UpperHalfPlane.σ_mul, σ_mapGL, σ_heckeRep]
-    _ = ε ((g 1 1 : ℤ) : ZMod N) • ∑ x : OnePoint (ZMod p), f ∣[k] (mapGL ℝ (lift σ x) * heckeRep p x) := by
-        rw [← Finset.smul_sum]
-        congr 1
-        exact Equiv.sum_comp (MulAction.toPerm (redMatrix p g))
-          (fun x ↦ f ∣[k] (mapGL ℝ (lift σ x) * heckeRep p x))
-
-theorem exists_diamondLift (hpN : ¬ p ∣ N) :
-    ∃ σ : SL(2, ℤ), σ ∈ CongruenceSubgroup.Gamma0 N ∧ ((σ 1 1 : ℤ) : ZMod N) = p := by
-  have hcop : Nat.Coprime p N := (Nat.Prime.coprime_iff_not_dvd Fact.out).mpr hpN
-  obtain ⟨u, v, huv⟩ : IsCoprime (p : ℤ) (N : ℤ) := Nat.isCoprime_iff_coprime.mpr hcop
-  let σ : SL(2, ℤ) := ⟨!![u, -v; (N : ℤ), (p : ℤ)], by
-    rw [Matrix.det_fin_two_of]; linear_combination huv⟩
-  refine ⟨σ, ?_, ?_⟩
-  · rw [CongruenceSubgroup.Gamma0_mem]
-    dsimp only [σ]
-    simp
-  · dsimp only [σ]
-    simp
-
-end heckeT
-
-end HeckeNebentypus
-end ModularForm
-
-open CongruenceSubgroup ModularForm
-open scoped ModularForm UpperHalfPlane MatrixGroups
-
-theorem ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0
-    {N : ℕ} (k : ℤ) {p : ℕ} (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
-    {f : ℍ → ℂ}
-    (hf : ∀ γ : SL(2, ℤ), γ ∈ Gamma0 N →
-      f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ) = ε ((γ 1 1 : ℤ) : ZMod N) • f)
-    (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
-    (heckeU k p f + ε (p : ZMod N) • (f ∣[k] heckeDiagMatrix p)) ∣[k]
-        (Matrix.SpecialLinearGroup.mapGL ℝ γ)
-      = ε ((γ 1 1 : ℤ) : ZMod N) • (heckeU k p f + ε (p : ZMod N) • (f ∣[k] heckeDiagMatrix p)) := by
-  have : Fact p.Prime := ⟨hp⟩
-  obtain ⟨σ, hσ, hσp⟩ := ModularForm.HeckeNebentypus.exists_diamondLift (p := p) hpN
-  have hrew : ε (p : ZMod N) • (f ∣[k] ModularForm.heckeDiagMatrix p)
-      = (f ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ)) ∣[k] ModularForm.heckeDiagMatrix p := by
-    rw [hf σ hσ, hσp, ModularForm.smul_slash, ModularForm.σ_heckeDiagMatrix]
-    rfl
-  rw [hrew, ModularForm.HeckeNebentypus.sum_eq k f σ]
-  exact ModularForm.HeckeNebentypus.sum_slash_mapGL k hpN ε f hf σ hσ hσp γ hγ
-
+open CuspForm (heckeFun heckeTOne)
 open CongruenceSubgroup ModularForm UpperHalfPlane Filter Function
 open scoped ModularForm UpperHalfPlane MatrixGroups ComplexConjugate
 
@@ -327,43 +206,6 @@ section Diamond
 
 variable [NeZero N] {k : ℤ}
 
-def diamond (σ : SL(2, ℤ)) (hσ : σ ∈ Gamma0 N) : CuspForm Γ₁(N) k →ₗ[ℂ] CuspForm Γ₁(N) k where
-  toFun g :=
-    { toFun := (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ)
-      slash_action_eq' := by
-        intro A hA
-        obtain ⟨γ, hγ, rfl⟩ := hA
-        change ((⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ)) ∣[k]
-          (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) = _
-        rw [← SlashAction.slash_mul, ← map_mul,
-          show σ * γ = (σ * γ * σ⁻¹) * σ by rw [inv_mul_cancel_right], map_mul,
-          SlashAction.slash_mul, slash_mem g (ModularForm.Level.conj_mem_Gamma1 hσ hγ)]
-      holo' := (CuspFormClass.holo g).slash k _
-      zero_at_cusps' := by
-        intro c hc A hA
-        have hσSL : (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨σ, rfl⟩
-        have hc' : IsCusp ((Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ) • c) Γ₁(N) := by
-          rw [Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z] at hc ⊢
-          exact hc.smul_of_mem hσSL
-        have := (OnePoint.IsZeroAt.smul_iff (g := (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ))
-          (c := c) (f := (⇑g : ℍ → ℂ)) (k := k)).mp (CuspFormClass.zero_at_cusps g hc')
-        exact this A hA }
-  map_add' g h := by
-    apply DFunLike.coe_injective
-    change ((⇑(g + h) : ℍ → ℂ)) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ)
-      = (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ)
-        + (⇑h : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ)
-    rw [FunLike.coe_add, SlashAction.add_slash]
-  map_smul' c g := by
-    apply DFunLike.coe_injective
-    change ((⇑(c • g) : ℍ → ℂ)) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ)
-      = c • ((⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ))
-    rw [FunLike.coe_smul, ← sl_slash, ModularForm.SL_smul_slash, sl_slash]
-
-theorem coe_diamond (σ : SL(2, ℤ)) (hσ : σ ∈ Gamma0 N) (g : CuspForm Γ₁(N) k) :
-    (⇑(diamond σ hσ g) : ℍ → ℂ)
-      = (⇑g : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ σ : GL (Fin 2) ℝ) := rfl
-
 def nebSpace (N : ℕ) [NeZero N] (k : ℤ) (ε : DirichletCharacter ℂ N) :
     Submodule ℂ (CuspForm Γ₁(N) k) where
   carrier := {g | CuspForm.HasNebentypus ε g}
@@ -394,7 +236,8 @@ theorem dd_lift (u : (ZMod N)ˣ) : dd (N := N) (lift u) = (u : ZMod N) :=
   (exists_lift (N := N) u).choose_spec.2
 
 def proj (ε : DirichletCharacter ℂ N) (g : CuspForm Γ₁(N) k) : CuspForm Γ₁(N) k :=
-  ((N.totient : ℂ))⁻¹ • ∑ u : (ZMod N)ˣ, ε ((u⁻¹ : (ZMod N)ˣ) : ZMod N) • diamond (lift u) (lift_mem u) g
+  ((N.totient : ℂ))⁻¹ • ∑ u : (ZMod N)ˣ, ε ((u⁻¹ : (ZMod N)ˣ) : ZMod N) •
+    ModularForm.Level.slashLinOfMemGamma0 N k (lift_mem u) g
 
 omit [NeZero N] in
 theorem coe_sum {ι : Type*} (s : Finset ι) (F : ι → CuspForm Γ₁(N) k) :
@@ -481,82 +324,74 @@ theorem σ_heckeDiagMatrix_apply (p : ℕ) (c : ℂ) : UpperHalfPlane.σ (heckeD
 
 end Periodicity
 
+/-- The primes at which `T_p` is defined on `Γ₁(N)`: prime and coprime to the level. -/
+abbrev GoodPrime (N : ℕ) : Type := {p : ℕ // p.Prime ∧ ¬ p ∣ N}
+
 section Hecke
 
 variable [NeZero N] {k : ℤ} {p : ℕ}
 
-def heckeFun (k : ℤ) (ε : DirichletCharacter ℂ N) (p : ℕ) (F : ℍ → ℂ) : ℍ → ℂ :=
-  heckeU k p F + ε (p : ZMod N) • (F ∣[k] heckeDiagMatrix p)
+omit [NeZero N] in
+/-- The diamond-twisted `T_p` is `Γ₀(N)`-equivariant, so on a form of nebentypus `ε` it is
+`ε`-linear: `T_p` preserves the `ε`-eigenspace. -/
+theorem heckeTOne_slash (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
+    (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
+    (⇑(heckeTOne k hp hpN f) : ℍ → ℂ) ∣[k]
+        (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ)
+      = ε (dd γ) • ⇑(heckeTOne k hp hpN f) := by
+  have hsl : ModularForm.Level.slashOfMemGamma0 N k hγ f = ε (dd γ) • f := by
+    ext τ
+    rw [ModularForm.Level.coe_slashOfMemGamma0, (CuspForm.hasNebentypus_iff ε f).mp hf γ hγ]
+    rfl
+  calc (⇑(heckeTOne k hp hpN f) : ℍ → ℂ) ∣[k]
+        (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ)
+      = ⇑(ModularForm.Level.slashOfMemGamma0 N k hγ
+          (CuspForm.heckeTLinOne k hp hpN f)) :=
+        (ModularForm.Level.coe_slashOfMemGamma0 N k hγ _).symm
+    _ = ⇑(CuspForm.heckeTLinOne k hp hpN
+          (ModularForm.Level.slashOfMemGamma0 N k hγ f)) := by
+        rw [← CuspForm.heckeTLinOne_slashOfMemGamma0 k hp hpN hγ f]
+    _ = ⇑(CuspForm.heckeTLinOne k hp hpN (ε (dd γ) • f)) := by rw [hsl]
+    _ = ε (dd γ) • ⇑(CuspForm.heckeTLinOne k hp hpN f) := by
+        rw [LinearMap.map_smul, FunLike.coe_smul]
+    _ = ε (dd γ) • ⇑(heckeTOne k hp hpN f) := rfl
 
 omit [NeZero N] in
-theorem heckeFun_add (ε : DirichletCharacter ℂ N) (F G : ℍ → ℂ) :
-    heckeFun k ε p (F + G) = heckeFun k ε p F + heckeFun k ε p G := by
-  simp only [heckeFun, heckeU_add, SlashAction.add_slash, smul_add]
-  abel
-
-omit [NeZero N] in
-theorem heckeFun_smul (ε : DirichletCharacter ℂ N) (c : ℂ) (F : ℍ → ℂ) :
-    heckeFun k ε p (c • F) = c • heckeFun k ε p F := by
-  simp only [heckeFun, heckeU_smul, ModularForm.smul_slash, σ_heckeDiagMatrix_apply, smul_add,
-    smul_comm c]
-
-def heckeForm (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N) (f : CuspForm Γ₁(N) k)
-    (hf : CuspForm.HasNebentypus ε f) : CuspForm Γ₁(N) k where
-  toFun := heckeFun k ε p ⇑f
-  slash_action_eq' := by
-    intro A hA
-    obtain ⟨γ, hγ, rfl⟩ := hA
-    have h := ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0 k hp hpN ε
-      ((CuspForm.hasNebentypus_iff ε f).mp hf) γ (Gamma1_in_Gamma0 N hγ)
-    change (heckeFun k ε p ⇑f) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) = _
-    rw [heckeFun, h, show ((γ 1 1 : ℤ) : ZMod N) = 1 from dd_eq_one_of_mem_Gamma1 hγ, map_one,
-      one_smul]
-  holo' := (ModularForm.mdifferentiable_heckeU (CuspFormClass.holo f) k p).add
-    (((CuspFormClass.holo f).slash k _).const_smul _)
-  zero_at_cusps' := by
-    intro c hc A hA
-    have hU := CuspFormClass.isZeroAt_heckeU f p hc A hA
-    have hT := CuspFormClass.isZeroAt_heckeT f p hc A hA
-    have hD : IsZeroAtImInfty (((⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix p) ∣[k] A) := by
-      have : (⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix p = heckeT k p ⇑f - heckeU k p ⇑f := by
-        rw [heckeT_eq_heckeU_add]; abel
-      rw [this, sub_eq_add_neg, SlashAction.add_slash, SlashAction.neg_slash]
-      exact hT.add hU.neg
-    change IsZeroAtImInfty ((heckeFun k ε p ⇑f) ∣[k] A)
-    rw [heckeFun, SlashAction.add_slash, ModularForm.smul_slash]
-    exact hU.add (hD.smul _)
-
-theorem coe_heckeForm (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
+/-- On a form of nebentypus `ε` the diamond `⟨p⟩` acts by `ε(p)`, so the diamond-twisted
+`T_p` is `U_p + ε(p) • (· ∣[k] heckeDiagMatrix p)` there. -/
+theorem coe_heckeTOne_nebentypus (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) :
-    (⇑(heckeForm hp hpN ε f hf) : ℍ → ℂ) = heckeFun k ε p ⇑f := rfl
+    (⇑(heckeTOne k hp hpN f) : ℍ → ℂ) = heckeFun k ε p ⇑f := by
+  obtain ⟨σ, hσ⟩ := ModularForm.Level.exists_isDiamondLift_of_coprime (M := N)
+    ((Nat.Prime.coprime_iff_not_dvd hp).2 hpN)
+  rw [CuspForm.coe_heckeTOne, ModularForm.Level.coe_diamondLinOne_apply hσ]
+  simp only [heckeFun]
+  congr 1
+  rw [(CuspForm.hasNebentypus_iff ε f).mp hf σ hσ.1, hσ.2]
+  simp only [ModularForm.smul_slash, ModularForm.σ_heckeDiagMatrix,
+    ContinuousAlgEquiv.refl_apply]
 
-theorem heckeForm_mem (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
+theorem heckeTOne_mem (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) :
-    heckeForm hp hpN ε f hf ∈ nebSpace N k ε := by
+    heckeTOne k hp hpN f ∈ nebSpace N k ε := by
   rw [mem_nebSpace, CuspForm.hasNebentypus_iff]
-  intro γ hγ
-  rw [coe_heckeForm]
-  exact ModularForm.heckeU_add_smul_slash_heckeDiagMatrix_slash_of_mem_Gamma0 k hp hpN ε
-    ((CuspForm.hasNebentypus_iff ε f).mp hf) γ hγ
+  exact fun γ hγ => heckeTOne_slash hp hpN ε f hf hγ
 
-def heckeLin (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N) :
+/-- The Hecke operator `T_p` on the `ε`-eigenspace. -/
+def heckeT (ε : DirichletCharacter ℂ N) (i : GoodPrime N) :
     nebSpace N k ε →ₗ[ℂ] nebSpace N k ε where
-  toFun f := ⟨heckeForm hp hpN ε f.1 f.2, heckeForm_mem hp hpN ε f.1 f.2⟩
+  toFun f := ⟨heckeTOne k i.2.1 i.2.2 f.1, heckeTOne_mem i.2.1 i.2.2 ε f.1 f.2⟩
   map_add' f g := by
     apply Subtype.ext
-    apply DFunLike.coe_injective
-    change heckeFun k ε p ⇑(f.1 + g.1) = heckeFun k ε p ⇑f.1 + heckeFun k ε p ⇑g.1
-    rw [FunLike.coe_add, heckeFun_add]
+    exact map_add (CuspForm.heckeTLinOne k i.2.1 i.2.2) (f : CuspForm Γ₁(N) k) g
   map_smul' c f := by
     apply Subtype.ext
-    apply DFunLike.coe_injective
-    change heckeFun k ε p ⇑(c • f.1) = c • heckeFun k ε p ⇑f.1
-    rw [FunLike.coe_smul, heckeFun_smul]
+    exact map_smul (CuspForm.heckeTLinOne k i.2.1 i.2.2) c (f : CuspForm Γ₁(N) k)
 
-theorem coe_heckeLin (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
-    (f : nebSpace N k ε) :
-    (⇑((heckeLin hp hpN ε f : nebSpace N k ε) : CuspForm Γ₁(N) k) : ℍ → ℂ) = heckeFun k ε p ⇑(f : CuspForm Γ₁(N) k) :=
-  rfl
+theorem coe_heckeT (ε : DirichletCharacter ℂ N) (i : GoodPrime N) (f : nebSpace N k ε) :
+    (⇑((heckeT ε i f : nebSpace N k ε) : CuspForm Γ₁(N) k) : ℍ → ℂ)
+      = heckeFun k ε i.1 ⇑(f : CuspForm Γ₁(N) k) :=
+  coe_heckeTOne_nebentypus i.2.1 i.2.2 ε (f : CuspForm Γ₁(N) k) f.2
 
 theorem reg_coe (g : CuspForm Γ₁(N) k) : HasQCoeff (⇑g : ℍ → ℂ) :=
   hasSum_qCoeff (ModularForm.periodic_of_slash_T (slash_mem g (T_mem_Gamma1 N))) (CuspFormClass.holo g)
@@ -663,28 +498,38 @@ theorem qCoeff_heckeFun' (hp : p.Prime) (ε : DirichletCharacter ℂ N)
   funext n
   rw [qCoeff_heckeFun hp ε f n, cT]
 
-theorem heckeLin_comm {q : ℕ} (hp : p.Prime) (hpN : ¬ p ∣ N) (hq : q.Prime) (hqN : ¬ q ∣ N)
-    (ε : DirichletCharacter ℂ N) :
-    Commute (heckeLin (k := k) hp hpN ε) (heckeLin hq hqN ε) := by
-  rcases eq_or_ne p q with rfl | hpq
+/-- The `T_p` for distinct good primes commute. -/
+theorem heckeT_comm (ε : DirichletCharacter ℂ N) (i j : GoodPrime N) :
+    Commute (heckeT (k := k) ε i) (heckeT ε j) := by
+  rcases eq_or_ne i j with rfl | hij
   · exact Commute.refl _
+  have hpq : i.1 ≠ j.1 := fun h => hij (Subtype.ext h)
   refine LinearMap.ext fun f => ?_
   apply Subtype.ext
   apply DFunLike.coe_injective
-  change heckeFun k ε p ⇑((heckeLin hq hqN ε f : nebSpace N k ε) : CuspForm Γ₁(N) k)
-    = heckeFun k ε q ⇑((heckeLin hp hpN ε f : nebSpace N k ε) : CuspForm Γ₁(N) k)
-  set g₁ : CuspForm Γ₁(N) k := ((heckeLin hq hqN ε f : nebSpace N k ε) : CuspForm Γ₁(N) k)
-  set g₂ : CuspForm Γ₁(N) k := ((heckeLin hp hpN ε f : nebSpace N k ε) : CuspForm Γ₁(N) k)
-  have hg₁ : CuspForm.HasNebentypus ε g₁ := (heckeLin hq hqN ε f).2
-  have hg₂ : CuspForm.HasNebentypus ε g₂ := (heckeLin hp hpN ε f).2
-  have r₁ : HasQCoeff (heckeFun k ε p ⇑g₁) := reg_coe (heckeForm hp hpN ε g₁ hg₁)
-  have r₂ : HasQCoeff (heckeFun k ε q ⇑g₂) := reg_coe (heckeForm hq hqN ε g₂ hg₂)
+  change (⇑((((heckeT ε i) ((heckeT ε j) f)) : nebSpace N k ε) : CuspForm Γ₁(N) k) : ℍ → ℂ)
+    = ⇑((((heckeT ε j) ((heckeT ε i) f)) : nebSpace N k ε) : CuspForm Γ₁(N) k)
+  conv_lhs => rw [coe_heckeT]
+  conv_rhs => rw [coe_heckeT]
+  set g₁ : CuspForm Γ₁(N) k := ((heckeT ε j f : nebSpace N k ε) : CuspForm Γ₁(N) k)
+  set g₂ : CuspForm Γ₁(N) k := ((heckeT ε i f : nebSpace N k ε) : CuspForm Γ₁(N) k)
+  have hg₁ : CuspForm.HasNebentypus ε g₁ := (heckeT ε j f).2
+  have hg₂ : CuspForm.HasNebentypus ε g₂ := (heckeT ε i f).2
+  have r₁ : HasQCoeff (heckeFun k ε i.1 ⇑g₁) := by
+    rw [← coe_heckeTOne_nebentypus i.2.1 i.2.2 ε g₁ hg₁]; exact reg_coe _
+  have r₂ : HasQCoeff (heckeFun k ε j.1 ⇑g₂) := by
+    rw [← coe_heckeTOne_nebentypus j.2.1 j.2.2 ε g₂ hg₂]; exact reg_coe _
   refine UpperHalfPlane.eq_of_forall_qCoeff_eq r₁ r₂ fun n => ?_
-  rw [qCoeff_heckeFun' hp ε g₁, qCoeff_heckeFun' hq ε g₂]
-  change cT _ p (ModularFormClass.qCoeff (heckeFun k ε q ⇑(f : CuspForm Γ₁(N) k))) n
-    = cT _ q (ModularFormClass.qCoeff (heckeFun k ε p ⇑(f : CuspForm Γ₁(N) k))) n
-  rw [qCoeff_heckeFun' hq ε _, qCoeff_heckeFun' hp ε _]
-  exact cT_comm hp hq hpq _ _ _ n
+  rw [qCoeff_heckeFun' i.2.1 ε g₁, qCoeff_heckeFun' j.2.1 ε g₂]
+  have h₁ : ⇑g₁ = heckeFun k ε j.1 ⇑(f : CuspForm Γ₁(N) k) := by
+    show ⇑((heckeT ε j f : nebSpace N k ε) : CuspForm Γ₁(N) k) = _
+    rw [coe_heckeT]
+  have h₂ : ⇑g₂ = heckeFun k ε i.1 ⇑(f : CuspForm Γ₁(N) k) := by
+    show ⇑((heckeT ε i f : nebSpace N k ε) : CuspForm Γ₁(N) k) = _
+    rw [coe_heckeT]
+  rw [h₁, h₂]
+  rw [qCoeff_heckeFun' j.2.1 ε _, qCoeff_heckeFun' i.2.1 ε _]
+  exact cT_comm i.2.1 j.2.1 hpq _ _ _ n
 
 end Hecke
 
@@ -710,8 +555,6 @@ theorem isPosDefHerm_B (ε : DirichletCharacter ℂ N) : SimulEigen.IsPosDefHerm
     have h := (CuspForm.peterssonOn_self_re_nonneg_im_eq_zero_eq_zero_iff (Gamma1 N) k
       (f : CuspForm Γ₁(N) k)).2.2.mp hf
     exact Subtype.ext h
-
-def GoodPrime (N : ℕ) : Type := {p : ℕ // p.Prime ∧ ¬ p ∣ N}
 
 omit [NeZero N] in
 theorem norm_char_prime (ε : DirichletCharacter ℂ N) (i : GoodPrime N) :
@@ -745,18 +588,19 @@ theorem conj_croot_mul (ε : DirichletCharacter ℂ N) (i : GoodPrime N) :
     inv_mul_cancel₀ (croot_ne_zero ε i), one_mul]
 
 def heckeFamily (ε : DirichletCharacter ℂ N) (i : GoodPrime N) : nebSpace N k ε →ₗ[ℂ] nebSpace N k ε :=
-  croot ε i • heckeLin i.2.1 i.2.2 ε
+  croot ε i • heckeT ε i
 
 theorem heckeFamily_comm (ε : DirichletCharacter ℂ N) (i j : GoodPrime N) :
     Commute (heckeFamily (k := k) ε i) (heckeFamily ε j) :=
-  ((heckeLin_comm i.2.1 i.2.2 j.2.1 j.2.2 ε).smul_left _).smul_right _
+  ((heckeT_comm ε i j).smul_left _).smul_right _
 
 theorem heckeFamily_selfAdjoint (ε : DirichletCharacter ℂ N) (i : GoodPrime N) (f g : nebSpace N k ε) :
     B ε (heckeFamily ε i f) g = B ε f (heckeFamily ε i g) := by
   have hB := isPosDefHerm_B (k := k) ε
-  have hadj : B ε (heckeLin i.2.1 i.2.2 ε f) g
-      = conj (ε ((i.1 : ℕ) : ZMod N)) * B ε f (heckeLin i.2.1 i.2.2 ε g) :=
-    CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus N k ε i.2.1 i.2.2
+  have hadj : B ε (heckeT ε i f) g
+      = conj (ε ((i.1 : ℕ) : ZMod N)) * B ε f (heckeT ε i g) := by
+    simp only [B, coe_heckeT]
+    exact CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus N k ε i.2.1 i.2.2
       (f : CuspForm Γ₁(N) k) (g : CuspForm Γ₁(N) k) f.2 g.2
   rw [heckeFamily, LinearMap.smul_apply, LinearMap.smul_apply, hB.smul_left, hB.smul_right, hadj,
     ← mul_assoc, conj_croot_mul]
@@ -787,16 +631,16 @@ theorem mem_eigenSet_of_eigen (ε : DirichletCharacter ℂ N) (v : nebSpace N k 
   refine ⟨ε, v.2, fun p hp hpN => ?_⟩
   obtain ⟨c, hc⟩ := hv ⟨p, hp, hpN⟩
   set lam : ℂ := (croot ε ⟨p, hp, hpN⟩)⁻¹ * c with hlam
-  have hL : heckeLin hp hpN ε v = lam • v := by
-    have h1 : croot ε ⟨p, hp, hpN⟩ • heckeLin hp hpN ε v = c • v := hc
-    have h2 : (croot ε ⟨p, hp, hpN⟩)⁻¹ • (croot ε ⟨p, hp, hpN⟩ • heckeLin hp hpN ε v)
+  have hL : heckeT ε ⟨p, hp, hpN⟩ v = lam • v := by
+    have h1 : croot ε ⟨p, hp, hpN⟩ • heckeT ε ⟨p, hp, hpN⟩ v = c • v := hc
+    have h2 : (croot ε ⟨p, hp, hpN⟩)⁻¹ • (croot ε ⟨p, hp, hpN⟩ • heckeT ε ⟨p, hp, hpN⟩ v)
         = (croot ε ⟨p, hp, hpN⟩)⁻¹ • (c • v) := by rw [h1]
     rw [smul_smul, inv_mul_cancel₀ (croot_ne_zero ε ⟨p, hp, hpN⟩), one_smul] at h2
     rw [h2, hlam, smul_smul]
   have hfun : heckeFun k ε p ⇑(v : CuspForm Γ₁(N) k) = lam • ⇑(v : CuspForm Γ₁(N) k) := by
     have := congrArg (fun w : nebSpace N k ε => (⇑(w : CuspForm Γ₁(N) k) : ℍ → ℂ)) hL
     simp only [Submodule.coe_smul, FunLike.coe_smul] at this
-    exact this
+    rwa [coe_heckeT] at this
   refine ⟨lam, fun m => ?_⟩
   have hq := congrArg (fun F : ℍ → ℂ => ModularFormClass.qCoeff F m) hfun
   have hsm : ModularFormClass.qCoeff (lam • ⇑(v : CuspForm Γ₁(N) k)) m
