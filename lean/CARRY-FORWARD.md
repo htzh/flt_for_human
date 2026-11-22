@@ -1555,3 +1555,62 @@ The dedup, when a refactor round takes it, is either (a) aliases —
 `theorem isLocalHom_powerSeriesC ... := WittVector.isLocalHom_powerSeriesC` — with the same import, or
 (b) one public home in `RingTheory/PowerSeries/…` that both namespaces point at. Statement hashes are
 identical either way, so `check_port` stays green through the change.
+
+### The `ModularForm`-level Gamma₁ rational structure, and the row that waits for it
+
+`ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1` (36 silo) was cut from SET-AF102 at the
+pricing pass (FR-0299) although the shelf reads it `needed = 1, premises = 0`. Its proof's only
+non-elementary input is
+
+* `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` (261 silo) — the **`ModularForm`**
+  statement that `M_k(Γ₁(N))` has a basis with rational `q`-expansion coefficients,
+
+and the port holds only the `CuspForm` twin (`CuspForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`,
+`ModularForms/WeightOne/Gamma1IntegralBasis.lean:866`), which is a *different statement*: the frontier
+credits the pin node to it by last name, so the row looked ready while its premise does not exist.
+
+The chain behind the missing statement, by pin `S_` size, is a set of its own:
+
+| node | `S_` lines |
+|---|---:|
+| `ModularForm.span_frickeRational_E4_pow_E6_pow_eq_top` | 1,524 |
+| `ModularForm.exists_gamma1_qCoeff_eq_algEquiv_apply_of_even` | 913 |
+| `ModularForm.exists_gamma1_qCoeff_eq_algEquiv_apply` | 341 |
+| `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` | 261 |
+
+(≈3,040 silo before the `exists_gamma1_qCoeff_mem_adjoin_exp*` pair, whose `S_` files are not in the
+pin under those exact names — resolve them from
+`S_ModularForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean`'s `Theorems/` imports when the set
+is cut.) Two things make it cheaper than the raw count: the port's `CuspForm`-level development
+(`Gamma1IntegralBasis.lean`, 1,000+ lines, its own `S_` at 617–871) is the same argument with the
+`ModularForm`/`CuspForm` distinction removed, and `ModularForms/WeightOne/GammaRational.lean` already
+has the Galois-transport vocabulary (`X1DiamondRational.Gamma_le_Gamma1` etc.). The natural order:
+(1) the `ModularForm`-vs-`CuspForm` bridge, (2) the Galois transport, (3) the Fricke-rational span.
+The row itself is 36 lines and lands with step (3).
+
+Note for whoever cuts it: the port's `ModularCurve/X1/IntegralityJqNModC.lean` header carries the
+MD-001 "Not ported here" prose and the deferred `spec-pin:` line; when the row lands there, the prose
+goes and the wire stays.
+
+### `LevelN/GenusFF.lean`'s `ST_pow_three`/`S_pow_two` twins — one home owed to SET-AF102A2
+
+SET-AF102A2 (`ModularCurve/LevelN/TorsionOrbit.lean`) declares **four** double-coset power rows
+publicly at the pin's names — `ST_pow_three`, `ST_pow_six`, `S_pow_two`, `S_pow_four` — because its
+pin (the 697 pin, lines 235–242) has them as rows of its own wire. Three of them already exist
+`private` in the port:
+
+| row | private twin | module |
+|---|---|---|
+| `ST_pow_three` | `ST_pow_three` | `ModularCurve/LevelN/GenusFF.lean` |
+| `ST_pow_six` | `ST_pow_six` | `ModularCurve/LevelN/GenusFF.lean` |
+| `S_pow_four` | `S_pow_four` | `ModularCurve/LevelN/GenusFF.lean` |
+| `S_pow_two` | — | (none there; `Period/ParabolicHomsBasis.lean` has a third copy of the family) |
+
+So the same mathematics is written in up to three modules. The refactor, when a round takes it:
+promote the three in `GenusFF.lean` to public at their names (adding `S_pow_two`), give them their own
+`spec-pin:` wire there, and let `LevelN/TorsionOrbit.lean` import them — A2's four rows then become
+imports and the module drops ≈30 lines, and `check_port` stays green because the pin's rows are
+accounted by hash either way (A3 did exactly this with `DeuringLocal.val_natCast_le`).
+
+It was **not** done in SET-AF102: it edits a hub (`GenusFF.lean`, 833 lines, whose dependents
+re-elaborate) plus a landed module, for a 30-line saving — the AF101W3 `D0Aux` precedent.

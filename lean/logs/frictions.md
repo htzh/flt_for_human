@@ -6410,3 +6410,67 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   therefore half a check; run it on both files. A row whose `S_` closure is out of scope is
   cut-and-registered (§2.3's exception), not ordered.
 - **seen**: 2026-11-22, SET-AF101T1.
+
+## FR-0299 [instrument] — a premise the readiness test counts as ported because its *twin* is
+
+- **where**: SET-AF102's pricing pass, the row
+  `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1` (36 silo, cut from the set).
+- **symptom**: the row reads `needed = 1`, `premises = 0`; both `Theorems/` files its `S_` file
+  imports resolve. But its one non-elementary input is the **`ModularForm`-level**
+  `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`, and the port holds only the
+  **`CuspForm`** twin `CuspForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`
+  (`ModularForms/WeightOne/Gamma1IntegralBasis.lean:866`) — same last name, different statement
+  (`CuspForm` vs `ModularForm`). `frontier.py`'s name tier credits the pin node to that declaration,
+  so the premise reads ported and the row reads ready. `twin_scan --node` on the *premise* says
+  `relative=1`, not `twin-public`; that is the tell. The chain behind the missing statement
+  (`exists_gamma1_qCoeff_eq_algEquiv_apply_of_even` 913, `…_eq_algEquiv_apply` 341,
+  `span_frickeRational_E4_pow_E6_pow_eq_top` 1524, …) is unported, and
+  `ModularCurve/X1/IntegralityJqNModC.lean`'s own header already said "**Not ported here**" — the
+  port knew, the shelf did not.
+- **cure**: price a row's premises by **declaration**, not by last name — for each `Theorems/` row the
+  `S_` file imports, `grep -rn "theorem <full qualified name>" lean/FLTForHuman` (or
+  `twin_scan --node <premise>` and read `twin-public` vs `relative`). A `CuspForm`/`ModularForm`
+  pair is the shape that recurs: the two are different statements, so a twin is not a substitute.
+  The row is cut-and-registered, not ordered.
+- **seen**: 2026-11-23, SET-AF102 scoping.
+
+## FR-0300 [instrument] — a homing order written from the *statement's* premise list, when the proof needs one more module above it
+
+- **where**: SET-AF102M2, the one-declaration insertion of
+  `ModularCurve.exists_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion` (34 silo).
+- **symptom**: the order homed the row in `ModularCurve/Period/QExpansionDiff.lean`, on the reading
+  that "the module already carries the row's one premise". It carries the *second*
+  (`qExpansionDiffAlong_val_eq_diffQExp`); the **first**
+  (`exists_coeffMap_qExpansionDiffAlong_laurentBaseChange_qExpansionFunctionFieldC_eq_qExpansion`)
+  is declared in `ModularCurve/QExpansionDifferentialLift.lean:581`, which **imports**
+  `Period/QExpansionDiff.lean` — so the ordered home sits *below* a premise and the row cannot be
+  declared there (`Unknown identifier` on `x1FunctionFieldBar`, the premise and `diffQExp`'s
+  neighbours). The worker measured this by compiling the row under the ordered module's exact import
+  list before writing anything, and reported it as a blocker rather than forcing a third-module edit.
+- **cure**: the row's home is the module that carries its **first** premise and imports the module of
+  its second — `QExpansionDifferentialLift.lean` (not legacy, own `spec-pin:` wire, so no migration).
+  The rule: when homing an insertion, list **every** premise's module and check the import direction
+  of each (the scoping note's §4 three-step check, applied to a one-row insertion and not only to a
+  headline). A premise found in a module that imports the intended home is a cycle, not a cost
+  (FR-0280's shape); the fix is to home one layer up, at the module the mathematics names, and say so
+  in the order afterwards.
+- **seen**: 2026-11-23, SET-AF102M2.
+
+## FR-0301 [build] — a locked manager build still died to a racing build, and a killed build left `.olean.hash` files behind
+
+- **where**: SET-AF102, the manager's integration builds (`build-M1-mgr.log` first attempt), and
+  SET-AF102M1's own report.
+- **symptom**: `flock -w 900 /tmp/flt-build.lock timeout 1700 lake build FLTForHuman.ModularCurve.
+  Analytic.JqInverseIntegral` failed with `error: no such file or directory (error code: 2), file:
+  …/DiamondLiftPrelude.olean` on two **dependency** modules (not on the module being built), because a
+  second `lake` process was running at the same time; the same command succeeded twenty minutes later.
+  Independently, M1's worker lost **20 `.olean`s** (`Analysis/*`, `X1/XH/*`, `Analytic/ANb`, …) to a
+  killed build, with their `.olean.hash` files left behind — so `lake env lean` then fails with
+  `object file … does not exist` for modules that look built.
+- **cure**: (a) a *manager* build takes the same lock as a worker's — the lock only serialises builds
+  that take it, so a single well-behaved build is not enough; (b) never run `lake env lean` against the
+  tree while any build is in flight (it reads `.olean`s that a build may be rewriting); (c) after a
+  killed build, the cure is one locked `lake build` of the affected module (≈470 s in M1's case), not
+  a hunt for the "missing" source; (d) when a build fails on a *dependency* with that error, retry
+  before diagnosing — it is usually a race, not a defect.
+- **seen**: 2026-11-23, SET-AF102 (manager) and SET-AF102M1 (worker).

@@ -12,8 +12,32 @@
   (587 lines), with the statement from the wrapper of the same name.  The pin label namespace
   `LiftDGamma` is a word name built from the label letters; the port keeps it as `QExpansionLift`.
 
+  One further row rides here,
+  `ModularCurve.exists_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion` (34 ln, `P2M/Sol/
+  S_ModularCurve_exists_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion.lean`): the `X₁`-level
+  composite that *consumes* the row above.  A weight-two `Γ₁(M)` cusp form whose `q`-expansion
+  coefficients all lie in `ι₀.range` (for `ι₀ : ℚ̄ →+* ℂ`) gives an element `ω` of the Kähler
+  differentials of `X₁(M)`'s function field base-changed to `ℚ̄` whose `diffQExp`'s coefficient map *is*
+  that `q`-expansion.  Its two premises are the row above and
+  `ModularCurve.qExpansionDiffAlong_val_eq_diffQExp` (`ModularCurve/Period/QExpansionDiff.lean`), which
+  reads `qExpansionDiffAlong F.val` as `diffQExp F`.  The first premise is this module's own row, so the
+  row's home is *here*: `Period/QExpansionDiff.lean`, where the set brief homes it, is one import
+  *below* this file, and declaring it there would close a cycle (FR-0280's shape).
+
+  Measured for the row (AF102M2): `check_port --force` on this module reads **57 ok / 0 mismatch /
+  0 missing / 0 own / 0 kw** (56 before the row, so **+1**), the edit loop is silent, `dedup --within`
+  reports no cluster for it and `move_dead --dry-run` gives 0 declarations / 0 lines.  The `S_` copy's
+  proof is transcribed except for one step: the pin writes `rw [← qExpansionDiffAlong_val_eq_diffQExp]`,
+  but the port's `x1FunctionFieldBar M` is definitionally and not syntactically that
+  `laurentBaseChange`, and `rw` matches at *implicit* transparency, so it misses.  The proof therefore
+  states the identity at the goal's own `F` first and rewrites with that, then closes with the pin's
+  `exact hω` (`exact` converts at default transparency).  `Period/QExpansionDiff.lean` is not edited by
+  this row and keeps its 11 ok / 0 / 0 / 0 and its silence.
+
   spec-pin: Theorems/Thm_ModularCurve_exists_coeffMap_qExpansionDiffAlong_laurentBaseChange_qExpFunctionFieldC_eq_qExpansion.lean
   spec-pin: P2M/Sol/S_ModularCurve_exists_coeffMap_qExpansionDiffAlong_laurentBaseChange_qExpFunctionFieldC_eq_qExpansion.lean
+  spec-pin: Theorems/Thm_ModularCurve_exists_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion.lean
 -/
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Period.QExpansionDiff
@@ -589,6 +613,29 @@ theorem ModularCurve.exists_coeffMap_qExpansionDiffAlong_laurentBaseChange_qExpF
   obtain ⟨H, rfl⟩ := CohCarrier.exists_eq_gammaH_of_gamma1_le_of_le_gamma0 M Γ hΓ₁ hΓ₀
   exact ⟨ModularCurve.QExpansionLift.omega M H ι₀ f hf,
     ModularCurve.QExpansionLift.coeffMap_qExpansionDiffAlong_omega M H ι₀ f hf⟩
+
+
+
+/-- **`diffQExp` of an `X₁(M)` differential over `ℚ̄` has the cusp form's `q`-expansion.**  The `X₁`
+composite of the row above: `qExpansionDiffAlong_val_eq_diffQExp` turns the `q`-expansion of
+`qExpansionDiffAlong` into that of `diffQExp`, and the row above supplies the former. -/
+theorem ModularCurve.exists_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion
+    (M : ℕ) [NeZero M] (ι₀ : AlgebraicClosure ℚ →+* ℂ)
+    (f : CuspForm (CongruenceSubgroup.Gamma1 M) 2)
+    (hf : ∀ n : ℕ, (UpperHalfPlane.qExpansion 1 ⇑f).coeff n ∈ ι₀.range) :
+    ∃ ω : Ω[↥(ModularCurve.x1FunctionFieldBar M)⁄AlgebraicClosure ℚ],
+      ModularCurve.coeffMap ι₀ (ModularCurve.diffQExp (ModularCurve.x1FunctionFieldBar M) ω) =
+        HahnSeries.ofPowerSeries ℤ ℂ (UpperHalfPlane.qExpansion 1 ⇑f) := by
+  obtain ⟨ω, hω⟩ :=
+    ModularCurve.exists_coeffMap_qExpansionDiffAlong_laurentBaseChange_qExpFunctionFieldC_eq_qExpansion
+      M (CongruenceSubgroup.Gamma1 M) le_rfl (CongruenceSubgroup.Gamma1_in_Gamma0 M) ι₀ f
+      (fun n => hf n)
+  refine ⟨ω, ?_⟩
+  have h : ModularCurve.diffQExp (ModularCurve.x1FunctionFieldBar M) ω =
+      ModularCurve.qExpansionDiffAlong (ModularCurve.x1FunctionFieldBar M).val ω :=
+    (ModularCurve.qExpansionDiffAlong_val_eq_diffQExp (ModularCurve.x1FunctionFieldBar M) ω).symm
+  rw [h]
+  exact hω
 
 
 end
