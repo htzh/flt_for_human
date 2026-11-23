@@ -5,22 +5,25 @@
   leaves of the D-S cone rest on.
 
   FLT provenance, pinned `aa2d8b3`: `Definitions/Def_CuspForm_PeterssonCoset.lean`,
-  the whole 744-line module, restated at the pin's names. The `spec-pin:` header
-  below wires the public surface — 27 declarations; the 25 coset-integral and
-  `Nice`-closure steps behind it are `private`, and three of the pin's proof steps
-  are inlined where their mathematics is stated: the pointwise weight identity into
+  the whole 744-line module, restated at the pin's names — 26 of its 27 public
+  declarations at the pin's statements. The 25 coset-integral and `Nice`-closure
+  steps behind them are `private`, and three of the pin's proof steps are inlined
+  where their mathematics is stated: the pointwise weight identity into
   `ae_tsum_wt_smul`, its unfolded form into `weight_lintegral`, and the coset
   reindexing `eMap`/`eMap_bijective` into `unfold_sum`. `mapGL_apply` is public
   although this module is its only user, because the pin's `S_` files name it to
   disable the simp lemma. The pin's `set_option maxHeartbeats 800000` is not
   carried (playbook §3.5).
 
+  **Port-owned, tier 3.** `unfold_sum` is stated for an arbitrary group and the canonical fiber
+  `Γ ⧸ Λ.subgroupOf Γ` in place of the pin's `SL(2, ℤ)` transversal. The pin is parked in
+  `Reserve/ModularForms/PortOwnedSpecPins.lean`; the entry is `topics/TOPIC-interface-changes.md`
+  Entry 9.
+
   The coset-integral layer here was written twice in the pin — this module and the
   `S_CuspForm_peterssonOn_…` file our `ModularForms/Analytic/PeterssonHecke.lean`
   engine came from — and the engine's 18 statement-identical declarations are the
   ones this module carries at the same statements.
-
-  spec-pin: Definitions/Def_CuspForm_PeterssonCoset.lean
 -/
 import FLTForHuman.AutomorphicForm.UpperHalfPlane.ModularFundamentalDomain
 import FLTForHuman.ModularForms.Analytic.Petersson
@@ -625,62 +628,27 @@ theorem eq_zero_of_pair_self_eq_zero {F : ℍ → ℂ} (hF : Nice Λ k F) (h0 : 
 
 end definite
 
+/-- The multiplicative index formula, summed: a sum over the `Λ`-cosets is a double sum over the
+`Γ`-cosets and the fiber `Γ ⧸ Λ.subgroupOf Γ`. -/
+theorem unfold_sum {G Y X : Type*} [Group G] [MulAction G Y] [AddCommMonoid X]
+    {Λ Γ : Subgroup G} (hΛΓ : Λ ≤ Γ)
+    [Fintype (G ⧸ Γ)] [Fintype (Γ ⧸ Λ.subgroupOf Γ)] [Fintype (G ⧸ Λ)]
+    (Φ : Y → X) (hΦ : ∀ h ∈ Λ, ∀ y : Y, Φ (h • y) = Φ y) (τ : Y) :
+    ∑ q' : G ⧸ Λ, Φ ((q'.out⁻¹ : G) • τ)
+      = ∑ q : G ⧸ Γ, ∑ i : Γ ⧸ Λ.subgroupOf Γ, Φ (((i.out : G)⁻¹ * q.out⁻¹) • τ) := by
+  rw [← Fintype.sum_prod_type']
+  symm
+  refine Fintype.sum_bijective (Subgroup.quotientEquivProdOfLE hΛΓ).symm (Equiv.bijective _) _ _
+    fun x => ?_
+  obtain ⟨h, hh⟩ := QuotientGroup.mk_out_eq_mul Λ (x.1.out * (x.2.out : G))
+  rw [Subgroup.quotientEquivProdOfLE_symm_apply]
+  conv_rhs => rw [← Quotient.out_eq' x.2]
+  rw [Quotient.map'_mk'', hh, mul_inv_rev, mul_inv_rev,
+    mul_smul ((h : G)⁻¹) ((x.2.out : G)⁻¹ * x.1.out⁻¹) τ, hΦ _ (inv_mem h.2)]
+
 section level
 
 variable {Γ'' Λ : Subgroup SL(2, ℤ)}
-
-section unfold
-
-variable (hΛΓ : Λ ≤ Γ'') {ι : Type*} (r : ι → SL(2, ℤ)) (hr : ∀ i, r i ∈ Γ'')
-  (hex : ∀ γ ∈ Γ'', ∃ i, r i * γ ∈ Λ) (huniq : ∀ i i', r i * (r i')⁻¹ ∈ Λ → i = i')
-
-variable [Fintype (SL(2, ℤ) ⧸ Γ'')] [Fintype (SL(2, ℤ) ⧸ Λ)] [Fintype ι]
-
-include hΛΓ hr hex huniq in
-
-theorem unfold_sum {X : Type*} [AddCommMonoid X] (Φ : ℍ → X)
-    (hΦ : ∀ h ∈ Λ, ∀ x : ℍ, Φ (h • x) = Φ x) (τ : ℍ) :
-    ∑ q' : SL(2, ℤ) ⧸ Λ, Φ ((q'.out⁻¹ : SL(2, ℤ)) • τ)
-      = ∑ q : SL(2, ℤ) ⧸ Γ'', ∑ i, Φ ((r i * q.out⁻¹ : SL(2, ℤ)) • τ) := by
-  let e : (SL(2, ℤ) ⧸ Γ'') × ι → SL(2, ℤ) ⧸ Λ :=
-    fun x => QuotientGroup.mk (x.1.out * (r x.2)⁻¹)
-  have e_bij : Function.Bijective e := by
-    constructor
-    · rintro ⟨q, i⟩ ⟨q', i'⟩ h
-      have hmem : r i * q.out⁻¹ * q'.out * (r i')⁻¹ ∈ Λ := by
-        have := QuotientGroup.eq.mp h
-        simpa [mul_assoc, mul_inv_rev] using this
-      have hqq : q = q' := by
-        have hΓ : q.out⁻¹ * q'.out ∈ Γ'' := by
-          have h1 : (r i)⁻¹ * (r i * q.out⁻¹ * q'.out * (r i')⁻¹) * r i' ∈ Γ'' :=
-            mul_mem (mul_mem (inv_mem (hr i)) (hΛΓ hmem)) (hr i')
-          simpa [mul_assoc] using h1
-        rw [← QuotientGroup.out_eq' q, ← QuotientGroup.out_eq' q']
-        exact QuotientGroup.eq.mpr hΓ
-      subst hqq
-      have : r i * (r i')⁻¹ ∈ Λ := by simpa using hmem
-      rw [huniq i i' this]
-    · intro y
-      set σ := y.out
-      set q : SL(2, ℤ) ⧸ Γ'' := QuotientGroup.mk σ
-      have hγ : q.out⁻¹ * σ ∈ Γ'' := by
-        rw [← QuotientGroup.eq]
-        exact QuotientGroup.out_eq' q
-      obtain ⟨i, hi⟩ := hex _ hγ
-      refine ⟨(q, i), ?_⟩
-      rw [← QuotientGroup.out_eq' y]
-      show QuotientGroup.mk (q.out * (r i)⁻¹) = QuotientGroup.mk σ
-      rw [QuotientGroup.eq]
-      simpa [mul_assoc, mul_inv_rev] using hi
-  rw [← Fintype.sum_prod_type']
-  symm
-  refine Fintype.sum_bijective e e_bij _ _ fun x => ?_
-  obtain ⟨h, hh⟩ := QuotientGroup.mk_out_eq_mul Λ (x.1.out * (r x.2)⁻¹)
-  show Φ ((r x.2 * x.1.out⁻¹ : SL(2, ℤ)) • τ) = Φ (((e x).out⁻¹ : SL(2, ℤ)) • τ)
-  rw [show e x = QuotientGroup.mk (x.1.out * (r x.2)⁻¹) from rfl, hh, mul_inv_rev, mul_inv_rev,
-    inv_inv, mul_smul ((h : SL(2, ℤ))⁻¹) (r x.2 * x.1.out⁻¹) τ, hΦ _ (inv_mem h.2)]
-
-end unfold
 
 variable [Fintype (SL(2, ℤ) ⧸ Γ'')] [Fintype (SL(2, ℤ) ⧸ Λ)]
 
@@ -692,28 +660,14 @@ private theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
 
   have : Λ.FiniteIndex := Subgroup.finiteIndex_of_finite_quotient
   let : Fintype (Γ'' ⧸ Λ.subgroupOf Γ'') := Subgroup.fintypeQuotientOfFiniteIndex
-  set r : (Γ'' ⧸ Λ.subgroupOf Γ'') → SL(2, ℤ) := fun i => ((i.out : Γ'') : SL(2, ℤ))⁻¹ with hr
-  have hr' : ∀ i, r i ∈ Γ'' := fun i => inv_mem (i.out).2
-  have hex : ∀ γ ∈ Γ'', ∃ i, r i * γ ∈ Λ := by
-    intro γ hγ
-    refine ⟨QuotientGroup.mk ⟨γ, hγ⟩, ?_⟩
-    have h := QuotientGroup.out_eq' (QuotientGroup.mk (s := Λ.subgroupOf Γ'') ⟨γ, hγ⟩)
-    have h2 := QuotientGroup.eq.mp h
-    rw [Subgroup.mem_subgroupOf] at h2
-    simpa [hr] using h2
-  have huniq : ∀ i i', r i * (r i')⁻¹ ∈ Λ → i = i' := by
-    intro i i' h
-    have h2 : (i.out)⁻¹ * i'.out ∈ Λ.subgroupOf Γ'' := by
-      rw [Subgroup.mem_subgroupOf]; simpa [hr] using h
-    have := QuotientGroup.eq.mpr h2
-    rwa [QuotientGroup.out_eq', QuotientGroup.out_eq'] at this
   unfold cosum
   simp only [one_smul]
-  rw [unfold_sum hle r hr' hex huniq Φ (fun h hh x => hΦ h (hle hh) x) τ, Finset.mul_sum]
+  rw [unfold_sum hle Φ (fun h hh x => hΦ h (hle hh) x) τ, Finset.mul_sum]
   refine Finset.sum_congr rfl fun q _ => ?_
-  have : ∀ i, Φ ((r i * q.out⁻¹ : SL(2, ℤ)) • τ) = Φ ((q.out⁻¹ : SL(2, ℤ)) • τ) := fun i => by
-    rw [mul_smul, hΦ _ (hr' i)]
-  simp only [this, Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  have hconst : ∀ i : Γ'' ⧸ Λ.subgroupOf Γ'',
+      Φ (((i.out : SL(2, ℤ))⁻¹ * q.out⁻¹) • τ) = Φ (q.out⁻¹ • τ) := fun i => by
+    rw [mul_smul, hΦ _ (inv_mem (i.out).2)]
+  simp only [hconst, Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
   congr 1
   rw [Subgroup.relIndex, Subgroup.index_eq_card, Nat.card_eq_fintype_card]
 

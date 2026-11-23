@@ -17,7 +17,7 @@
   imported rather than re-proved.
 
   The pin wrote its group-and-pairing layer twice; the port carries **one** copy, in the
-  wired definition layer `PeterssonCoset.lean`: its 16 coset-integral declarations
+  definition layer `PeterssonCoset.lean`: its 16 coset-integral declarations
   (`mp_smul_*`, `measurable_smul_*`, `splitEquiv`, the `tsum_*` reindexings, `wt`,
   `measurable_wt`, `indicator_smul`, `ae_tsum_wt_smul`,
   `weight_lintegral`, `cvn_lintegral`, `cosum`, `petersson_polarization`) moved there on
@@ -735,12 +735,46 @@ theorem nice_coe (g : CuspForm Γ₁(N) k) : Nice (Lam N p) k (⇑g : ℍ → �
 
 variable [NeZero p]
 
+omit [NeZero N] in
+/-- The Hecke representatives index the fiber `Γ₁(N) ⧸ Λ`: the `rr`-sum is the coset sum. -/
+private theorem sum_rr_eq_sum_quot {X : Type*} [AddCommMonoid X] (hpN : Nat.Coprime p N)
+    (hp : p.Prime) [Fintype (Gamma1 N ⧸ (Lam N p).subgroupOf (Gamma1 N))]
+    (Ψ : ℍ → X) (hΨ : ∀ h ∈ Lam N p, ∀ x : ℍ, Ψ (h • x) = Ψ x)
+    (g : SL(2, ℤ)) (τ : ℍ) :
+    ∑ i : Option (Fin p), Ψ (((rr hpN i : SL(2, ℤ)) * g) • τ)
+      = ∑ i : Gamma1 N ⧸ (Lam N p).subgroupOf (Gamma1 N), Ψ ((↑(i.out)⁻¹ * g) • τ) := by
+  let f : Option (Fin p) → Gamma1 N ⧸ (Lam N p).subgroupOf (Gamma1 N) :=
+    fun i => QuotientGroup.mk ⟨(rr hpN i)⁻¹, inv_mem (rr_mem hpN i)⟩
+  have hf : Function.Bijective f := by
+    refine ⟨fun i i' h => ?_, fun a => ?_⟩
+    · refine rr_mul_rr_inv_mem hpN hp i i' ?_
+      have h' := QuotientGroup.eq.mp h
+      simpa [f, Subgroup.mem_subgroupOf] using h'
+    · refine QuotientGroup.induction_on a fun γ => ?_
+      obtain ⟨i, hi⟩ := exists_rr_mul_mem hpN hp γ γ.2
+      refine ⟨i, ?_⟩
+      show QuotientGroup.mk ⟨(rr hpN i)⁻¹, inv_mem (rr_mem hpN i)⟩ = QuotientGroup.mk γ
+      rw [QuotientGroup.eq]
+      simpa [Subgroup.mem_subgroupOf] using hi
+  refine Fintype.sum_bijective f hf _ _ fun i => ?_
+  obtain ⟨h, hh⟩ := QuotientGroup.mk_out_eq_mul ((Lam N p).subgroupOf (Gamma1 N))
+    ⟨(rr hpN i)⁻¹, inv_mem (rr_mem hpN i)⟩
+  have hkey : (↑((f i).out⁻¹) : SL(2, ℤ)) = (↑↑h)⁻¹ * rr hpN i := by
+    rw [show f i = QuotientGroup.mk ⟨(rr hpN i)⁻¹, inv_mem (rr_mem hpN i)⟩ from rfl, hh]
+    simp only [Subgroup.coe_mul, Subgroup.coe_inv, mul_inv_rev, inv_inv]
+  show Ψ (((rr hpN i : SL(2, ℤ)) * g) • τ) = Ψ ((↑((f i).out)⁻¹ * g) • τ)
+  rw [hkey]
+  conv_rhs => rw [mul_assoc, mul_smul,
+    hΨ _ (by simpa using Subgroup.mem_subgroupOf.mp (inv_mem h.2))]
+
 theorem main (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
     (f g : CuspForm Γ₁(N) k) (hf : CuspForm.HasNebentypus ε f) (hg : CuspForm.HasNebentypus ε g) :
     CuspForm.peterssonOn (Gamma1 N) k (heckeFun k ε p ⇑f) ⇑g
       = conj (ε (p : ZMod N)) * CuspForm.peterssonOn (Gamma1 N) k ⇑f (heckeFun k ε p ⇑g) := by
   set hpN' := (Nat.Prime.coprime_iff_not_dvd hp).mpr hpN
   have hp0 : p ≠ 0 := hp.ne_zero
+  let : Fintype (Gamma1 N ⧸ (Lam N p).subgroupOf (Gamma1 N)) :=
+    Subgroup.fintypeQuotientOfFiniteIndex
   set β : GL (Fin 2) ℝ := (Matrix.SpecialLinearGroup.mapGL ℝ (gInf hpN') : GL (Fin 2) ℝ) * α p
   have hleft : CuspForm.peterssonOnIntegrand (Gamma1 N) k (heckeFun k ε p ⇑f) ⇑g
       = cosum (Lam N p) 1 (Φ k p ⇑f ⇑g) := by
@@ -754,11 +788,11 @@ theorem main (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
       rw [UpperHalfPlane.petersson_slash_SL, heckeFun_eq_sum hp0 hpN' ε f hf, petersson_sum_left]
       refine Finset.sum_congr rfl fun i _ => ?_
       rw [mul_smul, ← Φ_slash_mem (rr_mem hpN' i)]
-    simp_rw [hγ]
-    rw [← unfold_sum (Lam_le N p) (rr hpN') (rr_mem hpN') (exists_rr_mul_mem hpN' hp)
-      (fun i i' h => rr_mul_rr_inv_mem hpN' hp i i' h) (Φ k p ⇑f ⇑g)
-      (fun h hh x => by
-        rw [Φ, ← petersson_smul_SL, slash_α_inv hp0 f h hh, slash_mem g hh.1]) τ]
+    have hΦinv : ∀ h ∈ Lam N p, ∀ x : ℍ, Φ k p ⇑f ⇑g (h • x) = Φ k p ⇑f ⇑g x :=
+      fun h hh x => by rw [Φ, ← petersson_smul_SL, slash_α_inv hp0 f h hh, slash_mem g hh.1]
+    simp_rw [hγ, sum_rr_eq_sum_quot hpN' hp (Φ k p ⇑f ⇑g) hΦinv]
+    simp only [Subgroup.coe_inv]
+    rw [← unfold_sum (Lam_le N p) (Φ k p ⇑f ⇑g) hΦinv τ]
     simp only [one_smul]
   have hright : CuspForm.peterssonOnIntegrand (Gamma1 N) k ⇑f (heckeFun k ε p ⇑g)
       = fun τ => ε (p : ZMod N) * cosum (Lam N p) β (Φ k p ⇑f ⇑g) τ := by
@@ -772,11 +806,11 @@ theorem main (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
       rw [UpperHalfPlane.petersson_slash_SL, heckeFun_eq_sum hp0 hpN' ε g hg, petersson_sum_right]
       refine Finset.sum_congr rfl fun i _ => ?_
       rw [mul_smul, ← Ψ_slash_mem (rr_mem hpN' i)]
-    simp_rw [hγ]
-    rw [← unfold_sum (Lam_le N p) (rr hpN') (rr_mem hpN') (exists_rr_mul_mem hpN' hp)
-      (fun i i' h => rr_mul_rr_inv_mem hpN' hp i i' h) (Ψ k p ⇑f ⇑g)
-      (fun h hh x => by
-        rw [Ψ, ← petersson_smul_SL, slash_α_inv hp0 g h hh, slash_mem f hh.1]) τ]
+    have hΨinv : ∀ h ∈ Lam N p, ∀ x : ℍ, Ψ k p ⇑f ⇑g (h • x) = Ψ k p ⇑f ⇑g x :=
+      fun h hh x => by rw [Ψ, ← petersson_smul_SL, slash_α_inv hp0 g h hh, slash_mem f hh.1]
+    simp_rw [hγ, sum_rr_eq_sum_quot hpN' hp (Ψ k p ⇑f ⇑g) hΨinv]
+    simp only [Subgroup.coe_inv]
+    rw [← unfold_sum (Lam_le N p) (Ψ k p ⇑f ⇑g) hΨinv τ]
     rw [Finset.mul_sum]
     refine Finset.sum_congr rfl fun q _ => ?_
     rw [Ψ_eq hp hpN ε f g hf]

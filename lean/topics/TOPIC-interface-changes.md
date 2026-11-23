@@ -43,6 +43,7 @@ pin's concrete copies) keeps an `own:` row: there is nothing to park.
 | `ModularForms/QCoeffClass` | `Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean` | `ModularFormClass.eq_of_forall_qCoeff_eq` |
 | `ModularForms/QCoeffClass` | `P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean` | `ModularFormClass.hasSum_qCoeff` |
 | `ModularForms/Level` + `Defs/HeckeRepresentatives` | `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` | `Level.wt`/`lift`/`IsDiamondLift`/`det_mod`/`diamondLinOne`, `HeckeRepresentatives.heckeRep`/`redMatrix`/`heckeRep_mul` |
+| `ModularForms/Analytic/PeterssonCoset` | `Definitions/Def_CuspForm_PeterssonCoset.lean` | `unfold_sum` (general group, canonical fiber) |
 | `ModularForms/Analytic/PeterssonHecke` | `P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean` | `Lam`/`mem_Lam`/`dvd_01_of_mem_Lam`, `gInf`/`sigP`/`gInf_coe`/`sigP_coe`/`gInf_inv_coe`/`not_dvd_n`, `exists_rr_mul_mem`/`rr_mul_rr_inv_mem` |
 
 Both q-coefficient modules are therefore unwired: the checker no longer diffs them, and
@@ -50,6 +51,9 @@ no `own:` row is involved. The cost is stated rather than hidden — the six sta
 that do still match the pin (`qCoeff`, the two equality principles, the three
 coefficient-algebra lemmas) are no longer diffed either. They are listed above so a
 future re-wiring knows what to re-pin.
+
+`ModularForms/Analytic/PeterssonCoset` is unwired for `unfold_sum` alone; re-wiring gives that one
+declaration an `own:` row.
 
 ## Entry 1 — `hF` replaces the three regularity conditions
 
@@ -381,3 +385,27 @@ computation itself is not repeated: `HeckeTLinOneQCoeff.heckeTLinOne_slashOfMemG
 `twin_scan.py --node` reads it `new` (the statement is re-spelled, not renamed). The node stays
 **ported** for the frontier because its `spec-pin:` lines sit in the Reserve register; the residue
 is recorded as MD-007 in `spec/METADATA-ISSUES.md`.
+
+## Entry 9 — `unfold_sum` takes the canonical fiber
+
+**Status: applied, the pin parked.** The pin is in `Reserve/ModularForms/PortOwnedSpecPins.lean`.
+
+**Pin shape.** `unfold_sum` is stated for `SL(2, ℤ)`, over a transversal `r : ι → SL(2, ℤ)` of `Λ`
+in `Γ''` whose three properties are section variables.
+
+**Port shape.**
+
+```
+theorem unfold_sum {G Y X} [Group G] [MulAction G Y] [AddCommMonoid X]
+    {Λ Γ : Subgroup G} (hΛΓ : Λ ≤ Γ)
+    [Fintype (G ⧸ Γ)] [Fintype (Γ ⧸ Λ.subgroupOf Γ)] [Fintype (G ⧸ Λ)]
+    (Φ : Y → X) (hΦ : ∀ h ∈ Λ, ∀ y : Y, Φ (h • y) = Φ y) (τ : Y) :
+    ∑ q' : G ⧸ Λ, Φ ((q'.out⁻¹ : G) • τ)
+      = ∑ q : G ⧸ Γ, ∑ i : Γ ⧸ Λ.subgroupOf Γ, Φ (((i.out : G)⁻¹ * q.out⁻¹) • τ)
+```
+
+**Bridges.** The pin's statement is the instance at a supplied transversal (`ι` and `r`); the port
+takes the canonical fiber instead, so a transversal is carried only where one is actually used:
+`PeterssonHecke.sum_rr_eq_sum_quot` takes `rr` to the fiber through `exists_rr_mul_mem` and
+`rr_mul_rr_inv_mem`. `cosum_eq_relIndex_mul` is the canonical instance. Re-wiring gives
+`unfold_sum` an `own:` row; the other 26 declarations diff as they stand.

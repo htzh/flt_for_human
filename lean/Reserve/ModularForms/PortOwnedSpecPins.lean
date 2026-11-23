@@ -63,6 +63,12 @@
 
     spec-pin: Definitions/Def_CuspForm_Gamma1HeckeOperators.lean
 
+  ModularForms/Analytic/PeterssonCoset — the pin's coset-integral layer. `unfold_sum` is stated for
+  an arbitrary group and the canonical fiber `Γ ⧸ Λ.subgroupOf Γ` instead of the pin's `SL(2, ℤ)`
+  transversal (Entry 9); the other 26 public declarations keep the pin's statements.
+
+    spec-pin: Definitions/Def_CuspForm_PeterssonCoset.lean
+
   ModularForms/Analytic/PeterssonHecke — the Hecke adjointness engine. The subgroup `Λ` it
   pairs over is `Γ₁(N) ⊓ Γ⁰(p)` (`Level.Gamma0Upper`'s group) instead of a carrier with its own
   `mul_mem'`/`inv_mem'`; the Bézout datum is `Level.BezoutPair` (one normalization, `u * p +
@@ -75,9 +81,8 @@
     spec-pin: P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean
 
   The pin's group-and-pairing layer (`Nice`, `dens`, `unfold_sum`, the `integral_cosum_*`
-  triple, the coset-integral block) has its wire in
-  `Definitions/Def_CuspForm_PeterssonCoset.lean`, which `ModularForms/Analytic/PeterssonCoset.lean`
-  carries and is diffed against; this module keeps no copy of it.
+  triple, the coset-integral block) has its wire with `ModularForms/Analytic/PeterssonCoset`
+  above, whose module carries it; this module keeps no copy of it.
 
   ModularForms/NebentypusEigenbasis — the `ε`-eigenspace. The invariance statement is proved for
   the diamond-twisted `T_p` instead of for the pin's `U_p + ε(p) • (· ∣[k] heckeDiagMatrix p)`:

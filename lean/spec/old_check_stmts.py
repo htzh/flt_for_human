@@ -5158,9 +5158,10 @@ PORT_FILES = [
     # the `S_` development, its per-declaration markers stripped). Their PORT_FILES rows were
     # retired. The `SOURCES` rows above stay: they are the same pin files. Appended last.
     # --- The coset-space Petersson definition layer (set P1 of
-    # `TOPIC-petersson-coset-and-level-prime-eigenvalue.md`): wired, because it is
-    # the definition layer both `norm_sq` leaves consume. Appended last.
-    # FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean — wired by its own `spec-pin:` header; its PORT_FILES row was retired.
+    # `TOPIC-petersson-coset-and-level-prime-eigenvalue.md`): the definition layer both
+    # `norm_sq` leaves consume. Appended last.
+    # FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean — tier 3 (pin parked, Entry 9); its
+    # PORT_FILES row stays retired and it is registered in spec/UNWIRED-PUBLIC.md.
     # --- Set P2 (`WORKORDER-P2-normsq.md`): the silo, wired whole — its 71 helpers and the
     # headline are all statement-diffed (+72 against the wrapper + `S_` sources above).
     "FLTForHuman/ModularForms/Analytic/NormSqPow.lean",
