@@ -1614,3 +1614,34 @@ accounted by hash either way (A3 did exactly this with `DeuringLocal.val_natCast
 
 It was **not** done in SET-AF102: it edits a hub (`GenusFF.lean`, 833 lines, whose dependents
 re-elaborate) plus a landed module, for a 30-line saving — the AF101W3 `D0Aux` precedent.
+
+### SET-AF103A's `main`: two carve sites for a refactor round (the set's one edit-loop exception)
+
+`ModularCurve/Reduction/EquivariantTorsion.lean` (SET-AF103A) is **complete and green except the edit
+loop**: `check_port` 65 ok / 0 / 0, the 64 engine rows hash-identical to the pin, axioms clean on all
+65 public declarations, `dedup` 0, `move_dead` 0/0, nothing installed (no `maxHeartbeats`, no
+`synthInstance.*`, no `attribute [-instance]`/`[-simp]` wall) — and it **builds**
+(`✔ Built (66 s)`, `Build completed successfully (3474 jobs)`, 0 warnings from the file) because
+`lakefile.lean:11` ships a 4 M cap. Its `main` is silent at **2,000,000** and fails at 1,500,000, so the
+**200 k edit loop** reports `main` alone. That is the only such module in the column; every other
+landed module is silent at 200 k.
+
+Three carves are already in the file and each fits 200 k (`stabilizer_card_bound`) or 50 k
+(`torsion_card_eq_sq`, `exists_good_model_route`), plus `gK_conj_mul`. **Update (same day, after two more carves).** The two blocks named above are now carved and fit:
+`gK_conj_mul` (the pin's `hc4` — *the residue-induced variable change is multiplicative*,
+`γ₀ * gK (σ*τ) * γ₀⁻¹ = (γ₀ * gK σ * γ₀⁻¹) * (γ₀ * gK τ * γ₀⁻¹)`, silent at 50,000) and
+`eq_of_forall_nsmul_eq_of_faithful` (the pin's `hLfix`, generic in `F`/`Ω`/`E` — faithful torsion action
+⇒ pointwise fix, silent at 50,000). They removed the 400 k and 800 k failure sites but **did not move
+the bracket**: `main` fails at 200 k / 500 k / 750 k / 1 M / 1.5 M and is silent at 2 M. So the residual
+is now the pin's **`θ`/`ρ` construction** and **the `γ` bullet's own tail** — the next round's two
+sites, and the same discipline applies (carve, accept at the low cap, confirm the helpers' budgets sum
+below the removed one).
+
+Two measured negatives to carry, so the round does not repeat them: **hoisting `gK`/`ρ` into named
+`private def`s does not help** (no gate movement, and it breaks a `rw` match in `hc4` — reverted), and
+`synthInstance.maxHeartbeats 1.6 M` changes nothing (no single search is the defect). The pin needed
+16 M; the port needs 2 M with the wall gone, so the remaining factor is ~10× and is a `whnf`/`isDefEq`
+cost through the `VariableChange`/`Point`/`Place` transports (FR-0304).
+
+When the two carves land, re-run the ladder — the target is `main` silent at 200,000 with nothing
+installed, and the brief's §6.1 should be rewritten to drop the exception.

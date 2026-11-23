@@ -6474,3 +6474,70 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   a hunt for the "missing" source; (d) when a build fails on a *dependency* with that error, retry
   before diagnosing — it is usually a race, not a defect.
 - **seen**: 2026-11-23, SET-AF102 (manager) and SET-AF102M1 (worker).
+
+## FR-0302 [lean] [instance] — a pin's global `synthInstance.maxHeartbeats` is not carried, so an `instance`-search dies at 20,000 inside `integralClosure.isDedekindDomain`
+
+- **where**: SET-AF103B, `ModularCurve/X1/JqRamification.lean`'s `isDedekindDomain_B` and
+  `isFractionRing_B`.
+- **symptom**: with the pins' global `set_option synthInstance.maxHeartbeats 1600000` dropped (the
+  port carries no `maxHeartbeats`, of either kind), the *instance* search inside
+  `integralClosure.isDedekindDomain` dies at **20,000 instance heartbeats** — a budget
+  `-DmaxHeartbeats` does not raise — while the same declarations elaborate in the pin because its
+  global bump is in scope. The edit loop's failure looks like a plain heartbeat timeout at the
+  declaration, not at an instance.
+- **cure**: name the instances the search is looking for explicitly
+  (`Algebra.IsIntegral`/`Algebra.IsSeparable` for the ring `B`), which is the port's standing cure for
+  a search that unfolds a coercion; the module then elaborates at the project default. Do **not** carry
+  the pin's `synthInstance.maxHeartbeats` — it is the same rule as `maxHeartbeats`.
+- **seen**: 2026-11-23, SET-AF103B.
+
+## FR-0303 [instrument] — `lean_parser.py:266` rewrites the port's home name back to the pin's *generated label*, so a faithful statement reads `MISMATCH`
+
+- **where**: SET-AF103C, the two pin-294 rows `eq_inclArch` and `ideleNorm_det_eq_one`.
+- **symptom**: the port's home for the `ArchInfra` engine is `AutomorphicForm/Adelic/ArchInfra.lean`, and
+  a statement spelled `ArchInfra.Kprod` / `ArchInfra.inclArch` reads `MISMATCH` against the pin, because
+  `spec/lean_parser.py:266` normalises the port's name back to the pin's old generated label
+  (`Q09AIarch`) and those two pin rows do not carry it. The rows read `ok` only when stated over the
+  **bare** `Kprod`/`inclArch` with `open ArchInfra` in the namespace.
+- **cure**: until the parser's label map is fixed, spell such rows the way the pin does (`open` the
+  namespace, use the bare name) rather than with the port's qualified name, and record it. The
+  consequence is a *less* explicit statement text in the port, which is why it is a friction and not a
+  convention.
+- **seen**: 2026-11-23, SET-AF103C.
+
+## FR-0304 [lean] [defeq] — a `let`-bound construction unfolded at every `rw`/`isDefEq`, and the opaque-parameter defeq trap inside `ord_eq_zero_of_isUnit`
+
+- **where**: SET-AF103A, `ModularCurve/Reduction/EquivariantTorsion.lean`'s `main` (1,288-line pin,
+  `maxHeartbeats 16000000` in the pin).
+- **symptom** (two, both instance/defeq shaped, neither fixable by a cap):
+  1. the whole residual cost of `main` is one term — the `let`-bound
+     `gK σ = (g σ).map (algebraMap A K)`, whose body is `(resK W₀ hdeg).toRingHom.comp (residue …)` —
+     unfolded at every `rw`/`isDefEq` in the `hc2`–`hc7` steps and the `γ` tail. A `let` has no name
+     to rewrite with, so every tactic re-unfolds the body;
+  2. the pin proves `W₀.ord (A.subtype W.Δ) = 0` from `IsUnit W.Δ` by `ord_eq_zero_of_isUnit`, whose
+     implicit argument only typechecks because in the pin `A` **is** `W₀.toValuationSubring`
+     definitionally. Carried into an opaque helper parameter, that `show` sends `isDefEq` into an
+     unbounded search and the block blows up at `push_cast` — the defect hides inside a *passing*
+     proof, so a cap only moves the failure.
+- **cure**: (1) give the construction a named type (`private def`/`abbrev` plus a `private lemma` for its
+  value, so proofs `rw` the equation instead of unfolding); (2) bind only the term whose type is
+  transparent (`W₀`) and spell `W₀.toValuationSubring` in the helper's binder list, so the defeq
+  happens at the call site where `A` is definitionally that. Naming `IsAlgClosed`/`Algebra.IsAlgebraic`
+  explicitly did **not** help and `synthInstance.maxHeartbeats` changes nothing: there is no single
+  search, the cost is one unfolding.
+- **rule**: when a large proof's cost is "spread", check first whether it is *one* `let`-bound term
+  being unfolded everywhere — a named type turns an unbounded unfolding into a rewrite, and that is a
+  restructure, not an exemption. And when a pin's proof depends on a `show` whose defeq holds only for
+  the pin's *particular* argument, generalising it into a helper silently changes the elaboration cost
+  by orders of magnitude.
+- **seen**: 2026-11-23, SET-AF103A.
+- **update (same day, measured negative)**: cure (1) was tried and **reverted**. Hoisting `gK`/`ρ` into
+  file-level `private def`s with explicit types plus `private` value lemmas (`gKOf`/`gKOf_apply`,
+  `rhoOf`/`rhoOf_apply`) moved **no gate**: `main` still fails at 200 000, and at 100 000 the previously
+  silent `stabilizer_card_bound` starts failing in `whnf`; at 400 000 the hoist even changes a `rw`
+  match in `hc4`/`hc5` (a real break, not a budget effect). So on this row the cost is **not one
+  unfolding** — naming the term does not move the low-cap site, and the residual is a *few* `have`
+  blocks (`hc2`–`hc5`, then `hLfix`/`hc7` at 800 000). The rule stands for the *defect* half of this
+  entry (cure (2), the opaque-parameter defeq trap, which was real and fixed); cure (1) is a hypothesis
+  that this row falsified, and the low-cap ladder is what falsified it — which is the point of the
+  ladder.
