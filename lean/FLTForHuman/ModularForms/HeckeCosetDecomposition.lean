@@ -65,6 +65,7 @@ import Mathlib.GroupTheory.Transfer
 import Mathlib.FieldTheory.Finite.Basic
 import FLTForHuman.ModularForms.Defs.CohCarrierLevel
 import FLTForHuman.ModularForms.Defs.HeckeOperator
+import FLTForHuman.ModularForms.HeckeCosetSum
 
 set_option autoImplicit false
 
@@ -116,7 +117,160 @@ theorem mapGL_conjL_mul_heckeMatrix (t : ↥(GammaHUpper M H q)) :
   fin_cases i <;> fin_cases j <;>
     simp [conjUpperMat, Matrix.mul_apply, Fin.sum_univ_two, hcast, mul_comm]
 
+
+/-! ## The `Γ_H` Hecke pair as a level quotient
+
+`Γ_H(M)` and its level subgroup `Γ_HUpper(M,H,q) = Γ⁰(q) ⊓ Γ_H(M)` are a Hecke pair: the double
+coset `Γ_H g Γ_H` is a disjoint union of left `Γ_H`-cosets indexed by
+`Γ_H ⧸ Γ_HUpper`. That is exactly `HeckeCoset.Transversal.ofQuotient` with
+`K = Γ_H(M)`'s image in `GL(2,ℝ)` and `g = !![1, 0; 0, q]`, once one knows that the stabiliser
+`K ⊓ g⁻¹Kg` *is* `Γ_HUpper`. The two lemmas below are that identification and its consequence, the
+index bijection; everything else about the family is the generic theory. -/
+
+/-- The image of `Γ_H(M)` in `GL(2,ℝ)`: the level group the Hecke operator lives in. -/
+abbrev levelGroup (M : ℕ) (H : Subgroup (ZMod M)ˣ) : Subgroup (GL (Fin 2) ℝ) :=
+  (GammaH M H).map (Matrix.SpecialLinearGroup.mapGL ℝ)
+
+/-- `Γ_H(M)` is isomorphic to its image in `GL(2,ℝ)`. -/
+noncomputable def levelEquiv (M : ℕ) (H : Subgroup (ZMod M)ˣ) :
+    ↥(GammaH M H) ≃* ↥(levelGroup M H) :=
+  (GammaH M H).equivMapOfInjective (Matrix.SpecialLinearGroup.mapGL ℝ)
+    Matrix.SpecialLinearGroup.mapGL_injective
+
+@[simp] theorem coe_levelEquiv (M : ℕ) (H : Subgroup (ZMod M)ˣ) (x : ↥(GammaH M H)) :
+    ((levelEquiv M H x : ↥(levelGroup M H)) : GL (Fin 2) ℝ)
+      = (Matrix.SpecialLinearGroup.mapGL ℝ (x : SL(2, ℤ)) : GL (Fin 2) ℝ) := rfl
+
+/-- Conjugating a `Γ_H`-element into `Γ_H` forces its upper-right entry to be divisible by `q`:
+multiplying the conjugacy relation by `!![1, 0; 0, q]` reads the entry off. -/
+theorem dvd_of_conj_mem (M : ℕ) (H : Subgroup (ZMod M)ˣ) (q : ℕ) [NeZero q] {y : ↥(GammaH M H)}
+    (hy : ModularForm.heckeMatrix q 0 * ((levelEquiv M H y : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
+        (ModularForm.heckeMatrix q 0)⁻¹ ∈ levelGroup M H) :
+    (q : ℤ) ∣ ((y : SL(2, ℤ)) 0 1) := by
+  obtain ⟨z, -, hzeq⟩ := Subgroup.mem_map.mp hy
+  have h1 : (Matrix.SpecialLinearGroup.mapGL ℝ (z : SL(2, ℤ)) : GL (Fin 2) ℝ) * ModularForm.heckeMatrix q 0
+      = ModularForm.heckeMatrix q 0 * (Matrix.SpecialLinearGroup.mapGL ℝ (y : SL(2, ℤ)) : GL (Fin 2) ℝ) := by
+    rw [hzeq, coe_levelEquiv]
+    group
+  have h2 : ((z : SL(2, ℤ)) 0 1 : ℝ) * (q : ℝ) = ((y : SL(2, ℤ)) 0 1 : ℝ) := by
+    have h := congrArg (fun A : Matrix (Fin 2) (Fin 2) ℝ => A 0 1)
+      (congrArg (fun w : GL (Fin 2) ℝ => ((w : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ)) h1)
+    simpa [Matrix.mul_apply, Fin.sum_univ_two, ModularForm.val_heckeMatrix (NeZero.ne q), Matrix.map_apply] using h
+  have h3 : ((z : SL(2, ℤ)) 0 1 : ℤ) * (q : ℤ) = ((y : SL(2, ℤ)) 0 1 : ℤ) := by
+    exact_mod_cast h2
+  refine ⟨((z : SL(2, ℤ)) 0 1), ?_⟩
+  rw [mul_comm]
+  exact h3.symm
+
+/-- **The stabiliser of the `Γ_H` coset is `Γ_HUpper`.** -/
+theorem stabiliser_eq (M : ℕ) (H : Subgroup (ZMod M)ˣ) (q : ℕ) [NeZero q] :
+    HeckeCoset.Transversal.stabiliser (levelGroup M H) (ModularForm.heckeMatrix q 0)
+      = (GammaHUpper M H q).map (levelEquiv M H).toMonoidHom := by
+  refine le_antisymm ?_ ?_
+  · intro x hx
+    obtain ⟨-, hxg⟩ := HeckeCoset.Transversal.mem_stabiliser.mp hx
+    obtain ⟨y, rfl⟩ := (levelEquiv M H).surjective x
+    refine Subgroup.mem_map.mpr ⟨y, ?_, rfl⟩
+    rw [Subgroup.mem_subgroupOf, ModularForm.Level.mem_Gamma0Upper_iff_dvd]
+    exact dvd_of_conj_mem M H q hxg
+  · intro x hx
+    obtain ⟨t, ht, rfl⟩ := Subgroup.mem_map.mp hx
+    refine HeckeCoset.Transversal.mem_stabiliser.mpr ⟨(levelEquiv M H t).2, ?_⟩
+    set tU : ↥(GammaHUpper M H q) := ⟨t, ht⟩
+    have hconj := mapGL_conjL_mul_heckeMatrix M H q tU
+    have heq : ModularForm.heckeMatrix q 0 *
+          ((↑((levelEquiv M H).toMonoidHom t) : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
+          (ModularForm.heckeMatrix q 0)⁻¹
+        = (Matrix.SpecialLinearGroup.mapGL ℝ ((conjL M H q tU : ↥(GammaH M H)) : SL(2, ℤ)) :
+            GL (Fin 2) ℝ) := by
+      rw [show (levelEquiv M H).toMonoidHom t = (levelEquiv M H) t from rfl, coe_levelEquiv,
+        ← hconj]
+      group
+    rw [heq]
+    exact Subgroup.mem_map_of_mem _ (conjL M H q tU).2
+
 omit [NeZero M] in
+/-- Conjugating a `Γ_HUpper`-element into the level group stays in it. -/
+theorem conj_mem_of_mem_GammaHUpper {t : ↥(GammaHUpper M H q)} :
+    ModularForm.heckeMatrix q 0 *
+        (((levelEquiv M H (t : ↥(GammaH M H))) : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
+        (ModularForm.heckeMatrix q 0)⁻¹ ∈ levelGroup M H := by
+  have hconj := mapGL_conjL_mul_heckeMatrix M H q t
+  have heq : ModularForm.heckeMatrix q 0 *
+        (((levelEquiv M H (t : ↥(GammaH M H))) : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
+        (ModularForm.heckeMatrix q 0)⁻¹
+      = (Matrix.SpecialLinearGroup.mapGL ℝ ((conjL M H q t : ↥(GammaH M H)) : SL(2, ℤ)) : GL (Fin 2) ℝ) := by
+    rw [coe_levelEquiv, ← hconj]
+    group
+  rw [heq]
+  exact Subgroup.mem_map_of_mem _ (conjL M H q t).2
+
+omit [NeZero M] in
+/-- **The `Γ_H` representatives are a transversal.** The three geometric fields — membership in
+`Γ_H(M) · !![1,0;0,q] · Γ_H(M)`, distinctness and exhaustiveness — are stated for the family's own
+index `Γ_H(M) ⧸ Γ_HUpper(M,H,q)`, the index its concrete coset sum uses. The identification with
+the level quotient `K ⧸ (K ⊓ g⁻¹Kg)` of the theory is `stabiliser_eq`, applied inside these fields;
+nothing about the family's theorems mentions it. -/
+noncomputable def betaTransversal [Fintype (↥(GammaH M H) ⧸ GammaHUpper M H q)] :
+    HeckeCoset.Transversal (levelGroup M H) (ModularForm.heckeMatrix q 0)
+      (↥(GammaH M H) ⧸ GammaHUpper M H q) where
+  r c := beta M H q c
+  mem c := by
+    refine HeckePair.mem_doubleCoset_iff.mpr
+      ⟨1, Subgroup.one_mem _, (levelEquiv M H c.out : ↥(levelGroup M H))⁻¹,
+        (levelGroup M H).inv_mem (levelEquiv M H c.out).2, ?_⟩
+    rw [one_mul, beta, map_inv, coe_levelEquiv]
+  distinct a b hab := by
+    rw [show a = QuotientGroup.mk a.out from (QuotientGroup.out_eq' a).symm,
+      show b = QuotientGroup.mk b.out from (QuotientGroup.out_eq' b).symm, QuotientGroup.eq]
+    have hiff : beta M H q a * (beta M H q b)⁻¹
+        = ModularForm.heckeMatrix q 0 *
+            (Matrix.SpecialLinearGroup.mapGL ℝ (((a.out : ↥(GammaH M H))⁻¹ * b.out : ↥(GammaH M H)) : SL(2, ℤ))) *
+            (ModularForm.heckeMatrix q 0)⁻¹ := by
+      rw [beta, beta, map_inv, map_inv, Subgroup.coe_mul, Subgroup.coe_inv, map_mul, map_inv]
+      group
+    rw [hiff] at hab
+    have hy : ModularForm.heckeMatrix q 0 *
+          ((levelEquiv M H ((a.out : ↥(GammaH M H))⁻¹ * b.out) : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
+          (ModularForm.heckeMatrix q 0)⁻¹ ∈ levelGroup M H := by
+      rw [coe_levelEquiv]
+      exact hab
+    rw [Subgroup.mem_subgroupOf, ModularForm.Level.mem_Gamma0Upper_iff_dvd]
+    exact dvd_of_conj_mem M H q hy
+  cover z hz := by
+    obtain ⟨u, hu, v, hv, hzuv⟩ := HeckePair.mem_doubleCoset_iff.mp hz
+    obtain ⟨u₀, hu₀, rfl⟩ := Subgroup.mem_map.mp hu
+    obtain ⟨v₀, hv₀, rfl⟩ := Subgroup.mem_map.mp hv
+    rw [← hzuv]
+    set c : ↥(GammaH M H) ⧸ GammaHUpper M H q := QuotientGroup.mk (⟨v₀⁻¹, (GammaH M H).inv_mem hv₀⟩ : ↥(GammaH M H)) with hc
+    refine ⟨c, ?_⟩
+    have hcls : (⟨v₀ * (c.out : SL(2, ℤ)), (GammaH M H).mul_mem hv₀ c.out.2⟩ : ↥(GammaH M H)) ∈
+        GammaHUpper M H q := by
+      have h : (QuotientGroup.mk (⟨v₀⁻¹, (GammaH M H).inv_mem hv₀⟩ : ↥(GammaH M H)) :
+            ↥(GammaH M H) ⧸ GammaHUpper M H q) = QuotientGroup.mk (c.out : ↥(GammaH M H)) := by
+        rw [hc]
+        exact (QuotientGroup.out_eq' c).symm
+      have h2 := QuotientGroup.eq.mp h
+      have h3 : ((⟨v₀⁻¹, (GammaH M H).inv_mem hv₀⟩ : ↥(GammaH M H))⁻¹ : ↥(GammaH M H)) =
+          ⟨v₀, hv₀⟩ := Subtype.ext (by simp)
+      rwa [h3] at h2
+    set y : ↥(GammaHUpper M H q) :=
+      ⟨⟨v₀ * (c.out : SL(2, ℤ)), (GammaH M H).mul_mem hv₀ c.out.2⟩, hcls⟩ with hy
+    have hconj := conj_mem_of_mem_GammaHUpper (M := M) (H := H) (q := q) (t := y)
+    have hfac : ((Matrix.SpecialLinearGroup.mapGL ℝ u₀ : GL (Fin 2) ℝ)) * ModularForm.heckeMatrix q 0 *
+          (Matrix.SpecialLinearGroup.mapGL ℝ v₀ : GL (Fin 2) ℝ) * (beta M H q c)⁻¹
+        = (Matrix.SpecialLinearGroup.mapGL ℝ u₀ : GL (Fin 2) ℝ) *
+          (ModularForm.heckeMatrix q 0 *
+            ((levelEquiv M H (y : ↥(GammaH M H)) : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
+            (ModularForm.heckeMatrix q 0)⁻¹) := by
+      rw [beta, map_inv, coe_levelEquiv, map_mul]
+      group
+    rw [hfac]
+    exact (levelGroup M H).mul_mem (Subgroup.mem_map_of_mem _ hu₀) hconj
+
+omit [NeZero M] in
+/-- **The `Γ_H` coset sum is `Γ_H`-invariant**: the level invariance of a level-quotient
+transversal, applied to `betaTransversal`. -/
 theorem sum_slash_beta_slash_eq (k : ℤ) {f : ℍ → ℂ}
     (hf : ∀ γ ∈ (GammaH M H).map (Matrix.SpecialLinearGroup.mapGL ℝ), f ∣[k] γ = f)
     (γ : GL (Fin 2) ℝ) (hγ : γ ∈ (GammaH M H).map (Matrix.SpecialLinearGroup.mapGL ℝ)) :
@@ -124,46 +278,24 @@ theorem sum_slash_beta_slash_eq (k : ℤ) {f : ℍ → ℂ}
     (∑ c : ↥(GammaH M H) ⧸ GammaHUpper M H q, f ∣[k] beta M H q c) ∣[k] γ =
       ∑ c : ↥(GammaH M H) ⧸ GammaHUpper M H q, f ∣[k] beta M H q c := by
   letI := (GammaHUpper M H q).fintypeQuotientOfFiniteIndex
-  obtain ⟨g, hg, rfl⟩ := Subgroup.mem_map.mp hγ
-  set g' : ↥(GammaH M H) := ⟨g, hg⟩ with hg'
+  exact (betaTransversal M H q).slash_invariant hγ hf
 
-  have hterm : ∀ c : ↥(GammaH M H) ⧸ GammaHUpper M H q,
-      (f ∣[k] beta M H q c) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ g : GL (Fin 2) ℝ) =
-        f ∣[k] beta M H q (g'⁻¹ • c) := by
-    intro c
-    set d := g'⁻¹ • c with hd
-    have hmk : (QuotientGroup.mk (g'⁻¹ * c.out) : ↥(GammaH M H) ⧸ GammaHUpper M H q) = d := by
-      rw [hd]
-      conv_rhs => rw [← QuotientGroup.out_eq' c]
-      rw [MulAction.Quotient.smul_mk]
-      rfl
-    obtain ⟨t, ht⟩ := QuotientGroup.mk_out_eq_mul (GammaHUpper M H q) (g'⁻¹ * c.out)
-    rw [hmk] at ht
-
-    have hrel : (((c.out : ↥(GammaH M H)) : SL(2, ℤ)))⁻¹ * g =
-        (((t : ↥(GammaHUpper M H q)) : ↥(GammaH M H)) : SL(2, ℤ)) * (((d.out : ↥(GammaH M H)) : SL(2, ℤ)))⁻¹ := by
-      have h1 : ((d.out : ↥(GammaH M H)) : SL(2, ℤ)) =
-          (g⁻¹ * ((c.out : ↥(GammaH M H)) : SL(2, ℤ))) * (((t : ↥(GammaHUpper M H q)) : ↥(GammaH M H)) : SL(2, ℤ)) := by
-        have := congrArg (fun x : ↥(GammaH M H) => (x : SL(2, ℤ))) ht
-        simpa using this
-      rw [h1]; group
-    rw [← SlashAction.slash_mul]
-    have hb : beta M H q c * (Matrix.SpecialLinearGroup.mapGL ℝ g : GL (Fin 2) ℝ) =
-        (Matrix.SpecialLinearGroup.mapGL ℝ ((conjL M H q t : ↥(GammaH M H)) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
-          beta M H q d := by
-      simp only [beta]
-      rw [mul_assoc, ← map_mul, hrel, map_mul, ← mul_assoc, ← mapGL_conjL_mul_heckeMatrix, mul_assoc]
-    rw [hb, SlashAction.slash_mul, hf _ (Subgroup.mem_map_of_mem _ (conjL M H q t).2)]
-  classical
-  have hsum : ∀ (s : Finset (↥(GammaH M H) ⧸ GammaHUpper M H q)) (F : (↥(GammaH M H) ⧸ GammaHUpper M H q) → ℍ → ℂ)
-      (A : GL (Fin 2) ℝ), (∑ c ∈ s, F c) ∣[k] A = ∑ c ∈ s, (F c) ∣[k] A := by
-    intro s F A
-    induction s using Finset.induction_on with
-    | empty => simp [SlashAction.zero_slash]
-    | insert a s ha ih => rw [Finset.sum_insert ha, Finset.sum_insert ha, SlashAction.add_slash, ih]
-  rw [hsum]
-  simp_rw [hterm]
-  exact Fintype.sum_bijective (g'⁻¹ • ·) (MulAction.bijective g'⁻¹) _ _ (fun c => rfl)
+omit [NeZero M] in
+/-- **The `Γ_H` coset sum is the double-coset operator.** -/
+theorem sum_slash_beta_eq_doubleCosetOperator (k : ℤ) {f : ℍ → ℂ}
+    (hf : ∀ γ ∈ levelGroup M H, f ∣[k] γ = f) :
+    letI := (GammaHUpper M H q).fintypeQuotientOfFiniteIndex
+    (∑ c : ↥(GammaH M H) ⧸ GammaHUpper M H q, f ∣[k] beta M H q c)
+      = HeckeCoset.doubleCosetOperator k (levelGroup M H) (ModularForm.heckeMatrix q 0)
+          (by
+            rw [ModularForm.det_heckeMatrix (NeZero.ne q)]
+            exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne q)) f := by
+  letI := (GammaHUpper M H q).fintypeQuotientOfFiniteIndex
+  exact (betaTransversal M H q).sum_eq_doubleCosetOperator hf
+    (fun γ hγ => HeckeCoset.det_pos_of_mem_mapSL hγ)
+    (by
+      rw [ModularForm.det_heckeMatrix (NeZero.ne q)]
+      exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne q))
 
 end
 
