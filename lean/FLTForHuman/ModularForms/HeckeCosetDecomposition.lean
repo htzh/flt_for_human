@@ -128,22 +128,22 @@ coset `Γ_H g Γ_H` is a disjoint union of left `Γ_H`-cosets indexed by
 index bijection; everything else about the family is the generic theory. -/
 
 /-- The image of `Γ_H(M)` in `GL(2,ℝ)`: the level group the Hecke operator lives in. -/
-abbrev levelGroup (M : ℕ) (H : Subgroup (ZMod M)ˣ) : Subgroup (GL (Fin 2) ℝ) :=
+private abbrev levelGroup (M : ℕ) (H : Subgroup (ZMod M)ˣ) : Subgroup (GL (Fin 2) ℝ) :=
   (GammaH M H).map (Matrix.SpecialLinearGroup.mapGL ℝ)
 
 /-- `Γ_H(M)` is isomorphic to its image in `GL(2,ℝ)`. -/
-noncomputable def levelEquiv (M : ℕ) (H : Subgroup (ZMod M)ˣ) :
+private noncomputable def levelEquiv (M : ℕ) (H : Subgroup (ZMod M)ˣ) :
     ↥(GammaH M H) ≃* ↥(levelGroup M H) :=
   (GammaH M H).equivMapOfInjective (Matrix.SpecialLinearGroup.mapGL ℝ)
     Matrix.SpecialLinearGroup.mapGL_injective
 
-@[simp] theorem coe_levelEquiv (M : ℕ) (H : Subgroup (ZMod M)ˣ) (x : ↥(GammaH M H)) :
+@[simp] private theorem coe_levelEquiv (M : ℕ) (H : Subgroup (ZMod M)ˣ) (x : ↥(GammaH M H)) :
     ((levelEquiv M H x : ↥(levelGroup M H)) : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ (x : SL(2, ℤ)) : GL (Fin 2) ℝ) := rfl
 
 /-- Conjugating a `Γ_H`-element into `Γ_H` forces its upper-right entry to be divisible by `q`:
 multiplying the conjugacy relation by `!![1, 0; 0, q]` reads the entry off. -/
-theorem dvd_of_conj_mem (M : ℕ) (H : Subgroup (ZMod M)ˣ) (q : ℕ) [NeZero q] {y : ↥(GammaH M H)}
+private theorem dvd_of_conj_mem (M : ℕ) (H : Subgroup (ZMod M)ˣ) (q : ℕ) [NeZero q] {y : ↥(GammaH M H)}
     (hy : ModularForm.heckeMatrix q 0 * ((levelEquiv M H y : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
         (ModularForm.heckeMatrix q 0)⁻¹ ∈ levelGroup M H) :
     (q : ℤ) ∣ ((y : SL(2, ℤ)) 0 1) := by
@@ -191,7 +191,7 @@ theorem stabiliser_eq (M : ℕ) (H : Subgroup (ZMod M)ˣ) (q : ℕ) [NeZero q] :
 
 omit [NeZero M] in
 /-- Conjugating a `Γ_HUpper`-element into the level group stays in it. -/
-theorem conj_mem_of_mem_GammaHUpper {t : ↥(GammaHUpper M H q)} :
+private theorem conj_mem_of_mem_GammaHUpper {t : ↥(GammaHUpper M H q)} :
     ModularForm.heckeMatrix q 0 *
         (((levelEquiv M H (t : ↥(GammaH M H))) : ↥(levelGroup M H)) : GL (Fin 2) ℝ) *
         (ModularForm.heckeMatrix q 0)⁻¹ ∈ levelGroup M H := by
@@ -211,7 +211,7 @@ omit [NeZero M] in
 index `Γ_H(M) ⧸ Γ_HUpper(M,H,q)`, the index its concrete coset sum uses. The identification with
 the level quotient `K ⧸ (K ⊓ g⁻¹Kg)` of the theory is `stabiliser_eq`, applied inside these fields;
 nothing about the family's theorems mentions it. -/
-noncomputable def betaTransversal [Fintype (↥(GammaH M H) ⧸ GammaHUpper M H q)] :
+private noncomputable def betaTransversal [Fintype (↥(GammaH M H) ⧸ GammaHUpper M H q)] :
     HeckeCoset.Transversal (levelGroup M H) (ModularForm.heckeMatrix q 0)
       (↥(GammaH M H) ⧸ GammaHUpper M H q) where
   r c := beta M H q c
@@ -303,7 +303,7 @@ section Affine
 
 variable (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (q : ℕ) [NeZero q]
 
-def transl (n : ℤ) : ↥(GammaH M H) :=
+private def transl (n : ℤ) : ↥(GammaH M H) :=
   ⟨ModularGroup.T ^ n, by
     rw [mem_GammaH_iff]
     have h0 : ModularGroup.T ^ n ∈ Gamma0 M := by
@@ -316,16 +316,16 @@ def transl (n : ℤ) : ↥(GammaH M H) :=
     rw [this]; exact one_mem H⟩
 
 omit [NeZero M] in
-@[scoped simp] theorem coe_transl (n : ℤ) : ((transl M H n : ↥(GammaH M H)) : SL(2, ℤ)) = ModularGroup.T ^ n := rfl
+@[scoped simp] private theorem coe_transl (n : ℤ) : ((transl M H n : ↥(GammaH M H)) : SL(2, ℤ)) = ModularGroup.T ^ n := rfl
 
-theorem exists_add_neg_eq_mul (j : Fin q) : ∃ e : ℕ, (j : ℕ) + ((-j : Fin q) : ℕ) = e * q := by
+private theorem exists_add_neg_eq_mul (j : Fin q) : ∃ e : ℕ, (j : ℕ) + ((-j : Fin q) : ℕ) = e * q := by
   have h : ((j : ℕ) + ((-j : Fin q) : ℕ)) % q = 0 := by
     have := Fin.val_add j (-j)
     rw [add_neg_cancel, Fin.val_zero] at this
     exact this.symm
   exact ⟨((j : ℕ) + ((-j : Fin q) : ℕ)) / q, (Nat.div_mul_cancel (Nat.dvd_of_mod_eq_zero h)).symm⟩
 
-theorem heckeMatrix_zero_mul_mapGL_T_zpow_neg (j : Fin q) (e : ℕ) (he : (j : ℕ) + ((-j : Fin q) : ℕ) = e * q) :
+private theorem heckeMatrix_zero_mul_mapGL_T_zpow_neg (j : Fin q) (e : ℕ) (he : (j : ℕ) + ((-j : Fin q) : ℕ) = e * q) :
     ModularForm.heckeMatrix q 0 * (Matrix.SpecialLinearGroup.mapGL ℝ ((ModularGroup.T ^ ((j : ℕ) : ℤ))⁻¹) : GL (Fin 2) ℝ) =
       (Matrix.SpecialLinearGroup.mapGL ℝ ((ModularGroup.T ^ (e : ℤ))⁻¹) : GL (Fin 2) ℝ) *
         ModularForm.heckeMatrix q ((-j : Fin q) : ℕ) := by
@@ -345,7 +345,7 @@ theorem heckeMatrix_zero_mul_mapGL_T_zpow_neg (j : Fin q) (e : ℕ) (he : (j : �
   fin_cases i <;> fin_cases k <;> simp [Matrix.mul_apply, Fin.sum_univ_two]; linarith [he']
 
 omit [NeZero M] in
-theorem bijective_transl (hqM : q ∣ M) :
+private theorem bijective_transl (hqM : q ∣ M) :
     Function.Bijective (fun j : Fin q => (QuotientGroup.mk (transl M H ((j : ℕ) : ℤ)) :
       ↥(GammaH M H) ⧸ GammaHUpper M H q)) := by
   have hq : q ≠ 0 := NeZero.ne q
@@ -455,7 +455,7 @@ theorem exists_bezoutData (hℓM : ¬ ℓ ∣ M) : Nonempty (BezoutData M ℓ) :
 
 variable {M ℓ}
 
-def gammaInf (B : BezoutData M ℓ) : ↥(GammaH M H) :=
+private def gammaInf (B : BezoutData M ℓ) : ↥(GammaH M H) :=
   ⟨(⟨!![1, -B.v; (M : ℤ), B.u * ℓ], by rw [Matrix.det_fin_two_of]; linear_combination B.huv⟩ :
       SL(2, ℤ)), by
     -- `rw [mem_GammaH_iff]` does not fire here: `Matrix.SpecialLinearGroup` is a
@@ -474,15 +474,15 @@ def gammaInf (B : BezoutData M ℓ) : ↥(GammaH M H) :=
         rw [this]; push_cast; simp
       rw [h]; exact one_mem H⟩
 
-def rhoInf (B : BezoutData M ℓ) : Gamma0 M :=
+private def rhoInf (B : BezoutData M ℓ) : Gamma0 M :=
   ⟨⟨!![B.u, B.v; -(M : ℤ), (ℓ : ℤ)], by rw [Matrix.det_fin_two_of]; linear_combination B.huv⟩,
     Gamma0_mem.mpr (by show ((-(M : ℤ) : ℤ) : ZMod M) = 0; simp)⟩
 
 omit [NeZero M] [Fact ℓ.Prime] in
-theorem rhoInf_apply_11 (B : BezoutData M ℓ) : (((rhoInf B : Gamma0 M) : SL(2, ℤ)) 1 1 : ℤ) = ℓ := rfl
+private theorem rhoInf_apply_11 (B : BezoutData M ℓ) : (((rhoInf B : Gamma0 M) : SL(2, ℤ)) 1 1 : ℤ) = ℓ := rfl
 
 omit [NeZero M] in
-theorem heckeMatrix_zero_mul_mapGL_gammaInf_inv (B : BezoutData M ℓ) :
+private theorem heckeMatrix_zero_mul_mapGL_gammaInf_inv (B : BezoutData M ℓ) :
     ModularForm.heckeMatrix ℓ 0 *
         (Matrix.SpecialLinearGroup.mapGL ℝ (((gammaInf H B : ↥(GammaH M H)) : SL(2, ℤ))⁻¹) : GL (Fin 2) ℝ) =
       (Matrix.SpecialLinearGroup.mapGL ℝ ((rhoInf B : Gamma0 M) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
@@ -503,7 +503,7 @@ theorem heckeMatrix_zero_mul_mapGL_gammaInf_inv (B : BezoutData M ℓ) :
   · ring
 
 omit [NeZero M] in
-theorem bijective_option (B : BezoutData M ℓ) :
+private theorem bijective_option (B : BezoutData M ℓ) :
     Function.Bijective (fun o : Option (Fin ℓ) => (o.elim (QuotientGroup.mk (gammaInf H B))
       (fun j => QuotientGroup.mk (transl M H ((j : ℕ) : ℤ))) : ↥(GammaH M H) ⧸ GammaHUpper M H ℓ)) := by
   have hℓ : ℓ ≠ 0 := NeZero.ne ℓ

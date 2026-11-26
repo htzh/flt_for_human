@@ -116,48 +116,33 @@ theorem mem_stabiliser {K : Subgroup G} {g : G} {x : ↥K} :
     exact Subgroup.mem_subgroupOf.mpr
       ⟨h1, Subgroup.mem_comap.mpr (by simpa [MulAut.conj_apply] using h2)⟩
 
-/-- **Every family is a level quotient.** For any subgroup `K`, any `g`, and any level subgroup
-`J ≤ K` with `J = K ⊓ g⁻¹Kg`, the finite family `c ↦ g * c⁻¹` over `K ⧸ J` is a transversal of
-`K g K`: it lies in the double coset by construction, distinct classes give distinct left cosets
-because `J` *is* the stabiliser, and exhaustiveness is the quotient's `out` map. A family therefore
-does not prove the three geometric facts at all — it only has to identify its own level subgroup
-with `K ⊓ g⁻¹Kg` and its own index with this quotient. -/
-noncomputable def ofQuotient (K : Subgroup G) (g : G) [Fintype (↥K ⧸ stabiliser K g)] :
-    Transversal K g (↥K ⧸ stabiliser K g) where
-  r c := g * (((c.out : ↥K) : G))⁻¹
-  mem c := HeckePair.mem_doubleCoset_iff.mpr
-    ⟨1, one_mem K, (((c.out : ↥K) : G))⁻¹, K.inv_mem c.out.2, by group⟩
-  distinct a b hab := by
-    have hconj : g * ((((a.out : ↥K) : G))⁻¹ * (((b.out : ↥K) : G))) * g⁻¹ ∈ K := by
-      have h := hab
-      rw [show (g * (((a.out : ↥K) : G))⁻¹) * (g * (((b.out : ↥K) : G))⁻¹)⁻¹
-          = g * ((((a.out : ↥K) : G))⁻¹ * (((b.out : ↥K) : G))) * g⁻¹ from by group] at h
+/-- **A family's representatives are `g` times a right transversal of the stabiliser.** What a
+family supplies is its index, the transversal `u` in the level group, and the count. The level pair
+is not an input: the subgroup is `stabiliser K g` itself, so nothing about it is restated here. -/
+def ofLevel {K : Subgroup G} {g : G} {ι : Type*} [Fintype ι]
+    (u : ι → ↥K) (hu : ∀ a : ↥K, ∃! i, a * (u i)⁻¹ ∈ stabiliser K g) :
+    Transversal K g ι where
+  r i := g * (u i : G)
+  mem i := HeckePair.mem_doubleCoset_iff.mpr ⟨1, one_mem K, (u i : G), (u i).2, by group⟩
+  distinct i j h := by
+    have h' : (u i) * (u j)⁻¹ ∈ stabiliser K g := by
+      refine (mem_stabiliser (K := K) (g := g)).mpr ⟨K.mul_mem (u i).2 (K.inv_mem (u j).2), ?_⟩
+      rw [show g * ↑((u i) * (u j)⁻¹) * g⁻¹ = g * ↑(u i) * (g * ↑(u j))⁻¹ from by
+        simp only [Subgroup.coe_mul, Subgroup.coe_inv]
+        group]
       exact h
-    have hmem : (⟨(((a.out : ↥K) : G))⁻¹ * (((b.out : ↥K) : G)),
-        K.mul_mem (K.inv_mem a.out.2) b.out.2⟩ : ↥K) ∈ stabiliser K g := by
-      rw [mem_stabiliser]
-      exact ⟨K.mul_mem (K.inv_mem a.out.2) b.out.2, hconj⟩
-    rw [show a = QuotientGroup.mk (a.out : ↥K) from (QuotientGroup.out_eq' a).symm,
-      show b = QuotientGroup.mk (b.out : ↥K) from (QuotientGroup.out_eq' b).symm, QuotientGroup.eq]
-    exact hmem
+    obtain ⟨k, -, huniq⟩ := hu (u i)
+    exact (huniq i (by simp)).trans (huniq j h').symm
   cover z hz := by
-    obtain ⟨u, hu, v, hv, rfl⟩ := HeckePair.mem_doubleCoset_iff.mp hz
-    set c : ↥K ⧸ stabiliser K g := QuotientGroup.mk (⟨v⁻¹, K.inv_mem hv⟩ : ↥K) with hc
-    refine ⟨c, ?_⟩
-    have hcls : (⟨v, hv⟩ : ↥K) * c.out ∈ stabiliser K g := by
-      have h : (QuotientGroup.mk (⟨v⁻¹, K.inv_mem hv⟩ : ↥K) : ↥K ⧸ stabiliser K g)
-          = (QuotientGroup.mk (c.out : ↥K) : ↥K ⧸ stabiliser K g) := by
-        rw [hc]
-        exact (QuotientGroup.out_eq' c).symm
-      have h2 : ((⟨v⁻¹, K.inv_mem hv⟩ : ↥K)⁻¹ : ↥K) * c.out ∈ stabiliser K g := QuotientGroup.eq.mp h
-      have h3 : ((⟨v⁻¹, K.inv_mem hv⟩ : ↥K)⁻¹ : ↥K) = ⟨v, hv⟩ := Subtype.ext (by simp)
-      rwa [h3] at h2
-    obtain ⟨-, hconj⟩ := mem_stabiliser.mp hcls
-    have hfac : (u * g * v) * (g * (((c.out : ↥K) : G))⁻¹)⁻¹
-        = u * (g * (v * (((c.out : ↥K) : G))) * g⁻¹) := by
+    obtain ⟨a, ha, b, hb, rfl⟩ := HeckePair.mem_doubleCoset_iff.mp hz
+    obtain ⟨i, hi, -⟩ := hu ⟨b, hb⟩
+    refine ⟨i, ?_⟩
+    have e : (a * g * b) * (g * ↑(u i))⁻¹ =
+        a * (g * (b * ((↑(u i) : G))⁻¹) * g⁻¹) := by
       group
-    rw [hfac]
-    exact K.mul_mem hu hconj
+    rw [e]
+    exact K.mul_mem ha (by simpa only [Subgroup.coe_mk, Subgroup.coe_mul, Subgroup.coe_inv] using
+      ((mem_stabiliser (K := K) (g := g)).mp hi).2)
 
 end Transversal
 
@@ -388,6 +373,14 @@ theorem sum_eq_doubleCosetOperator {k : ℤ} (T : Transversal K g ι) {F : ℍ �
   refine Finset.sum_congr rfl fun i _ => ?_
   rw [show f (x i) = 1 from Set.indicator_of_mem (hm i) 1, one_smul, slashRep_apply, slash_coe,
     Subgroup.coe_inv, hx i, inv_inv]
+
+/-- **The coset sum does not depend on the transversal**: two transversals of the same double coset
+have the same sum on the level space. -/
+theorem sum_eq_sum (T : Transversal K g ι) {ι' : Type*} [Fintype ι'] (T' : Transversal K g ι')
+    {k : ℤ} {F : ℍ → ℂ} (hF : ∀ γ ∈ K, F ∣[k] γ = F)
+    (hK : ∀ γ ∈ K, 0 < ((γ : GL (Fin 2) ℝ).det : ℝ)) (hg : 0 < (g.det : ℝ)) :
+    ∑ i, F ∣[k] T.r i = ∑ j, F ∣[k] T'.r j := by
+  rw [T.sum_eq_doubleCosetOperator hF hK hg, T'.sum_eq_doubleCosetOperator hF hK hg]
 
 end Transversal
 
