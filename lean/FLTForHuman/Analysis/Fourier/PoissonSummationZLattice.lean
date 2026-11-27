@@ -67,7 +67,7 @@ open scoped FourierTransform InnerProductSpace SchwartzMap
 
 noncomputable section
 
-open P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation LinearMap
+open PiPoissonSummation LinearMap
 
 /-- Poisson summation on a `ℤ`-lattice: the translated `L`-sum of a Schwartz
 function is the covolume inverse times the twisted dual-lattice sum of its Fourier

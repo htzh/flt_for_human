@@ -6541,3 +6541,74 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   entry (cure (2), the opaque-parameter defeq trap, which was real and fixed); cure (1) is a hypothesis
   that this row falsified, and the low-cap ladder is what falsified it — which is the point of the
   ladder.
+
+## FR-0305 [build] — a module with `.olean.hash` and `.trace` but no `.olean` fails as an *unknown module name*
+
+- **where**: SET-AF104 scaffold elaboration, `AutomorphicForm/Adelic/RankinSelbergAnalyticity.lean`
+  importing `FLTForHuman.Analysis.SpecialFunctions.Pow.Decay`.
+- **symptom**: `object file '.../FLTForHuman/Analysis/SpecialFunctions/Pow/Decay.olean' of module
+  FLTForHuman.Analysis.SpecialFunctions.Pow.Decay does not exist`, which reads exactly like a wrong
+  module path.
+- **cause**: the source is there and correct; the artefact is not. `.lake/build/lib/lean/.../Decay/`
+  held `Decay.ilean.hash`, `Decay.olean.hash`, `Decay.trace`, `Decay.trace.nobuild` and **no
+  `Decay.olean`** — the residue FR-0301 names (an interrupted build leaves the hash/trace files and
+  drops the `.olean`). Nothing about the import is wrong.
+- **cure**: `ls` the artefact directory before believing an unresolved-module error on a module that
+  has always built; if the `.olean` is missing, `flock -w 900 /tmp/flt-build.lock timeout 115 lake
+  build <Module>` (11 s here) and re-run.
+- **rule**: the `lake env lean` error has two different causes behind one message — a genuinely absent
+  module, and a present source whose artefact was killed. The distinguishing test is the artefact
+  directory's contents, not the source tree.
+- **seen**: 2026-11-26, SET-AF104 scaffold construction.
+
+## FR-0306 [tooling] — `port_advise`'s "already in the port" fires on any `haveI`-headed `Prop`, and a pin's `_pkg` rows are all of them
+
+- **where**: SET-AF104E pricing, `P2M/Sol/S_ModularCurve_two_mul_genusFF_add_card_fibres_le_finrank_add_two_of_gamma1_le.lean`
+  lines 119–165, the `RiemannHurwitzCount.Package` block.
+- **symptom**: `port_advise` reports `riemannRoch_and_constantsAreBase_pkg`, `degree_canonical_pkg`,
+  `genus_eq_genusFF_pkg`, `isCurveOver_pkg`, `essFiniteType_pkg` as *substitute* rows (already in the
+  port, ≈70 lines "not to re-prove"), each matched to
+  `DegreeOnePrimes.finiteDimensional_fractionRing` in
+  `NumberTheory/FrobeniusDensity/DegreeOnePrimesInfinite.lean`.
+- **cause**: those pin rows are `Prop`-valued *packages* of the shape
+  `haveI := hasCanonicalDivisor_pkg …; FunctionFieldRiemannRoch k F ∧ ConstantsAreBase k F`. The
+  statement normaliser keeps the `haveI` prefix, so the type reduces to `haveI _; (…)` and matches the
+  port's `haveI := charZero_fractionRing R; FiniteDimensional ℚ (FractionRing R)`, a different subject
+  entirely. Each pin row is a one-line call of an `AlgebraicCurve` assembly, so the transcription is
+  cheap — but it *is* a transcription and the block is the pin's API prelude for that module.
+- **cure**: read the pin body of every `haveI`-headed substitution row before dropping it, exactly as
+  for the `def … : Prop` class (§2.4). The `_pkg` suffix is a good smell: it marks a row that packages
+  a conjunction of hypotheses for downstream use.
+- **rule**: after the `def … : Prop` false positive, the second shape to distrust in the *substitute*
+  block is `haveI _; …` — an instance-prefixed proposition matches almost anything of the same shape.
+- **seen**: 2026-11-26, SET-AF104 scope.
+- **update (same day, second sighting — `dedup.py` has the same blind spot)**: SET-AF104E's module
+  reports **one** `dedup --within` cluster at 34 lines, and it is the `_pkg` block itself
+  (`riemannRoch_and_constantsAreBase_pkg` / `genus_eq_genusFF_pkg` / `degree_canonical_pkg`): the
+  shape tier normalises the `haveI := …` prefix away, so three *different* package rows read as one
+  duplicated statement. Like `port_advise`'s substitute block, `dedup` is not to be believed on a
+  `haveI`-headed `Prop` — read the three bodies (here: three different `AlgebraicCurve` assemblies).
+  The cluster stays in the module's report with that reason; it is not a dedup candidate.
+
+## FR-0307 [build] — a pin-side namespace path left in an `open` line keeps a finished module red, and only a whole-tree build sees it
+
+- **where**: `FLTForHuman/Analysis/Fourier/PoissonSummationZLattice.lean` (293 lines, 2 theorems,
+  written 2026-10-20, broken ever since), found while closing SET-AF104.
+- **symptom**: the module's eight errors are all `unknown namespace
+  P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation` / `Unknown identifier
+  intVec` / `Unknown identifier piFourierIntegral` — i.e. everything the file opens looks missing,
+  although `PoissonSummationPi.lean` (same commit, 618 lines) defines all of it.
+- **cause**: line 70 read `open P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation
+  LinearMap` — the **pin's** namespace path, transcribed with the statement and never rewritten to the
+  port's (`PiPoissonSummation`, at the root). The engine was there and the port was otherwise faithful
+  (`check_port` reads **2 ok / 0 / 0** after the fix). Nothing imports the module, so per-module work
+  never re-elaborated it; and the library's glob makes `lake build` compile it, so the only gate that
+  reports it is a whole-tree build — which this project runs last, with the user's agreement, so a
+  broken module can sit for a month.
+- **cure**: `open PiPoissonSummation LinearMap` (one line). Its `.olean.hash`/`.trace` without an
+  `.olean` was the FR-0301 residue of the same failure.
+- **rule**: after transcribing a pin statement, `rg 'P2MW\.' <file>` — a pin path can survive in an
+  `open`, a `namespace`, or a `variable` type, and it is invisible until the file is compiled. And a
+  module that nothing imports is only ever exercised by the tree build, so `lake env lean <file>` over
+  every *new or recently touched* module is worth more than a build of its dependents.
+- **seen**: 2026-11-26, SET-AF104 close.

@@ -1645,3 +1645,29 @@ cost through the `VariableChange`/`Point`/`Place` transports (FR-0304).
 
 When the two carves land, re-run the ladder — the target is `main` silent at 200,000 with nothing
 installed, and the brief's §6.1 should be rewritten to drop the exception.
+
+### SET-AF104E's 346 headline: one edit-loop gap for a refactor round
+
+`ModularCurve/X1/GenusBound.lean` (SET-AF104E) is **complete and green except the edit loop**: `check_port`
+50 ok / 0 / 0, axioms clean on all 50 public declarations, `dedup` 0 real clusters (the one reported is
+the `_pkg` shape false positive), `move_dead` 0/0, nothing installed (no `maxHeartbeats`, no
+`synthInstance.*`, no `attribute [-]` wall) — and it **builds** (`✔ [4729/4729] … GenusBound (53 s)`,
+`Build completed successfully`, 0 warnings from the file) because `lakefile.lean:11` ships a 4 M cap.
+
+Its residual is **one command**: `ModularCurve.ord_le_three_and_ord_sub_le_two_and_ord_sub_le_one_laurentBaseChange_qExpFunctionFieldC_algebraicClosure`
+(the 346 `solution`, pin `:181`, whose pin carries `maxHeartbeats 6400000` +
+`synthInstance.maxHeartbeats 1600000`). The downward ladder at the low cap localises it exactly — 200 000
+→ **1** timeout, 40 000 → 5, 20 000 → 8, 10 000 → 8, 5 000 → 15, 1 000 → below the module floor — so it
+is one command, not a spread, and nothing else in the module is within an order of magnitude of the cap.
+
+Already done, and not to be repeated: four `private` carves of the pin's `have`-blocks
+(`natCard_fibre_le` 33 L, `ord_le_of_ord_pos` 13 L, `finiteDimensional_adjoin_singleton` 22 L,
+`isIntegral_of_algHom_apply_eq` 24 L) and the brick fixes on the two search goals
+(`IntermediateField.finiteDimensional_left E₂` for `FiniteDimensional ↥ℂ⟮t⟯ ↥E₂`, `haveI := hfin` at the
+lemma head for `Finite (K ≃ₐ[↥ℂ⟮t⟯] K)`, and `Algebra.IsAlgebraic.of_finite` replacing an inherited search
+in 812's `main`). Those took nine of the ten bounded pin declarations to silence at 200 000.
+
+The next round's site is the headline's own proof body (the pin's `Γ`-bullet fibre count and the
+restriction-along comparison); the target is silent at 200 000 with nothing installed. Same discipline as
+the SET-AF103A entry above: carve, accept at the low cap, confirm the helpers' budgets sum below the
+removed one, and **do not** install an option or a `sorry`.
