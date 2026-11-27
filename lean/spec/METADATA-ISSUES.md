@@ -358,3 +358,39 @@ for the next edit of their module.
   limitation, recorded in the frontier README's "Notes and limits" and in SET 6 §8.  It
   is not fixed by a header edit — the cure is to port the general node.  SET 7 defers the
   consumer and names the chain.
+
+## MD-008 — a wired node whose declaration the port holds `private` (status: open, deferred to a refactor round)
+
+**Module / registry.** `FLTForHuman/AlgebraicCurve/PrincipalDivisors/Transcendence.lean`, its header's
+`spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_pushforwardNormFormula_of_finiteDimensional.lean` (line 43),
+and the declaration `Divisor.pushforwardNormFormula_of_finiteDimensional` at line 359 — **`private`**.
+
+**Symptom.** The node is ported (the statement is the pin's), the wire claims it, and the declaration is
+invisible outside its module. A consumer that needs the *hypothesis-free* norm formula finds only
+`Divisor.pushforwardNormFormula`, which demands `[HasPrincipalDivisors k L]` and
+`[Algebra.IsSeparable (RatFunc k) L]` — hypotheses the caller does not have.
+
+**Effect per tool.** `check_port` reads the module clean (it checks the module's declarations, and a
+`private` declaration is simply not diffed). `frontier.py --selfcheck`'s name scan does not see a
+`private` declaration, so the source tier claims a node the name tier cannot cover: the node reads as
+ported by the wire while no declaration is reachable. `twin_scan.py --node
+AlgebraicCurve.Divisor.pushforwardNormFormula_of_finiteDimensional` reports `twin-private`, which is the
+distinguishing signal.
+
+**Cost already paid.** SET-AF106C needed the formula in
+`AlgebraicCurve/DivisorPlaceReduction.lean`'s `sum_restrict_eq_ord_norm` and carried its 12-line proof as
+a local `have` (`AF106C-REPORT.md` §"friction"), because a `private` declaration is not importable
+(the preamble's rule).
+
+**Correction (the literal edit).** In `Transcendence.lean`, drop the `private` from
+`pushforwardNormFormula_of_finiteDimensional` (public at the pin's name; it keeps its wire, so
+`check_port` will diff it and reads `ok`), then delete SET-AF106C's local `have hformula` and import the
+now-public row.
+
+**Verification.** `check_port --force` on `Transcendence.lean` (its row set grows by one, `ok`),
+`twin_scan --node` flips from `twin-private` to `twin-public`, and `DivisorPlaceReduction.lean` still
+reads 26 ok with the `have` gone.
+
+**Why deferred.** It is a hub edit (the module's dependents re-elaborate) and SET-AF106's wave had three
+porters building against the tree; the cost is one word plus a cascade, and the register entry is the
+work list for that module's next edit.

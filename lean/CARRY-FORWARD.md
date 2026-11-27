@@ -1671,3 +1671,82 @@ The next round's site is the headline's own proof body (the pin's `Γ`-bullet fi
 restriction-along comparison); the target is silent at 200 000 with nothing installed. Same discipline as
 the SET-AF103A entry above: carve, accept at the low cap, confirm the helpers' budgets sum below the
 removed one, and **do not** install an option or a `sorry`.
+
+### SET-AF106D's eight arch-type helpers: a promotion for a refactor round
+
+`AutomorphicForm/Adelic/Cusp/ConstituentIntersection.lean` (SET-AF106D) transcribes nine pin `private`
+helpers, of which **eight** already exist `private` in `Cusp/ArchTypeSubmodule.lean`:
+`typeSubmodule_le_of_equiv`, `typeSubmodule_eq_of_equiv`, `rightTranslationRep`,
+`intertwiningOfEquivariant`, `asModuleMap`, `nonzeroRanges`, `nonzeroRanges_equiv`,
+`mem_sSup_nonzeroRanges` (≈70 lines). The module's copies are `private` and its `check_port` is 2 ok.
+
+**The work:** promote the eight in `Cusp/ArchTypeSubmodule.lean` (public, at their existing names), then
+delete this module's copies and import them. Do **not** promote this module's copies instead — that
+publishes a second copy of the same mathematics at root level, which is what §5's "one home" forbids.
+
+**Why it is deferred:** `ArchTypeSubmodule.lean` is a hub (its dependents re-elaborate), and the wave it
+was found in had four other porters building against the tree. The surface probe's `36 ok` for this
+module is recorded in its header, so the promotion is priced and one edit away. Re-run the set's
+collision probe after it (FR-0274).
+
+### SET-AF106C's hypothesis-free norm formula: promote, do not re-derive
+
+`AlgebraicCurve/DivisorPlaceReduction.lean` (SET-AF106C) carries a 12-line local `have hformula`
+proving the hypothesis-free `Divisor.PushforwardNormFormula k (RatFunc k) L`, because the port holds it
+as the **`private`** `Divisor.pushforwardNormFormula_of_finiteDimensional`
+(`AlgebraicCurve/PrincipalDivisors/Transcendence.lean:359`). The *public*
+`Divisor.pushforwardNormFormula` is not a substitute — it demands `[HasPrincipalDivisors k L]` and
+`[Algebra.IsSeparable (RatFunc k) L]`, which the pin's row does not supply.
+
+**The work:** drop the `private` (public at the pin's name; the module's `spec-pin:` already wires that
+node, so `check_port` will diff it and reads `ok`), then delete the local `have` in
+`DivisorPlaceReduction.lean`. Registered in [spec/METADATA-ISSUES.md](../spec/METADATA-ISSUES.md) as
+**MD-008**, because it is also a metadata inconsistency: a wired node whose declaration is `private`
+reads as ported while being unimportable.
+
+**Why it is deferred:** `Transcendence.lean` is a hub (dependents re-elaborate) and the wave had three
+porters building; one word plus a cascade, priced and registered.
+
+### SET-AF106E's three deferred items: an unclaimed node, a homing move, and a one-word duplicate
+
+Found while porting the psi pin; none blocks the module (which reads 1 ok + 10 ok), all three are
+someone's next edit.
+
+1. **An unclaimed node.** The psi pin's `S_` file (`S_ModularCurve_card_quotient_gamma0_le_dedekindPsi`)
+   carries a 240-line `AHBridge` block (35 declarations) that is not its own headline's engine: it is the
+   engine of **`ModularCurve.qExpansion_div_mem_laurentBaseChange`** (65 pin lines), a *different* node
+   that **no wire in the port names**. The port has only the Γ_H analogue,
+   `ModularCurve.qExpansion_div_mem_laurentBaseChange_xHFunctionField`
+   (`ModularCurve/X1/QExpansionDiv.lean`, whose `XHRationalStructure.main` is `private`). So that node is
+   unported, its engine is transcribed nowhere, and it is not on the ready shelf — it is deeper in the
+   D–S cone. A set that takes it ports 65 silo + a 240-line engine; the analogue already in
+   `X1/QExpansionDiv.lean` is the model for the private/public split.
+2. **A homing move.** `ModularCurve.ModularPolynomialData.eq_all` and its two helpers
+   (`subsingleton`, `natDegree_toAdjoin`) sit in `ModularCurve/ModularPolynomialHasseDescent.lean`, but
+   their subject is the *uniqueness* of the modular-polynomial data and
+   `ModularCurve/ModularPolynomialUniquenessIrreducible.lean` already carries this row's own `spec-pin:`
+   and `toAdjoin_eq_minpoly_all` — the mathematics is home there, and this module's wire duplicates it.
+   The move is four lines: declare them there, drop the two wires from the Hasse-descent module (it keeps
+   the 407-silo row and reads 2 ok).
+3. **A one-word duplicate.** `ModularCurve.W1.algebraMap_laurent_eq_single` restates
+   `ModularCurve/Defs/Laurent.lean`'s `algebraMap_laurentSeries_eq_single` in *weaker* generality
+   (`CommRing` vs `Field`) because the headline needs it at `ℤ`. Widening the `Defs/` copy to `CommRing`
+   retires the local one; `dedup --within` does not see the pair (different carriers) and no gate fails.
+
+All three are edits to existing modules (two of them hubs) and SET-AF106's wave had porters in flight;
+the pricing is in `lean/tmp/af106/AF106E-REPORT.md`.
+
+### SET-AF106B's heartbeat floor: one `abbrev` in `XH/FunctionField.lean`
+
+`ModularCurve/XH/FrickeAlgEquiv.lean` (SET-AF106B) is silent at the 200 k edit loop, but its **floor is
+between 100 000 and 200 000** — the set's tightest module. Every failing declaration fails in its
+*statement*, and the cause is a port-vs-pin shape difference: `XH/FunctionField.lean` has
+`def xHFunctionFieldC` plus `abbrev xHFunctionField`, while the pin has one `def`, so `LBC Γ` and
+`laurentBaseChange Qb (xHFunctionField Γ)` are only **default-transparency** defeq (FR-0312). The same
+cause makes the pin's bare `rw` fail in `leg_alpha`/`leg_beta`; the landed module instantiates those
+rewrites explicitly instead.
+
+**The work (optional, performance only):** make `xHFunctionFieldC` an `abbrev`, or give `xHFunctionField`
+and `xHFunctionFieldC` one syntactic shape at the places they are compared. The worker measured that
+this brings the floor below 40 000. It is a hub edit (`XH/FunctionField.lean`'s dependents re-elaborate)
+and the module passes every gate as it stands, so it is a refactor-round item, not a defect.

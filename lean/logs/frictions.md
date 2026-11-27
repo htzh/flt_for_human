@@ -6689,3 +6689,86 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   (`coe_H` for `A12`), not a compile error. The pin's own `rfl`-stated identifying lemma is the cheap
   test: if the pin proves `coe_X` by `rfl`, the port's candidate body must make it `rfl` too.
 - **seen**: 2026-11-27, SET-AF105E.
+
+## FR-0312 [lean] [defeq] — a port-side `abbrev` where the pin has a `def` doubles the statement-elaboration cost and blocks `rw`
+
+- **where**: SET-AF106B, `ModularCurve/XH/FrickeAlgEquiv.lean`; the port's
+  `ModularCurve/XH/FunctionField.lean` has `def xHFunctionFieldC` plus
+  `abbrev xHFunctionField := xHFunctionFieldC ℚ`, while the pin has a single `def`.
+- **symptom**: the module is silent at the 200 000 edit loop but its floor sits between 100 000 and
+  200 000, and every failing declaration fails in its **statement** (`whnf`/`isDefEq` at `lawOne`,
+  `semilinear_twist`, `leg_alpha`), not in a tactic step. Separately, `rw` refuses to fire in
+  `leg_alpha`/`leg_beta` where the pin's bare `rw` works.
+- **cause**: `LBC Γ` and `laurentBaseChange Qb (xHFunctionField Γ)` are **default-transparency** defeq
+  through the `abbrev` but not **instance-transparency** defeq, so (a) every comparison of the two
+  spellings unfolds the double delta, and (b) `rw`'s implicit-transparency matching cannot see them as
+  the same term.
+- **cure (local, what landed)**: instantiate the rewrites explicitly —
+  `coe_heckeAlphaHBar M H ℓ x₀`, `hw' (heckeAlphaHBar Qb M H ℓ (w x))` — instead of a bare `rw`.
+  **Cure (structural, deferred)**: align the spelling in the hub (`xHFunctionFieldC` as an `abbrev`),
+  measured by the worker to bring the floor below 40 000; that is a hub edit, so it is registered in
+  CARRY-FORWARD, not made mid-wave.
+- **rule**: when a port introduces an `abbrev` the pin does not have (or the reverse), every
+  cross-spelling comparison pays and `rw` may refuse; the two cures are "make the spellings
+  syntactically equal" (hub, a refactor) or "instantiate the rewrite explicitly" (local, always
+  available). The measurement that identifies this class is a statement-only failure: stub every proof
+  and the timeout survives.
+- **seen**: 2026-11-27, SET-AF106B.
+
+## FR-0313 [pin] — a pin that threads an *unused* section variable through its definitions makes its whole assembly surface unimportable and unmatched
+
+- **where**: SET-AF106A, the reduction-inputs pin; `gaussRing`, `resHom`, `wit`, `resL`, `resF` are
+  defined with `variable (hT : ModularGroup.T ∈ Γ)` in scope, so the pin writes `gaussRing A Γ hT`.
+- **symptom**: `port_advise` cannot pair **~35 assembly names** with the port's copies (the shape tier
+  normalises section *variables of the statement*, not of a definition's body), and they cannot be
+  imported either, because the port's `gaussRing A Γ` does not take `hT` — the pin's text would not
+  elaborate at the port's signature.
+- **cause**: the port dropped the hypothesis (the definition never uses it — `X1/GaussResidue.lean`'s
+  header records the same finding), which is right, but it shifts the definition's arity relative to the
+  pin's *text*, and every statement written in the pin's shape is then a different application.
+- **cure**: two `abbrev` aliases that forget the unused `hT`, after which the module can state the whole
+  pin surface at the pin's own text and 8 of the 35 names become one-line bodies into the port. Note
+  `include hT in` is **unusable** next to a docstring (a docstring may not sit between `include … in` and
+  the declaration), which is why the aliases, not the modifier.
+- **rule**: an unused section variable is right to drop from the *port's* signature, but it is a
+  translation cost on every pin statement that spells the application — budget a pair of `abbrev`
+  aliases per module when the pin threads such a variable through definitions, and do not read the
+  advise's "not matched" as "not ported".
+- **seen**: 2026-11-27, SET-AF106A.
+
+## FR-0314 [tooling] — `port_advise`'s name filter silently drops rows whose last name is `zero`/`one`/…, so its substitution count is a lower bound
+
+- **where**: SET-AF106A; `IsInt.zero` and `IsInt.one` are in the port and are legitimate substitutions,
+  but the advise block does not list them.
+- **symptom**: the module's substitution ledger has 42 entries while `port_advise`'s block shows 40, and
+  the two missing ones are exactly the rows with the most generic last names.
+- **cause**: the tool's name-matching drops last names that are too common to be evidence (`zero`, `one`,
+  `coe`, …), which is the right filter for *attribution* and the wrong one for *inventory*.
+- **effect**: `port_plan`'s "already in the port" figure is a **lower bound**, and the per-order
+  "expected `check_port` size" derived from it is an upper bound. Both were already treated as
+  measurements in this column (SET-AF105 §6.2), and this is the mechanism.
+- **cure**: `rg` the *type* of a suspected row before transcribing it; a `zero`/`one`-named row is cheap
+  either way, but do not report the advise's count as the ledger's count.
+- **rule**: an inventory tool with a name filter answers "what can I attribute", not "what is already
+  there".
+- **seen**: 2026-11-27, SET-AF106A.
+
+## FR-0315 [checker] — a header-prose edit is invisible to `check_port`, and an edit that lands *outside* the `/- -/` block only fails at elaboration
+
+- **where**: SET-AF106D's review, `AutomorphicForm/Adelic/Cusp/ConstituentIntersection.lean`. The manager
+  appended the review decisions to the module header by replacing the first `set_option autoImplicit false`
+  — which is **after** the imports, not inside the header comment.
+- **symptom**: `check_port --force` still read **2 ok / 0 / 0** (the declarations and the `spec-pin:`
+  wires were untouched), while the module was syntactically broken: `unexpected token '#'; expected
+  command`, `unexpected token 'to'; expected '[', 'aesop_rules', …` — the markdown `##` heading and the
+  prose were parsed as Lean commands.
+- **cause**: `check_port` is a **text** instrument: it diffs declaration statements against the pin and
+  reads the header's `spec-pin:` lines, and it never invokes Lean. A prose edit that lands outside the
+  comment changes no statement, so every checker tier stays green.
+- **effect**: a set-level gate catches it only at the wave build — the collision probe and every
+  `lake build` of a dependent fail with "oleans does not exist", which reads like FR-0301 rather than
+  like a syntax error.
+- **cure / rule**: after a header-prose edit, run the module's edit loop (`lake env lean …`) — it is
+  seconds, and it is the only instrument that sees the comment's boundaries. `check_port` green is not
+  "the module still compiles".
+- **seen**: 2026-11-27, SET-AF106D review (caught by the set's wave build, repaired, module silent again).
