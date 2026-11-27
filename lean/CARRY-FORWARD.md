@@ -1469,13 +1469,76 @@ be cut from the ready block at all: it has to be a **leaves** set (`--include-le
 
 * `NumberField.mixedEmbedding.*` (392 silo, four rows: `trace_mixedEmbedding`,
   `summable_norm_schwartzMap_ringOfIntegers_translate`, `exists_forall_norm_embedding_sub_le`,
-  `exists_forall_tsum_fractionalIdeal_weight_le_rpow_neg`) — **blocked on a definition layer, not a
-  proof order**: `rg MixedEmbedding lean/` is empty, this is SET-AF99 §7's FR-0049 shape;
+  `exists_forall_tsum_fractionalIdeal_weight_le_rpow_neg`) — ~~**blocked on a definition layer**~~ **NO
+  GATE — SET-AF107 order F, 2026-11-27.** The "blocked on a definition layer" reading this entry carried
+  for four sets was wrong (FR-0317): `NumberField.mixedEmbedding` is **mathlib's** namespace
+  (`Mathlib/NumberTheory/NumberField/CanonicalEmbedding/Basic.lean`), the pin's `S_` files import no
+  `Definitions/` module at all, and all four rows' wrappers elaborate first-try against the port's
+  mathlib. The empty `rg MixedEmbedding lean/` meant "no port module of that name", not "no definitions".
+  The same correction applies to the `Units`/`InfinitePlace`/`MeasureTheory.Lp` leaves of the paragraph
+  below; **the rows that really are gated** are the ones whose `S_` file imports a `Def_` module the port
+  lacks — `M4aTorus.completedRayL_fe`, the ray-class L-series pair (both on
+  `Def_NumberField_{CompletedRayL,RayCharacterData}`), `ncard_primesOver_…`
+  (`Def_LanglandsTunnell_NormClass`) and the two Tate-curve points-law leaves
+  (`Def_TateCurve_TorsionParametrization`). Read the `S_` file, not the namespace (FR-0298).
 * `TateCurve.*` (1,038 silo, ten rows) and the sixteen `WeierstrassCurve` leaves (≈3,000 silo) —
   their own subject (the Tate curve / the modular-curve arithmetic), not the AF unfolding;
 * `NumberField`'s three small leaves (`summable_heightOneSpectrum_absNorm_rpow_neg_of_one_lt` 69 with
   project fan-in 41, `…sign_norm_eq_prod_sign_embedding_of_isReal` 94, `Units.exists_forall_abs_sub_mult_mul_log_le`
   98) — cheap, high fan-in, and the natural first leaves order.
+
+### The `Γ₁` integral `q`-expansion basis chain — cut from SET-AF107H at its missing premise
+
+`ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1` (36 silo) was cut mid-order when the order
+found its first premise unported: `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`
+(**261 pin `S_` lines**), whose own premises are two further unported nodes
+(`ModularForm.exists_basis_gamma1_qCoeff_mem_adjoin_exp`,
+`ModularForm.exists_gamma1_qCoeff_eq_algEquiv_apply`). The port has no `ModularForm`↔`CuspForm`
+decomposition at `Γ₁` (`eisensteinSubmodule`, `cuspPart`, the `ModularForm ⊔ CuspForm` sup are all
+absent), so there is no shortcut: this is a three-node chain and the natural first order of the next AF
+set of this column.
+
+The row read as **ready** because the port's only same-last-name declaration is
+`CuspForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` (`ModularForms/WeightOne/Gamma1IntegralBasis.lean`,
+declared inside the pin-label namespace `WLightS11.S_CuspForm_…`) — a **different statement on a different
+type**, credited by the name tier. That is FR-0047's class (a last-name shadow), and it is worth an
+`--unport ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` on the next shelf read so the consumer
+does not read as ready again (FR-0317's lesson: the shadow is invisible to the gate that matters).
+
+The scaffold module `ModularCurve/WeightOneIntegral.lean` was deleted with the row (SET-AF101's precedent:
+deleting is more honest than leaving a `sorry`-bodied headline).
+
+### SET-AF107's four carry-forward items (2026-11-27)
+
+**(a) `hasCanonicalDivisor_of_fg` — a public promotion in a hub.** Order B needed the pin's
+`hasCanonicalDivisor_of_fg` (which carries `[IsAlgClosed K]`) and the port has
+`AlgebraicCurve.hasCanonicalDivisor_of_charZero` (which carries `[CharZero K]`) in
+`AlgebraicCurve/IsCurveOver/ConstantFieldExtensionExists.lean`. B discharged it locally in one line
+(`charZero_of_injective_algebraMap (algebraMap K E).injective`), so nothing is blocked; the promotion is
+worth doing because the hub module is in the import closure of most of the `AlgebraicCurve` tree, which is
+also why the manager deferred it to a quiet tree rather than to the middle of a running wave.
+
+**(b) `reduceHom_injOn` is public in one module and `private` in another.** Order G's
+`WeierstrassCurve/Velu/Reduction.lean` declares `reduceHom_injOn` public;
+`WeierstrassCurve/Reduction/ReduceHomSurjective.lean` holds the same mathematics as a private
+`reduceHom_injOn'` (unimportable, so G transcribed rather than imported). One of the two should absorb the
+other: promote the `Reduction/` copy and import it, or fold G's copy into that module — a refactor-round
+edit, since `ReduceHomSurjective` is a hub.
+
+**(c) five `TDescent` base-change rows are written twice.** Order G transcribed the five
+`ModularCurve.TDescent.{map_veluT,map_veluW,map_veluTSum,map_veluWSum,veluQuotient_map}` rows
+(`ModularCurve/ModularPolynomialVelu.lean`) as private copies in
+`WeierstrassCurve/Velu/Reduction.lean` instead of importing them, because that module imports **eight**
+`WeierstrassCurve` modules: importing it from the Weierstrass layer inverts the layering (and cost
+4,563 → 3,281 jobs to avoid). The clean fix is the opposite direction: move those five rows **down** to a
+Weierstrass-level module (they are stated at the pin's `WeierstrassCurve` layer already), then import them
+from both sites — the copies become a deletion.
+
+**(d) `ValuationSubringPolynomial.lean` is unwired, and one row's home had to route around it.** The
+module holds the `ZfSol.IsW`/`IsMW` engine but carries no `spec-pin:` line, so a new declaration there is
+never diffed by `check_port` (FR-0316). Order H put its residue-polynomial row in a new module above both
+premise modules instead. If a later set needs to add to `ValuationSubringPolynomial.lean`, migrate it in the
+same touch (its own wire + `PORT_FILES` deletion + a silent build).
 
 ### `unipotentGL2_algebraMap` is declared twice in the port, identically — a refactor-round dedup
 

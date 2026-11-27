@@ -199,6 +199,26 @@ names match dozens of modules. So: build the table, then **confirm each home by 
 pin proof's first lines**, and when a worker's diagnosis disagrees with the table, the diagnosis
 is the authority.
 
+**A home has two constraints, the import direction *and* the wire.** The direction is above. The wire is
+new (SET-AF107): a module that carries **no `spec-pin:` line** is tier 3, and `check_port` diffs a
+*checked* module's own declarations — so a new row inserted into an unwired module is checked by nothing
+and gate 1 cannot be met (FR-0316). Check both before writing a scaffold:
+`grep -c "spec-pin" <module>` and `grep -c "<module>" spec/old_check_stmts.py`. Two honest cures: migrate
+the module in the same touch (its own wire, `PORT_FILES` deletion, silent build — SET-AF107G did this for
+`Velu/StepCurveSubgroup.lean`), or put the row in a new module **above** its premise modules.
+
+**Verify the rule on the landed tree, not only before writing.** SET-AF107's order D found that the
+insertion it was ordered into (`QExpansionDifferentialLift.lean`) sits *above* the row's own first premise
+through four imports, so the proof was unprovable there — invisible before writing, obvious from the import
+graph. `lean/tmp/af107/homes_audit.py` is the check as a script: for every row's landed home and every
+graph premise, is some public declaration of that premise reachable from the home? On SET-AF107's 26 rows
+and 80 premise edges it reads `problems 0`, and it found D's cycle by construction (the row had to be
+re-homed mid-order). Run it after the first landing of any set with insertions.
+
+**A moved headline's `.olean` keeps its name.** Deleting a scaffold headline from its old module's source
+does not retract it: the new home fails "has already been declared" until the old module is rebuilt
+(FR-0320). One `flock`ed `lake build <old module>` before believing a duplicate-name error.
+
 **Legacy homes — be neutral about them.** A home in `spec/old_check_stmts.py`'s `PORT_FILES` is
 *not* a reason to move the mathematics elsewhere: **if the subject demands that module, put the
 declaration there and migrate the module in the same touch.** Every legacy module is going to be

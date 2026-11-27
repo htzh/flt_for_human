@@ -1,7 +1,8 @@
 /-
   The convergence and `q`-multiplication identities of the Tate curve's point series.
 
-  Seven identities of the `q`-series layer of the Tate curve:
+  Ten identities of the `q`-series layer of the Tate curve (seven landed by AF106, three more by
+  AF107H — the three `*_zpow_mul`/`sOne_*` rows at the end of this list):
 
   * `hasSum_xfun`, `hasSum_yfun`: the two rational functions `xfun w = w / (1 - w)²` and
     `yfun w = w² / (1 - w)³` are the sums of their geometric-type expansions in `w`;
@@ -13,15 +14,21 @@
     over the divisor sums (`N + 1`'s divisors), the Lambert-type regrouping the `coeffSum` layer
     uses;
   * `exists_zpow_mul_mem_annulus`: every `u ≠ 0` is carried into the norm-`< 1` annulus
-    (`‖q * (q ^ n * u)‖ < 1` and the same for the inverse) by a power of `q`.
+    (`‖q * (q ^ n * u)‖ < 1` and the same for the inverse) by a power of `q`;
+  * `sOne_eq_tsum_xfun`: `s₁ q = ∑' n, xfun (q ^ (n + 1))` — the Lambert series `s₁` is the row sum
+    of the `xfun` expansion, by the `ℕ × ℕ` double-sum regrouping;
+  * `pointX_zpow_mul`, `pointY_zpow_mul`: the `q`-periodicity of `pointX`/`pointY` for every integer
+    power, `pointX q (q ^ n * u) = pointX q u` — the stated input of the deferred
+    torsion-parametrisation layer (CARRY-FORWARD), statements kept exactly.
 
-  Transcribed from the seven pins below (pinned `aa2d8b3`, 157 + 69 + 22 + 19 + 19 + 17 + 17 lines),
-  whose names and statements are the pins' (no shared engine).
+  Transcribed from the ten pins below (pinned `aa2d8b3`, 157 + 69 + 22 + 19 + 19 + 17 + 17 lines for
+  AF106's seven, then 101 + 22 + 22 for AF107H's three), whose names and statements are the pins' (no
+  shared engine).
 
   Assumes `TateCurve/QSeries.lean` and `TateCurve/PointSeries.lean` (`xfun`, `yfun`, `pointX`,
   `pointY`, the term series and their summability).
 
-  Engine notes (the pin's `private` rows, 21 pin rows in all: 7 public + 14 private):
+  Engine notes (the pin's `private` rows, 30 `S_` rows in all: 10 public + 20 private):
 
   * the `ℕ × ℕ` regrouping is `section GeneralRegrouping` (pin `S_TateCurve_tsum_succ_prod_eq_tsum_divisors`,
     nine private rows); the pin's private `tsum_succ_prod_main` is kept as the pin has it, so its
@@ -54,6 +61,48 @@
     place and recorded here per the escape clause; never deleted on the port's own;
   * `dedup --within --module SeriesIdentities` (all three tiers, `--min-cost 0`): 0 clusters.
 
+  **Landing (AF107H) — the three `sOne`/`zpow` rows.**  Added at the end of the module:
+  `sOne_eq_tsum_xfun` (101 pin `S_` lines) and `pointX_zpow_mul` / `pointY_zpow_mul` (22 each).  The
+  two `zpow` rows are the pin's 16-line `Int.induction_on` transcriptions over
+  `pointX_q_mul`/`pointY_q_mul` (same module); `sOne_eq_tsum_xfun` is the pin's `tsum` form of
+  `hasSum_xfun`, and its **six `private` helpers** (`hasSum_geometric_succ`, `sigmaTerm`,
+  `nnnorm_sigmaTerm_le`, `summable_sigmaTerm`, `hasSum_sigmaTerm_row`, `hasSum_sigmaTerm_col`) are
+  transcribed at the pin's own names, `private` as in the pin.  The pin's `p2m_open`/`p2m_export`
+  scaffolding is not transcribed; the port's `TateCurve` namespace already publishes `xfun`, `s₁`,
+  `term`, `summable_term`, `coeffSum`, `hasSum_xfun`.
+
+  * Engine gate: **13** pin files, **33** pin decls; module **28** decls (10 public + 18 parsed
+    private), **21 by hash**, **1 by name (hash differs)** — the pre-existing
+    `exists_zpow_mul_mem_annulus` fold recorded above — and **6 unaccounted**, which are the six
+    pre-existing headlines that the pin spells `solution` (`hasSum_xfun`, `hasSum_yfun`,
+    `nodal_xfun_yfun`, `pointX_q_mul`, `pointY_q_mul`, `tsum_succ_prod_eq_tsum_divisors`).  The three
+    new rows and all six of their private helpers match **by hash**.
+  * `check_port` **10 ok / 0 mismatch / 0 missing / 0 own / 0 kw** — 7 before, 10 after, the order's
+    number.
+  * **Surface probe** (`tmp/af107/probe-surface-SI.lean`, `private` dropped from the six new
+    helpers): **16 ok / 0 mismatch / 0 missing / 0 own**.  All six are pin rows and promote cleanly;
+    whether to promote is the manager's call (the pin has them `private`).
+  * `#print axioms` on all **10** public declarations: `[propext, Classical.choice, Quot.sound]`, no
+    `sorryAx`.
+  * `move_dead --dry-run`: still **2 declarations, 22 lines** — the *same* pre-existing pair
+    (`summable_pairTerm`, `summable_succ_prod`) the escape clause above records; all six new helpers
+    are live.  No `--apply`.
+  * Heartbeat probe pair (measured, **never installed**): **unchanged** by the three rows — the module
+    is **silent at `-DmaxHeartbeats=2000`** and **first fails at `1500`**, at `nodal_xfun_yfun` (line
+    116), exactly the pair recorded on landing; 40000/20000/10000 are silent too, and 1000 fails with
+    64 lines.  No `set_option maxHeartbeats` is installed.
+  * Four proof-level adaptations for a silent module (statements untouched):
+    `Metric.tendsto_nhds` replaces the pin's `NormedAddCommGroup.tendsto_nhds_zero` (not in
+    `v4.34.0`), with `dist_zero_right` carrying the norm; `Set.mem_ofPred_eq` replaces the deprecated
+    `Set.mem_setOf_eq` and `not_lt.mp` replaces the deprecated `push_neg`; `Set.finite_Iio` is the
+    `LocallyFiniteOrderBot` form of the pin's `(Set.finite_Iio N)` (same name, needs the instance);
+    and the two `pred` branches of the `zpow` inductions close with `ring_nf` instead of the pin's
+    `ring`, because the pin's `rw [show (-(k:ℤ)) = …]` also rewrites the `-(k:ℤ)` inside the right
+    side's exponent, so `ring`'s `ring1` pass no longer sees syntactically equal atoms (`ring` then
+    falls through to `ring_nf` anyway and logs a `Try this` info message — writing `ring_nf` is that
+    same proof without the message).  Three `omit [… ] in` lines drop section variables the pin's
+    `variable` block auto-includes and the new helpers do not use.
+
   spec-pin: P2M/Sol/S_TateCurve_tsum_succ_prod_eq_tsum_divisors.lean
   spec-pin: P2M/Sol/S_TateCurve_exists_zpow_mul_mem_annulus.lean
   spec-pin: P2M/Sol/S_TateCurve_nodal_xfun_yfun.lean
@@ -61,6 +110,17 @@
   spec-pin: P2M/Sol/S_TateCurve_pointY_q_mul.lean
   spec-pin: P2M/Sol/S_TateCurve_hasSum_xfun.lean
   spec-pin: P2M/Sol/S_TateCurve_hasSum_yfun.lean
+
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_TateCurve_sOne_eq_tsum_xfun.lean>
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_TateCurve_pointX_zpow_mul.lean>
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_TateCurve_pointY_zpow_mul.lean>
+  spec-pin: Theorems/Thm_TateCurve_sOne_eq_tsum_xfun.lean
+  spec-pin: P2M/Sol/S_TateCurve_sOne_eq_tsum_xfun.lean
+  spec-pin: Theorems/Thm_TateCurve_pointX_zpow_mul.lean
+  spec-pin: P2M/Sol/S_TateCurve_pointX_zpow_mul.lean
+  spec-pin: Theorems/Thm_TateCurve_pointY_zpow_mul.lean
+  spec-pin: P2M/Sol/S_TateCurve_pointY_zpow_mul.lean
 -/
 import FLTForHuman.TateCurve.PointSeries
 import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
@@ -355,5 +415,132 @@ theorem exists_zpow_mul_mem_annulus {K : Type*} [NontriviallyNormedField K] {q u
       _ < 1 := hqR
   · rw [norm_mul, norm_inv, ← div_eq_mul_inv, div_lt_one hv_pos]
     exact h1
+
+/-! ### `s₁` as a `tsum` of `xfun`, and the `q`-periodicity for `zpow` -/
+
+section SOneTsum
+
+variable {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q : K}
+
+omit [IsUltrametricDist K] [CompleteSpace K] in
+private theorem hasSum_geometric_succ {w : K} (hw : ‖w‖₊ < 1) :
+    HasSum (fun i : ℕ => w ^ (i + 1)) (w / (1 - w)) := by
+  have hw' : ‖w‖ < 1 := hw
+  have h := (hasSum_geometric_of_norm_lt_one hw').mul_left w
+  have hfun : (fun i : ℕ => w * w ^ i) = fun i : ℕ => w ^ (i + 1) := by
+    funext i; rw [pow_succ]; ring
+  have hval : w * (1 - w)⁻¹ = w / (1 - w) := by rw [div_eq_mul_inv]
+  rw [hfun, hval] at h; exact h
+
+private def sigmaTerm (q : K) (p : ℕ × ℕ) : K :=
+  ((p.2 + 1 : ℕ) : K) * q ^ ((p.1 + 1) * (p.2 + 1))
+
+omit [CompleteSpace K] in
+private theorem nnnorm_sigmaTerm_le (p : ℕ × ℕ) :
+    ‖sigmaTerm q p‖₊ ≤ ‖q‖₊ ^ ((p.1 + 1) * (p.2 + 1)) := by
+  rw [sigmaTerm, nnnorm_mul, nnnorm_pow]
+  calc ‖((p.2 + 1 : ℕ) : K)‖₊ * ‖q‖₊ ^ ((p.1 + 1) * (p.2 + 1))
+      ≤ 1 * ‖q‖₊ ^ ((p.1 + 1) * (p.2 + 1)) := by gcongr; exact IsUltrametricDist.nnnorm_natCast_le_one K _
+    _ = ‖q‖₊ ^ ((p.1 + 1) * (p.2 + 1)) := one_mul _
+
+private theorem summable_sigmaTerm (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) :
+    Summable (sigmaTerm q (K := K)) := by
+  apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero
+  rw [Metric.tendsto_nhds]
+  intro ε hε
+  rw [Filter.eventually_cofinite]
+  have hq' : ‖q‖ < 1 := hq
+  have hq0' : (0 : ℝ) < ‖q‖ := norm_pos_iff.mpr hq0
+  obtain ⟨N, hN⟩ := exists_pow_lt_of_lt_one hε hq'
+  apply Set.Finite.subset ((Set.finite_Iio N).prod (Set.finite_Iio N))
+  rintro ⟨n, m⟩ hp
+  simp only [Set.mem_ofPred_eq, not_lt, dist_zero_right] at hp
+  have hbound : ‖sigmaTerm q (n, m)‖ ≤ ‖q‖ ^ ((n + 1) * (m + 1)) := by
+    exact_mod_cast nnnorm_sigmaTerm_le (q := q) (n, m)
+  have hexp : (n + 1) * (m + 1) < N := by
+    by_contra hge; have hge := not_lt.mp hge
+    have : ‖q‖ ^ ((n + 1) * (m + 1)) ≤ ‖q‖ ^ N :=
+      pow_le_pow_of_le_one (norm_nonneg q) hq'.le hge
+    exact absurd (lt_of_le_of_lt (hbound.trans this) hN) (not_lt.mpr hp)
+  simp only [Set.mem_prod, Set.mem_Iio]
+  have h1 : n + 1 ≤ (n + 1) * (m + 1) := Nat.le_mul_of_pos_right _ (Nat.succ_pos m)
+  have h2 : m + 1 ≤ (n + 1) * (m + 1) := Nat.le_mul_of_pos_left _ (Nat.succ_pos n)
+  omega
+
+omit [CompleteSpace K] in
+private theorem hasSum_sigmaTerm_row (hq : ‖q‖₊ < 1) (n : ℕ) :
+    HasSum (fun m : ℕ => sigmaTerm q (n, m)) (xfun (q ^ (n + 1))) := by
+  have hqn : ‖q ^ (n + 1)‖₊ < 1 := by
+    rw [nnnorm_pow]; exact pow_lt_one₀ zero_le hq (Nat.succ_ne_zero n)
+  have h := TateCurve.hasSum_xfun hqn
+  have hfun : (fun m : ℕ => ((m + 1 : ℕ) : K) * (q ^ (n + 1)) ^ (m + 1))
+      = fun m : ℕ => sigmaTerm q (n, m) := by
+    funext m; rw [sigmaTerm, ← pow_mul]
+  rw [hfun] at h; exact h
+
+omit [IsUltrametricDist K] [CompleteSpace K] in
+private theorem hasSum_sigmaTerm_col (hq : ‖q‖₊ < 1) (m : ℕ) :
+    HasSum (fun n : ℕ => sigmaTerm q (n, m)) (term (fun k => k) q (m + 1)) := by
+  have hqm : ‖q ^ (m + 1)‖₊ < 1 := by
+    rw [nnnorm_pow]; exact pow_lt_one₀ zero_le hq (Nat.succ_ne_zero m)
+  have h := (hasSum_geometric_succ hqm).mul_left ((m + 1 : ℕ) : K)
+  have hfun : (fun n : ℕ => ((m + 1 : ℕ) : K) * (q ^ (m + 1)) ^ (n + 1))
+      = fun n : ℕ => sigmaTerm q (n, m) := by
+    funext n; rw [sigmaTerm, ← pow_mul, Nat.mul_comm (m + 1) (n + 1)]
+  have hval : ((m + 1 : ℕ) : K) * (q ^ (m + 1) / (1 - q ^ (m + 1)))
+      = term (fun k => k) q (m + 1) := by rw [term]
+  rw [hfun, hval] at h; exact h
+
+end SOneTsum
+
+theorem sOne_eq_tsum_xfun {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q : K} (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) :
+    s₁ q = ∑' n : ℕ, xfun (q ^ (n + 1)) := by
+  have hF := summable_sigmaTerm (K := K) hq0 hq
+  have hrows : ∑' p : ℕ × ℕ, sigmaTerm q p = ∑' n : ℕ, xfun (q ^ (n + 1)) := by
+    rw [hF.tsum_prod]
+    exact tsum_congr fun n => (hasSum_sigmaTerm_row hq n).tsum_eq
+  have hswap : Summable fun p : ℕ × ℕ => sigmaTerm q (p.2, p.1) := by
+    have := (Equiv.prodComm ℕ ℕ).summable_iff.mpr hF
+    simpa [Function.comp_def, Equiv.prodComm_apply, Prod.swap] using this
+  have hcols : ∑' p : ℕ × ℕ, sigmaTerm q p = ∑' m : ℕ, term (fun k => k) q (m + 1) := by
+    have h1 : ∑' p : ℕ × ℕ, sigmaTerm q p = ∑' p : ℕ × ℕ, sigmaTerm q (p.2, p.1) := by
+      rw [← (Equiv.prodComm ℕ ℕ).tsum_eq (fun p => sigmaTerm q p)]
+      exact tsum_congr fun p => by simp [Equiv.prodComm_apply, Prod.swap]
+    rw [h1, hswap.tsum_prod]
+    exact tsum_congr fun m => (hasSum_sigmaTerm_col hq m).tsum_eq
+  have hs₁ : s₁ q = ∑' m : ℕ, term (fun k => k) q (m + 1) := by
+    rw [s₁, coeffSum, (summable_term (fun k => k) hq).tsum_eq_zero_add]
+    simp
+  rw [hs₁, ← hcols, hrows]
+
+theorem pointX_zpow_mul {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q u : K} (hq0 : q ≠ 0) (n : ℤ) :
+    pointX q (q ^ n * u) = pointX q u := by
+  induction n using Int.induction_on with
+  | zero => rw [zpow_zero, one_mul]
+  | succ k ih =>
+      have h : q ^ ((k : ℤ) + 1) * u = q * (q ^ (k : ℤ) * u) := by
+        rw [zpow_add_one₀ hq0]; ring
+      rw [h, TateCurve.pointX_q_mul hq0, ih]
+  | pred k ih =>
+      have h : q ^ (-(k : ℤ)) * u = q * (q ^ (-(k : ℤ) - 1) * u) := by
+        rw [show (-(k : ℤ)) = (-(k : ℤ) - 1) + 1 by ring, zpow_add_one₀ hq0]; ring_nf
+      have hstep := TateCurve.pointX_q_mul (q := q) (u := q ^ (-(k : ℤ) - 1) * u) hq0
+      rw [← h] at hstep
+      rw [← hstep, ih]
+
+theorem pointY_zpow_mul {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q u : K} (hq0 : q ≠ 0) (n : ℤ) :
+    pointY q (q ^ n * u) = pointY q u := by
+  induction n using Int.induction_on with
+  | zero => rw [zpow_zero, one_mul]
+  | succ k ih =>
+      have h : q ^ ((k : ℤ) + 1) * u = q * (q ^ (k : ℤ) * u) := by
+        rw [zpow_add_one₀ hq0]; ring
+      rw [h, TateCurve.pointY_q_mul hq0, ih]
+  | pred k ih =>
+      have h : q ^ (-(k : ℤ)) * u = q * (q ^ (-(k : ℤ) - 1) * u) := by
+        rw [show (-(k : ℤ)) = (-(k : ℤ) - 1) + 1 by ring, zpow_add_one₀ hq0]; ring_nf
+      have hstep := TateCurve.pointY_q_mul (q := q) (u := q ^ (-(k : ℤ) - 1) * u) hq0
+      rw [← h] at hstep
+      rw [← hstep, ih]
 
 end TateCurve

@@ -83,6 +83,47 @@ spec-pin: Theorems/Thm_AutomorphicForm_CuspidalConstituent_exists_inf_levelInvar
 spec-pin: Theorems/Thm_AutomorphicForm_CuspidalSpectrum_map_inf_eq_bot_or_le_of_isIrreducibleCuspSubrep_of_isClosed.lean
 spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalConstituent_exists_inf_levelInvariantSubmodule_inf_archCutSubmodule_le_iSup_rightConv_eq_smul_of_isCuspConstituent.lean
 spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_map_inf_eq_bot_or_le_of_isIrreducibleCuspSubrep_of_isClosed.lean
+
+**Landing (AF107H) — the orthogonal form of the intersection row.**  A third headline joins the two
+above: `AutomorphicForm.CuspidalSpectrum.map_inf_orthogonal_eq_bot_or_le_of_isIrreducibleCuspSubrep`
+(107 pin `S_` lines), appended at the end of the module and proved *by* the second row — its
+`hLk`/`hLhecke`/`hLconv` obligations are discharged with
+`exists_commute_lift_{rightTranslate_rowIsometry,cosetSum_of_isLevelSphericalOfType,
+rightConv_of_isArchBiFinite}_of_isCompact` composed with `map_highPart_orthogonal_le_of_commute`
+(`Analysis/InnerProductSpace/HighPart.lean`), and the level cut is the `highPart` orthogonal
+`(⨆ (μ : ℂ) (_ : r ≤ ‖μ‖), eigenspace Tc μ)ᗮ`.  The scaffold's per-declaration `open … in` lines are
+kept: the module's own blocks are scoped to the declarations above.
+
+* Engine gate: **6** pin files, **44** pin decls; module **39** decls (3 public + 36 private),
+  **36 by hash**, **0 by name**, **3 unaccounted** — the three spelling rows recorded above
+  (`archTypeFamilyJoin` for the pin's `appendFamily`, and the two `IsContainedIn` restatements).  The
+  new headline matches **by hash**, i.e. its statement is the pin's text.
+* `check_port` **3 ok / 0 mismatch / 0 missing / 0 own / 0 kw** — 2 before, 3 after, the order's
+  number.
+* `#print axioms` on all **3** public declarations: `[propext, Classical.choice, Quot.sound]`, no
+  `sorryAx`.
+* `dedup --within`: **0 duplicate clusters**; `move_dead --dry-run`: **0 declarations, 0 lines**.
+* Heartbeat probe pair (measured, **never installed**): **unchanged** by the new row — the module is
+  **silent at `-DmaxHeartbeats=50000`** and **first fails at `45000`**, and *not* in the new row: the
+  failing obligations are `map_inf_eq_bot_or_le_of_isIrreducibleCuspSubrep_of_isClosed`'s
+  `topologicalClosure` step (lines 961/971; at `10000` the whole sibling's header at 830 times out).
+  The new row (line 984 onwards) is never the tightest declaration.
+* Two adaptations, both forced by the module's own shape; statements untouched:
+  * the pin's `haveI : CompleteSpace ↥(cuspSubcarrier …)` is written `have …` in this row: the
+    module-level `set_option linter.style.haveILetI false` sits **inside** the `noncomputable section`
+    that `end`s at line 975, so it no longer reaches the appended declaration and the pin's `haveI`
+    draws the style linter.  Rewriting it as `have` is the preamble's rule for that linter (and it
+    still feeds instance search: the goal is a `Prop`).
+  * the row's statement carries two dead binders — `hflat` (the pin's flatness hypothesis) and `hr`
+    (`0 < r`) — which the pin's proof never consumes either, and which cannot be `_`-prefixed without
+    a `check_port` MISMATCH.  The declaration therefore carries
+    `set_option linter.unusedVariables false in`, the precedent of AF103E's
+    `tensorProduct_exists_primitive_factor`, with the reason recorded at the declaration.
+
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AutomorphicForm_CuspidalSpectrum_map_inf_orthogonal_eq_bot_or_le_of_isIrreducibleCuspSubrep.lean>
+  spec-pin: Theorems/Thm_AutomorphicForm_CuspidalSpectrum_map_inf_orthogonal_eq_bot_or_le_of_isIrreducibleCuspSubrep.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_map_inf_orthogonal_eq_bot_or_le_of_isIrreducibleCuspSubrep.lean
 ## Manager's decisions at review (SET-AF106D)
 
 * **the 36 `private` helpers stay `private`, and no promotion happens in this module.**  Eight of
@@ -968,3 +1009,99 @@ theorem AutomorphicForm.CuspidalSpectrum.map_inf_eq_bot_or_le_of_isIrreducibleCu
     rwa [hPv] at this
 
 end
+
+open MeasureTheory NumberField NumberField.AdelicHaar NumberField.AdelicLevel NumberField.AdelicBox in
+open IsDedekindDomain AutomorphicForm AutomorphicForm.WindowedSiegel AutomorphicForm.SiegelCovering in
+open AutomorphicForm.CuspidalConstituent AutomorphicForm.CuspidalSpectrum in
+-- This row's statement carries two dead binders, `hflat` (the pin's flatness hypothesis, which the
+-- pin's own proof never consumes) and `hr` (the level cut's `0 < r`, likewise).  Both are wire names —
+-- `_`-prefixing them is a `check_port` MISMATCH — so the linter is turned off for this declaration
+-- only, as `tensorProduct_exists_primitive_factor` does in `ValuationSubringValuedField`.
+set_option linter.unusedVariables false in
+open scoped InnerProductSpace in
+theorem AutomorphicForm.CuspidalSpectrum.map_inf_orthogonal_eq_bot_or_le_of_isIrreducibleCuspSubrep
+    (F : Type) [Field F] [NumberField F] {α β : ℝ} {Φ₀ : Set (AdelicGL2 (𝓞 F) F)}
+    (hΦ₀ : IsSlabFundamentalDomain F α β Φ₀) (σ : ℝ)
+    (ξ : (⊤ : Subgroup (AdeleRing (𝓞 F) F)ˣ) →* ℂˣ) (hσ : HasModulus F ξ σ)
+    (M : Submodule ℂ ↥(cuspSubcarrier F hΦ₀ σ ξ)) (hM : IsIrreducibleCuspSubrep F hΦ₀ σ ξ M)
+    (U : Subgroup (AdelicGL2 (𝓞 F) F)) (hU : IsCompact (U : Set (AdelicGL2 (𝓞 F) F)))
+    (O : Subgroup (AdelicGL2 (𝓞 F) F)) (hO : IsOpen (O : Set (AdelicGL2 (𝓞 F) F)))
+    (hUO : U = O ⊓ finiteAdelicGL2Subgroup F)
+    (τ : ∀ w : InfinitePlace F, ArchRepAt F w) (hirr : ∀ w, (τ w).ρ.IsIrreducible)
+    (f : AdelicGL2 (𝓞 F) F → ℂ) (hf : IsFactorizableTestFn F f)
+    (hsph : IsLevelSphericalOfType F (⟨fun _ => 1, fun w _ => τ w⟩ : AutomorphicForm.ArchTypeFamily F) U f)
+    (hflat : flat F σ f = f)
+    (Tc : ↥(cuspSubcarrier F hΦ₀ σ ξ) →L[ℂ] ↥(cuspSubcarrier F hΦ₀ σ ξ))
+    (hsymm : (Tc : ↥(cuspSubcarrier F hΦ₀ σ ξ) →ₗ[ℂ] ↥(cuspSubcarrier F hΦ₀ σ ξ)).IsSymmetric)
+    (hcomm : ∀ (φ : ↥(cuspMemberSubmodule F Φ₀ ξ)) (hφ' : rightConv F φ f ∈ cuspMemberSubmodule F Φ₀ ξ),
+        Tc (toCuspSubcarrier F hΦ₀ σ ξ φ) = toCuspSubcarrier F hΦ₀ σ ξ ⟨rightConv F φ f, hφ'⟩)
+    (Y : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ))
+    (hYc : Y ≤ cuspMemberSubmodule F Φ₀ ξ)
+    (hYM : ∀ (ψ : AdelicGL2 (𝓞 F) F → ℂ) (hψ : ψ ∈ Y), toCuspSubcarrier F hΦ₀ σ ξ ⟨ψ, hYc hψ⟩ ∈ M)
+    (hYU : ∀ ψ ∈ Y, ∀ g : AdelicGL2 (𝓞 F) F, ∀ k ∈ U, ψ (g * k) = ψ g)
+    (hYt : Y ≤ archCutSubmodule F (⟨fun _ => 1, fun w _ => τ w⟩ : AutomorphicForm.ArchTypeFamily F))
+    (r : ℝ) (hr : 0 < r) :
+    Submodule.map ((toCuspSubcarrier F hΦ₀ σ ξ).comp (Submodule.inclusion hYc)) ⊤ ⊓
+        (⨆ (μ : ℂ) (_ : r ≤ ‖μ‖), Module.End.eigenspace (Tc : Module.End ℂ ↥(cuspSubcarrier F hΦ₀ σ ξ)) μ)ᗮ = ⊥ ∨
+      Submodule.map ((toCuspSubcarrier F hΦ₀ σ ξ).comp (Submodule.inclusion hYc)) ⊤ ≤
+        (⨆ (μ : ℂ) (_ : r ≤ ‖μ‖), Module.End.eigenspace (Tc : Module.End ℂ ↥(cuspSubcarrier F hΦ₀ σ ξ)) μ)ᗮ := by
+  classical
+  have : CompleteSpace ↥(cuspSubcarrier F hΦ₀ σ ξ) := by
+    unfold cuspSubcarrier; exact (Submodule.isClosed_topologicalClosure _).completeSpace_coe
+  set low : Submodule ℂ ↥(cuspSubcarrier F hΦ₀ σ ξ) :=
+    (⨆ (μ : ℂ) (_ : r ≤ ‖μ‖), Module.End.eigenspace (Tc : Module.End ℂ ↥(cuspSubcarrier F hΦ₀ σ ξ)) μ)ᗮ
+    with hlow
+  have hlowc : IsClosed (low : Set ↥(cuspSubcarrier F hΦ₀ σ ξ)) := by
+    rw [hlow]; exact Submodule.isClosed_orthogonal _
+  have memL : ∀ {φ : AdelicGL2 (𝓞 F) F → ℂ}, φ ∈ Submodule.map (cuspMemberSubmodule F Φ₀ ξ).subtype (Submodule.comap (toCuspSubcarrier F hΦ₀ σ ξ) low) ↔
+      ∃ hφ : φ ∈ cuspMemberSubmodule F Φ₀ ξ, toCuspSubcarrier F hΦ₀ σ ξ ⟨φ, hφ⟩ ∈ low := by
+    intro φ
+    constructor
+    · rintro ⟨ψ, hψ, rfl⟩; exact ⟨ψ.2, by simpa using hψ⟩
+    · rintro ⟨hφ, hl⟩; exact ⟨⟨φ, hφ⟩, hl, rfl⟩
+
+  have lowStable : ∀ (S : ↥(cuspSubcarrier F hΦ₀ σ ξ) →L[ℂ] ↥(cuspSubcarrier F hΦ₀ σ ξ)),
+      S.comp Tc = Tc.comp S → ∀ v ∈ low, S v ∈ low := by
+    intro S hS v hv
+    rw [hlow] at hv ⊢
+    exact ContinuousLinearMap.map_highPart_orthogonal_le_of_commute hsymm hS r ⟨v, hv, rfl⟩
+
+  have hLk : ∀ (w : InfinitePlace F) (k : rowIsometrySubgroup₀ w.Completion),
+      ∀ φ ∈ Submodule.map (cuspMemberSubmodule F Φ₀ ξ).subtype (Submodule.comap (toCuspSubcarrier F hΦ₀ σ ξ) low), rightTranslate F (rowIsometryInclAt₀ F w k) φ ∈ Submodule.map (cuspMemberSubmodule F Φ₀ ξ).subtype (Submodule.comap (toCuspSubcarrier F hΦ₀ σ ξ) low) := by
+    intro w k φ hφ
+    obtain ⟨hφc, hl⟩ := memL.mp hφ
+    obtain ⟨S, hS, hSφ⟩ :=
+      AutomorphicForm.CuspidalSpectrum.exists_commute_lift_rightTranslate_rowIsometry_of_isCompact
+        F hΦ₀ σ ξ hσ U hU O hO hUO (⟨fun _ => 1, fun w _ => τ w⟩ : AutomorphicForm.ArchTypeFamily F) f hf hsph Tc hcomm w k
+    obtain ⟨h', e⟩ := hSφ ⟨φ, hφc⟩
+    refine memL.mpr ⟨h', ?_⟩
+    rw [← e]; exact lowStable S hS _ hl
+  have hLhecke : ∀ g ∈ finiteAdelicGL2Subgroup F, ∀ (n : ℕ) (reps : Fin n → AdelicGL2 (𝓞 F) F),
+      (∀ i, ∃ u ∈ U, ∃ u' ∈ U, reps i = u * g * u') →
+      (∀ x : AdelicGL2 (𝓞 F) F, (∃ u ∈ U, ∃ u' ∈ U, x = u * g * u') → ∃ i, ∃ u ∈ U, x = reps i * u) →
+      (∀ i j, (reps i)⁻¹ * reps j ∈ U → i = j) →
+      ∀ φ ∈ Submodule.map (cuspMemberSubmodule F Φ₀ ξ).subtype (Submodule.comap (toCuspSubcarrier F hΦ₀ σ ξ) low) ⊓ Representation.invariants ((rightRegular F).comp U.subtype),
+        (fun x => ∑ i, φ (x * reps i)) ∈ Submodule.map (cuspMemberSubmodule F Φ₀ ξ).subtype (Submodule.comap (toCuspSubcarrier F hΦ₀ σ ξ) low) := by
+    intro g hg n reps h1 h2 h3 φ hφ
+    obtain ⟨hφc, hl⟩ := memL.mp hφ.1
+    obtain ⟨S, hS, hSφ⟩ :=
+      AutomorphicForm.CuspidalSpectrum.exists_commute_lift_cosetSum_of_isLevelSphericalOfType_of_isCompact
+        F hΦ₀ σ ξ hσ U hU O hO hUO (⟨fun _ => 1, fun w _ => τ w⟩ : AutomorphicForm.ArchTypeFamily F) f hf hsph Tc hcomm g hg n reps h1 h2 h3
+    obtain ⟨h', e⟩ := hSφ ⟨φ, hφc⟩ hφ.2
+    refine memL.mpr ⟨h', ?_⟩
+    rw [← e]; exact lowStable S hS _ hl
+  have hLconv : ∀ h : AdelicGL2 (𝓞 F) F → ℂ, IsFactorizableTestFn F h → IsArchBiFinite F (⟨fun _ => 1, fun w _ => τ w⟩ : AutomorphicForm.ArchTypeFamily F) h →
+      (∀ x : AdelicGL2 (𝓞 F) F, ∀ u' ∈ U, h (u' * x) = h x ∧ h (x * u') = h x) →
+      ∀ φ ∈ Submodule.map (cuspMemberSubmodule F Φ₀ ξ).subtype (Submodule.comap (toCuspSubcarrier F hΦ₀ σ ξ) low), rightConv F φ h ∈ Submodule.map (cuspMemberSubmodule F Φ₀ ξ).subtype (Submodule.comap (toCuspSubcarrier F hΦ₀ σ ξ) low) := by
+    intro h hh hbh hhU φ hφ
+    obtain ⟨hφc, hl⟩ := memL.mp hφ
+    obtain ⟨S, hS, hSφ⟩ :=
+      AutomorphicForm.CuspidalSpectrum.exists_commute_lift_rightConv_of_isArchBiFinite_of_isCompact
+        F hΦ₀ σ ξ hσ U hU O hO hUO τ hirr f hf hsph Tc hcomm h hh hbh hhU
+    obtain ⟨h', e⟩ := hSφ ⟨φ, hφc⟩
+    refine memL.mpr ⟨h', ?_⟩
+    rw [← e]; exact lowStable S hS _ hl
+
+  exact AutomorphicForm.CuspidalSpectrum.map_inf_eq_bot_or_le_of_isIrreducibleCuspSubrep_of_isClosed
+    F hΦ₀ σ ξ hσ M hM U hU O hO hUO (⟨fun _ => 1, fun w _ => τ w⟩ : AutomorphicForm.ArchTypeFamily F) Y hYc hYM hYU hYt low hlowc hLk hLhecke hLconv
+

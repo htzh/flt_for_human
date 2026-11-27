@@ -49,12 +49,13 @@ Port notes (order AF105E).
   `DivisionSemiring.to_moduleIsTorsionFree` — which is what makes the declaration fit at the
   edit loop's cap. See the probe pair below.
 * **Visibility.** Nothing is `private` in this module (the pin has no private row), so the surface
-  gate is vacuous: all 5 declarations are public and read `ok`.
+  gate is vacuous: all 5 AF105E declarations are public and read `ok` (and with AF107D's 13 the module
+  now reads 18 `ok` — see the AF107D notes below).
 * **Axioms.** `#print axioms` on all 5 public declarations: each is a subset of
   `[propext, Classical.choice, Quot.sound]`; no `sorryAx`.
 * **Dedup / move_dead.** `dedup.py --within --module '*X1/IntegralityDifferential*'`: 5
   declarations, **0 duplicate clusters**, 0 removable lines. `move_dead.py --dry-run`:
-  **0 declarations, 0 lines**.
+  **0 declarations, 0 lines**.  (Re-measured for the whole module at 18 in the AF107D block.)
 * **Heartbeat probe pair** (FR-0225 — measured, never installed). The pin carries
   `set_option synthInstance.maxHeartbeats 1600000` (`S_…:33`, again on `solution` at `:142`) and
   `set_option maxHeartbeats 6400000` (`:34`); this file carries neither. Readings, at the
@@ -65,11 +66,61 @@ Port notes (order AF105E).
   in `(20000, 40000]`; with the port's two direct terms (G/H) the same sites are silent at the
   default cap. The 6 400 000 `maxHeartbeats` is unnecessary: nothing here exceeds 200 000.
 
+## A second row, homed here (AF107D)
+
+`ModularCurve.exists_cuspForm_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion_of_mem_regularDifferentials`
+(the AF107D cut, 227 pin `S_` lines) rides here, and its home is this module rather than the one the
+set brief names.  It states that an **integral** differential `ω` of `X₁(M)`'s function field over
+`ℚ̄` — `ω ∈ regularDifferentials` — whose `diffQExp` coefficient map is a `q`-expansion is the
+`diffQExp` of a weight-two `Γ₁(M)` cusp form's `q`-expansion.  The set brief homes it in
+`ModularCurve/QExpansionDifferentialLift.lean`, next to the `X₁` composite it refines, but its first
+premise is *this* module's headline and this module is **above** QEDL
+(`X1/IntegralityDifferential` → `X1/GenusBound` → `X1/JqRamification` → `Analytic/JqModCIntegral` →
+`QExpansionDifferentialLift`): declaring it there closes an import cycle.  That is FR-0280's shape,
+and it is the same reason QEDL's own header records for the row it holds.
+
+Port notes (order AF107D).
+
+* **Transcription.** The pin's `S_` file is 19 public declarations.  Its generated label namespace
+  `X1ConvGlue` comes off: its declarations live in `ModularCurve.RegularDifferential` — the subject
+  namespace the two facts this row substitutes (`jq_mem_x1FunctionField`, `coeffEmb_jq_eq_jqModC`)
+  already live in — at the pin's names.  The pin's `solution` is the module's headline,
+  `ModularCurve.exists_cuspForm_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion_of_mem_regularDifferentials`,
+  i.e. the wrapper's published name.
+* **Substitutions.** Six of the 19 are imported rather than re-proved: `Fb` →
+  `ModularCurve.x1FunctionFieldBar` (a `local notation "Fb"` keeps the pin's spelling, which the
+  statements need); `jq_mem_x1FunctionField` →
+  `ModularCurve.RegularDifferential.jq_mem_x1FunctionField` (`X1/GenusBound.lean`); `coeffMap_qEuler`
+  and `coeffMap_coeffEmb'` → `ModularCurve.QExpansionLift.…` (`QExpansionDifferentialLift.lean` — the
+  two binder-spelling matches the substitution pass named); `qEuler_eq_thetaL` →
+  `ModularCurve.qEuler_eq_thetaL` (`Period/QExpansionDiff.lean`); and `coeffMap_coeffEmb_jq` →
+  `ModularCurve.QExpansionLift.coeffMap_jBar` (the same proof at `jBar := coeffEmb ℚ̄ jq`, which its
+  statement is definitionally).
+* **Visibility.** Nothing of the pin's here is `private` and nothing is made private: the 13 new
+  declarations (12 helpers + the headline) are public and all read `ok`.
+* **`omit`.** Four declarations (`phi_apply`, `phi_algebraMap`, `isIntegral_phi`, `Fb_eq`) do not use
+  the section's `[NeZero M]`; a section instance cannot be `_`-prefixed, so `omit [NeZero M] in` is
+  the cure — `linter.unusedSectionVars` is not silenced.
+* **Axioms.** `#print axioms` on all 18 public declarations of the module (the 5 of AF105E and these
+  13) is a subset of `[propext, Classical.choice, Quot.sound]`, with no `sorryAx`.
+* **Dedup / move_dead.** `dedup.py --within --module '*X1/IntegralityDifferential*'`: 18 declarations,
+  **0 duplicate clusters**, 0 removable lines.  `move_dead.py --dry-run`: **0 declarations, 0 lines**.
+* **Heartbeat probe pair** (FR-0225 — measured, never installed).  No `set_option maxHeartbeats` /
+  `synthInstance.maxHeartbeats` is installed in this module, and the 13 new declarations elaborate
+  inside the low cap: at `-DmaxHeartbeats=50000` the only failures are in the module's *pre-existing*
+  headline (`:322`/`:324`, `isIntegral_and_isIntegral_of_smul_D_mem_regularDifferentials_qExpFunctionFieldC`)
+  and at `-DmaxHeartbeats=100000` the only failure is still that declaration (`:410`); the whole file is
+  **silent at `-DmaxHeartbeats=200000`**.  So the AF107D rows cost less than 50 000 heartbeats, and the
+  module's floor (between 100 000 and 200 000) belongs to AF105E's row, not to this order's.
+
 References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_isIntegral_and_isIntegral_of_smul_D_mem_regularDifferentials_qExpFunctionFieldC.lean>
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_cuspForm_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion_of_mem_regularDifferentials.lean>
 
 spec-pin: Theorems/Thm_ModularCurve_isIntegral_and_isIntegral_of_smul_D_mem_regularDifferentials_qExpFunctionFieldC.lean
 spec-pin: P2M/Sol/S_ModularCurve_isIntegral_and_isIntegral_of_smul_D_mem_regularDifferentials_qExpFunctionFieldC.lean
+spec-pin: Theorems/Thm_ModularCurve_exists_cuspForm_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion_of_mem_regularDifferentials.lean
+spec-pin: P2M/Sol/S_ModularCurve_exists_cuspForm_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion_of_mem_regularDifferentials.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
@@ -425,3 +476,223 @@ theorem ModularCurve.isIntegral_and_isIntegral_of_smul_D_mem_regularDifferential
     · rcases hfinite v hzero with ⟨hx', h1728'⟩ | ⟨a, ha0, ha2, h1728', hb⟩
       · rw [hzero, h1728']; push_cast; nlinarith
       · rw [hzero, h1728']; push_cast; nlinarith
+
+/-! ## Row AF107D — an integral differential's `q`-expansion is a cusp form's
+
+`ModularCurve.exists_cuspForm_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion_of_mem_regularDifferentials`
+(the pin `S_` file's 227 lines) is the `regularDifferentials` refinement of the `X₁` `q`-expansion
+dictionary: for `ω` **integral** at every place of `X₁(M)`'s function field over `ℚ̄`, `diffQExp`'s
+coefficient map is *still* a weight-two `Γ₁(M)` cusp form's `q`-expansion.  `X₁(M)`'s differentials are
+one-dimensional over its function field, so `ω = x • D j`; the two integrality conclusions this module's
+headline draws for `x • D j` (`x ^ 6 j ^ 4 (j - 1728) ^ 3` integral over `ℚ̄[j]`, and the complementary
+product over `ℚ̄[j⁻¹]`) are exactly what
+`exists_cuspForm_qExpansion_eq_mul_thetaL_pow_of_isIntegral_qExpFunctionFieldC` consumes.
+
+The pin's label namespace `X1ConvGlue` is a word name; its declarations live here in the subject
+namespace `RegularDifferential`, at the pin's names. -/
+
+namespace ModularCurve
+namespace RegularDifferential
+
+variable (M : ℕ) [NeZero M]
+
+local notation "ℚb" => AlgebraicClosure ℚ
+local notation "Γ₁" => CongruenceSubgroup.Gamma1 M
+local notation "Fb" => ModularCurve.x1FunctionFieldBar
+
+/-- `j(q)` read in `X₁(M)`'s base-changed function field. -/
+abbrev jB : Fb M :=
+  ⟨coeffEmb (AlgebraicClosure ℚ) jq,
+    coeffEmb_mem_laurentBaseChange (AlgebraicClosure ℚ) (jq_mem_x1FunctionField M)⟩
+
+/-- `coeffMap` of a constant, for a homomorphism between *different* coefficient fields — the
+generality of the pin's `coeffMap_algebraMap'`; the port's `coeffMap_algebraMap` is the
+endomorphism case. -/
+theorem coeffMap_algebraMap' (ι₀ : AlgebraicClosure ℚ →+* ℂ) (c : AlgebraicClosure ℚ) :
+    coeffMap ι₀ (algebraMap (AlgebraicClosure ℚ) (LaurentSeries (AlgebraicClosure ℚ)) c) =
+      algebraMap ℂ (LaurentSeries ℂ) (ι₀ c) := by
+  rw [algebraMap_laurentSeries_eq_single, algebraMap_laurentSeries_eq_single, coeffMap_single]
+
+/-- `coeffMap ι₀` carries `ℚ`'s base change into `ℂ`'s. -/
+theorem coeffMap_mem_laurentBaseChange_complex (ι₀ : AlgebraicClosure ℚ →+* ℂ)
+    (F₀ : IntermediateField ℚ (LaurentSeries ℚ)) {x : LaurentSeries (AlgebraicClosure ℚ)}
+    (hx : x ∈ laurentBaseChange (AlgebraicClosure ℚ) F₀) :
+    coeffMap ι₀ x ∈ laurentBaseChange ℂ F₀ := by
+  rw [mem_laurentBaseChange_iff] at hx
+  induction hx using Subfield.closure_induction with
+  | mem y hy =>
+      rcases hy with ⟨a, rfl⟩ | ⟨z, hz, rfl⟩
+      · rw [coeffMap_algebraMap']
+        exact (laurentBaseChange ℂ F₀).algebraMap_mem _
+      · rw [ModularCurve.QExpansionLift.coeffMap_coeffEmb']
+        exact coeffEmb_mem_laurentBaseChange ℂ hz
+  | one => simp
+  | add x y _ _ hx hy => simpa using add_mem hx hy
+  | neg x _ hx => simpa using neg_mem hx
+  | inv x _ hx => simpa using inv_mem hx
+  | mul x y _ _ hx hy => simpa using mul_mem hx hy
+
+/-- `coeffMap ι₀` as a ring homomorphism out of `X₁(M)`'s function field. -/
+noncomputable def phi (ι₀ : AlgebraicClosure ℚ →+* ℂ) : Fb M →+* LaurentSeries ℂ :=
+  (coeffMap ι₀).comp (Fb M).toSubfield.subtype
+
+omit [NeZero M] in
+theorem phi_apply (ι₀ : AlgebraicClosure ℚ →+* ℂ) (x : Fb M) :
+    phi M ι₀ x = coeffMap ι₀ (x : LaurentSeries (AlgebraicClosure ℚ)) := rfl
+
+omit [NeZero M] in
+theorem phi_algebraMap (ι₀ : AlgebraicClosure ℚ →+* ℂ) (c : AlgebraicClosure ℚ) :
+    phi M ι₀ (algebraMap (AlgebraicClosure ℚ) (Fb M) c) =
+      algebraMap ℂ (LaurentSeries ℂ) (ι₀ c) := by
+  rw [phi_apply]
+  exact coeffMap_algebraMap' ι₀ c
+
+theorem phi_jB (ι₀ : AlgebraicClosure ℚ →+* ℂ) : phi M ι₀ (jB M) = jqModC ℂ := by
+  rw [phi_apply]
+  exact ModularCurve.QExpansionLift.coeffMap_jBar ι₀
+
+omit [NeZero M] in
+theorem isIntegral_phi (ι₀ : AlgebraicClosure ℚ →+* ℂ) (a : Fb M) {y : Fb M}
+    (hy : IsIntegral (Algebra.adjoin (AlgebraicClosure ℚ) ({a} : Set (Fb M))) y) :
+    IsIntegral (Algebra.adjoin ℂ ({phi M ι₀ a} : Set (LaurentSeries ℂ))) (phi M ι₀ y) := by
+  have hmem : ∀ r : Fb M,
+      r ∈ Algebra.adjoin (AlgebraicClosure ℚ) ({a} : Set (Fb M)) →
+      phi M ι₀ r ∈ Algebra.adjoin ℂ ({phi M ι₀ a} : Set (LaurentSeries ℂ)) := by
+    intro r hr
+    induction hr using Algebra.adjoin_induction with
+    | mem r hr =>
+        rw [Set.mem_singleton_iff] at hr
+        subst hr
+        exact Algebra.subset_adjoin (Set.mem_singleton _)
+    | algebraMap c =>
+        rw [phi_algebraMap]
+        exact Subalgebra.algebraMap_mem _ _
+    | add r s _ _ hr hs => rw [map_add]; exact add_mem hr hs
+    | mul r s _ _ hr hs => rw [map_mul]; exact mul_mem hr hs
+  let ψ : Algebra.adjoin (AlgebraicClosure ℚ) ({a} : Set (Fb M)) →+*
+      Algebra.adjoin ℂ ({phi M ι₀ a} : Set (LaurentSeries ℂ)) :=
+    ((phi M ι₀).comp
+        (Algebra.adjoin (AlgebraicClosure ℚ) ({a} : Set (Fb M))).val.toRingHom).codRestrict
+      (Algebra.adjoin ℂ ({phi M ι₀ a} : Set (LaurentSeries ℂ))) (fun r => hmem r r.2)
+  refine IsIntegral.map_of_comp_eq ψ (phi M ι₀) ?_ hy
+  ext r
+  rfl
+
+theorem D_jB_ne_zero : D (AlgebraicClosure ℚ) (Fb M) (jB M) ≠ 0 := by
+  intro h
+  have h1 : diffQExp (Fb M) (D ℚb (Fb M) (jB M)) =
+      qEuler (AlgebraicClosure ℚ) ((jB M : Fb M) : LaurentSeries ℚb) :=
+    diffQExp_D _ _
+  rw [h, map_zero] at h1
+  have h2 := congrArg (fun s : LaurentSeries ℚb => s.coeff (-1)) h1
+  simp only at h2
+  rw [qEuler_coeff] at h2
+  have h3 : ((jB M : Fb M) : LaurentSeries ℚb).coeff (-1) = 1 := by
+    show (coeffEmb (AlgebraicClosure ℚ) jq).coeff (-1) = 1
+    rw [coeffEmb_coeff, coeff_jq_neg_one, map_one]
+  rw [h3, HahnSeries.coeff_zero] at h2
+  norm_num at h2
+
+theorem alg_transport (F : IntermediateField (AlgebraicClosure ℚ) (LaurentSeries (AlgebraicClosure ℚ)))
+    (hF : F = qExpFunctionFieldC (AlgebraicClosure ℚ) Γ₁)
+    (jbar : ↥F) (hjbar : (jbar : LaurentSeries (AlgebraicClosure ℚ)) = jqModC (AlgebraicClosure ℚ))
+    (x : ↥F) (hx : x • D (AlgebraicClosure ℚ) ↥F jbar ∈ regularDifferentials (AlgebraicClosure ℚ) ↥F) :
+    IsIntegral ↥(Algebra.adjoin (AlgebraicClosure ℚ) ({jbar} : Set ↥F))
+        (x ^ 6 * jbar ^ 4 * (jbar - algebraMap (AlgebraicClosure ℚ) ↥F 1728) ^ 3) ∧
+      IsIntegral ↥(Algebra.adjoin (AlgebraicClosure ℚ) ({jbar⁻¹} : Set ↥F))
+        (x ^ (2 * Module.finrank ↥(IntermediateField.adjoin (AlgebraicClosure ℚ) ({jbar} : Set ↥F)) ↥F) *
+          jbar ^ (Module.finrank ↥(IntermediateField.adjoin (AlgebraicClosure ℚ) ({jbar} : Set ↥F)) ↥F + 1) *
+          (jbar - algebraMap (AlgebraicClosure ℚ) ↥F 1728) ^
+            Module.finrank ↥(IntermediateField.adjoin (AlgebraicClosure ℚ) ({jbar} : Set ↥F)) ↥F) := by
+  subst hF
+  exact ModularCurve.isIntegral_and_isIntegral_of_smul_D_mem_regularDifferentials_qExpFunctionFieldC M Γ₁
+    le_rfl (CongruenceSubgroup.Gamma1_in_Gamma0 M) jbar hjbar x hx
+
+omit [NeZero M] in
+theorem Fb_eq : (Fb M : IntermediateField (AlgebraicClosure ℚ) (LaurentSeries (AlgebraicClosure ℚ))) =
+    qExpFunctionFieldC (AlgebraicClosure ℚ) Γ₁ :=
+  ModularCurve.laurentBaseChange_qExpFunctionFieldC_eq (AlgebraicClosure ℚ) Γ₁
+
+theorem coe_jB : ((jB M : Fb M) : LaurentSeries (AlgebraicClosure ℚ)) = jqModC (AlgebraicClosure ℚ) :=
+  ModularCurve.RegularDifferential.coeffEmb_jq_eq_jqModC (AlgebraicClosure ℚ)
+
+end RegularDifferential
+end ModularCurve
+
+local notation "Fb" => ModularCurve.x1FunctionFieldBar
+
+/-- **An integral `X₁(M)` differential's `q`-expansion is a cusp form's.**  `X₁(M)`'s differentials are
+one-dimensional over its function field, so `ω = x • D j`; the two integrality conclusions
+`isIntegral_and_isIntegral_of_smul_D_mem_regularDifferentials_qExpFunctionFieldC` draws for `x • D j`
+(`x ^ 6 j ^ 4 (j - 1728) ^ 3` integral over `ℚ̄[j]`, and the complementary product over `ℚ̄[j⁻¹]`) are
+exactly what `exists_cuspForm_qExpansion_eq_mul_thetaL_pow_of_isIntegral_qExpFunctionFieldC` consumes. -/
+theorem ModularCurve.exists_cuspForm_coeffMap_diffQExp_x1FunctionFieldBar_eq_qExpansion_of_mem_regularDifferentials
+    (M : ℕ) [NeZero M] (ι₀ : AlgebraicClosure ℚ →+* ℂ)
+    (ω : Ω[↥(ModularCurve.x1FunctionFieldBar M)⁄AlgebraicClosure ℚ])
+    (hω : ω ∈ AlgebraicCurve.regularDifferentials (AlgebraicClosure ℚ) ↥(ModularCurve.x1FunctionFieldBar M)) :
+    ∃ f : CuspForm (CongruenceSubgroup.Gamma1 M) 2,
+      ModularCurve.coeffMap ι₀ (ModularCurve.diffQExp (ModularCurve.x1FunctionFieldBar M) ω) =
+        HahnSeries.ofPowerSeries ℤ ℂ (UpperHalfPlane.qExpansion 1 ⇑f) := by
+  classical
+  haveI hCO := ModularCurve.isCurveOver_x1FunctionFieldBar M
+  have hrank : Module.finrank (Fb M) Ω[Fb M⁄AlgebraicClosure ℚ] = 1 :=
+    IsCurveOver.finrank_kaehler
+  obtain ⟨x, hx⟩ := (finrank_eq_one_iff_of_nonzero'
+    (KaehlerDifferential.D (AlgebraicClosure ℚ) (Fb M) (ModularCurve.RegularDifferential.jB M))
+    (ModularCurve.RegularDifferential.D_jB_ne_zero M)).mp hrank ω
+  have hxreg : x • KaehlerDifferential.D (AlgebraicClosure ℚ) (Fb M)
+      (ModularCurve.RegularDifferential.jB M) ∈
+      AlgebraicCurve.regularDifferentials (AlgebraicClosure ℚ) (Fb M) := by
+    rw [hx]; exact hω
+  obtain ⟨h₁, h₂⟩ := ModularCurve.RegularDifferential.alg_transport M (Fb M)
+    (ModularCurve.RegularDifferential.Fb_eq M) (ModularCurve.RegularDifferential.jB M)
+    (ModularCurve.RegularDifferential.coe_jB M) x hxreg
+  have hXmem : ModularCurve.RegularDifferential.phi M ι₀ x ∈
+      ModularCurve.laurentBaseChange ℂ
+        (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 M)) :=
+    ModularCurve.RegularDifferential.coeffMap_mem_laurentBaseChange_complex ι₀ _ x.2
+  have hJ : ModularCurve.RegularDifferential.phi M ι₀ (ModularCurve.RegularDifferential.jB M) =
+      jqModC ℂ :=
+    ModularCurve.RegularDifferential.phi_jB M ι₀
+  have h1728 : ModularCurve.RegularDifferential.phi M ι₀
+      (algebraMap (AlgebraicClosure ℚ) (Fb M) 1728) =
+      algebraMap ℂ (LaurentSeries ℂ) 1728 := by
+    rw [ModularCurve.RegularDifferential.phi_algebraMap, map_ofNat]
+  have h₁' := ModularCurve.RegularDifferential.isIntegral_phi M ι₀
+    (ModularCurve.RegularDifferential.jB M) h₁
+  have h₂' := ModularCurve.RegularDifferential.isIntegral_phi M ι₀
+    ((ModularCurve.RegularDifferential.jB M)⁻¹) h₂
+  rw [map_inv₀, hJ] at h₂'
+  rw [hJ] at h₁'
+  simp only [map_mul, map_pow, map_sub, hJ, h1728] at h₁' h₂'
+  set n : ℕ := Module.finrank
+    ↥(IntermediateField.adjoin (AlgebraicClosure ℚ)
+      ({ModularCurve.RegularDifferential.jB M} : Set (Fb M))) (Fb M) with hn
+  have hT : ModularGroup.T ∈ CongruenceSubgroup.Gamma1 M := by
+    rw [CongruenceSubgroup.Gamma1_mem]
+    simp [ModularGroup.T]
+  have h₁'' : IsIntegral (Algebra.adjoin ℂ ({jqModC ℂ} : Set (LaurentSeries ℂ)))
+      ((ModularCurve.RegularDifferential.phi M ι₀ x) ^ 6 * jqModC ℂ ^ (4 * 1) *
+        (jqModC ℂ - algebraMap ℂ (LaurentSeries ℂ) 1728) ^ (3 * 1)) := by
+    simpa only [mul_one] using h₁'
+  have h₂'' : IsIntegral (Algebra.adjoin ℂ ({(jqModC ℂ)⁻¹} : Set (LaurentSeries ℂ)))
+      ((ModularCurve.RegularDifferential.phi M ι₀ x) ^ (2 * n) * jqModC ℂ ^ (1 * n + 1) *
+        (jqModC ℂ - algebraMap ℂ (LaurentSeries ℂ) 1728) ^ (1 * n)) := by
+    simpa only [one_mul] using h₂'
+  obtain ⟨f, hf⟩ :=
+    ModularCurve.exists_cuspForm_qExpansion_eq_mul_thetaL_pow_of_isIntegral_qExpFunctionFieldC
+      (CongruenceSubgroup.Gamma1 M) hT 1 le_rfl
+      (ModularCurve.RegularDifferential.phi M ι₀ x) hXmem n h₁'' h₂''
+  refine ⟨f, ?_⟩
+  have hΘ : diffQExp (Fb M) ω =
+      ((x : Fb M) : LaurentSeries (AlgebraicClosure ℚ)) *
+        qEuler (AlgebraicClosure ℚ)
+          ((ModularCurve.RegularDifferential.jB M : Fb M) : LaurentSeries (AlgebraicClosure ℚ)) := by
+    rw [← hx]
+    exact diffQExp_smul_D _ _ _
+  show ModularCurve.coeffMap ι₀ (diffQExp (Fb M) ω) = _
+  rw [hΘ, map_mul, ModularCurve.QExpansionLift.coeffMap_qEuler,
+    ModularCurve.qEuler_eq_thetaL, ← ModularCurve.RegularDifferential.phi_apply,
+    ← ModularCurve.RegularDifferential.phi_apply, hJ]
+  rw [pow_one] at hf
+  exact hf.symm

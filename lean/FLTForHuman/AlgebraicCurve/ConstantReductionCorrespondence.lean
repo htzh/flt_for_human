@@ -30,21 +30,64 @@ Assumes: the uniqueness of the centred place, the existence of a place with
 prescribed comap, and the count of `K`-embeddings above a place, together with the
 fibre computation for a base-changed correspondence.
 
+## The second row: a constant reduction from a section of the constants
+
+`exists_constantReduction_of_constantFieldExtension` (30 pin `S_` lines; this module's
+third wire) is the *existence* half of the constant-reduction dictionary, and it is not
+a corollary of the correspondence above: it is stated over an arbitrary `K ⊆ K'` of
+fields with `K` algebraically closed — no `IsCurveOver`, no `CharZero`, no place — and
+concludes the existence of a valuation subring `O ⊆ F'` with a retraction `ρ : O →+* F`
+that is a section of `F → F'`, has the maximal ideal as kernel, is a *bounded* section
+(the third conjunct), and lands the constants of `K'` in the image of `K`.  Its proof is
+the pin's six lines, over two premises and nothing else:
+
+* `IsAlgClosed.exists_valuationSubring_ringHom_retraction` (mathlib's Chevalley
+  extension, `Mathlib/RingTheory/Valuation/ChevalleyExtension`) produces the valuation
+  subring `A ⊆ K'` together with the retraction `σ : A →+* K`;
+* `AlgebraicCurve.exists_valuationSubring_section_of_constantField_valuationSubring`
+  (`DivisorPlaceReduction.lean`) converts `(A, σ)` into `(O, ρ)` on `F' / F`.
+
+So the row adds **no declaration** beyond its own headline: no helper, no `private`, and
+the checker reads it `ok` on the statement hash alone.  It adds two imports —
+`FLTForHuman.AlgebraicCurve.DivisorPlaceReduction` (for the section row) and
+`FLTForHuman.RingTheory.Valuation.ChevalleyExtension` (for the retraction), neither of
+which reaches this module, so both are import-safe.
+
+Gates for the insertion (measured, pin `aa2d8b3`): `check_port --force` **14 ok, 0
+mismatch, 0 missing, 0 own, 0 kw** — the 13 pre-existing rows of the
+`mapDomain_placeReduction_correspondence` wire all still read `ok` (the gate that catches
+an accidental statement edit) plus the new row; `review.py` engine diff: 4 pin sources,
+32 pin declarations, **14 by hash, 0 by name, 0 unaccounted**, i.e. the 13 + 1 of this
+module's two wires and nothing else; edit loop silent at the 200 k cap; `lake build` of
+the module green (13 s) with no warning from this file; `#print axioms` on all 14 public
+declarations ⊆ `[propext, Classical.choice, Quot.sound]`, no `sorryAx`; `dedup --within`
+0 clusters; `move_dead --dry-run` 0 declarations, 0 lines.  None of this row's six proof
+lines is a `haveI`, so its insertion changes nothing about the module's pre-existing
+linter setting (the module-wide `set_option linter.style.haveILetI false` below the
+imports, which the first row's pin `haveI` walls need and whose reason is recorded there).
+
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Divisor_mapDomain_placeReduction_correspondence.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_Divisor_mapDomain_placeReduction_correspondence.lean
 
 spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_mapDomain_placeReduction_correspondence.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_mapDomain_placeReduction_correspondence.lean
+
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_exists_constantReduction_of_constantFieldExtension.lean>
+spec-pin: Theorems/Thm_AlgebraicCurve_exists_constantReduction_of_constantFieldExtension.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_exists_constantReduction_of_constantFieldExtension.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
 import FLTForHuman.AlgebraicCurve.Defs.RestrictAlongAPI
+import FLTForHuman.AlgebraicCurve.DivisorPlaceReduction
 import FLTForHuman.AlgebraicCurve.IsCurveOver.BaseChangeCorrespondence
 import FLTForHuman.AlgebraicCurve.IsCurveOver.ConstantFieldExtensionExists
 import FLTForHuman.AlgebraicCurve.IsCurveOver.Transcendental
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtension
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtensionRamification
 import FLTForHuman.AlgebraicCurve.Place.FromValuationSubring
+import FLTForHuman.RingTheory.Valuation.ChevalleyExtension
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
 
 set_option autoImplicit false
@@ -623,3 +666,24 @@ theorem AlgebraicCurve.Divisor.mapDomain_placeReduction_correspondence
   simp only [AddMonoidHom.coe_comp, Function.comp_apply, Finsupp.mapDomain.addMonoidHom_apply]
   exact mapDomain_correspondence_single hfg hfgE hgen hfg' hfgE' hgen' φ ψ hφ hψ hfinφ φE ψE
     hφE hψE hφcomm hψcomm hFIE A hKA r hr r' hr' P n
+
+theorem AlgebraicCurve.exists_constantReduction_of_constantFieldExtension
+    (K F K' F' : Type*) [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K]
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤) :
+    ∃ (O : ValuationSubring F') (ρ : O →+* F),
+      (∀ f : F, ∃ h : algebraMap F F' f ∈ O, ρ ⟨algebraMap F F' f, h⟩ = f) ∧
+      RingHom.ker ρ = IsLocalRing.maximalIdeal O ∧
+      (∀ f' : F', f' ≠ 0 → ∃ c : K', ∃ h : c • f' ∈ O, ρ ⟨c • f', h⟩ ≠ 0) ∧
+      (∀ (c : K') (h : algebraMap K' F' c ∈ O),
+        ρ ⟨algebraMap K' F' c, h⟩ ∈ Set.range (algebraMap K F)) := by
+
+  obtain ⟨A, hK, σ, hker, hsec⟩ :=
+    IsAlgClosed.exists_valuationSubring_ringHom_retraction K K'
+
+  exact AlgebraicCurve.exists_valuationSubring_section_of_constantField_valuationSubring
+    K F K' F' hfg hfg' hgen A hK σ hker hsec

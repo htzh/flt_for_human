@@ -6772,3 +6772,108 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   seconds, and it is the only instrument that sees the comment's boundaries. `check_port` green is not
   "the module still compiles".
 - **seen**: 2026-11-27, SET-AF106D review (caught by the set's wave build, repaired, module silent again).
+
+## FR-0316 [checker] — an unwired module cannot host a new row: the checker iterates the *module's* declarations, so an insertion there is never diffed
+
+- **where**: SET-AF107's scaffolding, order H. `FieldTheory/ValuationSubringPolynomial.lean` holds the
+  `ZfSol.IsW` engine the row's proof needs and is the row's natural home — but it carries **no
+  `spec-pin:` line** (it is neither in the frozen `PORT_FILES` nor wired), so a declaration appended to it
+  would be checked by nothing.
+- **symptom**: the honest attempt to insert there is a silent no-op for the checker: `check_port --force`
+  reads the *wired* sources only, and an unwired module's own declarations are unaccounted either way, so
+  the new row never appears in the `ok` column and gate 1 cannot be met — the failure is an absence, not an
+  error.
+- **cause**: the tier-1 rule is per module (`PORT_FILES` or a `spec-pin:` wire), and check_port diffs the
+  declarations of a *checked* module. An unwired module is tier 3: registered, unchecked.
+- **effect**: three homing options, in this order: (a) if the module's subject demands it, migrate it in
+  the same touch (wire its pin sources, delete its `PORT_FILES` row — order G did exactly that for
+  `Velu/StepCurveSubgroup.lean`); (b) put the row in a **new module above** its premise modules — what
+  order H did; (c) never insert into an unwired module "because the engine is there".
+- **rule**: a home has two constraints, the import direction *and* the wire. Check both before writing
+  the scaffold: `grep -c "spec-pin" <module>` and `grep -c "<module>" spec/old_check_stmts.py`.
+- **seen**: 2026-11-27, SET-AF107 scaffolding.
+
+## FR-0317 [scoping] — "blocked on a definition layer" was wrong for the nine mathlib-shaped leaves: their namespace is mathlib's, and the gate is the `S_` file's own imports
+
+- **where**: SET-AF107 order F. Four sets in a row deferred `NumberField.mixedEmbedding.*`,
+  `NumberField.Units.*`, `NumberField.InfinitePlace.*`, `MeasureTheory.Lp.*` and the ℚ height-one-spectrum
+  leaf as "blocked on a definition layer" (CARRY-FORWARD's "the AF-subject half of the ready shelf is
+  empty" note repeats it).
+- **symptom**: every one of the nine rows elaborates in a fresh module against the port's mathlib, first
+  try, with the statement copied from the pin's wrapper. No `Definitions/` module is involved:
+  `NumberField.mixedEmbedding` is **mathlib's** namespace
+  (`Mathlib/NumberTheory/NumberField/CanonicalEmbedding/Basic.lean`), and the pin's `S_` files import
+  either bare `Mathlib` or a single mathlib module.
+- **cause**: two readings were collapsed. FR-0049's "the statement's vocabulary is not a graph node" is
+  right that a structure can gate a row; it does not follow that an *unfamiliar namespace* is a pin
+  `Def_` module. `rg MixedEmbedding lean/` being empty says the port has no module of that name — not that
+  a definition layer is missing, because the definitions live in mathlib.
+- **effect**: 1,246 silo of ready, definition-gate-free, high-fan-in mathematics sat on the shelf for four
+  sets, and the same mis-reading is what keeps `M4aTorus.completedRayL_fe` and the ray-class L-series pair
+  deferred (those *are* gated — their `S_` files import `Def_NumberField_CompletedRayL` and friends, which
+  is the check that separates the two cases).
+- **cure / rule**: before deferring a row as "definition-gated", read its `S_` file's
+  `import Definitions.` lines (`lean/tmp/af107/recon.py` does it row by row). An empty
+  `import Definitions.` list plus an unfamiliar namespace means mathlib, not a gate; write the scaffold
+  and let elaboration decide in one pass.
+- **seen**: 2026-11-27, SET-AF107 scaffolding (nine scaffolds, zero failures).
+
+## FR-0318 [tooling] — a pin row whose hypotheses are all *section variables* hashes as its bare conclusion, so the advise "matches" any port row with the same conclusion
+
+- **where**: SET-AF107A. `port_advise` offered `linearIndependent_adjoin` →
+  `RegularProlongationResidueSpan.W10XK3ER2.linearIndependent_adjoinField_z`, and the two statements do
+  hash equal.
+- **symptom**: the substitution is false. The pin declares
+  `theorem linearIndependent_adjoin : LinearIndependent (adjoin L {f}) z` — every hypothesis is a section
+  variable, so the declaration's *text* is the bare conclusion — while the port row is indexed by
+  `Σ i, Fin (d i)` with `(yb, hzi, hzl, heq)`. Importing would have made four rows MISMATCH.
+- **cause**: the statement parser's signature stops at the first top-level `:=`, and a section-variable
+  hypothesis appears nowhere in the declaration text. So the hash covers only the conclusion, and any two
+  rows with the same conclusion collide — the *shape* tier's normalisation cannot see a hypothesis it was
+  never given.
+- **effect**: the advise's substitution list has a false-positive class beyond FR-0266's type-only `def`
+  matches, and it is the one that looks safest (two rows, same conclusion, "obvious" duplicate). It bites
+  hardest in the `RegularProlongation` / `ValuationSubring` families, whose pins are written with
+  everything in a `section`.
+- **cure / rule**: for any advised substitution in a section-heavy pin, read the *hypothesis list* of the
+  port row before importing (the advise cannot show it to you); the pin's own file often restates the row
+  for exactly this reason. A hash match with an empty visible hypothesis list is evidence of nothing.
+- **seen**: 2026-11-27, SET-AF107A (declined, transcribed).
+
+## FR-0319 [tactic] — `rw [show a = f a by ring, …]` can rewrite inside its own right-hand side, and the `ring` inside the `show` silently changes behaviour
+
+- **where**: SET-AF107H, the two `zpow` `pred` branches of `TateCurve.sOne_eq_tsum_xfun`'s proof. The pin
+  writes `rw [show (-(k : ℤ)) = (-(k : ℤ) - 1) + 1 by ring, zpow_add_one₀ hq0]; ring`.
+- **symptom**: the `rw` also rewrites `-(k : ℤ)` **inside the exponent of its own right-hand side**, so the
+  `ring` that follows no longer sees equal atoms, silently falls through to `ring_nf`, and emits a
+  `Try this:` **info** line — which is enough to break a "module is silent" gate even though the proof is
+  correct.
+- **cause**: `rw` closes over the whole goal, not over the pattern it just introduced, and `ring`'s first
+  pass is structural (`ring1`) — a goal whose atoms are no longer syntactically equal drops to the
+  normalising fallback, which reports what it did.
+- **effect**: a silent transcript of the pin is not silent. The cure is one word: write `ring_nf` in place
+  of the trailing `ring` (same proof, no info line), and do **not** install any option to hide it.
+- **rule**: an info diagnostic is a gate failure too ("silent" means no output, not "no warnings"); when a
+  pin's `ring` "falls through", the honest transcription names the stronger tactic instead of suppressing
+  the report.
+- **seen**: 2026-11-27, SET-AF107H.
+
+## FR-0320 [build] — a scaffold headline that *moves* keeps its old module's `.olean` busy: the new home fails "has already been declared" until the old module is rebuilt
+
+- **where**: SET-AF107D. The 227 row was scaffolded into `ModularCurve/QExpansionDifferentialLift.lean`,
+  then re-homed into `ModularCurve/X1/IntegralityDifferential.lean` when the order found that the ordered
+  home sits above the row's own first premise (FR-0280's shape, §4's import-direction rule).
+- **symptom**: the scaffold headline was deleted from QEDL's **source** (its `git diff` empty), and the
+  new module still failed to elaborate with `ModularCurve.exists_cuspForm_coeffMap_… has already been
+  declared` — for as long as QEDL's **stale `.olean`** was on the search path, because the olean still
+  contains the name and Lean loads it when the new home imports QEDL (which it does indirectly).
+- **cause**: a `.olean` is a compiled declaration table; editing the source does not retract it, and
+  `lake env lean <file>` does not rebuild dependencies (only `lake build` does).
+- **effect**: the failure reads like a genuine duplicate declaration (FR-0274), i.e. like a design error,
+  and the instinct is to rename the declaration — which would *create* the duplicate problem it appears to
+  report.
+- **cure / rule**: when a declaration moves between modules, `flock`ed `lake build <old module>` (or
+  `lake build` the new home, which rebuilds it as a dependency) **before** believing a duplicate-name
+  error. The same care applies to a deletion: a deleted declaration stays visible through its olean until
+  the module is rebuilt.
+- **seen**: 2026-11-27, SET-AF107D.

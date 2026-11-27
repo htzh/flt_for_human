@@ -38,6 +38,11 @@ spec-pin: P2M/Sol/S_ValuationSubring_natDegree_map_eq_card_roots_of_splits.lean
 spec-pin: P2M/Sol/S_ValuationSubring_tensorProduct_exists_primitive_factor.lean
 spec-pin: P2M/Sol/S_ValuationSubring_exists_map_subtype_eq_C_inv_mul_and_map_residue_ne_zero.lean
 
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ValuationSubring_ringKrullDim_le_toENat_trdeg_rat_add_one.lean>
+spec-pin: Theorems/Thm_ValuationSubring_ringKrullDim_le_toENat_trdeg_rat_add_one.lean
+spec-pin: P2M/Sol/S_ValuationSubring_ringKrullDim_le_toENat_trdeg_rat_add_one.lean
+
 **Landing (AF103E).**  All five rows transcribed in full: **29 public declarations**, 0 private, one
 declaration per pin row.  Names are the pin's, except for the three generated namespace labels, which
 come off in favour of subject namespaces — `ValuationSubring.KrullDimTranscendence` (row 269's
@@ -103,6 +108,41 @@ at `20000`** and **deterministic timeout at `15000`**, at `RootCount.main`'s roo
 (`have hroots : p.roots = q.roots`, `have hc' := ((mem_roots hlin0).mp hc)`, `have hsplit₁ :
 Multiset.card (q.map (algebraMap A E)).roots = q.natDegree`) and at the
 `tensorProduct_exists_primitive_factor` header.  No `set_option maxHeartbeats` is installed.
+
+**Landing (AF107H) — the `ℚ`-scale dimension row.**  A sixth row joins the five above:
+`ringKrullDim_le_toENat_trdeg_rat_add_one`, `ringKrullDim A ≤ toENat (trdeg ℚ L) + 1` for a valuation
+subring `A` of a `ℚ`-algebra field.  Its one premise is the module's own
+`ringKrullDim_le_ringKrullDim_comap_add_trdeg`, so the row is placed immediately **below** that
+premise (adjacency is after, not before: Lean has no forward references — the order's "right above its
+premise" is read as "in the premise's own section").  The pin's generated `AbhRatSol` label comes off
+for `ValuationSubring.KrullDimRat`, and its six helper rows there (`unitInts`, `mem_unitInts`,
+`unitInts_le_nonZeroDivisors`, `isUnit_den`, `isLocalization`, `ringKrullDim_le_one`) are transcribed
+at those same names and are `private` — the pin has them public, the house default is `private`, and
+the surface probe below shows they promote cleanly.  No `WithBot ℕ∞` cast helper was needed: the pin's
+`calc` closes with `add_le_add` and `add_comm` as written.
+
+* Engine gate over the same twelve `spec-pin:` files (the five wrappers, the five `S_` files, and the
+  new row's wrapper + `S_` pair): pin decls **41**, module decls **35** (30 public + 5 parsed private
+  — the `scoped instance isLocalization` is not a parsed row), **34 by hash**, **1 by name (hash
+  differs)** — the pre-existing `tensorProduct_exists_primitive_factor` — **0 unaccounted**.  The new
+  row and all five of its parsed private helpers match **by hash**.
+* `check_port` **30 ok / 0 mismatch / 0 missing / 0 own / 0 kw** — 29 before this row, the order's 30.
+* **Surface probe** (`tmp/af107/probe-surface-VSF.lean`, the module with `private` dropped from the
+  five new helpers): **35 ok / 0 mismatch / 0 missing / 0 own**.  All five are pin rows; promotion is
+  the manager's call.
+* `#print axioms` on all **30** public declarations: `[propext, Classical.choice, Quot.sound]`, no
+  `sorryAx` (`tmp/af107/ax-vsf.out`).
+* `dedup --within --module '*FieldTheory/ValuationSubringValuedField*'`: **0 duplicate clusters**;
+  `move_dead --dry-run`: **0 declarations, 0 lines**.
+* Heartbeat probe pair (measured, **never installed**): the module is **silent at
+  `-DmaxHeartbeats=20000`** and **first fails at `15000`**, again at `RootCount.main`'s roots
+  bookkeeping (lines 875, 879, 889) and the `tensorProduct_exists_primitive_factor` header (919) — the
+  same pair AF103E recorded, so the new row is not the module's tightest declaration.  5000 fails with
+  63 lines, 1000 with 182.  No `set_option maxHeartbeats` is installed.
+* Drift (mathlib `v4.34.0` against the pin's `v4.33.0`), statements frozen, proof adapted: the pin's
+  `B.intCast_mem u` is `v4.34`'s `SubringClass`-generic root lemma `intCast_mem`
+  (`Subring.intCast_mem` no longer exists), so it is written `intCast_mem B u`; `isLocalization_iff`
+  and the `Rat`/`Int` denominator-coprimality API are unchanged.
 
 Set-level note: `tmp/af103/collision-probe.lean` (the FR-0274 probe over all five AF103 modules)
 cannot be run from this order yet — the other four modules' `.olean`s are not built, so the probe
@@ -402,6 +442,83 @@ theorem ringKrullDim_le_ringKrullDim_comap_add_trdeg
   calc (s.length : WithBot ℕ∞) ≤ ((s₀.length + b : ℕ) : WithBot ℕ∞) := by exact_mod_cast hlen
     _ = (s₀.length : WithBot ℕ∞) + ((b : ℕ∞) : WithBot ℕ∞) := by push_cast; rfl
     _ ≤ _ := add_le_add h1 h2
+
+/- The dimension bound at the bottom of the scale: a valuation subring of a `ℚ`-algebra field has
+`dim A ≤ trdeg ℚ L + 1`.  The engine is the `ℚ`-case `dim B ≤ 1`: a valuation subring `B` of `ℚ`
+localizes `ℤ` (at the submonoid of integers whose image in `B` is a unit), so it is a localization of
+the Dedekind domain `ℤ` and hence of dimension at most one; the comap-plus-transcendence-degree
+inequality above then costs exactly the `+ 1`.  (The pin's generated `AbhRatSol` label is dropped:
+subject namespace.) -/
+namespace KrullDimRat
+
+open ValuationSubring
+
+private def unitInts (B : ValuationSubring ℚ) : Submonoid ℤ :=
+  (IsUnit.submonoid B).comap (algebraMap ℤ B)
+
+private lemma mem_unitInts {B : ValuationSubring ℚ} {n : ℤ} :
+    n ∈ unitInts B ↔ IsUnit (algebraMap ℤ B n) := Iff.rfl
+
+private lemma unitInts_le_nonZeroDivisors (B : ValuationSubring ℚ) :
+    unitInts B ≤ nonZeroDivisors ℤ := by
+  intro n hn
+  rw [mem_nonZeroDivisors_iff_ne_zero]
+  rintro rfl
+  rw [mem_unitInts, map_zero] at hn
+  exact not_isUnit_zero hn
+
+private lemma isUnit_den (B : ValuationSubring ℚ) (x : B) :
+    IsUnit (algebraMap ℤ B ((x : ℚ).den : ℤ)) := by
+  set r : ℚ := (x : ℚ) with hr
+  have hcop : IsCoprime r.num (r.den : ℤ) := by
+    rw [Int.isCoprime_iff_gcd_eq_one, Int.gcd_eq_natAbs, Int.natAbs_natCast]
+    exact r.reduced
+  obtain ⟨u, v, huv⟩ := hcop
+  have hden0 : (r.den : ℚ) ≠ 0 := by exact_mod_cast r.den_ne_zero
+  have hinv : ((r.den : ℚ))⁻¹ = u * r + v := by
+    have h1 : (u : ℚ) * r.num + v * r.den = 1 := by exact_mod_cast huv
+    have h2 : (r.num : ℚ) = r * r.den := by rw [Rat.mul_den_eq_num]
+    rw [h2] at h1
+    field_simp
+    linarith [h1]
+  have hmem : ((r.den : ℚ))⁻¹ ∈ B := by
+    rw [hinv]
+    exact B.add_mem _ _ (B.mul_mem _ _ (intCast_mem B u) x.2) (intCast_mem B v)
+  refine ⟨⟨algebraMap ℤ B (r.den : ℤ), ⟨_, hmem⟩, ?_, ?_⟩, rfl⟩
+  · apply Subtype.ext
+    simp [hden0]
+  · apply Subtype.ext
+    simp [hden0]
+
+private scoped instance isLocalization (B : ValuationSubring ℚ) : IsLocalization (unitInts B) B := by
+  rw [isLocalization_iff]
+  refine ⟨fun n => n.2, fun z => ?_, fun {a b} h => ⟨1, by
+    have : (a : ℚ) = b := by
+      have h' := congrArg (fun t : B => (t : ℚ)) h
+      simpa using h'
+    exact_mod_cast congrArg (fun t => 1 * t) (show a = b by exact_mod_cast this)⟩⟩
+  refine ⟨⟨(z : ℚ).num, ⟨((z : ℚ).den : ℤ), isUnit_den B z⟩⟩, ?_⟩
+  apply Subtype.ext
+  simp [Rat.mul_den_eq_num]
+
+private theorem ringKrullDim_le_one (B : ValuationSubring ℚ) : ringKrullDim B ≤ 1 := by
+  have h : Ring.DimensionLEOne B :=
+    Ring.DimensionLEOne.localization B (unitInts_le_nonZeroDivisors B)
+  have : Ring.KrullDimLE 1 B := inferInstance
+  exact (Ring.krullDimLE_iff).mp this
+
+end KrullDimRat
+
+open KrullDimRat in
+theorem ringKrullDim_le_toENat_trdeg_rat_add_one
+    {L : Type*} [Field L] [Algebra ℚ L] (A : ValuationSubring L) :
+    ringKrullDim A ≤ (Cardinal.toENat (Algebra.trdeg ℚ L) : WithBot ℕ∞) + 1 := by
+  have h := ValuationSubring.ringKrullDim_le_ringKrullDim_comap_add_trdeg (K := ℚ) A
+  have h0 := ringKrullDim_le_one (A.comap (algebraMap ℚ L))
+  calc ringKrullDim A ≤ ringKrullDim (A.comap (algebraMap ℚ L)) +
+        (Cardinal.toENat (Algebra.trdeg ℚ L) : WithBot ℕ∞) := h
+    _ ≤ 1 + (Cardinal.toENat (Algebra.trdeg ℚ L) : WithBot ℕ∞) := add_le_add h0 le_rfl
+    _ = _ := add_comm _ _
 
 /- The residue-field engine of `exists_smul_mem_of_transcendental_residue`: an element of `F` whose
 residue class is transcendental over the residue field of `A` is, after a scaling by `L`, a unit of

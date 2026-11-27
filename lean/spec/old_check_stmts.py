@@ -4685,11 +4685,10 @@ PORT_FILES = [
     # `Theorems/` wrapper appended to `SOURCES` above. Appended last so no earlier
     # last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Torsion/DivisionField.lean",
-    # --- WORKORDER-W3 (`topics/deligneSerre/WORKORDER-W3-stepcurve.md`): the odd
-    # prime-degree step of the abscissa-indexed Vélu construction; only the headline
-    # is public, matched against its `Theorems/` wrapper appended to `SOURCES` above.
-    # Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Velu/StepCurveSubgroup.lean",
+    # (removed 2026-11-27, SET-AF107 G) `FLTForHuman/WeierstrassCurve/Velu/StepCurveSubgroup.lean`
+    # — now wired by its own `spec-pin:` lines (its `Theorems/` wrapper and `S_` copy, both
+    # already in `SOURCES`); the set added its ℓ = 2 sibling, so the module was brought up to
+    # standards in the same touch: 2 ok / 0 mismatch / 0 missing.
     # --- WORKORDER-W4 (`topics/deligneSerre/WORKORDER-W4-definition-wave.md`), stage 1:
     # the reduction-point definition layer. Its pin source
     # `Definitions/Def_WeierstrassCurve_ReductionMap.lean` is already in `SOURCES` from the
