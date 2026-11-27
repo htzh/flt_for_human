@@ -28,10 +28,11 @@
   W3b adds the `Γ_H(M)` case of the same subject: the two headlines
   `heckeU_slash_eq_self_of_mem_GammaH` and
   `heckeU_add_slash_slash_eq_self_of_mem_GammaH`, whose 480-line pin proofs are
-  the shared coset computation written once in
-  `ModularForms/HeckeCosetDecomposition.lean`. The two headlines are now
-  ~9-line `rw` wrappers around `sum_slash_beta_eq_heckeU` /
-  `sum_slash_beta_eq_heckeU_add` and `sum_slash_beta_slash_eq`.
+  the shared coset computation. The coset systems now live in
+  `ModularForms/HeckeCosetGammaH.lean` (`heckeUTransversal` over `ZMod q`,
+  `heckeTTTransversal` over `ℙ¹(ℤ/ℓ)`, and the pin's `beta` family), and the two
+  headlines are `rw` wrappers around `sum_beta_eq_heckeU` /
+  `sum_beta_eq_heckeU_add` and `sum_beta_slash_eq`.
 
   spec-pin: Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean
   spec-pin: P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean   -- comparable copy
@@ -48,7 +49,7 @@ import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.Algebra.Field.ZMod
 import FLTForHuman.ModularForms.Defs.HeckeRepresentatives
 import FLTForHuman.ModularForms.HeckeFricke
-import FLTForHuman.ModularForms.HeckeCosetDecomposition
+import FLTForHuman.ModularForms.HeckeCosetGammaH
 
 set_option autoImplicit false
 
@@ -62,7 +63,7 @@ open scoped MatrixGroups ModularForm
 
 open ModularForm.HeckeRepresentatives
 
-open CohCarrier HeckeCoset
+open CohCarrier HeckeCosetGammaH
 
 namespace ModularForm
 
@@ -124,8 +125,8 @@ theorem heckeU_slash_eq_self_of_mem_GammaH
     (ModularForm.heckeU k q f) ∣[k] γ = ModularForm.heckeU k q f := by
   haveI : NeZero q := ⟨hq.ne_zero⟩
   letI := (CohCarrier.GammaHUpper M H q).fintypeQuotientOfFiniteIndex
-  rw [← HeckeCoset.sum_slash_beta_eq_heckeU M H q hqM k hf]
-  exact HeckeCoset.sum_slash_beta_slash_eq M H q k hf γ hγ
+  rw [← sum_beta_eq_heckeU M H q hqM k hf]
+  exact sum_beta_slash_eq M H q k hf γ hγ
 
 /-- `U_ℓ + (·) ∣ (ρ · diag ℓ)` preserves `Γ_H(M)`-invariance when `ℓ` is prime and
 `ℓ ∤ M`. Stated verbatim from
@@ -144,10 +145,10 @@ theorem heckeU_add_slash_slash_eq_self_of_mem_GammaH
         (f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
           ModularForm.heckeDiagMatrix ℓ)) := by
   haveI : Fact ℓ.Prime := ⟨hℓ⟩
-  obtain ⟨B⟩ := HeckeCoset.exists_bezoutData M ℓ hℓM
+  obtain ⟨B⟩ := exists_bezoutData M ℓ hℓM
   letI := (CohCarrier.GammaHUpper M H ℓ).fintypeQuotientOfFiniteIndex
-  rw [← HeckeCoset.sum_slash_beta_eq_heckeU_add H B ρ hρ k hf]
-  exact HeckeCoset.sum_slash_beta_slash_eq M H ℓ k hf γ hγ
+  rw [← sum_beta_eq_heckeU_add H B ρ hρ k hf]
+  exact sum_beta_slash_eq M H ℓ k hf γ hγ
 
 end ModularForm
 

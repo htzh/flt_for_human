@@ -1,22 +1,30 @@
 /-
-  The coset sum of a Hecke representative system, and its level invariance.
+  The coset sum of a Hecke representative system: its level invariance, its independence of the
+  transversal, its identification with the abstract double-coset operator, and its period.
 
   The Hecke operator of a double coset `K g K` is the sum of the slashes by representatives of the
   left cosets of `K` inside `K g K`. Everything a family has to say about its operator is
   geometric, and it is exactly three statements: the representatives lie in `K g K`, distinct
   representatives lie in distinct left cosets, and every element of `K g K` lies in the left coset
-  of a representative. That is the structure `Transversal` below, and this module proves what the
-  three statements buy: the level invariance (`Transversal.slash_invariant`) and, in the carrier
-  section, the two facts that put the coset sum into the abstract calculus — the slash action as a
-  representation of `GL(2,ℝ)⁺` (`slashRep`, by the inverse action) and the level-space dictionary
-  (`mem_levelSpace_slashRep`). The identification of the coset sum with the abstract double-coset
-  operator is the next slice of this module and is specified in
-  `topics/hecke/TOPIC-abstract-coset-calculus.md` §5.
+  of a representative. That is the structure `Transversal`, and its three fields are the whole of a
+  family's concrete input (`Transversal.ofLevel` builds them from a level pair and an index). This
+  module proves what they buy: the level invariance (`slash_invariant`), the independence of the
+  choice of transversal (`sum_eq_sum`) and the identification of the sum with the abstract
+  double-coset operator (`sum_eq_doubleCosetOperator`). The carrier section supplies the two facts
+  that put the coset sum into the abstract calculus: the slash action as a representation of
+  `GL(2,ℝ)⁺` (`slashRep`, by the inverse action) and the level-space dictionary
+  (`mem_levelSpace_slashRep`).
 
-  Nothing in `Transversal.slash_invariant` goes through the group `Gᵐᵒᵖ`, a coset quotient, a
-  double-coset witness or a representation: the sum is a sum of functions and the argument is
+  Nothing in `slash_invariant` goes through the group `Gᵐᵒᵖ`, a coset quotient, a double-coset
+  witness or a representation: the sum is a sum of functions and the argument is
   `F ∣ (r i * γ) = F ∣ (κ i * r (σ i)) = F ∣ r (σ i)`, reindexed by the permutation `σ` of the
   index set. The abstract calculus is needed only to name the operator.
+
+  `sum_sub_eq_cocycle` is the period-level counterpart, for the consumers of the period map: the
+  coset sum of a function equivariant along a monoid homomorphism is equivariant, and its period at
+  `x` is the sum of the periods of the cocycle that right multiplication by `x` induces. It takes
+  the permutation and the cocycle as input, because a consumer reads them off its own model of the
+  double coset (a transfer, a level change).
 
   The weight `k` slash action on `ℍ → ℂ` is mathlib's (`ModularForm ∣[k]`), so this module imports
   it rather than restating it.
@@ -383,5 +391,37 @@ theorem sum_eq_sum (T : Transversal K g ι) {ι' : Type*} [Fintype ι'] (T' : Tr
   rw [T.sum_eq_doubleCosetOperator hF hK hg, T'.sum_eq_doubleCosetOperator hF hK hg]
 
 end Transversal
+
+/-- **The coset sum of an equivariant function is equivariant.** Let `F` be equivariant along a
+monoid homomorphism `m : H →* GL(2,ℝ)` — its obstruction to invariance is the period homomorphism
+`φ`, `F (m k • z) - F z = φ k` — and let the representatives carry a permutation `σ` of the index
+set and a cocycle `κ : ι → H` with `r (σ i) * x = m (κ i) * r i`. Then the coset sum at `x` has
+period `∑ i, φ (κ i)`: reindex by `σ` and apply the equivariance at `r i • z`.
+
+This is the period-level counterpart of `slash_invariant`: there the level invariance of `F` makes
+the coset sum `K`-fixed, here its `H`-equivariance makes the coset sum equivariant by the cocycle
+sum. The permutation and the cocycle are an input rather than derived from the geometric fields,
+because the consumer who reads them off a specific model of the double coset (a transfer, a level
+change) has that model's permutation anyway. The family enters only through `r`: no `Transversal`
+and no double-coset membership is needed. -/
+theorem sum_sub_eq_cocycle {H : Type*} [Group H] (m : H →* GL (Fin 2) ℝ) {ι : Type*} [Fintype ι]
+    {r : ι → GL (Fin 2) ℝ} {x : GL (Fin 2) ℝ} {σ : Equiv.Perm ι} {κ : ι → H}
+    (hrel : ∀ i, r (σ i) * x = m (κ i) * r i)
+    {F : ℍ → ℂ} {φ : Additive H →+ ℂ}
+    (hF : ∀ k : H, ∀ z : ℍ, F (m k • z) - F z = φ (Additive.ofMul k))
+    (z : ℍ) :
+    ∑ i, F (r i • x • z) - ∑ i, F (r i • z) = ∑ i, φ (Additive.ofMul (κ i)) := by
+  have hstep : ∑ i, F (r i • x • z) = ∑ i, F (r i • z) + ∑ i, φ (Additive.ofMul (κ i)) := by
+    calc ∑ i, F (r i • x • z)
+        = ∑ i, F (r (σ i) • x • z) := (Equiv.sum_comp σ (fun i => F (r i • x • z))).symm
+      _ = ∑ i, F (m (κ i) • (r i • z)) := by
+          refine Finset.sum_congr rfl fun i _ => ?_
+          rw [← mul_smul, hrel i, mul_smul]
+      _ = ∑ i, F (r i • z) + ∑ i, φ (Additive.ofMul (κ i)) := by
+          rw [← Finset.sum_add_distrib]
+          refine Finset.sum_congr rfl fun i _ => ?_
+          linear_combination hF (κ i) (r i • z)
+  rw [hstep]
+  abel
 
 end HeckeCoset

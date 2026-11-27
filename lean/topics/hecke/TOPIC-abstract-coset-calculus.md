@@ -1,17 +1,22 @@
 # The abstract double-coset Hecke calculus (taken from the GRH proof)
 
-**Status: Stage A landed; the classical layer consolidated; Stage C not started (2026-11-17).**
-`RepTheory/DoubleCosetHecke.lean` (the calculus, 317 lines) and `ModularForms/HeckeCosetSum.lean`
-(the classical coset layer, 376 lines) build on mathlib `v4.34.0`, no warnings, no `sorry`. The
-classical layer is now one module with one object (`HeckeCoset.Transversal`: the three geometric
-facts that say "these are the cosets of `K` in `K g K`") and two statements it buys — the level
-invariance (`Transversal.slash_invariant`) and the operator identity
-(`Transversal.sum_eq_doubleCosetOperator`). The family-facing object is stated in `GL (Fin 2) ℝ`
-with no coset quotient, no opposite group, no `GL(2,ℝ)⁺` positivity hypothesis and no
-representation. The first cut of the carrier (`HeckeSlashRep.lean`, in the opposite group, with its
-own `CosetTransversal`) is archived to `Reserve/HeckeCosetCalculus/`; both of its theorems are now
-re-proved against the new object, so it is dead and can be deleted. No family is retargeted yet, so
-nothing in the classical tree is retired; §5.4 is the order.
+**Status: Stage A landed; the classical layer consolidated; the `Γ_H` family retargeted and its
+old module deleted (2026-11-26).**
+`RepTheory/DoubleCosetHecke.lean` (the calculus) and `ModularForms/HeckeCosetSum.lean` (the
+classical layer) build on mathlib `v4.34.0`, no warnings, no `sorry`. The classical layer has one
+object (`HeckeCoset.Transversal`: the three geometric facts that say "these are the cosets of `K` in
+`K g K`") and four statements it buys — the level invariance (`slash_invariant`), the independence
+of the transversal (`sum_eq_sum`), the operator identity (`sum_eq_doubleCosetOperator`) and the
+period theorem (`sum_sub_eq_cocycle`). The family-facing object is stated in `GL (Fin 2) ℝ` with no
+coset quotient, no opposite group, no `GL(2,ℝ)⁺` positivity hypothesis and no representation.
+
+The `Γ_H(M)` family is retargeted whole: `ModularForms/HeckeCosetGammaH.lean` now carries the level
+pair, the **two** transversals — `ZMod q` for `q ∣ M`, the projective line `ℙ¹(ℤ/ℓ)` for `ℓ ∤ M` —
+and the pin's own `beta` family, and `ModularForms/HeckeCosetDecomposition.lean` is deleted (its
+pin source is carried by a header-only file in `Reserve/`). Both consumers
+(`HeckeInvariance`, `ModularCurve/Period/PeriodMapHecke`) are re-proved through the new module;
+§5.6 is the record. The first cut of the carrier (`HeckeSlashRep.lean`) stays archived in
+`Reserve/HeckeCosetCalculus/`, dead.
 
 Corrections to the earlier text of this note. (i) The two adapter theorems the earlier §4 called
 "remaining" and "blocked" were landed in the first cut, and its §4 friction was worked around
@@ -141,10 +146,13 @@ the determinant positivity is used). With this, the abstract calculus has a live
 a family that states its three geometric facts gets both the invariance and the operator identity
 without writing a coset quotient.
 
-**Not yet validated.** The *statement* of the operator identity is unexercised: nothing applies it
-yet, so a sign error in the label would not show up in a build. The check is the first family
-retarget, where the same operator must reproduce an independently proved concrete formula
-(`sum_slash_beta_eq_heckeU` for `Γ_H`, `heckeU_eq_sum_zmod`/`heckeT_eq_sum_onePoint` for `Γ₀`).
+**Still not independently validated.** The operator identity is now used — `sum_eq_sum` compares two
+transversals through it — but a wrong label would cancel between the two uses, so it is still not
+checked against an independently proved concrete formula. The check is a family whose *operator*
+(not just its sum) is compared with a pin formula: `sum_beta_eq_heckeU` for `Γ_H` is such a
+formula, and it is reached through `sum_eq_sum`, so it does not validate the label either. What
+would is a direct computation of `doubleCosetOperator` against `heckeU_eq_sum_zmod` /
+`heckeT_eq_sum_onePoint` (`Γ₀`), which no family has attempted.
 
 **One finding that shaped both carrier and module** (mathematics, not Lean friction): the slash
 action is **σ-semilinear** — `smul_slash` carries `σ g`, which is conjugation for `det g \lt 0` —
@@ -153,10 +161,10 @@ so it is `ℂ`-linear only on `GL(2,ℝ)⁺`, where the Hecke operators live (`h
 why `slashRep` is on `GL(2,ℝ)⁺` and why the family-facing `Transversal` is stated in
 `GL (Fin 2) ℝ` instead: the positivity enters only the operator identity.
 
-### Stage C — not started
+### Stage C — started
 
-No family is retargeted yet, so nothing is retired. See §6 for why that is the correct state, and
-§5.4 for the order the work goes in.
+The `Γ_H` family is retargeted whole and its old module deleted (§5.6). The other four files of the
+replacement set are untouched; §6 is the order they go in.
 
 ## 3. What stays out, and why
 
@@ -435,10 +443,13 @@ The order is **C → B → A**, and two of the three are landed:
    (`HeckeCoset.slashRep`), so no `MulOpposite` survives in the live tree; the level-space dictionary
    `mem_levelSpace_slashRep` is stated for a subgroup of `GL(2,ℝ)⁺`, and the family-facing object is
    in `GL (Fin 2) ℝ`.
-3. **A — in progress.**
+3. **A — under way.**
    * `Transversal.sum_eq_doubleCosetOperator` — **landed.** The last piece the archived carrier held
      is now re-proved against the new object.
-   * One `Transversal` per family, then the family's headline in one line. `Γ_H` first, per §4.3:
+   * The `Γ_H` family — **landed, both halves** (§5.6): `heckeUTransversal` over `ZMod q` and
+     `heckeTTTransversal` over `ℙ¹(ℤ/ℓ)`, with the pin's `beta` family and both sums identified by
+     `sum_eq_sum`.
+   * The remaining families, one `Transversal` each, then the headline in one line. `Γ₀` next:
      `mem` is definitional (`beta c = g * (c.out)⁻¹`), `distinct` is the stabiliser identity
      $`\Gamma_H \sqcap \alpha^{-1}\Gamma_H\alpha = \Gamma_HUpper`$, `cover` is the congruence
      $`a j \equiv b \pmod q`$ — and `conjUpperMat` (`Defs/CohCarrierLevel.lean:126`) already
@@ -465,15 +476,20 @@ instead of being derived from the level pair.
 ### 5.5 The redesign: families are level quotients
 
 The failure above has a clean fix, and it is now in the module:
-**`Transversal.ofQuotient`**. For any group `G`, any `K ≤ G` and any `g : G`, with
-`stabiliser K g = (K ⊓ g⁻¹Kg).subgroupOf K`, the family `c ↦ g * c⁻¹` over `K ⧸ stabiliser K g` is a
-`Transversal K g`. The three fields are three lines each and hold for *every* family at once:
+**`Transversal.ofLevel`** (the constructor the earlier text called `ofQuotient`; it now takes the
+family's *own* index and level pair). For any group `G`, any `K ≤ G`, any `g : G`, any finite index
+`ι` and any `u : ι → ↥K` with `∀ a : ↥K, ∃! i, a * (u i)⁻¹ ∈ stabiliser K g`, the family
+`r i = g * u i` is a `Transversal K g`. The three fields are three lines each and hold for *every*
+family at once:
 
-* `mem`: `1 * g * c.out⁻¹` lies in `K g K` by construction;
-* `distinct`: distinct classes differ by an element outside `K ⊓ g⁻¹Kg`, which is exactly the
-  stabiliser of the left coset of `g`, so the left cosets differ;
-* `cover`: every `z = u g v` is `u * (g (v c.out) g⁻¹)` with `v c.out` in the stabiliser — and
-  `v c.out ∈ stabiliser` is the quotient's own `out` map, nothing else.
+* `mem`: `1 * g * u i` lies in `K g K` by construction;
+* `distinct`: `u i * (u j)⁻¹ ∈ K ⊓ g⁻¹Kg` is *the same coset*, and the `∃!` hypothesis makes `i = j`;
+* `cover`: every `z = a g b` is `a * (g * (b (u i)⁻¹) * g⁻¹) * (g * u i)` with `b (u i)⁻¹` in the
+  stabiliser, which is the `∃!` hypothesis again.
+
+Two instantiations cover the port's families: the theory's quotient with `u c = c.out⁻¹` (then
+`r c = g * c.out⁻¹`, the `Γ_H` `beta` family and the archived `ofQuotient`) and the family's own
+matrices with `u x = transl x` (then `r x = !![1,x;0,q]`, i.e. `heckeU`'s own summands).
 
 So **a family no longer proves membership, distinctness or exhaustiveness at all.** What is left
 per family is exactly the two statements that carry the mathematics of that family:
@@ -481,8 +497,8 @@ per family is exactly the two statements that carry the mathematics of that fami
 | what | how it is stated | size |
 |---|---|---|
 | the level subgroup | a **subgroup identity** `K ⊓ g⁻¹Kg = <the port's subgroup>` | 2–3 lines (the (0,1) entry of `α x α⁻¹` is `b/q`) |
-| the index (`Γ₀`, `Γ₁`) | a **bijection** between the concrete index and `K ⧸ stabiliser K g` (for `Γ₀`: `x ↦ T^x`) | ~15 lines: injective = the subgroup identity applied to `x - y`, surjective = solve `a j ≡ b (mod p)` |
-| the operator | `Transversal.ofQuotient K g` | 1 line |
+| the index (`Γ₀`, `Γ₁`) | the `∃!` hypothesis: every `a ∈ K` is `s * u i` for exactly one `i` (for `Γ₀`: `u x = T^x`) | ~15 lines: uniqueness = the subgroup identity applied to `x - y`, existence = solve `a j ≡ b (mod p)` |
+| the operator | `Transversal.ofLevel u hu` | 1 line |
 | the invariance | `T.slash_invariant hγ hF` | 1 line |
 | the operator identity | `T.sum_eq_doubleCosetOperator hF hK hg` | 1 line |
 
@@ -499,10 +515,9 @@ singleton and `stabiliser K g = K`: nothing to prove.
 - `dvd_of_conj_mem` + `stabiliser_eq` — the level-pair identity `K ⊓ g⁻¹Kg = Γ_HUpper(M,H,q)`,
   i.e. the (0,1)-entry computation `b/q`, and it needs **no** `q ∣ M`;
 - `conj_mem_of_mem_GammaHUpper` — conjugating a level element stays in the level group;
-- **`betaTransversal`** — the family's `Transversal`, over **its own** index `Γ_H ⧸ Γ_HUpper`:
-  `mem`/`distinct`/`cover` are the three geometric facts, proved directly (membership by
-  construction, distinctness by `dvd_of_conj_mem`, exhaustiveness by the quotient's `out` map and
-  `conj_mem_of_mem_GammaHUpper`);
+- **`betaTransversal`** — the family's `Transversal`, over **its own** index `Γ_H ⧸ Γ_HUpper`, now
+  the generic `Transversal.ofLevel` on the level pair (`stabiliser_eq`): the three geometric fields
+  are not proved per family (§5.6);
 - `sum_slash_beta_slash_eq` — `(betaTransversal …).slash_invariant hγ hf`, **47 lines → 2**, and
   its statement (the pin) is unchanged;
 - `sum_slash_beta_eq_doubleCosetOperator` — **new**: `…sum_eq_doubleCosetOperator …`, two lines. The
@@ -521,10 +536,12 @@ q-expansion layer needs.
 
 The other candidate — retyping `beta` to the *theory's* quotient `K ⧸ (K ⊓ g⁻¹Kg)` — was measured
 and rejected for now: it forces reworking the two concrete-sum identities
-(`sum_slash_beta_eq_heckeU`, 37 lines; `…_add`, 83 lines) because their `out`-manipulations happen
-in the `SL` quotient, and it requires deregistering `HeckeCosetDecomposition`'s 17 pinned
-statements. It buys nothing that `betaTransversal` does not already give, unless one wants the
-concrete sums themselves indexed by the `GL` quotient. Reversible if so.
+(`sum_slash_beta_eq_heckeU`; `…_add`, 83 lines) because their `out`-manipulations happen in the `SL`
+quotient, and it would deregister the pinned statements of `HeckeCosetDecomposition`. It buys
+nothing that `betaTransversal` does not already give, unless one wants the concrete sums themselves
+indexed by the `GL` quotient. Reversible if so. (The `q ∣ M` half of the first identity has since
+been re-proved by representative-independence, §5.6, so of the two only `…_add` still carries the
+reindexing.)
 
 **What that changes downstream.** The `_mapGL` lemmas (`heckeU_slash_mapGL`, `heckeT_slash_mapGL`)
 are stated with `g : SL(2,ℤ)` and `mapGL ℝ g`, which is where the coercion plumbing comes from — and
@@ -542,7 +559,7 @@ retarget restates the family lemmas at `γ ∈ K`, and:
   becomes one application of `slash_invariant`;
 * nothing changes for `HeckeOperatorForms`/`HeckeStability`: the pinned statements are untouched.
 
-The two statements that *cannot* be discharged by `ofQuotient` are the subgroup identity and (for
+The two statements that *cannot* be discharged by `ofLevel` are the subgroup identity and (for
 `Γ₀`/`Γ₁`) the index bijection. Those are the irreducible mathematics of each family, and they are
 the same computations the port already performs inside the old invariance proofs — so the retarget
 moves them rather than inventing them.
@@ -552,7 +569,7 @@ GL-level ones (no pin). (ii) `heckeU`'s index: the concrete sum is over `ZMod p`
 `heckeU_def` and `qCoeff_heckeU` are; if a caller does not need q-expansions it should be given
 `doubleCosetOperator` instead of the sum, and the index bijection is then needed only where the
 q-expansion bridge is. (iii) The level groups: the port carries `CongruenceSubgroup.Gamma0 N` both
-as a subgroup of `SL(2,ℤ)` and as its image in `GL (Fin 2) ℝ`; `ofQuotient` wants the `GL` one, so
+as a subgroup of `SL(2,ℤ)` and as its image in `GL (Fin 2) ℝ`; `ofLevel` wants the `GL` one, so
 the `mapGL`-image form should be the primary spelling and the `SL` form derived.
 
 **What the consolidation cost, measured.** The live classical layer is 311 lines: one object
@@ -562,10 +579,82 @@ the `mapGL`-image form should be the primary spelling and the `SL` form derived.
 went through `levelSpace`. The invariance theorem is *shorter* (10 lines of argument), the
 family-facing statements lost `op`, `K.op`, `doubleCoset (op g) K.op K.op` and the positivity
 hypotheses, and the module gained the operator identity, which the archived file was the only
-holder of. What it has not gained is a consumer: no family is retargeted yet, so the abstract
-calculus is connected but unused.
+holder of. Its first consumer is now retargeted (§5.6).
 
-## 6. Stage C: the retarget, and why nothing is retired yet
+## 5.6 The retarget of `Γ_H`, landed: both halves, one module (2026-11-26)
+
+**What the consumer actually needs.** `PeriodMapHecke` proves
+`periodMapOf (U_q f) = heckeT (periodMapOf f)` in three steps: the primitive
+`Φ z = ∑_c F (β_c • z)` is `Γ_H`-equivariant with period `heckeT (periodHom F)`; its derivative is
+the Hecke operator applied to `f`; and `periodMapOf_def` reads the period map off the primitive. The
+middle step is analysis and the last is bookkeeping. The first step is the only one the coset
+calculus owns, and the old proof computed it from scratch — reindex the coset sum by `γ • ·`, rewrite
+each summand against the cocycle (`hbeta`), apply the period hom (`hcob`).
+
+**The mathematics is two statements, and they are independent.**
+
+1. `HeckeCoset.sum_sub_eq_cocycle` (in `HeckeCosetSum`): if `F` is equivariant along a monoid
+   homomorphism `m : H →* GL(2,ℝ)` with period `φ`, and the representatives carry a permutation `σ`
+   of the index set and a cocycle `κ : ι → H` with `r (σ i) * x = m (κ i) * r i`, then
+   `∑ i, F (r i • x • z) - ∑ i, F (r i • z) = ∑ i, φ (κ i)`. It is the period-level counterpart of
+   `slash_invariant`, and takes `σ`/`κ` as an input: the consumer reads them off its own model of the
+   double coset.
+2. `Γ_H`'s cocycle *is* the transfer's: `β (γ • d) * γ = conjL (transferAux γ d) * β d` is
+   `transferAux`'s definition rearranged, with `conjL t * g = g * t`
+   (`mapGL_conjL_mul_heckeMatrix`). So the sum is `heckeT φ γ` by `heckeT_apply_eq_sum`, and the
+   consumer's period step is that theorem applied to `Φ`; the reindexing and the per-summand period
+   argument disappear into `sum_sub_eq_cocycle`, and what stays is `hcoc`, the group identity.
+
+**The family, in one module.** `HeckeCosetGammaH` states the two cosets systems the operators are
+*defined* by, both as `Transversal.ofLevel` on the level pair `stabiliser_eq`:
+
+* `q ∣ M`: the `q` matrices `!![1,x;0,q]` are `g · T^x`, and `T^x` runs over a transversal of
+  `Γ_HUpper` exactly when `q ∣ M` (`transl_transversal_stab`, the linear congruence
+  `a 1 1 · x ≡ a 0 1`). The transversal is `heckeUTransversal`, and its sum is `U_q`'s definition.
+* `ℓ ∤ M`: the cosets are the projective line `ℙ¹(ℤ/ℓ)`. The point `x` is `!![1,x;0,ℓ]` and `∞` is
+  `ρ_∞ · diag ℓ`, with `ρ_∞ = !![u,v;-M,ℓ]` the Bézout matrix of `uℓ + vM = 1`. The count is the
+  complementary pair of congruences `a 0 1 ≡ x · a 0 0 (mod ℓ)` (unique `x` iff `a 0 0` is a unit)
+  and `a 0 0 ≡ 0` (`∞`), which is `onePoint_eq`; the transversal is `heckeTTTransversal`, and its sum
+  is the pin's `U_ℓ + (·) ∣ (ρ · diag ℓ)` (`heckeU_add_slash_eq_sum`). The one place the *pin's*
+  `ρ` enters is the identification of the `∞` summand: `ρ · diag ℓ` and `ρ_∞ · diag ℓ` differ by
+  `ρ ρ_∞⁻¹`, which is in `Γ_H` because `ρ 1 1 ≡ ℓ ≡ ρ_∞ 1 1 (mod M)`
+  (`mul_rhoInf_inv_mem_GammaH`), so `f`'s `Γ_H`-invariance passes between them.
+
+The pin's own index `Γ_H(M) ⧸ Γ_HUpper(M,H,q)` with representative `beta c = g · (c.out)⁻¹` is
+`betaTransversal`, and both sums are identified with the concretely indexed ones by
+`Transversal.sum_eq_sum`: **the index bijection is representative-independence**, so no sum is
+reindexed term by term (`sum_beta_eq_heckeU` was 37 lines and is now a three-step `calc`;
+`sum_beta_eq_heckeU_add` was 83 lines plus `bijective_option`'s 80 and is now the same three steps).
+`bijective_transl`, `exists_add_neg_eq_mul`, `heckeMatrix_zero_mul_mapGL_T_zpow_neg`, `bijective_option`
+and the Bézout `out`-map computations are gone.
+
+**What is gone, and how the pin is held.** `HeckeCosetDecomposition` is deleted; its pin source
+`P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_GammaH.lean` is carried by a header-only file in
+`Reserve/ModularForms/`, which keeps the source marked *ported* for `frontier.py` while declaring
+nothing (the mechanism of `Reserve/ModularForms/PortOwnedSpecPins.lean`). The pin's formulas are
+stated in `HeckeCosetGammaH` under the family's names (`sum_beta_eq_heckeU`,
+`sum_beta_eq_heckeU_add`, `sum_beta_slash_eq`, `sum_beta_eq_doubleCosetOperator`); the consumers'
+own pinned statements are untouched and still diffed (`HeckeInvariance` 5 ok, `PeriodMapHecke` 4 ok,
+0 missing).
+
+Measured (against the commit before the retarget): `HeckeCosetDecomposition` 674 → 0,
+`HeckeCosetGammaH` 327 → 827 (both halves, the pin surface and the consumer-facing bridges),
+`HeckeCosetSum` 387 → 427, `HeckeInvariance` 155 (unchanged net), `PeriodMapHecke` 488 → 482. So the
+subject is one module of 827 lines instead of 674 + 327 duplicated, with no `variable` block whose
+instances need `omit` (the section variables are the ones each lemma uses), and the `ℓ ∤ M` half is
+a projective-line count plus the pin's `ρ` leg, not a quotient computation. What it is *not* is a
+smaller proof than the pin's: the two counts (`ZMod q`, `ℙ¹`) are the mathematics and are about the
+same length as before. What changed is that they are stated once, as transversals, and that every
+*sum* identification is `sum_eq_sum`.
+`#print axioms` on `sum_sub_eq_cocycle`, `sum_beta_eq_heckeU`, `sum_beta_eq_heckeU_add`,
+`heckeU_add_slash_eq_sum` and both `Γ_H` headlines of `PeriodMapHecke`:
+`[propext, Classical.choice, Quot.sound]`. No tree build.
+
+## 6. Stage C: the retarget, family by family
+
+The `Γ_H` row is retired: both halves are retargeted, both consumers are re-proved, and the old
+module is deleted (§5.6). The remaining four rows are untouched, and each is one `Transversal` plus
+`Transversal.sum_eq_sum`, as `Γ_H` was. The `Γ_H` row is kept in the table as the template.
 
 The calculus pays out on the reindexing half of five classical files; the coset *count* stays,
 because that is the mathematics:
@@ -574,7 +663,7 @@ because that is the mathematics:
 |---|---|---|---|
 | Γ₀ `U_p` | `Defs/HeckeRepresentatives` (`heckeU_eq_sum_zmod`, `heckeMatrix_mul_of_dvd`, `heckeU_slash_mapGL`) | the sum-invariance reindexing in `heckeU_slash_mapGL` | the coset action and the count |
 | Γ₀ `T_p` | same (`heckeT_eq_sum_onePoint`, `heckeRep_mul`, `redMatrix`, `heckeT_slash_mapGL`) | the reindexing in `heckeT_slash_mapGL` | `redMatrix`/`dvd_conjugate`, the count |
-| Γ_H `U_q` | `HeckeCosetDecomposition` (`beta`, `sum_slash_beta_eq_heckeU`, `sum_slash_beta_slash_eq`) | `sum_slash_beta_slash_eq` (the invariance, 45 lines) | `bijective_transl`, `bijective_option`, the Bezout model |
+| Γ_H `U_q`, `ℓ ∤ M` | `HeckeCosetGammaH` (`beta` + both transversals + the pin's sums) — **retargeted**, §5.6; the old `HeckeCosetDecomposition` is deleted | every reindexing: both sums are `sum_eq_sum` | the level pair `stabiliser_eq`, the two counts (`ZMod q` congruence, `ℙ¹` pair of congruences) and the pin's `ρ` leg |
 | Γ₁ `U_ℓ` | `HeckeULevel` (`exists_cocycle`, `heckeMatrix_mul_eq`, `perm`, `heckeU_slash_eq_smul`) | the sum-invariance half, via `heckeFun_comp_inv_mul` | the cocycle construction |
 | diagonal level change | `HeckeDiagDegeneracy` (`exists_cocycle`, `heckeDiagMatrix_mul_eq`, `stretchSlash`) | the transport, via `heckeFun_comp` | the stretch map and its level bookkeeping |
 
@@ -587,14 +676,15 @@ and, per §4.3, that lemma is cheap because its distinctness half *is* the subgr
 already indexes by, and its exhaustion half is the congruence the family's coset action already
 solves.
 
-The family to start with is `Γ_H` (`HeckeCosetDecomposition`): its representatives are
+The family that was done first is `Γ_H`: its representatives are
 $`\beta c = \alpha c^{-1}`$ over $`c \in \Gamma_H(M) \bmod \Gamma_HUpper(M,H,q)`$, the stabiliser
 is $`\Gamma_H \sqcap \alpha^{-1}\Gamma_H\alpha = \Gamma_HUpper`$ (a two-line matrix computation, the
 (0,1) entry of $`\alpha x \alpha^{-1}`$ is $`b/q`$), so distinctness is the statement that the
 family's index subgroup *is* the stabiliser, exhaustion is unpacking
 $`\Gamma_H \alpha \Gamma_H`$, and `bijective_transl` / `bijective_option` already give the index
 bijection. Its invariance proof
-(`sum_slash_beta_slash_eq`, 45 lines) is the smallest complete retirement unit. The Γ₀ families
+(`sum_slash_beta_slash_eq`, 45 lines) was the smallest complete retirement unit, and both halves
+have since landed. The Γ₀ families
 need the exhaustion lemma first; their distinctness is the one-line entry computation of §4.3.
 
 **Retirement mechanics.** Once a family's headline is re-proved through the calculus and its
@@ -637,21 +727,26 @@ Stage B's core is a carrier, not a replacement. Moving anything today would leav
   (311 lines: `Transversal`, `slash_invariant`, `sum_eq_doubleCosetOperator`, the carrier, and the
   four bridging lemmas `invPos`/`levelPos`/`mem_levelPos`, `doubleCoset_inv`,
   `indicator_doubleCoset_mul`, `mem_doubleCoset_levelPos_iff`; the generic level-pair transversal
-  `Transversal.stabiliser`/`mem_stabiliser`/`ofQuotient`).
+  `Transversal.stabiliser`/`mem_stabiliser`/`ofLevel`).
 - `lake build Reserve.HeckeCosetCalculus.ModularForms.HeckeSlashRep` → 2,321 jobs, no warnings
   (the archived first cut still builds).
 - `#print axioms` on `heckeFun_eq_sum`, `heckeFun_heckeFun`, `heckeFun_mem_levelSpace`,
   `IsHeckeFunction.heckeFun_mem`, and on `Transversal.slash_invariant`,
-  `Transversal.sum_eq_doubleCosetOperator`, `Transversal.ofQuotient`, `slashRep`,
+  `Transversal.sum_eq_doubleCosetOperator`, `Transversal.ofLevel`, `slashRep`,
   `mem_levelSpace_slashRep`, `mem_doubleCoset_levelPos_iff`:
   `[propext, Classical.choice, Quot.sound]`.
 - `grep -c 'MulOpposite\|\.op\b' RepTheory/DoubleCosetHecke.lean` → `0`: the calculus is
   group-agnostic (§4.4, item 1). `GLPos` occurs in the live tree only in `HeckeCosetSum.lean`
   (the carrier); no family-facing statement mentions it.
-- No consumer: `HeckeCosetSum` is imported nowhere in `FLTForHuman` yet (the `SlashHecke` hit in
-  `ModularCurve/Period/HeckeStability.lean` is `ModularForms.CuspFormSlashHecke`, unrelated), and
-  `grep -c MulOpposite` over the live classical layer is `0`: the archived carrier is the only
+- `grep -c MulOpposite` over the live classical layer is `0`: the archived carrier is the only
   file that mentions the opposite group.
+- **After the `Γ_H` retarget (2026-11-26):** `lake build` of
+  `HeckeCosetSum`/`HeckeCosetGammaH`/`HeckeInvariance`/`PeriodMapHecke`/`HeckeOperatorForms`/
+  `HeckeStability`, no warnings from those modules and no `sorry`; `spec/check_port.py` 4 ok on
+  `PeriodMapHecke` and 5 ok on `HeckeInvariance`, 0 missing; `HeckeCosetDecomposition` is deleted,
+  its pin source carried by `Reserve/ModularForms/HeckeCosetDecompositionDropped.lean`; the consumer
+  module `PeriodMapHecke` imports `HeckeCosetGammaH` (which imports `HeckeCosetSum`), so the
+  calculus is no longer unused.
 - No `sorry`, no `maxHeartbeats` raise, no tree build.
 - Neither module declares a `spec-pin:`: the source is not FLT, so there is no pin to diff
   against. They are tier 3 (public, unchecked) by construction; if a register wants them, they
