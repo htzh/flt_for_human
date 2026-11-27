@@ -6612,3 +6612,80 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   module that nothing imports is only ever exercised by the tree build, so `lake env lean <file>` over
   every *new or recently touched* module is worth more than a build of its dependents.
 - **seen**: 2026-11-26, SET-AF104 close.
+
+## FR-0308 [checker] — a `pin:` marker on a rectified statement *re-diffs* it, turning a content-tier `ok` into a MISMATCH
+
+- **where**: SET-AF105D's `GaloisRep/SemisimpleCriterion.lean`, the row the pin calls
+  `finite_range_of_factorsThroughFiniteLevel` and the module declares as
+  `GaloisRep.finite_range_linRep` (the pin's `S_` copy is stated in the `linRep`/`MonoidHom.range`
+  vocabulary, while the *other* pin file's copy — already public as `GaloisRep.Prelude`'s
+  `finite_range_of_factorsThroughFiniteLevel` — is stated `Finite (MonoidHom.range ρ)`; FR-0274 forbids
+  re-declaring that name, so the module declares the `S_`-shaped one under a rectified name).
+- **symptom**: without a marker `check_port` reads **29 ok / 0 / 0** — the renamed row matched by the
+  *content* tier against `S_…:241`. Adding the obvious record
+  `pin: finite_range_of_factorsThroughFiniteLevel (…S_….lean:241)` to `spec/decl_markers.tsv` turns the
+  module into **28 ok / 1 mismatch**.
+- **cause**: a `pin:` row routes the declaration through the *direct* diff against the named pin row,
+  which compares the two texts as spelled — and the module's statement is the port's `linRep` spelling,
+  not the pin's `Set.range` one. The markers are for a row the checker **cannot place**; a row it has
+  already placed by hash does not need one, and a `pin:` entry is not a way to *document* a rename.
+- **cure**: remove the marker; the content tier is the verification, and the rename is recorded in the
+  module header (where a reader looks) rather than in the checker's metadata. `--strict-markers` is the
+  guard for the reverse case (a marker that no longer names a declaration).
+- **rule**: when `check_port` already reads `ok` on a renamed declaration, a marker can only make it
+  worse — the two tiers diff different things. Add a marker only when the count says `missing`
+  (or `mismatch`) without it.
+- **seen**: 2026-11-27, SET-AF105D review.
+
+## FR-0309 [mathlib] — a `Commute`-shaped proof term is only `defeq` at default transparency, so `rw`/`simp` miss it in a goal that *is* the pattern
+
+- **where**: SET-AF105C, the `RegularProlongation` rows: the pins pass
+  `Algebra.TensorProduct.lift`'s `hfg` argument as `(fun f a ↦ mul_comm _ _)`.
+- **symptom**: in v4.34 `rw`/`simp` fail with "pattern not found" or "target is not type-correct under
+  the implicit transparency level" in a goal that looks exactly like the pattern — and the same term
+  works in an `exact`.
+- **cause**: `Commute` is a `def` in v4.34, not the `Prop`-abbrev the pin's term was elaborated
+  against, and `rw`/`simp` compare at *implicit* transparency while `exact`/`isDefEq` use the default
+  one. So a `mul_comm`-shaped term inhabits `Commute` only under the transparency the tactic does not
+  use.
+- **cure**: state it constructively — `(fun _ _ ↦ Commute.all _ _)` — which is the `def`'s own
+  constructor, not a defeq detour.
+- **rule**: when a *proof argument* is a `Commute` (or any `def`-wrapped `Prop`), supply the constructor
+  (`Commute.all`, `eq_refl`, …) rather than a lemma whose conclusion is only defeq to it; the statement
+  gates are blind to this class, and it reads as a tactic bug.
+- **seen**: 2026-11-27, SET-AF105C.
+
+## FR-0310 [lean] — inside `namespace X.RegularProlongation.…`, a bare `residue_eq_zero_iff` resolves to the *port's* index-named lemma, not to `IsLocalRing`'s
+
+- **where**: SET-AF105C's `RegularProlongation` rows, inside the module's subject namespace
+  `AlgebraicCurve.RegularProlongation.AdjoinCriterion`.
+- **symptom**: `Unknown identifier`-free but wrong lemma: `residue_eq_zero_iff` resolves to
+  `AlgebraicCurve.RegularProlongation.residue_eq_zero_iff` (`RegularProlongationFinrank.lean:118`), and
+  the resulting type error reads as if the goal had the wrong shape.
+- **cause**: the port has a lemma *named* `residue_eq_zero_iff` inside the very namespace the module
+  opens, so unqualified resolution finds it before `IsLocalRing.residue_eq_zero_iff`. A pin file with
+  its own flat namespace never sees this; a port that names a namespace after the theory does.
+- **cure**: qualify the mathlib name (`IsLocalRing.residue_eq_zero_iff`) — do **not** rename the port's
+  lemma, which is a public name a consumer may already use.
+- **rule**: a subject namespace that shares a name with a mathlib namespace (`IsLocalRing`, `IsLocalRing.ResidueField`) shadows
+  mathlib's unqualified lemmas inside it; qualify mathlib names in those modules.
+- **seen**: 2026-11-27, SET-AF105C.
+
+## FR-0311 [tooling] — one `port_advise` substitution advice was right for one name and wrong for its neighbour: the `G`/`H` pair
+
+- **where**: SET-AF105E, `ModularCurve/ComplexPlaceDictionaryPoint.lean`; `port_advise` matched **both**
+  `G` and `H` to `ModularCurve.JOneES.JOneESRat.A12`.
+- **symptom**: two *different* pin `abbrev`s reported as one substitution candidate.
+- **cause**: `G` and `H` are both `restrict (le_SL Γ) ·`, so their *types* agree, and the tool is
+  name-and-shape anchored. `G` really is `A12 Γ` (`restrictForm (map_le_range Γ) ((E₄.pow 3).mcast _)`) —
+  a genuine body-only substitution. `H` is `restrict (le_SL Γ) CuspForm.discriminant`, the
+  **discriminant**, and the pin's `coe_H` (`((H Γ : ModularForm _ 12) : ℍ → ℂ) = discriminant`) is `rfl`
+  for it and **false** for `A12`. So the advice was right for one line and wrong for the next.
+- **cure**: read the bodies of a same-shaped pair one at a time; keep the one whose body matches, and
+  transcribe the other from the pin. Never treat a multi-name substitution block as decided by its first
+  name.
+- **rule**: this is FR-0266 at its sharpest — a *pair* of same-typed objects is exactly where a
+  name/shape-anchored tool cannot be trusted, and the cost of believing it is a false theorem
+  (`coe_H` for `A12`), not a compile error. The pin's own `rfl`-stated identifying lemma is the cheap
+  test: if the pin proves `coe_X` by `rfl`, the port's candidate body must make it `rfl` too.
+- **seen**: 2026-11-27, SET-AF105E.
