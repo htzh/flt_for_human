@@ -29,10 +29,8 @@
   `heckeU_slash_eq_self_of_mem_GammaH` and
   `heckeU_add_slash_slash_eq_self_of_mem_GammaH`, whose 480-line pin proofs are
   the shared coset computation. The coset systems now live in
-  `ModularForms/HeckeCosetGammaH.lean` (`heckeUTransversal` over `ZMod q`,
-  `heckeTTTransversal` over `ℙ¹(ℤ/ℓ)`, and the pin's `beta` family), and the two
-  headlines are `rw` wrappers around `sum_beta_eq_heckeU` /
-  `sum_beta_eq_heckeU_add` and `sum_beta_slash_eq`.
+  `ModularForms/HeckeCosetGammaH.lean`, and the two headlines are `rw` wrappers
+  around `sum_beta_eq_heckeU` / `sum_beta_eq_heckeU_add` and `sum_beta_slash_eq`.
 
   spec-pin: Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean
   spec-pin: P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean   -- comparable copy
@@ -61,6 +59,7 @@ noncomputable section
 open Matrix.SpecialLinearGroup UpperHalfPlane
 open scoped MatrixGroups ModularForm
 
+open ModularForm.Level (BezoutPair)
 open ModularForm.HeckeRepresentatives
 
 open CohCarrier HeckeCosetGammaH
@@ -145,9 +144,9 @@ theorem heckeU_add_slash_slash_eq_self_of_mem_GammaH
         (f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
           ModularForm.heckeDiagMatrix ℓ)) := by
   haveI : Fact ℓ.Prime := ⟨hℓ⟩
-  obtain ⟨B⟩ := exists_bezoutData M ℓ hℓM
+  obtain ⟨B⟩ := BezoutPair.exists_of_coprime (hℓ.coprime_iff_not_dvd.mpr hℓM)
   letI := (CohCarrier.GammaHUpper M H ℓ).fintypeQuotientOfFiniteIndex
-  rw [← sum_beta_eq_heckeU_add H B ρ hρ k hf]
+  rw [slash_rhoInf_diag H B hρ k hf, ← sum_beta_eq_heckeU_add H B k hf]
   exact sum_beta_slash_eq M H ℓ k hf γ hγ
 
 end ModularForm

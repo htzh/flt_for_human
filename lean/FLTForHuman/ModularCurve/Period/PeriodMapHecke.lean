@@ -28,17 +28,16 @@
   The coset systems are written once, in `ModularForms/HeckeCosetGammaH.lean`; the pin
   copies them into all four of its `S_` files. Here they are only used: node 1's
   `sum_beta_eq_heckeU` and node 2's `sum_beta_eq_heckeU_add` identify the pin's
-  `Γ_H(M) ⧸ Γ_HUpper` coset sum with the concrete operators, and both are proved
-  there by `Transversal.sum_eq_sum` — representative-independence, not a reindexing.
+  `Γ_H(M) ⧸ Γ_HUpper` coset sum with the concrete operators.
 
-  The period step of the shared engine is not a reindexing of the coset sum but
-  `HeckeCoset.sum_sub_eq_cocycle`: right multiplication by `γ` permutes the cosets by the
-  left action on `Γ_H ⧸ Γ_HUpper`, with cocycle `conjL ∘ transferAux`, so the sum has
-  period the transfer — which is `heckeT`'s definition by `heckeT_apply_eq_sum`. The
-  cocycle identity itself is the group identity
-  `beta (γ • d) * γ = conjL (transferAux γ d) * beta d` (`hcoc`), i.e. the rearrangement
-  of `transferAux`'s own definition; the level-change relation `conjL t * g = g * t` is
-  `mapGL_conjL_mul_heckeMatrix`.
+  The period step of the shared engine is not a reindexing of the coset sum: the coset sum
+  `Φ` of the primitive is shown `Γ_H`-equivariant in a four-step `calc` — right multiplication
+  by `γ` permutes the cosets by the left action on `Γ_H ⧸ Γ_HUpper`, the cocycle
+  `conjL ∘ transferAux` moves the representative through `γ`, and each summand's period is that
+  cocycle read through `hFeq.periodHom`. The total is `heckeT`'s definition by
+  `heckeT_apply_eq_sum`. The cocycle identity itself is the group identity
+  `beta (γ • d) * γ = conjL (transferAux γ d) * beta d`, which is `beta_mul`, the module's own
+  statement of `transferAux`'s definition.
 
   `heckeT_apply_eq_sum`, `periodMapOf_eq_heckeT_of_apply_eq_sum`,
   `hasDerivAt_comp_smul` and `hasDerivAt_moebius` are the pin's proof helpers,
@@ -87,6 +86,7 @@ noncomputable section
 open scoped MatrixGroups ModularForm Topology
 
 open UpperHalfPlane CongruenceSubgroup CohCarrier HeckeCosetGammaH Filter
+open ModularForm.Level (BezoutPair)
 open ModularCurve.Period
 
 namespace ModularCurve
@@ -172,36 +172,34 @@ private theorem periodMapOf_eq_heckeT_of_apply_eq_sum (M : ℕ) [NeZero M] (H : 
 
   set Φ : ℍ → ℂ := fun z => ∑ c : ↥(GammaH M H) ⧸ GammaHUpper M H q, F (beta M H q c • z) with hΦ
 
-  have hcoc : ∀ (γ : ↥(GammaH M H)) (d : ↥(GammaH M H) ⧸ GammaHUpper M H q),
-      beta M H q (γ • d) * (Matrix.SpecialLinearGroup.mapGL ℝ (γ : SL(2, ℤ)) : GL (Fin 2) ℝ) =
-        (Matrix.SpecialLinearGroup.mapGL ℝ
-            ((conjL M H q (HeckeEis.transferAux (GammaHUpper M H q) γ d) : ↥(GammaH M H)) : SL(2, ℤ)) :
-          GL (Fin 2) ℝ) * beta M H q d := by
-    intro γ d
-    set t := HeckeEis.transferAux (GammaHUpper M H q) γ d with ht
-    have hrel : (((γ • d).out : ↥(GammaH M H)) : SL(2, ℤ))⁻¹ * (γ : SL(2, ℤ)) =
-        ((t : ↥(GammaH M H)) : SL(2, ℤ)) * (((d.out : ↥(GammaH M H)) : SL(2, ℤ)))⁻¹ := by
-      have : ((t : ↥(GammaH M H)) : SL(2, ℤ)) =
-          (((γ • d).out : ↥(GammaH M H)) : SL(2, ℤ))⁻¹ *
-            ((γ : SL(2, ℤ)) * ((d.out : ↥(GammaH M H)) : SL(2, ℤ))) := rfl
-      rw [this]; group
-    simp only [beta]
-    rw [mul_assoc, ← map_mul, hrel, map_mul, ← mul_assoc, ← mapGL_conjL_mul_heckeMatrix, mul_assoc]
-
   have hcob : ∀ (γ : ↥(GammaH M H)) (z : ℍ),
       Φ ((γ : SL(2, ℤ)) • z) - Φ z = heckeT M H q ℂ hFeq.periodHom (Additive.ofMul γ) := by
     intro γ z
     rw [heckeT_apply_eq_sum]
-    have h := HeckeCoset.sum_sub_eq_cocycle
-      (m := (Matrix.SpecialLinearGroup.mapGL ℝ).comp (Subgroup.subtype (GammaH M H)))
-      (r := beta M H q) (x := (Matrix.SpecialLinearGroup.mapGL ℝ (γ : SL(2, ℤ)) : GL (Fin 2) ℝ))
-      (σ := MulAction.toPermHom ↥(GammaH M H) (↥(GammaH M H) ⧸ GammaHUpper M H q) γ)
-      (κ := fun d => conjL M H q (HeckeEis.transferAux (GammaHUpper M H q) γ d))
-      (fun d => hcoc γ d) (φ := hFeq.periodHom)
-      (fun k z => hFeq.sub_eq_period k z) z
     have hsmul : ((γ : SL(2, ℤ)) • z : ℍ) =
         (Matrix.SpecialLinearGroup.mapGL ℝ (γ : SL(2, ℤ)) : GL (Fin 2) ℝ) • z := rfl
-    simpa only [hΦ, hsmul] using h
+    calc Φ ((γ : SL(2, ℤ)) • z) - Φ z
+        = (∑ c, F (beta M H q c • ((Matrix.SpecialLinearGroup.mapGL ℝ (γ : SL(2, ℤ)) : GL (Fin 2) ℝ) • z))) -
+            ∑ c, F (beta M H q c • z) := by
+          simp only [hΦ, hsmul]
+      _ = (∑ c, F (beta M H q (γ • c) •
+              ((Matrix.SpecialLinearGroup.mapGL ℝ (γ : SL(2, ℤ)) : GL (Fin 2) ℝ) • z))) -
+            ∑ c, F (beta M H q c • z) := by
+          rw [← Equiv.sum_comp (MulAction.toPerm γ)
+            (fun c => F (beta M H q c • ((Matrix.SpecialLinearGroup.mapGL ℝ (γ : SL(2, ℤ)) : GL (Fin 2) ℝ) • z)))]
+          rfl
+      _ = (∑ c, F ((Matrix.SpecialLinearGroup.mapGL ℝ
+              ((conjL M H q (HeckeEis.transferAux (GammaHUpper M H q) γ c) : ↥(GammaH M H)) : SL(2, ℤ)) :
+                GL (Fin 2) ℝ) • (beta M H q c • z))) -
+            ∑ c, F (beta M H q c • z) := by
+          congr 1
+          refine Finset.sum_congr rfl fun c _ => ?_
+          rw [← mul_smul, beta_mul M H q γ c, mul_smul]
+      _ = ∑ c, hFeq.periodHom (Additive.ofMul (conjL M H q (HeckeEis.transferAux (GammaHUpper M H q) γ c))) := by
+          rw [← Finset.sum_sub_distrib]
+          refine Finset.sum_congr rfl fun c _ => ?_
+          exact hFeq.sub_eq_period (conjL M H q (HeckeEis.transferAux (GammaHUpper M H q) γ c))
+            (beta M H q c • z)
   have hΦeq : IsEquivariantPrimitive (GammaH M H) Φ := fun γ => ⟨_, hcob γ⟩
 
   have hbdet : ∀ c : ↥(GammaH M H) ⧸ GammaHUpper M H q, 0 < (beta M H q c).det.val := by
@@ -380,12 +378,14 @@ theorem periodMapOf_gammaH_eq_heckeT_of_coe_eq_heckeU_add_slash
     ModularCurve.periodMapOf (CohCarrier.GammaH M H) g =
       CohCarrier.heckeT M H ℓ ℂ (ModularCurve.periodMapOf (CohCarrier.GammaH M H) f) := by
   haveI : Fact ℓ.Prime := ⟨hℓ⟩
-  obtain ⟨B⟩ := exists_bezoutData M ℓ hℓM
+  obtain ⟨B⟩ := BezoutPair.exists_of_coprime (hℓ.coprime_iff_not_dvd.mpr hℓM)
   apply periodMapOf_eq_heckeT_of_apply_eq_sum M H ℓ f g
   intro τ
   letI := (GammaHUpper M H ℓ).fintypeQuotientOfFiniteIndex
-  rw [hg, ← sum_beta_eq_heckeU_add H B ρ hρ 2
-    (fun γ hγ => SlashInvariantFormClass.slash_action_eq f γ hγ), Finset.sum_apply]
+  rw [hg,
+    slash_rhoInf_diag H B hρ 2 (fun γ hγ => SlashInvariantFormClass.slash_action_eq f γ hγ),
+    ← sum_beta_eq_heckeU_add H B 2 (fun γ hγ => SlashInvariantFormClass.slash_action_eq f γ hγ),
+    Finset.sum_apply]
 
 /-! ### The optional fourth sibling: `comp` along a matrix conjugating `Γ_H` -/
 
