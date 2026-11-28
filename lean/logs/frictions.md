@@ -7262,3 +7262,63 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   statement differs is not a substitute, and the private-only list must be recomputed from the
   statements. `integrand_eq` was promoted in a second pass (`Unfolding` 12 → 13 checked declarations).
 - **seen**: 2026-11-27, SET-AF112 ground prep.
+
+## FR-0341 [Lean, homes] — the natural insertion site was a cycle one set later: `BruhatEisenstein ← Unfolding ← AF112B`
+
+- **where**: SET-AF113's order E, the Bruhat–Eisenstein decomposition row
+  (`bruhatEisenstein_eq_constantTerm_add_whittakerSum_of_one_lt_re_of_unitary`, 102 pin lines). Its
+  natural home is `AutomorphicForm/Adelic/BruhatEisenstein.lean` — the module that holds the series,
+  its constant term and the `constantTerm`/`WhittakerSum` machinery, and the row is an insertion of
+  the *same* object's decomposition.
+- **symptom**: the scaffolded insertion produced **65 "declaration has already been declared" errors**
+  on the module's own private block (`BruhatEisensteinDiff.*`, `FlatSectionFamily.*`). That is how Lean
+  reports an **import cycle**: the row needs SET-AF112B's
+  `summable_whittakerCoefficient_bruhatEisenstein_of_one_lt_re_of_unitary`, AF112B imports
+  `EisensteinGeneral/Unfolding.lean`, and `Unfolding.lean` imports `BruhatEisenstein.lean`.
+- **cause**: the home was chosen from the *row's* premise set (FR-0037/FR-0038's rule) — every premise
+  of the row is in `BruhatEisenstein` or above it — but not from the *import closure of the module
+  being edited*, which now contains a later set's module. A later set can invert an old layering.
+- **cure**: a new module above **both** (`AutomorphicForm/Adelic/BruhatEisensteinDecomposition.lean`,
+  importing `BruhatEisenstein` and AF112B). The insertion's `spec-pin:` rows travel with the row; the
+  original module is untouched (reverted before dispatch).
+- **seen**: 2026-11-27, SET-AF113 ground prep. The lesson for a manager: **re-derive the import
+  direction against the current tree, not against the tree the earlier order was written for.**
+
+## FR-0342 [tool] — a wrapper lookup by *prefix* picks the wrong pin node: `..._of_flat_family` vs `..._of_flat_family_of_unitary`
+
+- **where**: SET-AF113's `gen.py`, which extracts a scaffold's statement from
+  `Theorems/Thm_<stem>.lean` by searching for `theorem <qualified name>`.
+- **symptom**: the scaffold for
+  `AutomorphicForm.whittakerCoefficient_bruhatEisenstein_diagOne_eq_cpowChar_mul_sum_eulerProduct_of_flat_family`
+  came out declaring `..._of_flat_family_of_unitary` — a *different pin node* whose wrapper exists
+  beside it — and reading `check_port 0 ok / 1 mismatch` (then `1 missing` once renamed). The two
+  nodes' statements differ in real content: the `_of_unitary` one adds `μ ν`, the unitarity and
+  idele-class hypotheses, and a `ν y` factor in the `cpowChar` identity.
+- **cause**: `f"theorem {qual}" in text` is a **prefix** test, and
+  `(PIN/"Theorems").glob(...)` yields files in filesystem order, not sorted; the longer wrapper was
+  read first and its name's suffix was left attached by the `replace`.
+- **cure**: match the full name with a boundary —
+  `re.compile(rf"theorem {re.escape(qual)}(?![A-Za-z0-9_'.])")` — and iterate `sorted(STEMS)`. A
+  scaffold's statement is the *statement contract*; a checker reading `0 ok` on a fresh scaffold is the
+  signal that the wrong text was copied, not that the checker is wrong.
+- **seen**: 2026-11-27, SET-AF113 ground prep (fixed in one pass; the module then read 1 ok).
+
+## FR-0343 [tool, metadata] — a substitute list must carry each name's **visibility**: a binder-variant pointer is not an import
+
+- **where**: SET-AF113C's work order. The preamble listed substitutes drawn from both of
+  `port_advise`'s blocks — *importable (public in the port)* and *the port already defines with a
+  different binder skeleton* (a pointer, not a verdict) — and one of the latter,
+  `AutomorphicForm.BigCellExpansion.Assembly.finprod_eq_prod_mul_finprod_subtype`, is **`private`**
+  (`BigCellExpansion.lean:4981`) and unusable from another module.
+- **symptom**: the worker could not apply the listed name and had to find the public copy
+  (`AutomorphicForm.finprod_eq_prod_mul_finprod_subtype`, `HeightWeylMass.lean:225`, binder order
+  `f hf S`). Two further names in the same list were mis-homed (`PrimeNormSum.two_le_absNorm` takes `F`
+  implicit; `integral_smoothWeylIntegrand_adicCompletion` is `NumberField.TateGlobal.WeylSmooth.*`, not
+  `AutomorphicForm.LocalIntertwining.*`).
+- **cause**: the two blocks answer different questions — "can I import it?" and "is this the same
+  lemma under another spelling?" — and only the first carries visibility. A substitute list copied
+  from both without the visibility annotation invites a worker to call a `private` name.
+- **cure**: a work order's substitute list states the visibility of every row and keeps the two kinds
+  apart ("import these" vs "these are the same lemma, re-spelled — read both texts"). `port_advise`'s
+  own output already separates them; the loss happens in the hand-written synthesis.
+- **seen**: 2026-11-27, SET-AF113 orders B and C (both workers found their way in one edit-loop round).

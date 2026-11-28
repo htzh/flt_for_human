@@ -109,8 +109,9 @@ not own.
   on the next line does the same job at `default` transparency.
 * the premise's port name: `NumberField.AdelicFourier.norm_apply_eq_one_of_isGlobalAddChar` →
   `AutomorphicForm.norm_apply_eq_one_of_isGlobalAddChar` (the port's landing of that pin row).
-* `Piece.integrable_weyl_unipotent_mul_of_factorization` → the bare name: the port's row is declared at
-  root (outside `EisensteinGeneral.Piece`), so the pin's `Piece.` prefix does not resolve.
+* `Piece.integrable_weyl_unipotent_mul_of_factorization`: the port's row is declared with the pin's
+  full dotted name (`EisensteinGeneral.Piece.…`, at the file's root), so the pin's `Piece.` prefix
+  resolves as written (SET-AF113 aligned the declaration with its own module header).
 * deprecated names updated, one for one: `Set.mem_setOf_eq ↦ Set.mem_ofPred_eq` (12),
   `if_pos ↦ ite_eq_left` (3), `if_neg ↦ ite_eq_right` (6).
 * `haveI`/`letI` → `have`/`let` (43 sites): FR-0323 — a local hypothesis of class type is already an
@@ -186,7 +187,7 @@ attribute [local instance] NumberField.AdelicHaar.adeleBorel NumberField.AdelicH
 
 namespace EisensteinGeneral.WeylGlue
 
-private theorem tprod_mul_eq_tprod_subtype_mul_prod {ι : Type} (S : Finset ι) (a : ι → ℂ) (ha : ∀ i ∈ S, a i = 1)
+theorem tprod_mul_eq_tprod_subtype_mul_prod {ι : Type} (S : Finset ι) (a : ι → ℂ) (ha : ∀ i ∈ S, a i = 1)
     (ham : Multipliable (fun i : {i : ι // i ∉ S} => a i)) (T : Finset ι) (b : ι → ℂ)
     (hb : ∀ i, i ∉ T → b i = 1) :
     ∏' i : ι, a i * b i = (∏' i : {i : ι // i ∉ S}, a i) * ∏ i ∈ T, b i := by
@@ -199,7 +200,7 @@ private theorem tprod_mul_eq_tprod_subtype_mul_prod {ι : Type} (S : Finset ι) 
   have hbM : Multipliable b := multipliable_of_ne_finset_one hb
   rw [haM.tprod_mul hbM, tprod_eq_prod hb, hA]
 
-private theorem multipliable_one_sub_of_summable_norm {ι : Type} (u : ι → ℂ) (hu : Summable (fun i : ι => ‖u i‖)) :
+theorem multipliable_one_sub_of_summable_norm {ι : Type} (u : ι → ℂ) (hu : Summable (fun i : ι => ‖u i‖)) :
     Multipliable (fun i : ι => 1 - u i) := by
   have h : Multipliable (fun i : ι => 1 + -u i) :=
     _root_.multipliable_one_add_of_summable (by simpa only [norm_neg] using hu)
@@ -319,34 +320,34 @@ attribute [local instance] NumberField.AdelicHaar.adeleBorel NumberField.AdelicH
 
 namespace EisensteinGeneral.Piece
 
-private noncomputable def pc_geom (χϖ : ℂ) (N : ℕ) (M : ℕ) (s : ℂ) : ℂ :=
+noncomputable def pc_geom (χϖ : ℂ) (N : ℕ) (M : ℕ) (s : ℂ) : ℂ :=
   ∑ k ∈ Finset.range (M + 1), (χϖ * ((N : ℕ) : ℂ) ^ (-(2 * s))) ^ k
 
-private noncomputable def pc_ram (N : ℕ) (K : ℕ) (c₀ : ℂ) (sh : ℕ → ℂ) (s : ℂ) : ℂ :=
+noncomputable def pc_ram (N : ℕ) (K : ℕ) (c₀ : ℂ) (sh : ℕ → ℂ) (s : ℂ) : ℂ :=
   c₀ + ∑ k ∈ Finset.Icc 1 K, (((N : ℕ) : ℂ) ^ (-(2 * s + 1))) ^ k * sh k
 
-private theorem pc_differentiable_cpow_neg_two_mul {N : ℕ} (hN : 0 < N) :
+theorem pc_differentiable_cpow_neg_two_mul {N : ℕ} (hN : 0 < N) :
     Differentiable ℂ (fun s : ℂ => ((N : ℕ) : ℂ) ^ (-(2 * s))) :=
   Differentiable.const_cpow (differentiable_id.const_mul (2 : ℂ)).neg
     (Or.inl (Nat.cast_ne_zero.mpr hN.ne'))
 
-private theorem pc_differentiable_cpow_neg_two_mul_add_one {N : ℕ} (hN : 0 < N) :
+theorem pc_differentiable_cpow_neg_two_mul_add_one {N : ℕ} (hN : 0 < N) :
     Differentiable ℂ (fun s : ℂ => ((N : ℕ) : ℂ) ^ (-(2 * s + 1))) :=
   Differentiable.const_cpow ((differentiable_id.const_mul (2 : ℂ)).add (differentiable_const 1)).neg
     (Or.inl (Nat.cast_ne_zero.mpr hN.ne'))
 
-private theorem pc_geom_differentiable (χϖ : ℂ) {N : ℕ} (hN : 0 < N) (M : ℕ) :
+theorem pc_geom_differentiable (χϖ : ℂ) {N : ℕ} (hN : 0 < N) (M : ℕ) :
     Differentiable ℂ (pc_geom χϖ N M) := by
   unfold pc_geom
   exact Differentiable.fun_sum fun k _ => ((pc_differentiable_cpow_neg_two_mul hN).const_mul χϖ).pow k
 
-private theorem pc_ram_differentiable {N : ℕ} (hN : 0 < N) (K : ℕ) (c₀ : ℂ) (sh : ℕ → ℂ) :
+theorem pc_ram_differentiable {N : ℕ} (hN : 0 < N) (K : ℕ) (c₀ : ℂ) (sh : ℕ → ℂ) :
     Differentiable ℂ (pc_ram N K c₀ sh) := by
   unfold pc_ram
   exact (differentiable_const c₀).add
     (Differentiable.fun_sum fun k _ => ((pc_differentiable_cpow_neg_two_mul_add_one hN).pow k).mul_const (sh k))
 
-private theorem pc_norm_cpow_neg_two_mul_le {N : ℕ} (hN : 1 ≤ N) {R : ℝ} {s : ℂ} (hs : ‖s‖ ≤ R) :
+theorem pc_norm_cpow_neg_two_mul_le {N : ℕ} (hN : 1 ≤ N) {R : ℝ} {s : ℂ} (hs : ‖s‖ ≤ R) :
     ‖((N : ℕ) : ℂ) ^ (-(2 * s))‖ ≤ (N : ℝ) ^ (2 * R) := by
   rw [Complex.norm_natCast_cpow_of_pos hN]
   refine Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hN) ?_
@@ -355,7 +356,7 @@ private theorem pc_norm_cpow_neg_two_mul_le {N : ℕ} (hN : 1 ≤ N) {R : ℝ} {
   simp only [Complex.neg_re, Complex.mul_re, Complex.re_ofNat, Complex.im_ofNat, zero_mul, sub_zero]
   linarith
 
-private theorem pc_norm_cpow_neg_two_mul_add_one_le {N : ℕ} (hN : 1 ≤ N) {R : ℝ} {s : ℂ} (hs : ‖s‖ ≤ R) :
+theorem pc_norm_cpow_neg_two_mul_add_one_le {N : ℕ} (hN : 1 ≤ N) {R : ℝ} {s : ℂ} (hs : ‖s‖ ≤ R) :
     ‖((N : ℕ) : ℂ) ^ (-(2 * s + 1))‖ ≤ (N : ℝ) ^ (2 * R + 1) := by
   rw [Complex.norm_natCast_cpow_of_pos hN]
   refine Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hN) ?_
@@ -365,7 +366,7 @@ private theorem pc_norm_cpow_neg_two_mul_add_one_le {N : ℕ} (hN : 1 ≤ N) {R 
     sub_zero, Complex.one_re]
   linarith
 
-private theorem pc_geom_norm_le {χϖ : ℂ} (hχ : ‖χϖ‖ = 1) {N : ℕ} (hN : 1 ≤ N) (M : ℕ) {R : ℝ} {s : ℂ}
+theorem pc_geom_norm_le {χϖ : ℂ} (hχ : ‖χϖ‖ = 1) {N : ℕ} (hN : 1 ≤ N) (M : ℕ) {R : ℝ} {s : ℂ}
     (hs : ‖s‖ ≤ R) : ‖pc_geom χϖ N M s‖ ≤ ((M : ℝ) + 1) * ((N : ℝ) ^ (2 * R)) ^ M := by
   have hR : (0 : ℝ) ≤ R := (norm_nonneg s).trans hs
   have hb1 : (1 : ℝ) ≤ (N : ℝ) ^ (2 * R) := Real.one_le_rpow (by exact_mod_cast hN) (by positivity)
@@ -411,7 +412,7 @@ private theorem pc_ram_norm_le {N : ℕ} (hN : 1 ≤ N) (K : ℕ) {c₀ : ℂ} {
   refine (Finset.sum_le_card_nsmul _ _ _ hterm).trans ?_
   rw [Nat.card_Icc, Nat.add_sub_cancel, nsmul_eq_mul]
 
-private theorem pc_norm_localChar_eq_one (F : Type) [Field F] [NumberField F]
+theorem pc_norm_localChar_eq_one (F : Type) [Field F] [NumberField F]
     (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ) (hψ : IsGlobalAddChar F ψ)
     (ψv : (v : HeightOneSpectrum (𝓞 F)) → AddChar (v.adicCompletion F) ℂ)
     (hψfin : ∀ x : FiniteAdeleRing (𝓞 F) F,
@@ -438,46 +439,46 @@ private theorem pc_tprod_mul_finprod {ι : Type} (a b : ι → ℂ) (ha : Multip
     ∏' i, (a i * b i) = (∏' i, a i) * ∏ᶠ i, b i := by
   rw [Multipliable.tprod_mul ha (multipliable_of_hasFiniteMulSupport hb), tprod_eq_finprod hb]
 
-@[reducible] private noncomputable def pc_locBorel (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
+@[reducible] noncomputable def pc_locBorel (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
     MeasurableSpace (v.adicCompletion F) := borel _
 
-private theorem pc_locBorelSpace (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
+theorem pc_locBorelSpace (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
     @BorelSpace (v.adicCompletion F) _ (pc_locBorel F v) :=
   @BorelSpace.mk _ _ (pc_locBorel F v) rfl
 
-private noncomputable def pc_locHaar (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
+noncomputable def pc_locHaar (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
     @Measure (v.adicCompletion F) (pc_locBorel F v) := by
   let := pc_locBorel F v
   have := pc_locBorelSpace F v
   exact Measure.addHaar
 
-private theorem pc_isAddHaarMeasure_locHaar (F : Type) [Field F] [NumberField F]
+theorem pc_isAddHaarMeasure_locHaar (F : Type) [Field F] [NumberField F]
     (v : HeightOneSpectrum (𝓞 F)) :
     @Measure.IsAddHaarMeasure (v.adicCompletion F) _ _ (pc_locBorel F v) (pc_locHaar F v) := by
   let := pc_locBorel F v
   have := pc_locBorelSpace F v
   exact Measure.isAddHaarMeasure_addHaarMeasure _
 
-@[reducible] private noncomputable def pc_finBorel (F : Type) [Field F] [NumberField F] :
+@[reducible] noncomputable def pc_finBorel (F : Type) [Field F] [NumberField F] :
     MeasurableSpace (FiniteAdeleRing (𝓞 F) F) := borel _
 
-private theorem pc_finBorelSpace (F : Type) [Field F] [NumberField F] :
+theorem pc_finBorelSpace (F : Type) [Field F] [NumberField F] :
     @BorelSpace (FiniteAdeleRing (𝓞 F) F) _ (pc_finBorel F) :=
   @BorelSpace.mk _ _ (pc_finBorel F) rfl
 
-private noncomputable def pc_finHaar (F : Type) [Field F] [NumberField F] :
+noncomputable def pc_finHaar (F : Type) [Field F] [NumberField F] :
     @Measure (FiniteAdeleRing (𝓞 F) F) (pc_finBorel F) := by
   let := pc_finBorel F
   have := pc_finBorelSpace F
   exact Measure.addHaar
 
-private theorem pc_isAddHaarMeasure_finHaar (F : Type) [Field F] [NumberField F] :
+theorem pc_isAddHaarMeasure_finHaar (F : Type) [Field F] [NumberField F] :
     @Measure.IsAddHaarMeasure (FiniteAdeleRing (𝓞 F) F) _ _ (pc_finBorel F) (pc_finHaar F) := by
   let := pc_finBorel F
   have := pc_finBorelSpace F
   exact Measure.isAddHaarMeasure_addHaarMeasure _
 
-private theorem pc_measureReal_integers_pos (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
+theorem pc_measureReal_integers_pos (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
     [MeasurableSpace (v.adicCompletion F)] [BorelSpace (v.adicCompletion F)]
     (μ : Measure (v.adicCompletion F)) [μ.IsAddHaarMeasure] :
     0 < μ.real (v.adicCompletionIntegers F : Set (v.adicCompletion F)) := by
@@ -485,15 +486,15 @@ private theorem pc_measureReal_integers_pos (F : Type) [Field F] [NumberField F]
   exact ENNReal.toReal_pos ((EisensteinGeneral.FiniteAdelicFactorization.isOpen_adicCompletionIntegers F v).measure_pos μ ⟨0, Subring.zero_mem _⟩).ne'
     (pc_isCompact_integers v).measure_lt_top.ne
 
-private noncomputable def pc_exp {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
+noncomputable def pc_exp {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
     (x : v.adicCompletion F) : ℤ :=
   WithZero.log (Valued.v x)
 
-private theorem pc_valued_eq_exp {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
+theorem pc_valued_eq_exp {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
     {x : v.adicCompletion F} (hx : x ≠ 0) : Valued.v x = WithZero.exp (pc_exp x) :=
   (WithZero.exp_log ((Valuation.ne_zero_iff _).mpr hx)).symm
 
-private theorem pc_indicator_depth_const {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
+theorem pc_indicator_depth_const {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
     {m : ℕ} (hm : 1 ≤ m) {A : v.adicCompletion F → ℂ}
     (hA : ∀ x ∈ v.adicCompletionIntegers F, ∀ y ∈ v.adicCompletionIntegers F,
       Valued.v (y - x) ≤ Multiplicative.ofAdd (-(m : ℤ)) → A y = A x) :
@@ -517,14 +518,14 @@ private theorem pc_indicator_depth_const {F : Type} [Field F] [NumberField F] {v
       rwa [sub_sub_cancel] at this)
     rw [Set.indicator_of_notMem hy, Set.indicator_of_notMem hx]
 
-private theorem pc_valued_pow_uniformizer {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
+theorem pc_valued_pow_uniformizer {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
     {ϖ : (v.adicCompletion F)ˣ} (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
     (m : ℕ) : Valued.v ((ϖ : v.adicCompletion F) ^ m) = Multiplicative.ofAdd (-(m : ℤ)) := by
   rw [map_pow, hϖ, ← WithZero.coe_pow, ← ofAdd_nsmul]
   congr 2
   simp
 
-private theorem pc_continuous_of_depth_const {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
+theorem pc_continuous_of_depth_const {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
     {ϖ : (v.adicCompletion F)ˣ} (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
     (m : ℕ) {A : v.adicCompletion F → ℂ}
     (hA : ∀ x y : v.adicCompletion F, Valued.v (y - x) ≤ Multiplicative.ofAdd (-(m : ℤ)) → A y = A x) :
@@ -539,7 +540,7 @@ private theorem pc_continuous_of_depth_const {F : Type} [Field F] [NumberField F
     exact Valued.toNormedField.norm_le_iff.mp (by simpa [dist_eq_norm] using hy)
   exact (hA x y hval).symm
 
-private theorem pc_integrableOn_integers_of_depth_const {F : Type} [Field F] [NumberField F]
+theorem pc_integrableOn_integers_of_depth_const {F : Type} [Field F] [NumberField F]
     {v : HeightOneSpectrum (𝓞 F)} [MeasurableSpace (v.adicCompletion F)] [BorelSpace (v.adicCompletion F)]
     (μ : Measure (v.adicCompletion F)) [μ.IsAddHaarMeasure]
     {ϖ : (v.adicCompletion F)ˣ} (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
@@ -548,16 +549,16 @@ private theorem pc_integrableOn_integers_of_depth_const {F : Type} [Field F] [Nu
     IntegrableOn A (v.adicCompletionIntegers F : Set (v.adicCompletion F)) μ :=
   (pc_continuous_of_depth_const hϖ m hA).continuousOn.integrableOn_compact (pc_isCompact_integers v)
 
-private noncomputable def pc_corrOff (χϖ : ℂ) (N : ℕ) (e : ℤ) (s : ℂ) : ℂ :=
+noncomputable def pc_corrOff (χϖ : ℂ) (N : ℕ) (e : ℤ) (s : ℂ) : ℂ :=
   if e ≤ 0 then pc_geom χϖ N (-e).toNat s else 0
 
-private noncomputable def pc_corrOn (N : ℕ) (n : ℤ) (c m : ℕ) (e : ℤ) (μ𝒪 : ℝ) (c₀ : ℂ) (sh : ℕ → ℂ)
+noncomputable def pc_corrOn (N : ℕ) (n : ℤ) (c m : ℕ) (e : ℤ) (μ𝒪 : ℝ) (c₀ : ℂ) (sh : ℕ → ℂ)
     (s : ℂ) : ℂ :=
   if e ≤ n + (max m c : ℕ) then
     (μ𝒪 : ℂ)⁻¹ * pc_ram N (max ((m : ℤ) - 1) (n + (c : ℤ) - e)).toNat c₀ sh s
   else 0
 
-private theorem pc_corrOff_differentiable (χϖ : ℂ) {N : ℕ} (hN : 0 < N) (e : ℤ) :
+theorem pc_corrOff_differentiable (χϖ : ℂ) {N : ℕ} (hN : 0 < N) (e : ℤ) :
     Differentiable ℂ (pc_corrOff χϖ N e) := by
   unfold pc_corrOff
   by_cases he : e ≤ 0
@@ -566,7 +567,7 @@ private theorem pc_corrOff_differentiable (χϖ : ℂ) {N : ℕ} (hN : 0 < N) (e
   · simp only [he, ↓reduceIte]
     exact differentiable_const 0
 
-private theorem pc_corrOn_differentiable {N : ℕ} (hN : 0 < N) (n : ℤ) (c m : ℕ) (e : ℤ) (μ𝒪 : ℝ) (c₀ : ℂ)
+theorem pc_corrOn_differentiable {N : ℕ} (hN : 0 < N) (n : ℤ) (c m : ℕ) (e : ℤ) (μ𝒪 : ℝ) (c₀ : ℂ)
     (sh : ℕ → ℂ) : Differentiable ℂ (pc_corrOn N n c m e μ𝒪 c₀ sh) := by
   unfold pc_corrOn
   by_cases he : e ≤ n + (max m c : ℕ)
@@ -575,7 +576,7 @@ private theorem pc_corrOn_differentiable {N : ℕ} (hN : 0 < N) (n : ℤ) (c m :
   · simp only [he, ↓reduceIte]
     exact differentiable_const 0
 
-private theorem pc_corrOff_spec (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
+theorem pc_corrOff_spec (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
     [MeasurableSpace (v.adicCompletion F)] [BorelSpace (v.adicCompletion F)]
     (μ : Measure (v.adicCompletion F)) [μ.IsAddHaarMeasure]
     (ϖ : (v.adicCompletion F)ˣ) (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
@@ -611,7 +612,7 @@ private theorem pc_corrOff_spec (F : Type) [Field F] [NumberField F] (v : Height
     rw [LocalUnr.integral_twisted_eq_zero_of_exp_lt F v μ ϖ hϖ χ hχ s hs ψ 0 hψ0 hψ0' ξ hlt,
       mul_zero, mul_zero]
 
-private theorem pc_corrOn_spec (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
+theorem pc_corrOn_spec (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
     [MeasurableSpace (v.adicCompletion F)] [BorelSpace (v.adicCompletion F)]
     (μ : Measure (v.adicCompletion F)) [μ.IsAddHaarMeasure]
     (ϖ : (v.adicCompletion F)ˣ) (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
@@ -659,7 +660,7 @@ private theorem pc_corrOn_spec (F : Type) [Field F] [NumberField F] (v : HeightO
     simp only [Set.indicator_indicator, Set.inter_self] at h
     rw [h, mul_zero]
 
-private theorem pc_one_lt_absNorm (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
+theorem pc_one_lt_absNorm (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
     1 < Ideal.absNorm v.asIdeal :=
   NumberField.HeightOneSpectrum.one_lt_absNorm v
 
@@ -672,7 +673,7 @@ private theorem pc_norm_mul_cpow_lt_one_nat {χϖ : ℂ} (hχ : ‖χϖ‖ = 1) 
 
 open scoped Classical in
 
-private noncomputable def pc_euler {F : Type} [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
+noncomputable def pc_euler {F : Type} [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
     (ϖ : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ) (v : HeightOneSpectrum (𝓞 F)) (s : ℂ) : ℂ :=
   if v ∈ S then 1
@@ -680,7 +681,7 @@ private noncomputable def pc_euler {F : Type} [Field F] [NumberField F] (S : Fin
 
 open scoped Classical in
 
-private noncomputable def pc_corr (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
+noncomputable def pc_corr (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
     (ϖ : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ)
     (ψv : (v : HeightOneSpectrum (𝓞 F)) → AddChar (v.adicCompletion F) ℂ) (nψ : HeightOneSpectrum (𝓞 F) → ℤ)
@@ -713,7 +714,7 @@ private theorem pc_corr_differentiable (F : Type) [Field F] [NumberField F] (S :
   · simp only [hv, ↓reduceIte]
     exact pc_corrOff_differentiable _ hN _
 
-private theorem pc_corr_eq_one (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
+theorem pc_corr_eq_one (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
     (ϖ : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ)
     (ψv : (v : HeightOneSpectrum (𝓞 F)) → AddChar (v.adicCompletion F) ℂ) (nψ : HeightOneSpectrum (𝓞 F) → ℤ)
@@ -724,14 +725,14 @@ private theorem pc_corr_eq_one (F : Type) [Field F] [NumberField F] (S : Finset 
   simp only [pc_corr, hv, ↓reduceIte, pc_corrOff, hw, le_refl, neg_zero, Int.toNat_zero, pc_geom, zero_add,
     Finset.range_one, Finset.sum_singleton, pow_zero]
 
-private theorem pc_euler_eq_one_of_mem (F : Type) [Field F] [NumberField F]
+theorem pc_euler_eq_one_of_mem (F : Type) [Field F] [NumberField F]
     (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
     (ϖ : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ) (v : HeightOneSpectrum (𝓞 F)) (hv : v ∈ S)
     (s : ℂ) : pc_euler S χv ϖ v s = 1 := by
   simp only [pc_euler, hv, ↓reduceIte]
 
-private theorem pc_integrable_off (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
+theorem pc_integrable_off (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
     [MeasurableSpace (v.adicCompletion F)] [BorelSpace (v.adicCompletion F)]
     (μ : Measure (v.adicCompletion F)) [μ.IsAddHaarMeasure]
     (ϖ : (v.adicCompletion F)ˣ) (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
@@ -748,7 +749,7 @@ private theorem pc_integrable_off (F : Type) [Field F] [NumberField F] (v : Heig
           * ψ (-(ξ * x)))) μ :=
   (LocalUnr.integrable_twisted_and_integral_norm_eq F v μ ϖ hϖ χ hχ s hs ψ n hψn ξ).1
 
-private theorem pc_integrable_on (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
+theorem pc_integrable_on (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
     [MeasurableSpace (v.adicCompletion F)] [BorelSpace (v.adicCompletion F)]
     (μ : Measure (v.adicCompletion F)) [μ.IsAddHaarMeasure]
     (ϖ : (v.adicCompletion F)ˣ) (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
@@ -831,7 +832,7 @@ private theorem pc_excess_bounds_local (F : Type) [Field F] [NumberField F] (v :
   · rw [← div_eq_mul_inv, div_sub_one h1x.ne', div_le_iff₀ h1x]
     nlinarith [hkey, hxN0, hxN, hx0]
 
-private theorem pc_fac_hint (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
+theorem pc_fac_hint (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F))
     [MeasurableSpace (v.adicCompletion F)] [BorelSpace (v.adicCompletion F)]
     (μ : Measure (v.adicCompletion F)) [μ.IsAddHaarMeasure] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
@@ -873,7 +874,7 @@ private theorem pc_fac_hint (F : Type) [Field F] [NumberField F] (v : HeightOneS
   · simp only [hoff v hv]
     exact pc_integrable_off F v μ (ϖ v) (hϖ v) (χv v) (hχS v hv) s hsv (ψv v) (nψ v) (hψv v) (w v)
 
-private theorem pc_fac_hsum (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
+theorem pc_fac_hsum (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
     (ϖ : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ)
     (hϖ : ∀ v, Valued.v (ϖ v : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
@@ -997,20 +998,20 @@ private theorem pc_finite_value (F : Type) [Field F] [NumberField F] (S : Finset
     rw [hnψ v hv] at hψ0'
     exact pc_corrOff_spec F v (pc_locHaar F v) (ϖ v) (hϖ v) (χv v) (hχS v hv) s (hsv v) (ψv v) hψ0 hψ0' (w v) (hw0 v)
 
-private theorem pc_fin_mul_apply {F : Type} [Field F] [NumberField F] (x w : FiniteAdeleRing (𝓞 F) F)
+theorem pc_fin_mul_apply {F : Type} [Field F] [NumberField F] (x w : FiniteAdeleRing (𝓞 F) F)
     (v : HeightOneSpectrum (𝓞 F)) : (x * w) v = x v * w v := rfl
 
-private theorem pc_fin_neg_apply {F : Type} [Field F] [NumberField F] (x : FiniteAdeleRing (𝓞 F) F)
+theorem pc_fin_neg_apply {F : Type} [Field F] [NumberField F] (x : FiniteAdeleRing (𝓞 F) F)
     (v : HeightOneSpectrum (𝓞 F)) : (-x) v = -(x v) := rfl
 
 private theorem pc_fin_one_apply {F : Type} [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
     (1 : FiniteAdeleRing (𝓞 F) F) v = 1 := rfl
 
-private theorem pc_fin_integral_cofinite {F : Type} [Field F] [NumberField F] (x : FiniteAdeleRing (𝓞 F) F) :
+theorem pc_fin_integral_cofinite {F : Type} [Field F] [NumberField F] (x : FiniteAdeleRing (𝓞 F) F) :
     {v : HeightOneSpectrum (𝓞 F) | x v ∉ v.adicCompletionIntegers F}.Finite :=
   Filter.eventually_cofinite.mp x.2
 
-private theorem pc_twist_eq_one {F : Type} [Field F] [NumberField F]
+theorem pc_twist_eq_one {F : Type} [Field F] [NumberField F]
     (ψv : (v : HeightOneSpectrum (𝓞 F)) → AddChar (v.adicCompletion F) ℂ) (nψ : HeightOneSpectrum (𝓞 F) → ℤ)
     (hψv : ∀ (v : HeightOneSpectrum (𝓞 F)) (x : v.adicCompletion F),
       Valued.v x ≤ WithZero.exp (nψ v) → ψv v x = 1)
@@ -1021,7 +1022,7 @@ private theorem pc_twist_eq_one {F : Type} [Field F] [NumberField F]
     one_mul]
   exact (HeightOneSpectrum.mem_adicCompletionIntegers _ _ _).mp hy
 
-private theorem pc_fin_fourier_eq (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
+theorem pc_fin_fourier_eq (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
     (ψv : (v : HeightOneSpectrum (𝓞 F)) → AddChar (v.adicCompletion F) ℂ)
     (hψfin : ∀ x : FiniteAdeleRing (𝓞 F) F,
       ψ (AddMonoidHom.inr (InfiniteAdeleRing F) (FiniteAdeleRing (𝓞 F) F) x)
@@ -1062,7 +1063,7 @@ private theorem pc_fin_fourier_eq (F : Type) [Field F] [NumberField F] (ψ : Add
   refine finprod_congr fun v => ?_
   simp only [pc_fin_neg_apply, pc_fin_mul_apply, mul_comm (x v) (w v)]
 
-private theorem pc_fourierIntegral_eq_integral_mul {A : Type} [CommRing A] [MeasurableSpace A]
+theorem pc_fourierIntegral_eq_integral_mul {A : Type} [CommRing A] [MeasurableSpace A]
     (ψ : AddChar A ℂ) (μ : Measure A) (f : A → ℂ) (w : A) :
     fourierIntegral ψ μ f w = ∫ z, f z * ψ (-(w * z)) ∂μ := by
   rw [fourierIntegral_def]
@@ -1070,7 +1071,7 @@ private theorem pc_fourierIntegral_eq_integral_mul {A : Type} [CommRing A] [Meas
   funext z
   rw [mul_comm (ψ _) (f z), mul_comm z w]
 
-private theorem pc_integral_prod_pi {ι₁ ι₂ : Type} [Fintype ι₁] [Fintype ι₂] (A : ι₁ → ℝ → ℂ) (B : ι₂ → ℂ → ℂ) :
+theorem pc_integral_prod_pi {ι₁ ι₂ : Type} [Fintype ι₁] [Fintype ι₂] (A : ι₁ → ℝ → ℂ) (B : ι₂ → ℂ → ℂ) :
     ∫ p : (ι₁ → ℝ) × (ι₂ → ℂ), (∏ i, A i (p.1 i)) * ∏ w, B w (p.2 w)
       = (∏ i, ∫ x : ℝ, A i x) * ∏ w, ∫ z : ℂ, B w z := by
   rw [MeasureTheory.Measure.volume_eq_prod,
@@ -1079,7 +1080,7 @@ private theorem pc_integral_prod_pi {ι₁ ι₂ : Type} [Fintype ι₁] [Fintyp
 
 open scoped Classical in
 
-private theorem pc_arch_value (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
+theorem pc_arch_value (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
     (θr : {w : InfinitePlace F // w.IsReal} → ℝ) (θc : {w : InfinitePlace F // w.IsComplex} → ℂ)
     (hψarch : ∀ p : mixedEmbedding.mixedSpace F,
       ψ (AddMonoidHom.inl (InfiniteAdeleRing F) (FiniteAdeleRing (𝓞 F) F)
@@ -1141,13 +1142,13 @@ private theorem pc_arch_value (F : Type) [Field F] [NumberField F] (ψ : AddChar
     (fun i (x : ℝ) => fr i x * Complex.exp (-(((2 * Real.pi * (-(θr i * q.1 i)) * x : ℝ) : ℂ) * Complex.I)))
     (fun w (z : ℂ) => fc w z * Complex.exp (-(((4 * Real.pi * ((-(θc w * q.2 w)) * z).re : ℝ) : ℂ) * Complex.I)))
 
-private theorem pc_unit_fin_ne_zero {F : Type} [Field F] [NumberField F] (U : (AdeleRing (𝓞 F) F)ˣ)
+theorem pc_unit_fin_ne_zero {F : Type} [Field F] [NumberField F] (U : (AdeleRing (𝓞 F) F)ˣ)
     (v : HeightOneSpectrum (𝓞 F)) : (U : AdeleRing (𝓞 F) F).2 v ≠ 0 := by
   have h : ((U⁻¹ : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 v * (U : AdeleRing (𝓞 F) F).2 v = 1 :=
     congrArg (fun z : AdeleRing (𝓞 F) F => z.2 v) (Units.inv_mul U)
   exact right_ne_zero_of_mul_eq_one h
 
-private theorem pc_unit_fin_exp_finite {F : Type} [Field F] [NumberField F] (U : (AdeleRing (𝓞 F) F)ˣ) :
+theorem pc_unit_fin_exp_finite {F : Type} [Field F] [NumberField F] (U : (AdeleRing (𝓞 F) F)ˣ) :
     {v : HeightOneSpectrum (𝓞 F) | pc_exp ((U : AdeleRing (𝓞 F) F).2 v) ≠ 0}.Finite := by
   refine ((pc_fin_integral_cofinite (U : AdeleRing (𝓞 F) F).2).union
     (pc_fin_integral_cofinite ((U⁻¹ : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2)).subset ?_
@@ -1201,7 +1202,7 @@ private theorem pc_differentiable_prod {ι : Type} (T : Finset ι) (f : ι → �
     simp only [Finset.prod_insert ha]
     exact (hf a (Finset.mem_insert_self a T)).mul (ih fun i hi => hf i (Finset.mem_insert_of_mem hi))
 
-private theorem pc_hoff_one {F : Type} [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
+theorem pc_hoff_one {F : Type} [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ) (s : ℂ)
     (h : (v : HeightOneSpectrum (𝓞 F)) → v.adicCompletion F → ℂ)
     (hoff : ∀ v ∉ S, ∀ x : v.adicCompletion F,
@@ -1215,7 +1216,7 @@ private theorem pc_hoff_one {F : Type} [Field F] [NumberField F] (S : Finset (He
   have hy'' : y ∉ (v.adicCompletionIntegers F : Set (v.adicCompletion F))ᶜ := fun h' => h' hy'
   rw [hoff v hv y, Set.indicator_of_mem hy', Set.indicator_of_notMem hy'', add_zero]
 
-private theorem pc_multipliable_euler (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
+theorem pc_multipliable_euler (F : Type) [Field F] [NumberField F] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
     (ϖ : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ) (hχϖ : ∀ v, ‖((χv v (ϖ v) : ℂˣ) : ℂ)‖ = 1)
     (s : ℂ) (hs : 0 < s.re) :
@@ -1233,17 +1234,17 @@ private theorem pc_multipliable_euler (F : Type) [Field F] [NumberField F] (S : 
   simp only [pc_euler, v.2, ↓reduceIte]
 
 open scoped Classical in
-private noncomputable def pc_tensor (F : Type) [Field F] [NumberField F]
+noncomputable def pc_tensor (F : Type) [Field F] [NumberField F]
     (Wr' : {w : InfinitePlace F // w.IsReal} → ℝ → ℂ) (Wc' : {w : InfinitePlace F // w.IsComplex} → ℂ → ℂ)
     (h' : (v : HeightOneSpectrum (𝓞 F)) → v.adicCompletion F → ℂ) (z : AdeleRing (𝓞 F) F) : ℂ :=
   ((∏ i : {w : InfinitePlace F // w.IsReal}, Wr' i ((InfiniteAdeleRing.ringEquiv_mixedSpace F z.1).1 i))
       * ∏ w : {w : InfinitePlace F // w.IsComplex}, Wc' w ((InfiniteAdeleRing.ringEquiv_mixedSpace F z.1).2 w))
     * ∏ᶠ v : HeightOneSpectrum (𝓞 F), h' v (z.2 v)
 
-private theorem pc_fin_zero_apply {F : Type} [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
+theorem pc_fin_zero_apply {F : Type} [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
     (0 : FiniteAdeleRing (𝓞 F) F) v = 0 := rfl
 
-private theorem pc_integrable_finprod (F : Type) [Field F] [NumberField F]
+theorem pc_integrable_finprod (F : Type) [Field F] [NumberField F]
     [MeasurableSpace (FiniteAdeleRing (𝓞 F) F)] [BorelSpace (FiniteAdeleRing (𝓞 F) F)]
     (ν : Measure (FiniteAdeleRing (𝓞 F) F)) [ν.IsAddHaarMeasure] (S : Finset (HeightOneSpectrum (𝓞 F)))
     (χv : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ →* ℂˣ)
@@ -1296,7 +1297,7 @@ private theorem pc_integrable_finprod (F : Type) [Field F] [NumberField F]
   simp only [pc_fin_zero_apply, zero_mul, neg_zero, AddChar.map_zero_eq_one, mul_one]
 
 open scoped Classical in
-private theorem pc_term_integrable (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
+theorem pc_term_integrable (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
     (hψ : IsGlobalAddChar F ψ)
     (kdat : {w : InfinitePlace F // w.IsReal} → ℤ) (τr : {w : InfinitePlace F // w.IsReal} → ℝ)
     (abm : {w : InfinitePlace F // w.IsComplex} → ℕ × ℕ × ℕ) (τc : {w : InfinitePlace F // w.IsComplex} → ℝ)
@@ -1363,7 +1364,7 @@ private theorem pc_term_integrable (F : Type) [Field F] [NumberField F] (ψ : Ad
 
 open scoped Classical in
 
-private theorem pc_term_value (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
+theorem pc_term_value (F : Type) [Field F] [NumberField F] (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
     (ψv : (v : HeightOneSpectrum (𝓞 F)) → AddChar (v.adicCompletion F) ℂ)
     (hψfin : ∀ x : FiniteAdeleRing (𝓞 F) F,
       ψ (AddMonoidHom.inr (InfiniteAdeleRing F) (FiniteAdeleRing (𝓞 F) F) x)
@@ -1481,12 +1482,12 @@ private theorem pc_term_value (F : Type) [Field F] [NumberField F] (ψ : AddChar
 
 section MajorantFinite
 
-private theorem pc_succ_le_two_pow (M : ℕ) : M + 1 ≤ 2 ^ M := by
+theorem pc_succ_le_two_pow (M : ℕ) : M + 1 ≤ 2 ^ M := by
   induction M with
   | zero => simp
   | succ M ih => rw [pow_succ]; omega
 
-private theorem pc_ram_norm_le' {N : ℕ} (hN : 1 ≤ N) (K : ℕ) {c₀ : ℂ} {c₀' : ℝ} (hc₀ : ‖c₀‖ ≤ c₀')
+theorem pc_ram_norm_le' {N : ℕ} (hN : 1 ≤ N) (K : ℕ) {c₀ : ℂ} {c₀' : ℝ} (hc₀ : ‖c₀‖ ≤ c₀')
     {sh : ℕ → ℂ} {b d : ℝ} (hb : 0 ≤ b) (hd : 1 ≤ d) (hsh : ∀ k, 1 ≤ k → ‖sh k‖ ≤ b * d ^ k) {R : ℝ} {s : ℂ}
     (hs : ‖s‖ ≤ R) : ‖pc_ram N K c₀ sh s‖ ≤ c₀' + (K : ℝ) * (b * ((N : ℝ) ^ (2 * R + 1) * d) ^ K) := by
   have hR : (0 : ℝ) ≤ R := (norm_nonneg s).trans hs
@@ -1512,7 +1513,7 @@ private theorem pc_ram_norm_le' {N : ℕ} (hN : 1 ≤ N) (K : ℕ) {c₀ : ℂ} 
   refine (Finset.sum_le_card_nsmul _ _ _ hterm).trans ?_
   rw [Nat.card_Icc, Nat.add_sub_cancel, nsmul_eq_mul]
 
-private theorem pc_norm_corrOff_le {χϖ : ℂ} (hχ : ‖χϖ‖ = 1) {N : ℕ} (hN : 2 ≤ N) (e : ℤ) {R : ℝ} (k' : ℕ)
+theorem pc_norm_corrOff_le {χϖ : ℂ} (hχ : ‖χϖ‖ = 1) {N : ℕ} (hN : 2 ≤ N) (e : ℤ) {R : ℝ} (k' : ℕ)
     (hk' : 2 * R ≤ k') {s : ℂ} (hs : ‖s‖ ≤ R) :
     ‖pc_corrOff χϖ N e s‖ ≤ ((N : ℝ) ^ (-e).toNat) ^ (k' + 1) := by
   have hN1 : 1 ≤ N := le_trans (by norm_num) hN
@@ -1533,7 +1534,7 @@ private theorem pc_norm_corrOff_le {χϖ : ℂ} (hχ : ‖χϖ‖ = 1) {N : ℕ}
       _ = ((N : ℝ) ^ (-e).toNat) ^ (k' + 1) := by ring
   · rw [norm_zero]; positivity
 
-private theorem pc_exists_norm_corrOn_le {N : ℕ} (hN : 2 ≤ N) (n : ℤ) (c m : ℕ) {μ𝒪 : ℝ} (hμ : 0 < μ𝒪)
+theorem pc_exists_norm_corrOn_le {N : ℕ} (hN : 2 ≤ N) (n : ℤ) (c m : ℕ) {μ𝒪 : ℝ} (hμ : 0 < μ𝒪)
     (c₀' b d R : ℝ) (hc₀' : 0 ≤ c₀') (hb : 0 ≤ b) (hd : 1 ≤ d) (hR : 0 ≤ R) :
     ∃ E : ℝ, ∃ κ : ℕ, 0 ≤ E ∧ ∀ (e : ℤ) (c₀ : ℂ) (sh : ℕ → ℂ) (s : ℂ), ‖c₀‖ ≤ c₀' →
       (∀ k, 1 ≤ k → ‖sh k‖ ≤ b * d ^ k) → ‖s‖ ≤ R →
@@ -1584,7 +1585,7 @@ private theorem pc_exists_norm_corrOn_le {N : ℕ} (hN : 2 ≤ N) (n : ℤ) (c m
 
 variable {F : Type} [Field F] [NumberField F]
 
-private theorem pc_norm_integral_integers_le (v : HeightOneSpectrum (𝓞 F)) (A₀ : v.adicCompletion F → ℂ)
+theorem pc_norm_integral_integers_le (v : HeightOneSpectrum (𝓞 F)) (A₀ : v.adicCompletion F → ℂ)
     (ψv : AddChar (v.adicCompletion F) ℂ) (hψv1 : ∀ y, ‖ψv y‖ = 1) (w : v.adicCompletion F) :
     ‖∫ x in (v.adicCompletionIntegers F : Set (v.adicCompletion F)),
         (v.adicCompletionIntegers F : Set (v.adicCompletion F)).indicator A₀ x * ψv (-(w * x))
@@ -1597,13 +1598,13 @@ private theorem pc_norm_integral_integers_le (v : HeightOneSpectrum (𝓞 F)) (A
   show ‖(v.adicCompletionIntegers F : Set (v.adicCompletion F)).indicator A₀ x * ψv (-(w * x))‖ = ‖A₀ x‖
   rw [norm_mul, Set.indicator_of_mem hx, hψv1, mul_one]
 
-private theorem pc_valued_inv_pow_uniformizer {v : HeightOneSpectrum (𝓞 F)} {ϖ : (v.adicCompletion F)ˣ}
+theorem pc_valued_inv_pow_uniformizer {v : HeightOneSpectrum (𝓞 F)} {ϖ : (v.adicCompletion F)ˣ}
     (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ)) (k : ℕ) :
     Valued.v (((ϖ : v.adicCompletion F) ^ k)⁻¹) = WithZero.exp (k : ℤ) := by
   rw [map_inv₀, pc_valued_pow_uniformizer hϖ k, ← WithZero.coe_inv, ← ofAdd_neg, neg_neg]
   rfl
 
-private theorem pc_measurableSet_shell {v : HeightOneSpectrum (𝓞 F)} [MeasurableSpace (v.adicCompletion F)]
+theorem pc_measurableSet_shell {v : HeightOneSpectrum (𝓞 F)} [MeasurableSpace (v.adicCompletion F)]
     [BorelSpace (v.adicCompletion F)] {ϖ : (v.adicCompletion F)ˣ}
     (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ)) (k : ℕ) :
     MeasurableSet {x : v.adicCompletion F | Valued.v x = WithZero.exp (k : ℤ)} := by
@@ -1621,7 +1622,7 @@ private theorem pc_measurableSet_shell {v : HeightOneSpectrum (𝓞 F)} [Measura
 
 open scoped Pointwise in
 
-private theorem pc_modulus_le_one (v : HeightOneSpectrum (𝓞 F)) (u : v.adicCompletion F)
+theorem pc_modulus_le_one (v : HeightOneSpectrum (𝓞 F)) (u : v.adicCompletion F)
     (hu : Valued.v u ≤ 1) : (LanglandsTunnell.TateLocal.modulus u : ℝ) ≤ 1 := by
   let := pc_locBorel F v
   have := pc_locBorelSpace F v
@@ -1654,7 +1655,7 @@ private theorem pc_modulus_le_one (v : HeightOneSpectrum (𝓞 F)) (u : v.adicCo
 
 open scoped Pointwise in
 
-private theorem pc_one_le_modulus_inv_uniformizer (v : HeightOneSpectrum (𝓞 F)) (ϖ : (v.adicCompletion F)ˣ)
+theorem pc_one_le_modulus_inv_uniformizer (v : HeightOneSpectrum (𝓞 F)) (ϖ : (v.adicCompletion F)ˣ)
     (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ)) :
     (1 : ℝ) ≤ (LanglandsTunnell.TateLocal.modulus ((ϖ : v.adicCompletion F)⁻¹) : ℝ) := by
   let := pc_locBorel F v
@@ -1689,7 +1690,7 @@ private theorem pc_one_le_modulus_inv_uniformizer (v : HeightOneSpectrum (𝓞 F
     (ENNReal.mul_le_mul_iff_left hO0 hOtop).mp hle
   exact_mod_cast h1
 
-private theorem pc_modulus_le_pow (v : HeightOneSpectrum (𝓞 F)) (ϖ : (v.adicCompletion F)ˣ)
+theorem pc_modulus_le_pow (v : HeightOneSpectrum (𝓞 F)) (ϖ : (v.adicCompletion F)ˣ)
     (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ)) (x : v.adicCompletion F) (k : ℕ)
     (hx : Valued.v x = WithZero.exp (k : ℤ)) :
     (LanglandsTunnell.TateLocal.modulus x : ℝ)
@@ -1718,7 +1719,7 @@ private theorem pc_modulus_le_pow (v : HeightOneSpectrum (𝓞 F)) (ϖ : (v.adic
         mul_le_mul_of_nonneg_right (pc_modulus_le_one v _ hu) (by positivity)
     _ = _ := one_mul _
 
-private theorem pc_norm_shell_le (v : HeightOneSpectrum (𝓞 F)) (ϖ : (v.adicCompletion F)ˣ)
+theorem pc_norm_shell_le (v : HeightOneSpectrum (𝓞 F)) (ϖ : (v.adicCompletion F)ˣ)
     (hϖ : Valued.v (ϖ : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ))
     (χ : (v.adicCompletion F)ˣ →* ℂˣ) (A₀ B : v.adicCompletion F → ℂ)
     (ψv : AddChar (v.adicCompletion F) ℂ) (hψv1 : ∀ y, ‖ψv y‖ = 1)
@@ -2181,7 +2182,7 @@ theorem EisensteinGeneral.Piece.exists_entire_partialEulerProduct_mul_eq_whittak
                 * ((Ideal.absNorm v.1.asIdeal : ℕ) : ℂ) ^ (-(2 * s + 1)))) * Q ξ s) ∧
       (∀ R : ℝ, ∃ M : {ξ : F // ξ ≠ 0} → ℝ, Summable M ∧
         ∀ (ξ : {ξ : F // ξ ≠ 0}) (s : ℂ), ‖s‖ ≤ R → ‖Q ξ s‖ ≤ M ξ) := by
-  have hP1 := integrable_weyl_unipotent_mul_of_factorization F ψv nψ χ S ϖ hϖ Ψ g D
+  have hP1 := EisensteinGeneral.Piece.integrable_weyl_unipotent_mul_of_factorization F ψv nψ χ S ϖ hϖ Ψ g D
   obtain ⟨cS, mS, n, A, B, h, kdat, τr, abm, τc, Wr, Wc, a, u, C,
     hχϖ, hχS, hnψ, hcS, hχc, hmS, hA, hB, hoff, hon, habm, hWr, hWc, hC, hfac⟩ := D
   classical

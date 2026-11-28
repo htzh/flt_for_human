@@ -567,7 +567,7 @@ private theorem differentiable_etaSnd (F : Type) [Field F] [NumberField F]
 
 /-! ### The datum, from the Bruhat-cell expansion of a flat family -/
 
-private theorem exists_sum_factorization_weyl_unipotent_mul_of_flat
+theorem exists_sum_factorization_weyl_unipotent_mul_of_flat
     (F : Type) [Field F] [NumberField F] :
     let α : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ :=
       ((NNReal.toRealHom : ℝ≥0 →+* ℝ).toMonoidHom.comp

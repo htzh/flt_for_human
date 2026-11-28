@@ -545,7 +545,7 @@ set_option linter.style.haveILetI false in
 open EisensteinGeneral.Piece in
 open scoped Classical in
 
-theorem integrable_weyl_unipotent_mul_of_factorization
+theorem EisensteinGeneral.Piece.integrable_weyl_unipotent_mul_of_factorization
     (F : Type) [Field F] [NumberField F]
     (ψv : (v : HeightOneSpectrum (𝓞 F)) → AddChar (v.adicCompletion F) ℂ)
     (nψ : HeightOneSpectrum (𝓞 F) → ℤ)
