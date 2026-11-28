@@ -18,6 +18,8 @@ Reference (public mirror, pinned):
 
 spec-pin: Theorems/Thm_NumberField_AdelicFourier_tsum_eq_tsum_fourierIntegral_of_mem_pureTensorSet_of_measure_adelicBox_eq_one.lean
 spec-pin: P2M/Sol/S_NumberField_AdelicFourier_tsum_eq_tsum_fourierIntegral_of_mem_pureTensorSet_of_measure_adelicBox_eq_one.lean
+spec-pin: Theorems/Thm_NumberField_AdelicFourier_tsum_eq_inv_measure_mul_tsum_fourierIntegral_of_mem_pureTensorSet.lean
+spec-pin: P2M/Sol/S_NumberField_AdelicFourier_tsum_eq_inv_measure_mul_tsum_fourierIntegral_of_mem_pureTensorSet.lean
 
 ## Landing (SET-AF111, pin `aa2d8b3` against the port's mathlib `v4.34.0`)
 
@@ -110,3 +112,79 @@ theorem NumberField.AdelicFourier.tsum_eq_tsum_fourierIntegral_of_mem_pureTensor
   exact (Equiv.mulLeft₀ a ha0).tsum_eq
     (fun ξ => fourierIntegral ψ μ f (algebraMap F (AdeleRing (𝓞 F) F) ξ))
 
+/-
+## SET-AF112 insertion: Poisson summation at an arbitrary Haar measure
+
+`NumberField.AdelicFourier.tsum_eq_inv_measure_mul_tsum_fourierIntegral_of_mem_pureTensorSet` (57 pin
+lines): the Poisson summation of the row above with the normalization `μ (adelicBox F) = 1` removed,
+the measure factor `(μ (adelicBox F))⁻¹` carried explicitly, so the identity holds at every Haar
+measure on the adele ring. It is the form the automorphic Whittaker/Fourier theory consumes.
+
+## Landing of the insertion (SET-AF112C, pin `aa2d8b3` against the port's mathlib `v4.34.0`)
+
+* **Surface.** One public declaration, 46 lines of proof (the pin's `S_` block is 57 lines including
+  its imports and section preamble); **2** public declarations in the module. `check_port --force`:
+  **`2 ok, 0 mismatch, 0 missing, 0 own, 0 kw`** (1 before).
+* **Substitutions**: none. Its only premise is the module's own row above.
+* **Drift (proof-level only, none a statement change).**
+  - `ℝ≥0∞` is written `ENNReal`: the module does not `open scoped ENNReal`, and the insertion adds no
+    `open`.
+  - `measure_mono`, `Measure.smul_apply` and `integral_smul_measure` are written
+    `MeasureTheory.…`-qualified: this module does no `open MeasureTheory` either.
+  - `MeasureTheory.Measure.IsAddHaarMeasure.smul` takes its scalar implicitly and the measure
+    explicitly in `v4.34.0`, so the pin's positional `_` is `smul μ (c := c⁻¹) …`.
+  - `Complex.real_smul` is `RCLike.real_smul_eq_coe_mul`, and the `hFourier` step then needs a closing
+    `rfl` (the two integrals differ only in the bound variable's name).
+  - the pin's `haveI hμ'Haar` is a `have`: a local hypothesis of class type is already an instance
+    (FR-0323), and `haveI` on a proposition trips `linter.style.haveILetI` in this port.
+* **Edit loop** silent at `-DmaxHeartbeats=200000`; **`lake build`** under `flock` **exit 0**
+  (`tmp/af112/logs/C-poissonnormalized-build.log`, no warning in it); **axioms**
+  `[propext, Classical.choice, Quot.sound]`; **`dedup`** 0 clusters; **`move_dead`** 0 declarations /
+  0 lines.
+-/
+theorem NumberField.AdelicFourier.tsum_eq_inv_measure_mul_tsum_fourierIntegral_of_mem_pureTensorSet
+    (F : Type) [Field F] [NumberField F]
+    [MeasurableSpace (AdeleRing (𝓞 F) F)] [BorelSpace (AdeleRing (𝓞 F) F)]
+    (μ : MeasureTheory.Measure (AdeleRing (𝓞 F) F)) [μ.IsAddHaarMeasure]
+    {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : IsGlobalAddChar F ψ)
+    {f : AdeleRing (𝓞 F) F → ℂ} (hf : f ∈ pureTensorSet F) :
+    ∑' ξ : F, f (algebraMap F (AdeleRing (𝓞 F) F) ξ)
+      = ((μ (AdelicBox.adelicBox F)).toReal : ℂ)⁻¹ *
+          ∑' ξ : F, fourierIntegral ψ μ f (algebraMap F (AdeleRing (𝓞 F) F) ξ) := by
+
+  set c : ENNReal := μ (AdelicBox.adelicBox F) with hc_def
+  have hc_lt : c < ⊤ := by
+    obtain ⟨C, hC_cpt, hC_sub⟩ := AdelicBox.exists_isCompact_adelicBox_subset F
+    exact lt_of_le_of_lt (MeasureTheory.measure_mono hC_sub) hC_cpt.measure_lt_top
+  have hc_pos : 0 < c := by
+    obtain ⟨U, hU_open, hU_ne, hU_sub⟩ := AdelicBox.exists_isOpen_subset_adelicBox F
+    exact lt_of_lt_of_le (hU_open.measure_pos μ hU_ne) (MeasureTheory.measure_mono hU_sub)
+  have hc_ne : c ≠ 0 := hc_pos.ne'
+  have hc_ne_top : c ≠ ⊤ := hc_lt.ne
+  have hcR_ne : (c.toReal : ℂ) ≠ 0 := by
+    exact_mod_cast (ENNReal.toReal_pos hc_ne hc_ne_top).ne'
+
+  set μ' : MeasureTheory.Measure (AdeleRing (𝓞 F) F) := c⁻¹ • μ with hμ'_def
+  have hμ'B : μ' (AdelicBox.adelicBox F) = 1 := by
+    rw [hμ'_def, MeasureTheory.Measure.smul_apply, smul_eq_mul, ← hc_def,
+      ENNReal.inv_mul_cancel hc_ne hc_ne_top]
+  have hμ'Haar : μ'.IsAddHaarMeasure := by
+    rw [hμ'_def]
+    exact MeasureTheory.Measure.IsAddHaarMeasure.smul μ (c := c⁻¹)
+      (ENNReal.inv_ne_zero.mpr hc_ne_top) (ENNReal.inv_ne_top.mpr hc_ne)
+
+  have hμ_eq : μ = c • μ' := by
+    rw [hμ'_def, ← smul_assoc, smul_eq_mul,
+      ENNReal.mul_inv_cancel hc_ne hc_ne_top, one_smul]
+
+  have hFourier : ∀ w, fourierIntegral ψ μ f w
+      = (c.toReal : ℂ) * fourierIntegral ψ μ' f w := by
+    intro w
+    rw [fourierIntegral_def, fourierIntegral_def, hμ_eq, MeasureTheory.integral_smul_measure,
+      RCLike.real_smul_eq_coe_mul]
+    rfl
+
+  simp_rw [hFourier]
+  rw [tsum_mul_left, ← mul_assoc, inv_mul_cancel₀ hcR_ne, one_mul]
+  exact NumberField.AdelicFourier.tsum_eq_tsum_fourierIntegral_of_mem_pureTensorSet_of_measure_adelicBox_eq_one
+    F μ' hμ'B hψ hf

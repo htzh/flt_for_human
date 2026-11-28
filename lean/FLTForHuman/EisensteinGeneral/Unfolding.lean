@@ -141,7 +141,7 @@ private theorem principalEquiv_vadd (β : F) (x : AdeleRing (𝓞 F) F) :
     (principalEquiv F β) +ᵥ x = algebraMap F (AdeleRing (𝓞 F) F) β + x := rfl
 
 -- pin 114–130
-private theorem integrable_tsum_of_lintegral {X : Type*} [MeasurableSpace X] {μ : Measure X} {ι : Type*} [Countable ι]
+theorem integrable_tsum_of_lintegral {X : Type*} [MeasurableSpace X] {μ : Measure X} {ι : Type*} [Countable ι]
     {f : ι → X → ℂ} (hf : ∀ i, AEStronglyMeasurable (f i) μ) (hf' : ∑' i, ∫⁻ a, ‖f i a‖ₑ ∂μ ≠ ∞) :
     Integrable (fun a => ∑' i, f i a) μ := by
   have hf'' : ∀ i, AEMeasurable (fun a => ‖f i a‖ₑ) μ := fun i => (hf i).enorm
@@ -162,7 +162,7 @@ private theorem integrable_tsum_of_lintegral {X : Type*} [MeasurableSpace X] {μ
 variable (h : AdeleRing (𝓞 F) F → ℂ)
 
 -- pin 134–140
-private theorem integral_eq_tsum_setIntegral_adelicBox (hh : Integrable h (adelicAddHaar (𝓞 F) F)) :
+theorem integral_eq_tsum_setIntegral_adelicBox (hh : Integrable h (adelicAddHaar (𝓞 F) F)) :
     ∫ y, h y ∂(adelicAddHaar (𝓞 F) F)
       = ∑' ξ : F, ∫ x in adelicBox F, h (algebraMap F (AdeleRing (𝓞 F) F) ξ + x) ∂(adelicAddHaar (𝓞 F) F) := by
   have := isAddHaarMeasure_adelicAddHaar (𝓞 F) F
@@ -171,7 +171,7 @@ private theorem integral_eq_tsum_setIntegral_adelicBox (hh : Integrable h (adeli
     ∫ x in adelicBox F, h (γ +ᵥ x) ∂(adelicAddHaar (𝓞 F) F)).symm
 
 -- pin 142–148
-private theorem tsum_lintegral_adelicBox_translate_eq :
+theorem tsum_lintegral_adelicBox_translate_eq :
     ∑' ξ : F, ∫⁻ x in adelicBox F, ‖h (algebraMap F (AdeleRing (𝓞 F) F) ξ + x)‖ₑ ∂(adelicAddHaar (𝓞 F) F)
       = ∫⁻ y, ‖h y‖ₑ ∂(adelicAddHaar (𝓞 F) F) := by
   have := isAddHaarMeasure_adelicAddHaar (𝓞 F) F
@@ -180,13 +180,13 @@ private theorem tsum_lintegral_adelicBox_translate_eq :
     ∫⁻ x in adelicBox F, ‖h (γ +ᵥ x)‖ₑ ∂(adelicAddHaar (𝓞 F) F)
 
 -- pin 150–153
-private theorem integrableOn_adelicBox_translate (hh : Integrable h (adelicAddHaar (𝓞 F) F)) (ξ : F) :
+theorem integrableOn_adelicBox_translate (hh : Integrable h (adelicAddHaar (𝓞 F) F)) (ξ : F) :
     IntegrableOn (fun x => h (algebraMap F (AdeleRing (𝓞 F) F) ξ + x)) (adelicBox F) (adelicAddHaar (𝓞 F) F) := by
   have := isAddHaarMeasure_adelicAddHaar (𝓞 F) F
   exact (hh.comp_add_left (algebraMap F (AdeleRing (𝓞 F) F) ξ)).integrableOn
 
 -- pin 155–160
-private theorem integrableOn_adelicBox_tsum_translate (hh : Integrable h (adelicAddHaar (𝓞 F) F)) :
+theorem integrableOn_adelicBox_tsum_translate (hh : Integrable h (adelicAddHaar (𝓞 F) F)) :
     IntegrableOn (fun x => ∑' ξ : F, h (algebraMap F (AdeleRing (𝓞 F) F) ξ + x)) (adelicBox F)
       (adelicAddHaar (𝓞 F) F) := by
   refine integrable_tsum_of_lintegral (fun ξ => (integrableOn_adelicBox_translate F h hh ξ).aestronglyMeasurable) ?_
@@ -194,7 +194,7 @@ private theorem integrableOn_adelicBox_tsum_translate (hh : Integrable h (adelic
   exact hh.2.ne
 
 -- pin 162–168
-private theorem setIntegral_adelicBox_tsum_translate_eq (hh : Integrable h (adelicAddHaar (𝓞 F) F)) :
+theorem setIntegral_adelicBox_tsum_translate_eq (hh : Integrable h (adelicAddHaar (𝓞 F) F)) :
     ∫ x in adelicBox F, (∑' ξ : F, h (algebraMap F (AdeleRing (𝓞 F) F) ξ + x)) ∂(adelicAddHaar (𝓞 F) F)
       = ∫ y, h y ∂(adelicAddHaar (𝓞 F) F) := by
   rw [integral_eq_tsum_setIntegral_adelicBox F h hh]
@@ -207,7 +207,7 @@ private theorem productionPins_nu :
     (productionPins F).ν = (adelicAddHaar (𝓞 F) F)[|adelicBox F] := rfl
 
 -- pin 173–182
-private theorem whittakerCoefficient_productionPins_eq (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
+theorem whittakerCoefficient_productionPins_eq (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ)
     (φ : AdelicGL2 (𝓞 F) F → ℂ) (α : F) (g : AdelicGL2 (𝓞 F) F) :
     whittakerCoefficient F (productionPins F) ψ φ α g
       = ((adelicAddHaar (𝓞 F) F) (adelicBox F))⁻¹.toReal •
@@ -221,16 +221,16 @@ private theorem whittakerCoefficient_productionPins_eq (ψ : AddChar (AdeleRing 
 variable {F}
 
 -- pin 186–187
-private def bruhatSeries (φ : AdelicGL2 (𝓞 F) F → ℂ) (g' : AdelicGL2 (𝓞 F) F) : ℂ :=
+def bruhatSeries (φ : AdelicGL2 (𝓞 F) F → ℂ) (g' : AdelicGL2 (𝓞 F) F) : ℂ :=
   φ g' + ∑' ξ' : F, φ (adelicWeyl (𝓞 F) F * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ') * g')
 
 -- pin 189–191
-private def jacquetIntegrand (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ) (φ : AdelicGL2 (𝓞 F) F → ℂ) (ξ : F)
+def jacquetIntegrand (ψ : AddChar (AdeleRing (𝓞 F) F) ℂ) (φ : AdelicGL2 (𝓞 F) F → ℂ) (ξ : F)
     (g : AdelicGL2 (𝓞 F) F) (y : AdeleRing (𝓞 F) F) : ℂ :=
   φ (adelicWeyl (𝓞 F) F * unipotentGL2 y * g) * ψ (-(algebraMap F (AdeleRing (𝓞 F) F) ξ * y))
 
 -- pin 193–200
-private theorem integrable_jacquetIntegrand {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : IsGlobalAddChar F ψ)
+theorem integrable_jacquetIntegrand {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : IsGlobalAddChar F ψ)
     {φ : AdelicGL2 (𝓞 F) F → ℂ} (ξ : F) (g : AdelicGL2 (𝓞 F) F)
     (hint : Integrable (fun y => φ (adelicWeyl (𝓞 F) F * unipotentGL2 y * g)) (adelicAddHaar (𝓞 F) F)) :
     Integrable (jacquetIntegrand ψ φ ξ g) (adelicAddHaar (𝓞 F) F) := by
@@ -240,7 +240,7 @@ private theorem integrable_jacquetIntegrand {ψ : AddChar (AdeleRing (𝓞 F) F)
       (AutomorphicForm.norm_apply_eq_one_of_isGlobalAddChar F hψ _)
 
 -- pin 202–222
-private theorem integrand_eq {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : IsGlobalAddChar F ψ)
+theorem integrand_eq {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : IsGlobalAddChar F ψ)
     {φ : AdelicGL2 (𝓞 F) F → ℂ}
     (hN : ∀ (x : AdeleRing (𝓞 F) F) (g' : AdelicGL2 (𝓞 F) F), φ (unipotentGL2 x * g') = φ g')
     (ξ : F) (g : AdelicGL2 (𝓞 F) F) (x : AdeleRing (𝓞 F) F) :
@@ -268,7 +268,7 @@ private theorem integrand_eq {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : Is
   rw [hgrp, hchar]
 
 -- pin 224–245
-private theorem whittakerCoefficient_bruhatSeries_eq {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : IsGlobalAddChar F ψ)
+theorem whittakerCoefficient_bruhatSeries_eq {ψ : AddChar (AdeleRing (𝓞 F) F) ℂ} (hψ : IsGlobalAddChar F ψ)
     {φ : AdelicGL2 (𝓞 F) F → ℂ}
     (hN : ∀ (x : AdeleRing (𝓞 F) F) (g' : AdelicGL2 (𝓞 F) F), φ (unipotentGL2 x * g') = φ g')
     {ξ : F} (hξ : ξ ≠ 0) (g : AdelicGL2 (𝓞 F) F)

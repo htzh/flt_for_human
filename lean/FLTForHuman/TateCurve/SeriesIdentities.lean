@@ -148,6 +148,8 @@ spec-pin: Theorems/Thm_TateCurve_defectCoeff_zero.lean
 spec-pin: P2M/Sol/S_TateCurve_defectCoeff_zero.lean
 spec-pin: Theorems/Thm_TateCurve_equation_of_defectCoeff_eq_zero.lean
 spec-pin: P2M/Sol/S_TateCurve_equation_of_defectCoeff_eq_zero.lean
+spec-pin: Theorems/Thm_TateCurve_equation_pointX_pointY_of_defectCoeff_eq_zero.lean
+spec-pin: P2M/Sol/S_TateCurve_equation_pointX_pointY_of_defectCoeff_eq_zero.lean
 
 **Landing (AF108E) — the two normal forms.**  `pointX_normalForm` (198 pin `S_` lines) and
 `pointY_normalForm` (199) as the last two declarations of the module, at the pin's statements and the
@@ -1427,3 +1429,22 @@ theorem TateCurve.equation_of_defectCoeff_eq_zero {K : Type*} [NontriviallyNorme
   rw [hzero] at hexp
   exact sub_eq_zero.mp hexp
 
+/-
+## SET-AF112 insertion: the point coordinates lie on the curve when the defect vanishes
+
+`TateCurve.equation_pointX_pointY_of_defectCoeff_eq_zero` (23 pin lines): if every defect coefficient
+of `u` vanishes at each `v ≠ 0, 1`, then `(pointX q u, pointY q u)` satisfies the Weierstrass
+equation — the companion of `equation_of_defectCoeff_eq_zero`, stated with the defect hypothesis in
+the `v`-form the coefficient expansion produces and with the `q`-periodicity
+`pointX_zpow_mul`/`pointY_zpow_mul` carrying the annulus hypotheses.
+-/
+theorem TateCurve.equation_pointX_pointY_of_defectCoeff_eq_zero {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q u : K} (hD : ∀ v : K, v ≠ 0 → v ≠ 1 → ∀ N : ℕ, 0 < N → defectCoeff v N = 0) (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0) (hu : ∀ n : ℤ, q ^ n * u ≠ 1) : pointY q u ^ 2 + pointX q u * pointY q u = pointX q u ^ 3 + a₄ q * pointX q u + a₆ q := by
+  obtain ⟨n, hqu, hqu'⟩ := TateCurve.exists_zpow_mul_mem_annulus hq0 hq hu0
+  have hv0 : q ^ n * u ≠ 0 := mul_ne_zero (zpow_ne_zero n hq0) hu0
+  have hvlat : ∀ m : ℤ, q ^ m * (q ^ n * u) ≠ 1 := by
+    intro m
+    rw [← mul_assoc, ← zpow_add₀ hq0]
+    exact hu (m + n)
+  have hv1 : q ^ n * u ≠ 1 := by simpa using hvlat 0
+  have heq := TateCurve.equation_of_defectCoeff_eq_zero hq0 hq hv0 hvlat hqu hqu' (hD _ hv0 hv1)
+  rwa [TateCurve.pointX_zpow_mul hq0 n, TateCurve.pointY_zpow_mul hq0 n] at heq

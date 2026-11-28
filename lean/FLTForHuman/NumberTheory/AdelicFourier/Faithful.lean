@@ -418,7 +418,7 @@ local notation "𝔸" => AdeleRing (NumberField.RingOfIntegers F) F
 local notation "𝔸f" => FiniteAdeleRing (NumberField.RingOfIntegers F) F
 local notation "𝔸i" => InfiniteAdeleRing F
 
-private lemma valued_algebraMap_eq {v : HeightOneSpectrum (NumberField.RingOfIntegers F)}
+lemma valued_algebraMap_eq {v : HeightOneSpectrum (NumberField.RingOfIntegers F)}
     (N : NumberField.RingOfIntegers F) :
     Valued.v (algebraMap F (v.adicCompletion F)
         (algebraMap (NumberField.RingOfIntegers F) F N)) = v.intValuation N := by
@@ -437,7 +437,7 @@ private lemma exp_neg_one_pow (k : ℕ) : (exp (-1 : ℤ)) ^ k = exp (-(k : ℤ)
     push_cast
     ring
 
-private lemma exists_pow_subset_of_mem_nhds
+lemma exists_pow_subset_of_mem_nhds
     {v : HeightOneSpectrum (NumberField.RingOfIntegers F)}
     {t : Set (v.adicCompletionIntegers F)} (ht : t ∈ nhds 0) :
     ∃ k : ℕ, ∀ (y : v.adicCompletion F) (hy : y ∈ v.adicCompletionIntegers F),

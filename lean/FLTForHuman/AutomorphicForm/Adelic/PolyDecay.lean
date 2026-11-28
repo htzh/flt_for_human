@@ -654,13 +654,13 @@ variable (F : Type) [Field F] [NumberField F]
 
 attribute [local instance] NumberField.AdelicHaar.adeleBorel NumberField.AdelicHaar.borelSpace_adeleBorel
 
-private def haarModulus : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ :=
+def haarModulus : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ :=
   ((NNReal.toRealHom : ℝ≥0 →+* ℝ).toMonoidHom.comp (distribHaarChar (AdeleRing (𝓞 F) F))).toHomUnits
 
 private theorem adelicWeyl_inv : (adelicWeyl (𝓞 F) F)⁻¹ = adelicWeyl (𝓞 F) F := by
   rw [adelicWeyl, ← map_inv, gl2Weyl_inv]
 
-private theorem integrable_weyl_unipotent_mul (hα : ∀ x, 0 < ((haarModulus F x : ℝˣ) : ℝ))
+theorem integrable_weyl_unipotent_mul (hα : ∀ x, 0 < ((haarModulus F x : ℝˣ) : ℝ))
     (μ ν : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ) (hμ : IsUnitaryChar (𝓞 F) F μ) (hν : IsUnitaryChar (𝓞 F) F ν)
     (s : ℂ) (hs : 1 / 2 < s.re) (φ : AdelicGL2 (𝓞 F) F → ℂ)
     (hφ : IsInducedSection (𝓞 F) F (etaFst μ (haarModulus F) hα s) (etaSnd ν (haarModulus F) hα s) φ)

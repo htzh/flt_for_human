@@ -7241,3 +7241,24 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   a prefix probe is a probe, not the gate.
 - **seen**: 2026-11-27, SET-AF111B/G (fixed in 24 s of build after the cure; file-wide type checking
   230 s → 3.5 s).
+
+## FR-0340 [metadata, tool] — a by-name visibility scan over-counts "already public": `integrand_eq` is two theorems
+
+- **where**: SET-AF112's manager-side promotions for order B. The pin's Bruhat–Eisenstein `S_` file
+  states its unfolding engine `private`; the port holds 15 of those names privately in
+  `EisensteinGeneral/Unfolding.lean`, `NumberTheory/AdelicFourier/Faithful.lean` and
+  `AutomorphicForm/Adelic/PolyDecay.lean`. The promotion list was computed with a by-name scan
+  (`twin_scan`'s `PortIndex.by_name`): public hit → import it; private-only hit → promote it.
+- **symptom**: `integrand_eq` was classified "already public" because a public `integrand_eq` exists —
+  in `CuspForm.peterssonOnIntegrand`'s module, stating
+  `peterssonOnIntegrand Γ k F G = cosum (Γ := Γ) (petersson k F G)`, a *different theorem* in a
+  different namespace. The Unfolding copy stayed `private`, so order B's worker would have hit an
+  unimportable prerequisite at the first unfolding step.
+- **cause**: a last name is not a statement. `port_advise`'s substitute block matches by name and says
+  so ("name-anchored, a port declaration doing the same work under another name is invisible"); a
+  hand-rolled scan loses even that caveat.
+- **cure**: for a promotion, read the **statement** of every hit, not the name — the privcheck that
+  prints the candidate statements (`lean/tmp/af112/privcheck.py`) is the instrument; a public hit whose
+  statement differs is not a substitute, and the private-only list must be recomputed from the
+  statements. `integrand_eq` was promoted in a second pass (`Unfolding` 12 → 13 checked declarations).
+- **seen**: 2026-11-27, SET-AF112 ground prep.

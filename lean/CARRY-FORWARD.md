@@ -8,6 +8,58 @@ pin file's surface is deferred; delete it when the work lands. The general scopi
 
 Deferred API that has been ported and verified is in `Reserve/`, not here.
 
+### The modular-polynomial root row's missing premise, deferred by SET-AF112
+
+`WeierstrassCurve.bijOn_cyclicQuotientJ_isRoot_modularPolynomial_of_transcendental_j` (1,133 silo, 20
+premises) is on the AF ready shelf and is **not transcribable**: its premise
+`ModularCurve.ModularPolynomialData.dvd_resultant_of_mul` has **no port declaration** — `premcheck` on
+SET-AF112's scoping read reports `MISSING`, and `rg resultant lean/FLTForHuman` is empty, so the port
+does not hold the mathematics under another name either. That premise's own premise,
+`ModularCurve.phiIrreducible_all`, is one of the MD-005 false ported markers (a live `SOURCES` claim
+with no declaration). The deferred surface is therefore two nodes before the row:
+
+| pin node | S_ lines | its premises |
+|---|---:|---|
+| `ModularCurve.phiIrreducible_all` | (MD-005) | the phi construction block |
+| `ModularCurve.ModularPolynomialData.dvd_resultant_of_mul` | 134 | `phiIrreducible_all`, `ModularPolynomialData.minpoly_jqN_eq`, `transcendental_jq` |
+| `WeierstrassCurve.bijOn_cyclicQuotientJ_isRoot_modularPolynomial_of_transcendental_j` | 1,133 | the two above plus 18 ported rows |
+
+`minpoly_jqN_eq` and `transcendental_jq` are ported (`ModularCurve/ModularEquation/Existence.lean`,
+`ModularCurve/Defs/Jq.lean`), so the wave is the phi-irreducibility node plus the 134-line resultant
+row. Do not price the 1,133 row without them.
+
+### The Tate curve's defect-line rows, deferred by SET-AF112 (definition layer)
+
+Three rows of the Tate-curve point-arithmetic layer are definition-layer gates, not proof work:
+
+| row | silo | gate |
+|---|---:|---|
+| `TateCurve.lineCoeff_eq_zero` | 142 | `Def_TateCurve_QShift` (43 of 48 declarations absent) **and** `Def_TateCurve_DefectLines` (128 of 128 absent); its own private helper `four_mul_defectCoeff_eq_qshift'` is 119 lines and needs both |
+| `TateCurve.point_mul_eq_add_of_norm_le_one` (leaf) | 471 | `Def_TateCurve_TorsionParametrization` (42 of 43 absent) |
+| `TateCurve.point_mul_eq_add_of_norm_eq_one` (leaf) | 247 | same |
+
+The two `point_mul` rows are the parametrisation of the Tate curve's torsion by `u`, and
+`lineCoeff_eq_zero` is the defect-line vanishing that the parametrisation consumes; the shared
+definition module `TorsionParametrization` is the wave that unblocks all three.
+
+### The padic Tate-module rows, deferred by SET-AF112 (definition layer)
+
+`ModularCurve.rep_tateModule_jOne_comm` (24 silo) is on the AF ready shelf and has a definition gate
+bigger than itself: `Def_EllipticCurve_TateModule` is **89 declarations absent of 100** and
+`Def_ModularCurve_X1HeckeModule` 14 of 42. Its premise
+`ModularCurve.JOne.galois_smul_heckeAlgOne_smul` is ported, so the row is pure consumer work once the
+padic Tate-module definition layer lands.
+
+### The ray-class L-series leaves, deferred by SET-AF112 (definition layer)
+
+`M4aTorus.completedRayL_fe` (12,126 silo — the largest leaf of the D–S cone) and
+`NumberField.exists_continuousOn_exp_eq_rayClassLSeries` (684) need
+`Def_NumberField_CompletedRayL` (4 absent), `Def_NumberField_RayCharacterData` (10),
+`Def_NumberField_EuclideanIdealLattice` (2), `Def_FrobeniusDensity_ClassGroupLSeries` (5) and
+`Def_NarrowRayClassGroup` (63 of 67). `NumberField.ncard_primesOver_eq_finrank_of_isCyclotomicExtension_
+of_absNorm_modEq_one` (233) needs `Def_LanglandsTunnell_NormClass` (9 absent). Both are definition
+waves, not rows, and neither is on the D–S critical path this column is walking.
+
 ### The cuspidality pin's unreachable delta-lift block, deferred by SET-AF93B
 
 `P2M/Sol/S_LanglandsTunnell_isCuspidalFn_weightOneLift.lean` carries **40 private declarations
