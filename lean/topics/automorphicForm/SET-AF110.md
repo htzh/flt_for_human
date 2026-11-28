@@ -188,8 +188,11 @@ checked at its declaration site.
 Per order, as [../deligneSerre/TOPIC-scoping-a-ds-set.md](../deligneSerre/TOPIC-scoping-a-ds-set.md)
 §6: `check_port` **0 mismatch / 0 missing / 0 own**; the engine diff by hash; `#print axioms`; the silent
 edit loop and one locked `lake build`; `dedup --within`; `move_dead --dry-run`; a heartbeat probe pair
-recorded and not installed. The house policies carry unchanged (low-cap probe ladder, surface gate at
-review, **no `import Mathlib`**, declaration-scoped linter options only).
+and, for build time, **the low-cap fix loop rather than a measurement** — the probe-pair gate this set
+inherited was withdrawn mid-set by the reviewer's ruling (FR-0337; playbook §3.5 now opens with *never
+measure a blow-up*), so the ladder rows in this brief's table are recorded history, not a gate. The other
+house policies carry unchanged (surface gate at review, **no `import Mathlib`**, declaration-scoped linter
+options only).
 
 ## 5. Not cut — named and deferred (FR-0040)
 

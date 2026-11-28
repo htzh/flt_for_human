@@ -7155,3 +7155,89 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   re-declare at `Type*` (and keep the `ok` statement text) or transcribe the pin's row.
 - **seen**: 2026-11-27, SET-AF110B (`NumberField.InfiniteAdeleRing.continuous_ringEquiv_mixedSpace_symm`,
   now importable from `AdelicFourier/NonzeroTrace.lean`).
+
+## FR-0336 [pin] — one pin statement spelled two ways in two pin files: the omission tool's ALPHA tier can never credit it, and "de-qualifying to match" breaks the other wire
+
+- **where**: SET-AF111D's engine gate. `sub_mem_integralFiniteAdeles` is stated **bare** in
+  `S_…measure_setOf_forall_addChar_finitePart_mul_eq_one.lean:33`
+  (`(hy : y ∈ integralFiniteAdeles (𝓞 F) F) …`) and **qualified** in the file that
+  `NumberTheory/AdelicFourier/Space.lean` wires (`… ∈ AdelicBox.integralFiniteAdeles (𝓞 F) F`, binders
+  `{a b}`). The port's copy spells the qualified form, so `port_omissions.py`'s ALPHA tier — which compares
+  the *text* of the pin's copy — reports the row **MISSING** even though it is declared, imported and used.
+- **measurement**: de-qualifying `Space.lean:442–444` to the bare spelling (statement-preserving in Lean:
+  the module opens `NumberField.AdelicBox`) turned `check_port` on that module **red** —
+  `MISMATCH NumberField.AdelicFourier.sub_mem_integralFiniteAdeles (direct name)` — because Space.lean's own
+  wire carries the qualified text. Reverted; the module is `33 ok / 0 mismatch` again.
+- **cause**: the pin's own files are not textually consistent, and both the checker and the omission tool are
+  text-based; a port declaration can satisfy only the wire that spells it the same way.
+- **rule**: a `port_omissions` MISSING whose row *is* declared and imported is a pin-internal spelling
+  divergence, not an omission — check the two pin sources' texts before touching anything, and never
+  "de-qualify to match" without running `check_port` on the module that owns the other spelling. Record the
+  divergence in the module header and accept the non-credit.
+- **seen**: 2026-11-27, SET-AF111D (`TraceDual` wire reads 6/7; the row is at `Space.lean:442`).
+
+## FR-0337 [process] — a build-time blow-up is isolated and *fixed*, not measured
+
+- **where**: SET-AF111's work orders carried the older gate "a heartbeat probe pair recorded in the module
+  header and never installed", and the orders dutifully produced `40000 / 20000 / 10000 / 5000 / 1000`
+  ladders. The reviewer's ruling (2026-11-27): those measurements are waste — a number nobody uses costs a
+  turn, and bounding a blow-up is not fixing it.
+- **the rule, now stated at the top of [porting-playbook.md](../porting-playbook.md) §3.5**:
+  **"NEVER measure a blow-up."** The edit loop runs at the low cap because the low cap is the
+  instance-inference **detector**; §3.5 also says *bound, do not measure*. On an abort: isolate the declaration, and fix the inference — a `def` that
+  blocks unification, a search that unfolds a coercion, an instance diamond, or a local `let` (zeta) in the
+  working context; a genuine long proof is restructured, never exempted. Two probes only: stub a proof with
+  `sorry` (type vs proof cost, one run) and stub the whole module's proofs (its floor, one run). **Never** a
+  ladder, a threshold bisection, or a comparison of two durations, and never an installed
+  `set_option maxHeartbeats` / `synthInstance.maxHeartbeats` — including the pin's.
+- **what a report says**: what blew up, what was changed, and that the module is silent at 200 k. Nothing
+  else.
+- **seen**: 2026-11-27, SET-AF111 (gate withdrawn mid-wave; the two live orders were steered, and the
+  preamble + brief rewritten).
+
+## FR-0338 [process] — run `premcheck.py` at *scoping*, not at landing: the readiness test credits a premise by last name, and a weaker namesake passes it
+
+- **where**: SET-AF111. The recipe's §4 says to run `premcheck.py` before cutting a shelf whose rows are
+  consumers; this set skipped it and discovered the shadows inside the orders instead. Run over the twelve
+  rows afterwards, it reads **54 ported / 3 SHADOW**, and all three matter:
+  `MeasureTheory.Measure.exists_eq_prod_of_forall_map_add_left` (the port's namesakes ask a **finite**
+  second marginal, the pin a σ-finite exhaustion — order A had to transcribe the pin's 149-line proof
+  privately), `AlgebraicCurve.KummerCover.finrank_eq` (a different `finrank_eq`; order C inlined the
+  one-line mathlib proof), and `NumberField.AdelicFourier.norm_apply_eq_one_of_isGlobalAddChar` (SET-AF109
+  met the same one).
+- **cause**: `frontier.py --ready` resolves a premise by graph node, and the *node* is "ported" when a
+  declaration of that last name exists; a weaker or differently-stated copy satisfies the read. The
+  statement-level check is the only instrument that sees it, and it is cheap (seconds over a whole set).
+- **rule**: `python3 tmp/<set>/premcheck.py $(cat tmp/<set>/rows.txt)` is part of **§0's read**, next to
+  the def-layer classification, and its `premise problems: N` line goes in the brief's §0 with the three
+  names. A SHADOW is priced into the order that consumes it: either the pin's proof transcribed privately
+  (and named in the engine diff), or an inlined mathlib line, or — if it is a real row — a supplement
+  module and a CARRY-FORWARD entry.
+- **seen**: 2026-11-27, SET-AF111 (3 shadows, 2 of them resolved inside the orders and 1, order A's,
+  by a private 149-line transcription).
+
+## FR-0339 [Lean, mathlib] — `Algebra K (LaurentSeries K)` has two instances, and a lemma stated with one is *unappliable* where the other is in scope (an `AlgHom`-telescope `isDefEq` failure, and a 215 s kernel timeout behind it)
+
+- **where**: SET-AF111's slot row (`ModularCurve.exists_slot_algHom_modularFunctionFieldFullC_of_ord_neg`,
+  906 pin lines). Two `Place.exists_ord_mul_eq_order_of_algHom_laurentSeries` call sites
+  (`exists_refCusp`, `exists_slotData`) failed with `failed to synthesize CoeT (↥M →ₐ[K] L) …`, and one
+  `rfl` (`phiRF_algebraMap`) compared two whole-carrier spellings and took **215 s** of kernel type checking
+  (diagnostics: `Set` ×4511, `SetLike.coe` ×3014, `inferInstance` ×2191).
+- **cause**: the imported lemma's statement was elaborated with **`HahnSeries.instAlgebra`**, while the file's
+  instance search picks **`HahnSeries.powerSeriesAlgebra`** (the one `algebraMap_laurentSeries_eq_single`
+  needs); the two `AlgHom` telescopes are not `isDefEq`, and `rfl` across the carriers unfolds the
+  `adjoin`/`divisorExpansionsC` tower instead of reducing.
+- **cure**: the port *already documents this diamond and ships the instance-free form*
+  (`AlgebraicCurve/Place/LaurentSeriesRingHom.lean`: `Place.exists_ord_mul_eq_order_of_ringHom`, stated with a
+  `RingHom` and an explicit `algebraMap`-compatibility hypothesis). Use it — one import, no instance
+  installed, no priority pinning. For the `rfl`, split the comparison into the two **projection** rewrites
+  (`rw [IntermediateField.coe_algebraMap_apply, IntermediateField.coe_algebraMap_apply]`), which is the same
+  "one syntactic form at the bound site" rule as §3.5.
+- **second lesson, about evidence**: this defect was invisible to every reading the previous order took.
+  `check_port` reads 64 ok (it hashes *statement text*); a prefix-probe log shows no errors (the errors are in
+  declarations after the cut); and a build that never exits 0 writes **no `.olean`** — so "it is silent, only
+  wall time is open" was the wrong diagnosis, and the right one was "there are errors, and that is why the
+  build cannot finish". The gate that sees it is **the whole-file edit loop**, whose exit code is the reading;
+  a prefix probe is a probe, not the gate.
+- **seen**: 2026-11-27, SET-AF111B/G (fixed in 24 s of build after the cure; file-wide type checking
+  230 s → 3.5 s).

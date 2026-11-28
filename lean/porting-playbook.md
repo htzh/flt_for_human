@@ -348,7 +348,8 @@ for a rename or a copy outside the header, `own:` for a deliberate restatement �
 **(3) Deliverable** —
 module path and declaration list, public vs `private`; **(4) Route** — the mathlib map, the
 alternatives, the recorded negatives, and a **stop-early risk list with a deviation protocol**;
-**(5) Build discipline** — the bound and the ladder (§3.5), copied in; **(6) Verification** —
+**(5) Build discipline** — the bound, the low cap and the no-measurement rule (§3.5), copied in;
+**(6) Verification** —
 checker run (`0 mismatched / 0 missing`), consumer zones, `#print axioms`, `grep -c` of anything
 dropped. Update the
 numbers in place when reconnaissance re-prices; re-cut a topic that straddles waves **by
@@ -397,6 +398,15 @@ subagent per set, review before the next, no polling) is §0.2.
 
 ### 3.5 The build ladder
 
+**NEVER measure a blow-up.** A build-time blow-up is a defect to *fix*, never a quantity to *report*.
+No heartbeat ladders, no downward (or upward) bisection of the cap, no "silent at X / fails at Y" tables,
+no timing comparisons, no probe pair "recorded for the record". The number is never used for anything: a
+threshold that is found and written down fixes nothing, while every run that produces one costs a turn and
+holds the tree against the other agents. What a blow-up *is* — instance inference — and how to find the
+offending declaration are §3.5's two probes below; what to do when you have found it is to fix it. A report
+on build time says one sentence: **what blew up, what was changed, and that the module is silent at
+200 000.** If you catch yourself writing a table of caps, stop and fix the inference instead.
+
 Build time is the one unbounded cost. What a build costs is the **dependent cascade**, not the
 command's breadth: `lake env lean <file>` writes no `.olean` and recompiles nothing; `lake build
 <module>` builds dependencies but never dependents; only building a dependent (or `lake build`)
@@ -421,8 +431,8 @@ cautionary case is `WeierstrassCurve/Isogeny/TwoCurveDescent.lean`: a 12× overr
 (`maxHeartbeats 48000000`, `synthInstance.maxHeartbeats 8000000`, transcribed from the pin) sat in
 `section GateDescent`, the record attributed the module's multi-minute elaboration to the declaration
 that carried the bump, and the real cost was a zeta-blind `isDefEq` in a *different* declaration
-([../notes/instance-friction-case-study.md](../notes/instance-friction-case-study.md)). Bisect before
-trusting any attribution, including an old one.
+([../notes/instance-friction-case-study.md](../notes/instance-friction-case-study.md)). Isolate before
+trusting any attribution, including an old one (the two probes below; never a cap ladder).
 
 **Bound, do not measure.** The only question a build command ever answers is *"does it finish inside
 `timeout N`?"*. Never `time`, never chase a duration, never compare 33 s with 40 s: a number you do not
@@ -433,49 +443,42 @@ buys nothing. Any compile that can plausibly run a minute is a **background job 
 live stream, because a foreground turn is killed at its shell cap mid-elaboration — which loses the
 turn and can leave an orphan holding the build lock.
 
-**Diagnosing a blow-up: the probe ladder.** A timeout is a probe first and a diagnosis second. Every
-step is a `lake env lean` turn of seconds, none re-elaborates the module at the library cap, and
-every probe stays on the low cap — the cap is a *bisector*, not only a detector, because it turns a
-minute-long elaboration into a one-second abort. Worked example: the `ZLattice` pair's three
-`PeriodizeLift` statements, 429 s → 5.5 s at the same declarations
-([logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md)).
+**Isolating a blow-up: two probes, no measurements.** The low cap is the *detector*: it turns a
+minute-long elaboration into a one-second abort, which is the whole reason the edit loop runs at 200 000.
+From the abort there are exactly two probes, each a `lake env lean` turn of seconds, and each exists to
+*narrow the fix*, never to quantify the cost:
 
-1. **Statement or proof?** Stub the suspect declaration's *proof* with `sorry` and re-run the edit
-   loop. The body is skipped but the statement still elaborates: if the timeout survives, the cost
-   is in the *type* and no tactic change can move it — and `trace.Meta.synthInstance` will show
-   nothing, because no search runs.
-   Before bisecting at all, run that probe on the **whole module** — every theorem proof `sorry`,
-   statements, `def`s and instances verbatim — which gives the module's *floor* in one run. If the
-   floor is over the bound, no proof-side edit can reach it: the cost is in the frozen types, and the
-   levers are deleting the section variables no statement uses (§6) or naming the types (a statement
-   change, and for a wired module an `own:` decision — not an agent's call).
-2. **Isolate the declaration.** With no `.olean` of the module, `import` is not available: build a
-   scratch file from the module's imports plus the definitions the declaration needs. Replace the
-   *proofs* of the declarations before the target with `sorry` — keep their statements, the target
-   needs the names and types — keep the target's own statement, and put one `example` per candidate
-   behind a `-- PROBE <label>` comment. One run then reports every offender at once, and the labels
-   give the attribution. Stubbing the *prelude's proofs* is what makes the probe cheap; truncating
-   the file at a prefix line and appending `end`s does not, and usually does not parse either. When
-   the module's own `.olean` exists there is a cheaper pair: `one:<line>` (only the target's proof
-   kept, every earlier proof stubbed) and `keepafter:<line>` (only the target's proof stubbed, the
-   rest kept). Bound each, and the attribution is settled without profiling anything.
-3. **Shrink the statement, not the file.** The same application can be free in a `have` or a `def`
-   body and expensive in a declaration's *type*; bisect the statement's terms, not the module's.
-4. **Read the counters.** `set_option diagnostics true` on the one declaration prints the reduction
-   table (`ContinuousMap.instNorm ↦ 3854`, `Elem ↦ 10283`, …); `set_option trace.Meta.isDefEq true`
-   at a *tiny* cap (`-DmaxHeartbeats=3000`) prints the comparisons just before the abort and names
-   the subterm that will not unify.
-5. **Classify, then fix.** Instance *search* (`synthInstance` timeout) → the §6 brick recipe.
-   Instance *terms* compared by an argument check (`isDefEq`/`whnf` timeouts, no search goal, a big
-   instance such as `Norm C(α,E) = dist x 0` unfolding `sInf`/`Finset.sum`) → give the type one
-   syntactic form: name it once and use the name where it is **bound**; the statement text then
-   deviates, so it is a registered `own:` deviation (§4), not a bump. Its mirror image: when the
-   comparison differs from its goal only by **zeta** — a local `let` in the working context — nothing
-   needs a name, and naming more makes it worse: *remove* the `let`s, state the intermediates at the
-   explicit terms, and `rw` with the `rfl`-level projection lemmas (§6). A `≤`/`⊆`-lemma whose
-   *result* is a membership, applied inside a statement that is itself large, is the same class:
-   state the element form once (`SetLike.le_def.mp`) and apply that at the site. Arithmetic defeq →
-   the pin's bump rule (§6). A genuine proof cost → restructure.
+* **stub one proof with `sorry`** (the statement still elaborates) — is the cost in the type or in the
+  proof?
+* **stub the whole module's proofs at once** — its floor, in one run; if the floor is over the bound, no
+  proof-side edit can reach it and the levers are §6's (delete unused section variables, name the type).
+
+Neither is a ladder: you do not run either at a series of caps, and you do not report the caps you tried.
+Worked example: the `ZLattice` pair's three `PeriodizeLift` statements, 429 s → 5.5 s at the same
+declarations ([logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md)).
+
+**Then fix it.** With the offending declaration in hand, the levers, in the order that usually works:
+
+1. **Shrink the statement, not the file** — the same application can be free in a `have` or a `def` body
+   and expensive in a declaration's *type*; bisect the statement's terms, not the module's. In a scratch
+   file, one `example` per candidate behind a `-- PROBE <label>` comment reports every offender at once
+   and the labels give the attribution; with the module's own `.olean` present, `one:<line>` (only the
+   target's proof kept, earlier proofs stubbed) and `keepafter:<line>` (only the target's proof stubbed)
+   settle it in two runs.
+2. **Name the instance that will not unify, once.** `set_option diagnostics true` on the one declaration
+   prints the reduction table (`ContinuousMap.instNorm ↦ 3854`, `Elem ↦ 10283`, …); `trace.Meta.isDefEq`
+   at a tiny cap prints the comparison that aborts. This is *attribution for the fix*, not a measurement
+   of the blow-up: one run, read the name, act.
+3. **Classify, then fix.** Instance *search* (`synthInstance` timeout) → the §6 brick recipe. Instance
+   *terms* compared by an argument check (`isDefEq`/`whnf` timeouts, no search goal, a big instance such
+   as `Norm C(α,E) = dist x 0` unfolding `sInf`/`Finset.sum`) → give the type one syntactic form: name it
+   once and use the name where it is **bound**; the statement text then deviates, so it is a registered
+   `own:` deviation (§4), not a bump. Its mirror image: when the comparison differs from its goal only by
+   **zeta** — a local `let` in the working context — nothing needs a name, and naming more makes it worse:
+   *remove* the `let`s, state the intermediates at the explicit terms, and `rw` with the `rfl`-level
+   projection lemmas (§6). A `≤`/`⊆`-lemma whose *result* is a membership, applied inside a statement that
+   is itself large, is the same class: state the element form once (`SetLike.le_def.mp`) and apply that at
+   the site. Arithmetic defeq → the pin's bump rule (§6). A genuine proof cost → restructure.
 
 A probe that cannot finish inside a minute is the *probe's* fault, not the file's: it is still
 elaborating what it should have stubbed.
@@ -858,9 +861,10 @@ longer write-ups are in the records, and the instance-shaped ones, with re-runna
 - **`FunLike` at a bare function type** (`ℍ → ℂ`) — pass the bundled form.
 - **A kernel `Subtype.val` defeq between concrete `adjoin` carriers** — prove a generic coercion
   once at abstract carriers.
-- **A slow module is usually cumulative, but not always** — bisect by milestone, and run the
-  ladder's isolation probes (§3.5) before accepting *any* attribution, including one in an old
-  record: `TwoCurveDescent`'s cost was a single declaration, and the record named another one.
+- **A slow module is usually cumulative, but not always** — bisect by milestone, and run §3.5's two
+  isolation probes (never a cap ladder: §3.5 bans measuring a blow-up) before accepting *any*
+  attribution, including one in an old record: `TwoCurveDescent`'s cost was a single declaration, and
+  the record named another one.
 - **A `show`/`exact` that differs from its goal only by zeta** (a local `let ψ := …` in the working
   context) — `isDefEq` abandons the syntactic path and unfolds the tower (`FunctionField =
   FractionRing (CoordinateRing ·)`; the reduction table shows `CoordinateRing ↦ 592`,
@@ -956,8 +960,8 @@ decisions stay text-derived — computed from the same parse the checker reads, 
 checker (a subprocess couples the tool to the instrument and costs seconds per call — §4).
 
 The loop: a coverage report from the pin graph chooses the target; `port_advise.py` prices reuse
-and duplication before coding; `port_graph.py` measures the redundancy afterwards; the ladder
-and the checker are the per-wave gate. The `fltdata` object answers "who consumes this pin
+and duplication before coding; `port_graph.py` measures the redundancy afterwards; the cascade price
+(`build_ladder.py`) and the checker are the per-wave gate. The `fltdata` object answers "who consumes this pin
 module" before scoping (`d.def_index[stem]` against `d.stmt_defs(i)` / `d.proof_defs(i)`), and
 `spec/check_port.py <module>` diffs any module as soon as its header names its pin sources.
 

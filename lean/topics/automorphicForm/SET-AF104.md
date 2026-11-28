@@ -289,7 +289,10 @@ is the set's one policy call:
   SET-AF103A's `main` (silent at 2 M) is the standing precedent, and its entry in
   [CARRY-FORWARD.md](../../CARRY-FORWARD.md) is the shape this set's gaps take.
 * **the fix is run on the playbook's probe ladder at the low cap, not by escalating caps**
-  (playbook §3.5): the *downward* ladder `40000 / 20000 / 10000 / 5000 / 1000` one run per value to
+  (playbook §3.5). **Superseded 2026-11-27 (FR-0337):** the playbook now opens §3.5 with *never measure a
+  blow-up* — the *downward* ladder below is withdrawn, and only the two isolation probes (stub one proof;
+  stub the module floor) remain. The text is kept as the record of what this set did.
+  The old practice was: the *downward* ladder `40000 / 20000 / 10000 / 5000 / 1000` one run per value to
   localise the stuck step; the **module floor** (every theorem proof `sorry`, statements/`def`s/
   instances verbatim) to decide in one run whether the cost is in the types at all; then
   statement-vs-proof on the suspect, then the `one:<line>`/`keepafter:<line>` isolation pair (the
@@ -300,7 +303,8 @@ is the set's one policy call:
   one syntactic form, which changes the statement and is therefore my decision (a registered `own:`
   deviation), not the worker's; a genuine proof cost → the pin's own `have`-blocks cut into private
   lemmas, each **silent at the low cap** and summing below the removed one.
-* **the cap is a bisector, never a budget**: the acceptance test is "does it fit `timeout N` at cap
+* **the cap is a bisector, never a budget** *(also superseded, FR-0337: a report carries no ladder at
+  all)*: the acceptance test is "does it fit `timeout N` at cap
   N", so what the report carries is the ladder *both ways* (which values fail, which first passes),
   the `-- PROBE` label → attribution and the counter's named subterm — never an ascending search for
   the minimum passing cap, which measures a number nobody needs. Only a residual that survives steps

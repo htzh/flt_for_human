@@ -312,7 +312,11 @@ claims to have ported.
 2. `#print axioms` on every headline → `[propext, Classical.choice, Quot.sound]`.
 3. The module's own `lake build` under `flock`/`timeout`, and the module silent. A `Replayed` line
    is **not** evidence that its `.olean` exists — a missing one breaks any probe of an importing
-   file, and the cure is to build that module explicitly (FR-0033).
+   file, and the cure is to build that module explicitly (FR-0033). **Build time is gated by silence at
+   the 200 k edit loop, never by a measurement**: the playbook's §3.5 now opens with *never measure a
+   blow-up* — no heartbeat ladders, no cap bisection, no "probe pair" in a report. A blow-up is isolated
+   with §3.5's two probes and **fixed**; the order's report says what blew up, what changed, and that the
+   module is silent (FR-0337). Do not put a ladder requirement in a work order.
 4. `dedup.py` / `move_dead.py` on the module; wrapper-over-engine `shape` clusters are the pin's
    own pattern and stay, with the reason recorded.
 5. A `spec/` consumer zone with a real cross-module composition (no `#check`s), whose error count

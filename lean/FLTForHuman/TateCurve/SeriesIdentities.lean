@@ -146,6 +146,8 @@ spec-pin: Theorems/Thm_TateCurve_defect_qExpansion.lean
 spec-pin: P2M/Sol/S_TateCurve_defect_qExpansion.lean
 spec-pin: Theorems/Thm_TateCurve_defectCoeff_zero.lean
 spec-pin: P2M/Sol/S_TateCurve_defectCoeff_zero.lean
+spec-pin: Theorems/Thm_TateCurve_equation_of_defectCoeff_eq_zero.lean
+spec-pin: P2M/Sol/S_TateCurve_equation_of_defectCoeff_eq_zero.lean
 
 **Landing (AF108E) — the two normal forms.**  `pointX_normalForm` (198 pin `S_` lines) and
 `pointY_normalForm` (199) as the last two declarations of the module, at the pin's statements and the
@@ -330,6 +332,39 @@ namespace already publishes every name the pin's export list carries.
   * Locked `lake build FLTForHuman.TateCurve.SeriesIdentities`: **0 warning lines** (3117 jobs, incl.
     the `Defect`/`Tails` dependencies); the order-scoped `tmp/af110/probe-C.lean` prints nothing, and
     `rg` finds no other declaration of any of the 13 new names anywhere in `lean/FLTForHuman`.
+
+  **Landing (AF111E) — vanishing defect coefficients put the point on the curve.**
+  `TateCurve.equation_of_defectCoeff_eq_zero` (25 pin lines, 1 declaration) at the end of the module,
+  at the pin's statement and the port's subject namespace.  It is the converse of `defect_qExpansion`
+  above: the pin's 25-line proof is transcribed verbatim (`hu1` from `hu 0`, `hall` splitting off the
+  constant term through this module's own `defectCoeff_zero`, then `hexp` with the whole series
+  collapsed by `tsum_congr` + `tsum_zero` and `sub_eq_zero.mp`), with the two same-module citations
+  written `TateCurve.defectCoeff_zero` / `TateCurve.defect_qExpansion` because the insertion sits
+  **outside** the `namespace TateCurve` block, after `defectCoeff_zero`.  Whole-module insertion:
+  **+10 lines** of code (1386 → 1396, and **1428 lines** with this note), **+1 declaration**,
+  replacing the scaffold `sorry`; no
+  pre-existing line touched, and none of the fifteen `private` prelude rows is promoted or restated.
+
+  * **Engine diff** (gate 2, `review.py`): **27** pin sources, **118** pin decls; module **62** decls,
+    **55 by hash**, **1 by name (hash differs)** — the pre-existing `exists_zpow_mul_mem_annulus` fold
+    recorded above, unchanged — and **6 unaccounted**, the same six pre-existing headlines the pin
+    spells `solution`.  The new row is matched **by statement hash** against *both* of its pin
+    sources (`Theorems/Thm_…:7` and `P2M/Sol/S_…:9`, hash `6882f78fa5fc`).
+  * `check_port` **17 ok / 0 mismatch / 0 missing / 0 own / 0 kw** — **16 before, 17 after** (the
+    predicted 17).
+  * `#print axioms` on all **17** public declarations: `[propext, Classical.choice, Quot.sound]`, no
+    `sorryAx`.
+  * `dedup --within --module '*TateCurve/SeriesIdentities*'`, all three tiers at `--min-cost 0`:
+    **0 clusters** (62 declarations).
+  * `move_dead --dry-run`: **0 declarations, 0 lines**.
+  * Heartbeat probe pair (measured, **never installed** — FR-0225): the module is **silent at
+    `-DmaxHeartbeats=3000`** and **first fails at `2500`** (`(deterministic) timeout at whnf` at
+    `defect_qExpansion_loc`, a pre-existing row) — the **same pair AF110C recorded**, so this row
+    costs < 500 heartbeats.  40000 / 10000 / 5000 / 3000 are silent; 2500 / 2000 / 1500 / 1000 fail
+    inside pre-existing rows.  No `set_option maxHeartbeats` here, ever.
+  * Locked `lake build FLTForHuman.TateCurve.SeriesIdentities`: **0 warning lines** (3117 jobs); the
+    order-scoped `tmp/af111/probe-E.lean` (this module plus order E's other one) prints nothing, and
+    `rg` finds no other declaration of `equation_of_defectCoeff_eq_zero` in `lean/FLTForHuman`.
 -/
 import FLTForHuman.TateCurve.PointSeries
 import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
@@ -1368,4 +1403,27 @@ theorem TateCurve.defectCoeff_zero {K : Type*} [NontriviallyNormedField K] [IsUl
   simp only [defectCoeff, cauchyMul_zero, xCoeffFull_zero, yCoeffFull_zero, a₄Coeff_zero,
     a₆Coeff_zero, zero_mul, add_zero]
   linear_combination hnodal
+
+/-
+## SET-AF111 insertion: TateCurve.equation_of_defectCoeff_eq_zero
+
+Vanishing defect coefficients put the point on the curve.
+
+`TateCurve.equation_of_defectCoeff_eq_zero` (25 pin lines): if every defect coefficient vanishes then
+`(pointX q u, pointY q u)` satisfies the Weierstrass equation — the converse of SET-AF110C's
+`defect_qExpansion`, and the first half of the point-arithmetic layer's "defect = distance from the curve"
+dictionary.
+-/
+theorem TateCurve.equation_of_defectCoeff_eq_zero {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q u : K} (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0) (hu : ∀ n : ℤ, q ^ n * u ≠ 1) (hqu : ‖q * u‖₊ < 1) (hqu' : ‖q * u⁻¹‖₊ < 1) (h : ∀ N : ℕ, 0 < N → defectCoeff u N = 0) : pointY q u ^ 2 + pointX q u * pointY q u = pointX q u ^ 3 + a₄ q * pointX q u + a₆ q := by
+  have hu1 : u ≠ 1 := by simpa using hu 0
+  have hall : ∀ N : ℕ, defectCoeff u N = 0 := by
+    intro N; cases N with
+    | zero => exact TateCurve.defectCoeff_zero hu1
+    | succ n => exact h (n + 1) n.succ_pos
+  have hexp := TateCurve.defect_qExpansion hq0 hq hu0 hu hqu hqu'
+  have hzero : ∑' N : ℕ, defectCoeff u N * q ^ N = 0 := by
+    have hterm : ∀ N : ℕ, defectCoeff u N * q ^ N = 0 := fun N => by rw [hall N, zero_mul]
+    rw [tsum_congr hterm, tsum_zero]
+  rw [hzero] at hexp
+  exact sub_eq_zero.mp hexp
 

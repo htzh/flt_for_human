@@ -1268,6 +1268,38 @@ Still open, and not this set's business:
   needs the import direction checked first (the weak module is *above* the strong one today, which is the
   cycle SET-AF109D reported).
 
+### `sub_mem_integralFiniteAdeles` is spelled two ways in the pin (SET-AF111D)
+
+`S_NumberField_AdelicFourier_measure_setOf_forall_addChar_finitePart_mul_eq_one.lean:33` states the row
+**bare** (`y ∈ integralFiniteAdeles (𝓞 F) F`, binders `{y z}`), while the source that
+`NumberTheory/AdelicFourier/Space.lean` wires states it **qualified** (`AdelicBox.integralFiniteAdeles …`,
+binders `{a b}`). The port's copy at `Space.lean:442` spells the qualified form, so
+`tools/deps/port_omissions.py`'s ALPHA tier reports the row MISSING on the `TraceDual` wire (6/7) although it
+is declared, imported and used. **Do not "fix" this by de-qualifying** — measured: that turns
+`check_port` on `Space.lean` red (`MISMATCH`, direct name), because that module's own wire carries the
+qualified text. The only real cure is an alias (a second statement text) or a change to the omission tool's
+matching; both are quiet-tree work. FR-0336 records it.
+
+### `Measure.exists_eq_prod_of_forall_map_add_left` — a mathlib-supplement row the port lacks, and two weaker namesakes
+
+The D–S column's `adelicAddHaar` product decomposition consumes the pin's own supplement
+`MeasureTheory.Measure.exists_eq_prod_of_forall_map_add_left`
+(`S_MeasureTheory_Measure_exists_eq_prod_of_forall_map_add_left.lean`, **149 lines / 7 declarations**): a
+measure on `α × β` is a product iff every section of the **σ-finite exhaustion** has finite measure
+(`∃ B, ⋃ n, B n = univ ∧ ∀ n K, ρ (K ×ˢ B n) < ⊤`). The port has two declarations of that last name and
+**neither is the statement**: `AutomorphicForm.LocalIntertwining.FiniteAdeleAssembly.…` and
+`EisensteinGeneral.FiniteAdelicFactorization.…` both ask the *finite* second marginal
+(`∀ K, ρ (K ×ˢ univ) < ⊤`), which is strictly weaker and useless for `adelicAddHaar` (its second marginal is
+the finite-adele measure, σ-finite but not finite). SET-AF111A transcribed the pin's proof `private` into
+`AutomorphicForm/Adelic/PolyDecay.lean` (7 declarations) rather than add a supplement module mid-order.
+
+The work, when someone takes it: one mathlib-supplement module (its home is with the other supplements, see
+`topics/TOPIC-mathlib-supplements.md`), the pin's seven declarations public, its own `spec-pin:` wire, and
+then (a) `PolyDecay.lean`'s seven private helpers deleted in favour of the import, and (b) the two weaker
+namesakes either re-stated as the stronger lemma (if their proofs support it) or renamed so the readiness
+test stops crediting them. The pair is a **FR-0047 shadow** and FR-0338 records the process lesson: run
+`premcheck.py` at scoping.
+
 ## Cleanup families
 
 ### Two pin-chapter namespaces still in use
