@@ -19,6 +19,11 @@ References (public mirror, pinned):
 spec-pin: Theorems/Thm_MeasureTheory_Lp_finiteDimensional_and_finrank_le_of_forall_ae_norm_le_mul_norm.lean
 spec-pin: P2M/Sol/S_MeasureTheory_Lp_finiteDimensional_and_finrank_le_of_forall_ae_norm_le_mul_norm.lean
 
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_MeasureTheory_finiteDimensional_and_finrank_le_of_forall_norm_le_mul_eLpNorm_restrict.lean>
+  spec-pin: Theorems/Thm_MeasureTheory_finiteDimensional_and_finrank_le_of_forall_norm_le_mul_eLpNorm_restrict.lean
+  spec-pin: P2M/Sol/S_MeasureTheory_finiteDimensional_and_finrank_le_of_forall_norm_le_mul_eLpNorm_restrict.lean
+
 ## Port notes (order AF107F)
 
 * **Surface = the pin's.** 5 declarations, 5 public / 0 private, against the pin's 6 entries
@@ -42,6 +47,31 @@ spec-pin: P2M/Sol/S_MeasureTheory_Lp_finiteDimensional_and_finrank_le_of_forall_
   `Fin (Module.finrank 𝕜 W)` (`isDefEq`). Module floor **fails at 1000 and passes at
   2000** (its failing site is the type of `norm_sq_eq_integral`, an instance-search timeout), so
   part of this module's cost is in the statements, not only in the proofs.
+
+## Landing (AF108H) — the norm-`eLpNorm` restrict row
+
+A sixth declaration joins the five:
+`finiteDimensional_and_finrank_le_of_forall_norm_le_mul_eLpNorm_restrict`, the norm-`eLpNorm`
+variant of this module's `∀ᵐ ‖φ x‖ ≤ C ‖φ‖` row — the same `L²`-compactness lemma in the form
+the spectral arguments use. It is the honest derivation the order allowed for: the proof embeds
+`V` into `Lp ℂ 2 (μ.restrict s)` and feeds the AE-form row, so no second version of the
+compactness engine was needed. 275 lines (215 before); `check_port`
+**6 ok / 0 mismatch / 0 missing / 0 own / 0 kw**. No substitution, no import added.
+
+* **API drift, body only** (`v4.33.1` → `v4.34.0`, the same class the module's own row hit):
+  `MemLp` is now the `def` `eLpNorm f p μ < ∞`, so the pin's structure witness
+  `⟨hmeas φ hφ, htop⟩` is the single term `htop` and the measurability hypothesis (still in the
+  statement) is consumed by an anonymous `have` at the head of `hW`, with the reason recorded
+  there; `eLpNorm_eq_zero_iff` now takes only `p ≠ 0` (the `AEStronglyMeasurable` argument is
+  gone); `haveI : IsFiniteMeasure (μ.restrict s)` and `haveI := hfin` became `have` per
+  `linter.style.haveILetI`. No linter is silenced.
+* **Engine gate**: pin sources 4, pin decls 8, module decls 6; **6 by hash**, 0 by name (hash
+  differs), 0 unaccounted.
+* **`dedup --within`**: 0 clusters. **`move_dead --dry-run`**: 0 declarations, 0 lines.
+* **Axioms**: all six public declarations, `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **Heartbeat probe** (recorded, **never installed**): **silent at 40000, timeout at 20000**
+  (`isDefEq`, `card_le_of_orthonormal`'s `Fin (Module.finrank 𝕜 W)`) — the pair AF107F recorded
+  for this module, unchanged by the new row.
 -/
 
 import Mathlib.MeasureTheory.Function.L2Space
@@ -198,3 +228,73 @@ theorem finiteDimensional_and_finrank_le_of_forall_ae_norm_le_mul_norm
     _ ≤ C ^ 2 * (μ Set.univ).toReal := Nat.floor_le hNN
 
 end MeasureTheory.Lp
+
+theorem MeasureTheory.finiteDimensional_and_finrank_le_of_forall_norm_le_mul_eLpNorm_restrict
+    {X : Type*} [MeasurableSpace X] (μ : Measure X) (s : Set X) (hsm : MeasurableSet s) (hs : μ s ≠ ⊤)
+    (V : Submodule ℂ (X → ℂ))
+    (hmeas : ∀ φ ∈ V, AEStronglyMeasurable φ (μ.restrict s))
+    (hinj : ∀ φ ∈ V, (∀ x ∈ s, φ x = 0) → φ = 0)
+    (C : ℝ)
+    (hsup : ∀ φ ∈ V, ∀ x ∈ s, ‖φ x‖ ≤ C * (eLpNorm φ 2 (μ.restrict s)).toReal) :
+    FiniteDimensional ℂ V ∧ (Module.finrank ℂ V : ℝ) ≤ C ^ 2 * (μ s).toReal := by
+  classical
+  have hfinμ : IsFiniteMeasure (μ.restrict s) := isFiniteMeasure_restrict.mpr hs
+
+  have hzero : ∀ φ ∈ V, eLpNorm φ 2 (μ.restrict s) = 0 → φ = 0 := by
+    intro φ hφ h0
+    refine hinj φ hφ fun x hx => ?_
+    have h := hsup φ hφ x hx
+    rw [h0, ENNReal.toReal_zero, mul_zero] at h
+    exact norm_le_zero_iff.mp h
+
+  have hW : ∀ φ ∈ V, MemLp φ 2 (μ.restrict s) := by
+    intro φ hφ
+    -- API drift (`v4.33.1` → `v4.34.0`): `MemLp` is now the `def` `eLpNorm f p μ < ∞`, so the pin's
+    -- structure witness `⟨hmeas φ hφ, htop⟩` has one field left; the measurability hypothesis is
+    -- consumed here instead (it is part of the statement, and the pin's `MemLp` carried it).
+    have : AEStronglyMeasurable φ (μ.restrict s) := hmeas φ hφ
+    by_cases htop : eLpNorm φ 2 (μ.restrict s) < ⊤
+    · exact htop
+    · have hinf : eLpNorm φ 2 (μ.restrict s) = ⊤ := not_lt_top_iff.mp htop
+      have hφ0 : φ = 0 := by
+        refine hinj φ hφ fun x hx => ?_
+        have h := hsup φ hφ x hx
+        rw [hinf, ENNReal.toReal_top, mul_zero] at h
+        exact norm_le_zero_iff.mp h
+      rw [hφ0]
+      exact MemLp.zero
+
+  let L : ↥V →ₗ[ℂ] ↥(Lp ℂ 2 (μ.restrict s)) :=
+    { toFun := fun w => (hW w w.2).toLp (w : X → ℂ)
+      map_add' := fun w w' => by
+        have h := MemLp.toLp_add (hW w w.2) (hW w' w'.2)
+        exact h
+      map_smul' := fun c w => by
+        have h := MemLp.toLp_const_smul c (hW w w.2)
+        exact h }
+  have hL : ∀ w : ↥V, L w = (hW w w.2).toLp (w : X → ℂ) := fun _ => rfl
+  have hLinj : Function.Injective L := by
+    intro w w' h
+    have h0 : L (w - w') = 0 := by rw [map_sub, h, sub_self]
+    have hae : ((w - w' : ↥V) : X → ℂ) =ᵐ[μ.restrict s] 0 := by
+      have h1 : ((L (w - w') : ↥(Lp ℂ 2 (μ.restrict s))) : X → ℂ) =ᵐ[μ.restrict s] ((w - w' : ↥V) : X → ℂ) :=
+        MemLp.coeFn_toLp (hW (w - w') (w - w').2)
+      rw [h0] at h1
+      exact h1.symm.trans (Lp.coeFn_zero ℂ 2 (μ.restrict s))
+    have hnorm : eLpNorm ((w - w' : ↥V) : X → ℂ) 2 (μ.restrict s) = 0 :=
+      (eLpNorm_eq_zero_iff two_ne_zero).mpr hae
+    exact sub_eq_zero.mp (Subtype.ext (hzero _ (w - w').2 hnorm))
+
+  have hVim : ∀ φ ∈ LinearMap.range L, ∀ᵐ x ∂(μ.restrict s), ‖(φ : X → ℂ) x‖ ≤ C * ‖φ‖ := by
+    rintro _ ⟨w, rfl⟩
+    rw [hL, Lp.norm_toLp]
+    filter_upwards [MemLp.coeFn_toLp (hW w w.2), ae_restrict_mem hsm] with x hx hxs
+    rw [hx]
+    exact hsup _ w.2 x hxs
+  obtain ⟨hfin, hrank⟩ :=
+    MeasureTheory.Lp.finiteDimensional_and_finrank_le_of_forall_ae_norm_le_mul_norm (LinearMap.range L) C hVim
+  have hfin' := hfin
+  have hfinV : FiniteDimensional ℂ ↥V := Module.Finite.equiv (LinearEquiv.ofInjective L hLinj).symm
+  refine ⟨hfinV, ?_⟩
+  rw [← LinearMap.finrank_range_of_inj hLinj, ← Measure.restrict_apply_univ s]
+  exact hrank

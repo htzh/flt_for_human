@@ -1508,6 +1508,47 @@ does not read as ready again (FR-0317's lesson: the shadow is invisible to the g
 The scaffold module `ModularCurve/WeightOneIntegral.lean` was deleted with the row (SET-AF101's precedent:
 deleting is more honest than leaving a `sorry`-bodied headline).
 
+### `CoeffMap`'s `linearIndependent_coeffMap_comp_of_linearIndependent` is `ok` and unappliable — an instance-fixed public signature
+
+`ModularCurve.linearIndependent_coeffMap_comp_of_linearIndependent`
+(`ModularCurve/X1/CoeffMap.lean:270`) is a public, checker-green row that **no consumer can apply**: its
+stored signature elaborates `Module κ (LaurentSeries κ)` to `Algebra.toModule`, while an ordinary
+`LinearIndependent κ f` in a consumer elaborates it to `HahnSeries.instModule`, and the two do not unify
+(reproduced in a two-line probe against `CoeffMap.lean` alone, FR-0324). Its companion
+`QExpAutBaseChange.coeff_smul'` (`:89`) is instance-fixed the same way and does not fire at v4.34's
+`HahnSeries` instances.
+
+SET-AF108D paid for it with a one-declaration `private` restatement
+(`RegularDifferentialsCuspForm.lean`'s `linearIndependent_coeffMap_comp`, the engine diff's single
+unaccounted row), which can be deleted once the fix lands.
+
+**The fix must keep the checker green**, and that constrains it: `check_port` hashes the pin's statement
+*text*, so respelling the existing row would read `MISMATCH`. The shape that works is a **second**,
+instance-polymorphic lemma (stated with `HahnSeries.coeff_smul` so both elaborations meet), with the pin's row
+kept as its corollary — then the consumer imports the polymorphic one and the pin's row keeps its `ok`.
+
+### Two hub promotions SET-AF108's transcriptions point at (2026-11-27)
+
+Both are the FR-0266/§4 shape: a row's engine is **public in the pin and `private` in the port**, so the
+consumer transcribes it. Neither blocks anything; each is a deletion waiting for a quiet tree.
+
+**(a) `EisensteinGeneral.Arch.majorant_integrable`** (`EisensteinGeneral/ArchKType.lean:729`) is
+`private`, so order AF108F transcribed the pin's 18-line row into
+`EisensteinGeneral/PieceWeylIntegrability.lean` (statement hash-identical, kept `private`). Its sibling
+`norm_pow_le` is `private` in the same module but **has a public copy** at
+`AutomorphicForm.LocalIntertwining.ComplexAtomLimit.norm_pow_le`, so this is the only one of the pair with
+no public route. Promote it at the pin's statement, point the copy at it, and the 18 lines go.
+
+**(b) nine `private` constant-field-extension rows** in `AlgebraicCurve/Genus/ConstantFieldExtension.lean`:
+`W7XL2.{liftPlace, liftPlace_spec, liftPlace_comap, ord_liftPlace, eq_liftPlace, liftPlace_injective,
+ord_algebraMap_eq_zero_of_forall_ne}` and `TorsionDescentDeriv.{constantsAreBase_of_isAlgClosed,
+exists_riemann_inequality}`. Order AF108A transcribed all nine (public, at the pin's names) into
+`Genus/ConstantFieldExtensionDivisor.lean` because a `private` declaration is not importable — and the
+promotion is **not mechanical on its own**: two of the nine also depend on the module's `private divOf`, so
+the round must promote `divOf` with them (or re-route those two through
+`HasPrincipalDivisors.exists_divisor`, which is what AF108A did). `port_advise` already reports the nine as
+`port_private: true, port_public_count: 0`, so the tool sees the gap even when it cannot act on it.
+
 ### SET-AF107's four carry-forward items (2026-11-27)
 
 **(a) `hasCanonicalDivisor_of_fg` — a public promotion in a hub.** Order B needed the pin's

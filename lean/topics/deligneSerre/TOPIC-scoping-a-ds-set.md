@@ -215,6 +215,22 @@ graph premise, is some public declaration of that premise reachable from the hom
 and 80 premise edges it reads `problems 0`, and it found D's cycle by construction (the row had to be
 re-homed mid-order). Run it after the first landing of any set with insertions.
 
+**A consumer set is priced by its *statements*, and its risk is a premise that is only name-matched.** The
+line budget tells a set with engines apart from a set of consumers, and the two need different instruments.
+SET-AF107 (engines) priced at 7 % "already in the port" and needed the silo and the statement count;
+SET-AF108 (consumers: it took the nineteen rows the previous set made ready) priced at 14 %, with one row at
+369/388 — and its one real risk was a premise whose port copy is a different theorem with the same last
+name. The check is `lean/tmp/af108/premcheck.py`: for every premise, parse the premise's own `Theorems/`
+wrapper and look its declarations up in the port index **by statement**, then report `ported` / `SHADOW` /
+`MISSING`. On SET-AF108's 48 premise edges it found one exception, and it was a **generalisation** (the port's
+`Place.min_ord_le_ord_add` drops two hypotheses) rather than a shadow. Run it before cutting any shelf whose
+rows are consumers.
+
+**The collision probe cannot run until the last order lands**, and every order of both sets discovered that
+independently. Tell the orders to run an *order-scoped* probe over the modules that already have oleans plus
+a name sweep of `lean/FLTForHuman`, and keep the full `collision-probe.lean` for the set-end gates; a probe
+that dies on a sibling's missing `.olean` is not evidence of a collision.
+
 **A moved headline's `.olean` keeps its name.** Deleting a scaffold headline from its old module's source
 does not retract it: the new home fails "has already been declared" until the old module is rebuilt
 (FR-0320). One `flock`ed `lake build <old module>` before believing a duplicate-name error.

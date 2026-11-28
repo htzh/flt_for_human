@@ -42,6 +42,11 @@ spec-pin: P2M/Sol/S_NumberField_mixedEmbedding_summable_norm_schwartzMap_ringOfI
 spec-pin: Theorems/Thm_NumberField_mixedEmbedding_exists_forall_tsum_fractionalIdeal_weight_le_rpow_neg.lean
 spec-pin: P2M/Sol/S_NumberField_mixedEmbedding_exists_forall_tsum_fractionalIdeal_weight_le_rpow_neg.lean
 
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_NumberField_mixedEmbedding_traceForm_mixedSpace_nondegenerate.lean>
+  spec-pin: Theorems/Thm_NumberField_mixedEmbedding_traceForm_mixedSpace_nondegenerate.lean
+  spec-pin: P2M/Sol/S_NumberField_mixedEmbedding_traceForm_mixedSpace_nondegenerate.lean
+
 ## Port notes (order AF107F, ported at pin `aa2d8b3` against the port's mathlib `v4.34.0`)
 
 * **Surface = the pin's.** 12 declarations, 12 public / 0 private, against the pin's 16
@@ -73,6 +78,27 @@ spec-pin: P2M/Sol/S_NumberField_mixedEmbedding_exists_forall_tsum_fractionalIdea
   Module floor (every proof `sorry`, statements verbatim): **passes at 1000**, so the cost is in
   the proof term, not in the types. No cap is installed; the module elaborates at the standard
   cap and at the edit loop's 200 k.
+
+## Landing (AF108H) — the trace-form nondegeneracy row
+
+A thirteenth declaration joins the twelve: `traceForm_mixedSpace_nondegenerate`,
+`(Algebra.traceForm ℝ (mixedSpace K)).Nondegenerate`, the consumer of this module's own
+`trace_mixedEmbedding` (22 pin `S_` lines). 479 lines now (471 before); `check_port`
+**13 ok / 0 mismatch / 0 missing / 0 own / 0 kw**. No substitution and no import: the pin's
+proof is the cheapest route (`LinearMap.BilinForm.nondegenerate_of_det_ne_zero (latticeBasis K)`,
+the matrix identity `toMatrix = (traceMatrix ℚ (integralBasis K)).map (algebraMap ℚ ℝ)` through
+`traceForm_toMatrix`/`traceMatrix_apply`/`trace_mixedEmbedding`, then
+`Algebra.discr_not_zero_of_basis`); it elaborated at this mathlib unchanged.
+
+* **Engine gate** over the same ten pin sources: pin decls **18**, module decls **13**;
+  **13 by hash**, 0 by name (hash differs), **0 unaccounted**.
+* **`dedup --within`**: the same **1** cluster as before this row
+  (`exists_forall_norm_embedding_sub_le_impl` ↔ `…_sub_le`, the pin's own headline↔engine
+  pair). **`move_dead --dry-run`**: 0 declarations, 0 lines.
+* **Axioms**: all 13 public declarations, `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **Heartbeat probe**: unchanged by this row — fails at 80000 (`whnf`, in `Weight`'s
+  `mul_le_mul`), passes at 100000, the module's bisector as AF107F recorded it. The new row is
+  not the worst site.
 -/
 
 import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.Basic
@@ -459,3 +485,16 @@ theorem exists_forall_tsum_fractionalIdeal_weight_le_rpow_neg
   simpa only [hterm] using hle
 
 end NumberField.mixedEmbedding
+
+theorem NumberField.mixedEmbedding.traceForm_mixedSpace_nondegenerate
+    (K : Type*) [Field K] [NumberField K] :
+    (Algebra.traceForm ℝ (mixedSpace K)).Nondegenerate := by
+  apply LinearMap.BilinForm.nondegenerate_of_det_ne_zero _ (latticeBasis K)
+  have h : LinearMap.BilinForm.toMatrix (latticeBasis K) (Algebra.traceForm ℝ (mixedSpace K))
+      = (Algebra.traceMatrix ℚ (integralBasis K)).map (algebraMap ℚ ℝ) := by
+    ext i j
+    rw [Algebra.traceForm_toMatrix, Matrix.map_apply, Algebra.traceMatrix_apply,
+      latticeBasis_apply, latticeBasis_apply, ← map_mul, NumberField.mixedEmbedding.trace_mixedEmbedding,
+      Algebra.traceForm_apply, eq_ratCast]
+  rw [h, ← RingHom.mapMatrix_apply, ← RingHom.map_det, ← Algebra.discr_def, map_ne_zero]
+  exact Algebra.discr_not_zero_of_basis ℚ (integralBasis K)

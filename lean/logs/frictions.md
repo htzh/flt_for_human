@@ -6877,3 +6877,76 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   error. The same care applies to a deletion: a deleted declaration stays visible through its olean until
   the module is rebuilt.
 - **seen**: 2026-11-27, SET-AF107D.
+
+## FR-0321 [checker] — a pin row that states its own type binders explicitly must be written with them, or the checker reads `MISMATCH` although both statements are the same
+
+- **where**: SET-AF108A, the 729-row's `rebase`/`ord_rebase`. The pin declares
+  `theorem rebase {k K L} [Field k] [Field K] [Field L] …` — the binders are in the *declaration*.
+- **symptom**: the port first wrote the same theorem inside a `section` with `variable (k K L) …`, which
+  is the house default; `check_port` read **MISMATCH** on both, twice, while the statement is identical.
+- **cause**: the checker diffs the declaration's **text** up to `:=`. A `variable`-bound hypothesis or type
+  parameter appears nowhere in that text, so a section-variable spelling is not the pin's statement *text*
+  even when it is the same statement. (The mirror image of FR-0318: there the *hash* was too weak because
+  the pin's hypotheses were section variables; here it is too strict because the port's are.)
+- **cure / rule**: when the pin writes its binders in the declaration, write them in the declaration too —
+  copy the pin's binder block verbatim and keep the section for the auxiliary lemmas. `rg` the pin's
+  declaration line before choosing a section style; a MISMATCH on a row you believe is transcribed is this
+  trap before it is anything else.
+- **seen**: 2026-11-27, SET-AF108A.
+
+## FR-0322 [Lean] — a pin whose two namesakes live in one namespace collide in the port, and `check_port` hashes the *source text*, so the fix is `open` order, not qualification
+
+- **where**: SET-AF108C. The pin's `mapPoint`/`reduceHom` are one scope; in the port `TDescent.mapPoint` and
+  `WeierstrassCurve.mapPoint` / `WeierstrassCurve.reduceHom` both exist.
+- **symptom**: qualifying the names in the port's statement (`TDescent.mapPoint`) is the obvious fix and it
+  makes the statement **MISMATCH** — the checker diffs the statement text, and the pin writes the bare name.
+- **cause**: two different constraints on the same line. Elaboration needs an unambiguous name; the checker
+  needs the pin's *spelling*. Qualification solves the first and breaks the second.
+- **cure / rule**: resolve by **`open` order** — `open … TDescent WeierstrassCurve` (a bare name resolves to
+  the first `open`ed namespace that has it; measured), and do not `open` the third namespace that also has
+  it (`WeierstrassCurve.Affine`). No local alias, no qualified spelling, statement text unchanged.
+- **second half of the same finding**: a declaration-scoped `set_option … in` must come **before** the doc
+  comment of the declaration it scopes, or Lean rejects it — so the shape is
+  `set_option linter.style.haveILetI false in` / `/-- doc -/` / `theorem …`, not the reverse.
+- **seen**: 2026-11-27, SET-AF108C (12 instance locals in 5 declarations, all declaration-scoped).
+
+## FR-0323 [Lean] — a local hypothesis of class type *is* an instance, so the pin's `haveI := h` is redundant (and its `linter.style.haveILetI` complaint is avoidable)
+
+- **where**: SET-AF108B. The pin writes `haveI := hfd` (for `hfd : FiniteDimensional L F`, `hι : Nonempty ι`)
+  in row 237's `main`, and needs the same in row 206; `linter.style.haveILetI` fires on both.
+- **measurement**: delete the `haveI`s — the proofs still elaborate, because Lean 4's typeclass resolution
+  already sees **every local context entry whose type is a class**, explicit-binder or not. (The linter's own
+  message says so: `have` inlines the value, which is irrelevant for a `Prop`.)
+- **effect**: three shapes that look different are one: the pin's `haveI := h`, a plain `have h := …`
+  (registered as a local instance by Lean 4), and the hypothesis itself. So the `haveILetI` silences that the
+  last two sets carried — SET-AF107C's two, this set's F's three, C's twelve — are each *avoidable* where the
+  binder is already in scope, and only needed where the value is introduced by the proof itself
+  (an `isAddHaarMeasure`/`Regular` instance built from data, which is the case that does need it).
+- **rule**: before silencing `linter.style.haveILetI`, try deleting the `haveI`/`letI`; if the binder is a
+  hypothesis, the proof usually still goes through. Record which of the two cases it was.
+- **seen**: 2026-11-27, SET-AF108B (no linter silenced in that module).
+
+## FR-0324 [port bug] — a public lemma whose signature fixes an instance can be unapplicable from every consumer, and no gate sees it
+
+- **where**: SET-AF108D. `ModularCurve.linearIndependent_coeffMap_comp_of_linearIndependent`
+  (`ModularCurve/X1/CoeffMap.lean:270`) is `ok` against its pin and is public, but it cannot be *applied*:
+  its stored signature elaborates `Module κ (LaurentSeries κ)` to `Algebra.toModule`, while an ordinary
+  `LinearIndependent κ f` in a consumer elaborates the same argument to `HahnSeries.instModule`, and the
+  two do not unify (reproduced in a two-line probe against `CoeffMap.lean` alone). Its companion
+  `QExpAutBaseChange.coeff_smul'` (`:89`) is instance-fixed the same way and does not fire at v4.34's
+  `HahnSeries` instances.
+- **symptom**: a consumer that cites the lemma gets a type mismatch at the *instance* argument, not at the
+  statement; nothing about the lemma looks wrong, and `check_port` reads it `ok` (it hashes the statement
+  text, and the text is right).
+- **cause**: instance-implicit arguments are resolved at *elaboration* time, and a module that states a
+  lemma with the arguments of its own file's instances bakes those instances into the stored type. The
+  consumer's context then supplies a different (defeq-by-name, not by-instance) module structure.
+- **effect**: a public API hole that the three tiers are blind to — the statement tier is green, the engine
+  diff is green (the row is declared), and only *using* it fails. SET-AF108D paid for it with a private
+  restatement (`linearIndependent_coeffMap_comp`, one declaration, the engine diff's only "unaccounted"
+  row) whose proof is the same lemma with the instance-polymorphic `HahnSeries.coeff_smul`.
+- **cure**: restate the lemma with instance-polymorphic arguments (so both elaborations meet), or state the
+  polymorphic form as a *second* lemma and keep the pin's row as its corollary — **do not** change the
+  pin's statement text, which the checker hashes (`MISMATCH` would be the price). Not done here: it is
+  another set's module and the change must keep that module's checker green.
+- **seen**: 2026-11-27, SET-AF108D (workaround: a private restatement; registered in CARRY-FORWARD).

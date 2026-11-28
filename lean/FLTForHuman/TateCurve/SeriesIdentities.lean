@@ -1,8 +1,9 @@
 /-
   The convergence and `q`-multiplication identities of the Tate curve's point series.
 
-  Ten identities of the `q`-series layer of the Tate curve (seven landed by AF106, three more by
-  AF107H — the three `*_zpow_mul`/`sOne_*` rows at the end of this list):
+  Twelve identities of the `q`-series layer of the Tate curve (seven landed by AF106, three more by
+  AF107H — the three `*_zpow_mul`/`sOne_*` rows — and two more by AF108E, the two `*_normalForm` rows
+  at the end of this list):
 
   * `hasSum_xfun`, `hasSum_yfun`: the two rational functions `xfun w = w / (1 - w)²` and
     `yfun w = w² / (1 - w)³` are the sums of their geometric-type expansions in `w`;
@@ -19,7 +20,12 @@
     of the `xfun` expansion, by the `ℕ × ℕ` double-sum regrouping;
   * `pointX_zpow_mul`, `pointY_zpow_mul`: the `q`-periodicity of `pointX`/`pointY` for every integer
     power, `pointX q (q ^ n * u) = pointX q u` — the stated input of the deferred
-    torsion-parametrisation layer (CARRY-FORWARD), statements kept exactly.
+    torsion-parametrisation layer (CARRY-FORWARD), statements kept exactly;
+  * `pointX_normalForm`, `pointY_normalForm`: the two coordinates as one `u`-term plus a `tsum` over the
+    positive powers of `q`,
+    `pointX q u = xfun u + ∑' n, (xfun (q ^ (n+1) * u) + xfun (q ^ (n+1) * u⁻¹) - 2 * xfun (q ^ (n+1)))`
+    (and the `y`-analogue) — the normal forms the point-arithmetic layer starts from, the first step of
+    SET-AF101's torsion-parametrisation dossier (CARRY-FORWARD).
 
   Transcribed from the ten pins below (pinned `aa2d8b3`, 157 + 69 + 22 + 19 + 19 + 17 + 17 lines for
   AF106's seven, then 101 + 22 + 22 for AF107H's three), whose names and statements are the pins' (no
@@ -121,6 +127,83 @@ References (public mirror, pinned):
   spec-pin: P2M/Sol/S_TateCurve_pointX_zpow_mul.lean
   spec-pin: Theorems/Thm_TateCurve_pointY_zpow_mul.lean
   spec-pin: P2M/Sol/S_TateCurve_pointY_zpow_mul.lean
+
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_TateCurve_pointX_normalForm.lean>
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_TateCurve_pointY_normalForm.lean>
+  spec-pin: Theorems/Thm_TateCurve_pointX_normalForm.lean
+  spec-pin: P2M/Sol/S_TateCurve_pointX_normalForm.lean
+  spec-pin: Theorems/Thm_TateCurve_pointY_normalForm.lean
+  spec-pin: P2M/Sol/S_TateCurve_pointY_normalForm.lean
+
+**Landing (AF108E) — the two normal forms.**  `pointX_normalForm` (198 pin `S_` lines) and
+`pointY_normalForm` (199) as the last two declarations of the module, at the pin's statements and the
+port's subject namespace (`TateCurve`); the pin's generated `P2MW.S_TateCurve_pointX_normalForm` /
+`…pointY_normalForm` labels are dropped.  This is the order's **new engine**: the pin's two `S_` files
+between them declare the same **10 private helpers** (22 pin rows → 12 port rows; `port_plan` prices the
+duplication at 163 removable lines), and they are transcribed here **once**, at the pin's names:
+
+  * `summable_xfun_pow_mul` (19), `summable_yfun_pow_mul` (28): `∑' n, xfun (q^(n+1) * v)` converges,
+    by `NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero` + `nnnorm_xfun_of_lt_one` /
+    `nnnorm_yfun_of_lt_one` (the `yfun` bound uses `‖w‖₊ ^ 2 ≤ ‖w‖₊` under `‖w‖₊ ≤ 1`);
+  * `xTerm_neg_add_one` (16), `yTerm_neg_add_one` (17): the negative-index terms are the `u⁻¹` series,
+    via `xfun_inv` / `yfun_inv` and `∀ n, q ^ n * u ≠ 1`;
+  * `xTerm_natCast_add_one` (3), `yTerm_natCast_add_one` (3): the `ℕ ↪ ℤ` re-indexing;
+  * `tsum_xTerm_eq` (25), `tsum_yTerm_eq` (31): the two-sided split of the `ℤ`-indexed `tsum`, by
+    mathlib's `tsum_of_nat_of_neg_add_one` + `Summable.tsum_eq_zero_add`, and for `y` the `tsum_sub` /
+    `tsum_neg` of the two `u⁻¹` series (both need `summable_*_pow_mul`, not just summability of the
+    `u`-series);
+  * `pointX_split` (7), `pointY_split` (14): the split forms carrying `-2 * s₁ q` / `+ s₁ q`.
+
+The two headlines then rewrite `s₁ q` by SET-AF107H's `sOne_eq_tsum_xfun` and recombine the three
+`tsum`s with `HasSum.add` / `HasSum.sub` / `HasSum.mul_left` + `tsum_eq`; `ring` closes both.
+Nothing is transcribed from the pin's `p2m_open`/`p2m_export` scaffolding: the port's `TateCurve`
+namespace already publishes every name the pin's export list carries.
+
+  * **Engine diff** (gate 2, `review.py`): **17** pin sources, **57** pin decls; module **40** decls,
+    **33 by hash**, **1 by name (hash differs)** — the pre-existing `exists_zpow_mul_mem_annulus` fold
+    recorded above — and **6 unaccounted**, the six pre-existing headlines the pin spells `solution`.
+    All 10 helpers and both headlines match **by hash**: the prelude is the pin's 162-line block
+    (`section SummabilityHelpers` … `end TwoSidedSplit`) **verbatim**, and the headline proofs are the
+    pin's bodies verbatim.
+  * **Prelude size**: the pin's shared block is **162 lines / 10 declarations (163 lines by
+    `port_plan`'s measure)**; in the module it is **166 lines** (+4 `omit` lines, below) inside a
+    **174-line** `section NormalForm` (the block, a doc-comment heading, `open Filter`, the section
+    `variable`, `end`).  Whole-module insertion: **+215 lines**, **12 declarations** (10 private + 2
+    public), no line removed but the two scaffold `sorry`s.
+  * **Four `omit [IsUltrametricDist K] [CompleteSpace K] in` lines** (declaration-scoped, statements
+    untouched): `xTerm_neg_add_one`, `yTerm_neg_add_one`, `xTerm_natCast_add_one`,
+    `yTerm_natCast_add_one` use neither the ultrametric instance nor completeness — they are pure
+    `xfun_inv`/`yfun_inv`/`zpow` rewrites — and the pin's `variable` block auto-includes both, so
+    `linter.unusedSectionVars` fires.  Same cure as `norm_le_of_le_geometric` above; no `set_option`
+    is added anywhere.
+  * **One `open Filter`** inside the new section: the pin carries `Filter` in its `p2m_open` line and
+    `Tendsto` (used by `squeeze_zero_norm'`) is not at root; the port's module-level `open` line does
+    not include it and the older declarations do not need it.
+  * **Two proof-level adaptations** (silent module, statements untouched): the pin's
+    `· simpa using xTerm_zero q u` / `… yTerm_zero …` become `· simp` — `xTerm_zero`/`yTerm_zero` are
+    `@[simp]`, so `simpa using` trips `linter.unnecessarySimpa` (FR-0319: an info line counts).
+  * `check_port` **12 ok / 0 mismatch / 0 missing / 0 own / 0 kw** — 10 before, 12 after: the order's
+    number (7 pre-existing + AF107H's 3 + these 2).
+  * **Surface probe** (`tmp/af108/probe-surface-SI-E.lean`, `private` dropped from all ten helpers):
+    **22 ok / 0 mismatch / 0 missing / 0 own** — every one of the ten is a pin row and promotes
+    cleanly.  Whether to promote is the manager's call (the pin has them `private`).
+  * `#print axioms` on all **12** public declarations: `[propext, Classical.choice, Quot.sound]`, no
+    `sorryAx`.
+  * `dedup --within --module '*TateCurve/SeriesIdentities*'`, all three tiers at `--min-cost 0`:
+    **0 clusters** (40 declarations).  The pin's own two headlines have the same conclusion in the two
+    `S_` files, but the port writes one declaration each, so no pair is left.
+  * `move_dead --dry-run`: still **2 declarations, 22 lines** — the *same* pre-existing pair
+    (`summable_pairTerm`, `summable_succ_prod`) the escape clause above records; all 10 new helpers are
+    live (each has a caller: the `tsum_*_eq` rows call the summability and re-indexing rows, the two
+    splits call the `tsum_*_eq` rows, the headlines call the splits).
+  * Heartbeat probe pair (measured, **never installed**): the module is **silent at
+    `-DmaxHeartbeats=2500`** and **first fails at `2200`** (`(deterministic) timeout at whnf`); 40000 /
+    20000 / 10000 / 5000 / 3000 are silent too.  The pre-existing module was silent at 2000 / failed at
+    1500, so the twelve new declarations moved the floor by well under 1 k heartbeats — still ~1 % of
+    the 200 000 edit-loop cap.  No `set_option maxHeartbeats` here, ever.
+  * Locked `lake build FLTForHuman.TateCurve.SeriesIdentities`: **0 warning lines**, and the set-level
+    `tmp/af108/collision-probe.lean` prints nothing.
 -/
 import FLTForHuman.TateCurve.PointSeries
 import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
@@ -543,4 +626,211 @@ theorem pointY_zpow_mul {K : Type*} [NontriviallyNormedField K] [IsUltrametricDi
       rw [← h] at hstep
       rw [← hstep, ih]
 
+
+/-! ### The normal forms of the point coordinates -/
+
+section NormalForm
+
+open Filter
+
+variable {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K]
+
+section SummabilityHelpers
+
+variable [CompleteSpace K] {q : K}
+
+private theorem summable_xfun_pow_mul (hq : ‖q‖₊ < 1) (v : K) :
+    Summable fun n : ℕ => xfun (q ^ (n + 1) * v) := by
+  apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero
+  rw [Nat.cofinite_eq_atTop]
+  have hq' : ‖q‖ < 1 := hq
+  have hlim : Tendsto (fun n : ℕ => ‖q‖ ^ (n + 1) * ‖v‖) atTop (nhds 0) := by
+    have h0 : Tendsto (fun n : ℕ => ‖q‖ ^ n) atTop (nhds 0) :=
+      tendsto_pow_atTop_nhds_zero_of_lt_one (norm_nonneg q) hq'
+    have := (h0.mul_const ‖v‖).comp (tendsto_add_atTop_nat 1)
+    simpa [Function.comp_def] using this
+  refine squeeze_zero_norm' ?_ hlim
+
+  filter_upwards [hlim.eventually_lt_const one_pos] with n hn
+  have hn' : ‖q ^ (n + 1) * v‖ < 1 := by simpa [norm_mul, norm_pow] using hn
+  have hball : ‖q ^ (n + 1) * v‖₊ < 1 := by exact_mod_cast hn'
+  have hxb : ‖xfun (q ^ (n + 1) * v)‖₊ ≤ ‖q ^ (n + 1) * v‖₊ := (nnnorm_xfun_of_lt_one hball).le
+  calc ‖xfun (q ^ (n + 1) * v)‖ ≤ ‖q ^ (n + 1) * v‖ := by exact_mod_cast hxb
+    _ = ‖q‖ ^ (n + 1) * ‖v‖ := by rw [norm_mul, norm_pow]
+
+private theorem summable_yfun_pow_mul (hq : ‖q‖₊ < 1) (v : K) :
+    Summable fun n : ℕ => yfun (q ^ (n + 1) * v) := by
+  apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero
+  rw [Nat.cofinite_eq_atTop]
+  have hq' : ‖q‖ < 1 := hq
+  have hlim : Tendsto (fun n : ℕ => ‖q‖ ^ (n + 1) * ‖v‖) atTop (nhds 0) := by
+    have h0 : Tendsto (fun n : ℕ => ‖q‖ ^ n) atTop (nhds 0) :=
+      tendsto_pow_atTop_nhds_zero_of_lt_one (norm_nonneg q) hq'
+    have := (h0.mul_const ‖v‖).comp (tendsto_add_atTop_nat 1)
+    simpa [Function.comp_def] using this
+  refine squeeze_zero_norm' ?_ hlim
+  filter_upwards [hlim.eventually_lt_const one_pos] with n hn
+  have hn' : ‖q ^ (n + 1) * v‖ < 1 := by simpa [norm_mul, norm_pow] using hn
+  have hball : ‖q ^ (n + 1) * v‖₊ < 1 := by exact_mod_cast hn'
+  have hyb : ‖yfun (q ^ (n + 1) * v)‖₊ ≤ ‖q ^ (n + 1) * v‖₊ := by
+    rw [nnnorm_yfun_of_lt_one hball]
+    calc ‖q ^ (n + 1) * v‖₊ ^ 2 ≤ ‖q ^ (n + 1) * v‖₊ ^ 1 :=
+          pow_le_pow_of_le_one zero_le hball.le one_le_two
+      _ = ‖q ^ (n + 1) * v‖₊ := pow_one _
+  calc ‖yfun (q ^ (n + 1) * v)‖ ≤ ‖q ^ (n + 1) * v‖ := by exact_mod_cast hyb
+    _ = ‖q‖ ^ (n + 1) * ‖v‖ := by rw [norm_mul, norm_pow]
+
+end SummabilityHelpers
+
+section TwoSidedSplit
+
+variable [CompleteSpace K] {q u : K}
+
+omit [IsUltrametricDist K] [CompleteSpace K] in
+private theorem xTerm_neg_add_one (hq0 : q ≠ 0) (hu0 : u ≠ 0) (hu : ∀ n : ℤ, q ^ n * u ≠ 1) (n : ℕ) :
+    xTerm q u (-(n + 1)) = xfun (q ^ (n + 1) * u⁻¹) := by
+  have h1 : q ^ (n + 1) * u⁻¹ ≠ 0 := mul_ne_zero (pow_ne_zero _ hq0) (inv_ne_zero hu0)
+  have h2 : q ^ (n + 1) * u⁻¹ ≠ 1 := by
+    intro h
+    apply hu (-(n + 1))
+    have hinv : (q ^ (n + 1) * u⁻¹)⁻¹ = q ^ (-(n + 1) : ℤ) * u := by
+      rw [mul_inv, inv_inv, zpow_neg, ← zpow_natCast q (n + 1)]
+      push_cast
+      ring_nf
+    rw [← hinv, h, inv_one]
+  have hxinv := xfun_inv h1 h2
+  rw [xTerm, ← hxinv, mul_inv, inv_inv, zpow_neg, ← zpow_natCast q (n + 1)]
+  push_cast
+  ring_nf
+
+omit [IsUltrametricDist K] [CompleteSpace K] in
+private theorem yTerm_neg_add_one (hq0 : q ≠ 0) (hu0 : u ≠ 0) (hu : ∀ n : ℤ, q ^ n * u ≠ 1) (n : ℕ) :
+    yTerm q u (-(n + 1))
+      = -yfun (q ^ (n + 1) * u⁻¹) - xfun (q ^ (n + 1) * u⁻¹) := by
+  have h1 : q ^ (n + 1) * u⁻¹ ≠ 0 := mul_ne_zero (pow_ne_zero _ hq0) (inv_ne_zero hu0)
+  have h2 : q ^ (n + 1) * u⁻¹ ≠ 1 := by
+    intro h
+    apply hu (-(n + 1))
+    have hinv : (q ^ (n + 1) * u⁻¹)⁻¹ = q ^ (-(n + 1) : ℤ) * u := by
+      rw [mul_inv, inv_inv, zpow_neg, ← zpow_natCast q (n + 1)]
+      push_cast
+      ring_nf
+    rw [← hinv, h, inv_one]
+  have hyinv := yfun_inv h1 h2
+  rw [yTerm, show q ^ (-(n + 1) : ℤ) * u = (q ^ (n + 1) * u⁻¹)⁻¹ by
+    rw [mul_inv, inv_inv, zpow_neg, ← zpow_natCast q (n + 1)]; push_cast; ring_nf]
+  rw [hyinv]
+
+omit [IsUltrametricDist K] [CompleteSpace K] in
+private theorem xTerm_natCast_add_one (n : ℕ) : xTerm q u ((n : ℤ) + 1) = xfun (q ^ (n + 1) * u) := by
+  rw [xTerm, show ((n : ℤ) + 1) = ((n + 1 : ℕ) : ℤ) by push_cast; ring, zpow_natCast]
+
+omit [IsUltrametricDist K] [CompleteSpace K] in
+private theorem yTerm_natCast_add_one (n : ℕ) : yTerm q u ((n : ℤ) + 1) = yfun (q ^ (n + 1) * u) := by
+  rw [yTerm, show ((n : ℤ) + 1) = ((n + 1 : ℕ) : ℤ) by push_cast; ring, zpow_natCast]
+
+private theorem tsum_xTerm_eq (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0)
+    (hu : ∀ n : ℤ, q ^ n * u ≠ 1) :
+    ∑' n : ℤ, xTerm q u n
+      = xfun u + ∑' n : ℕ, xfun (q ^ (n + 1) * u) + ∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹) := by
+  have hsum := summable_xTerm hq0 hq hu0
+
+  have hnat : Summable fun n : ℕ => xTerm q u n :=
+    hsum.comp_injective fun a b h => by exact_mod_cast h
+  have hneg : Summable fun n : ℕ => xTerm q u (-(n + 1)) := by
+    refine hsum.comp_injective fun a b h => ?_
+    omega
+
+  rw [tsum_of_nat_of_neg_add_one hnat hneg]
+
+  have hzero : ∑' n : ℕ, xTerm q u n = xfun u + ∑' n : ℕ, xfun (q ^ (n + 1) * u) := by
+    rw [hnat.tsum_eq_zero_add]
+    congr 1
+    · simp
+    · exact tsum_congr fun n => by
+        rw [show ((n + 1 : ℕ) : ℤ) = (n : ℤ) + 1 by push_cast; ring, xTerm_natCast_add_one]
+
+  have hnegval : ∑' n : ℕ, xTerm q u (-(n + 1)) = ∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹) :=
+    tsum_congr fun n => xTerm_neg_add_one hq0 hu0 hu n
+  rw [hzero, hnegval]
+
+private theorem tsum_yTerm_eq (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0)
+    (hu : ∀ n : ℤ, q ^ n * u ≠ 1) :
+    ∑' n : ℤ, yTerm q u n
+      = yfun u + ∑' n : ℕ, yfun (q ^ (n + 1) * u)
+        - ∑' n : ℕ, yfun (q ^ (n + 1) * u⁻¹) - ∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹) := by
+  have hsum := summable_yTerm hq0 hq hu0
+  have hnat : Summable fun n : ℕ => yTerm q u n :=
+    hsum.comp_injective fun a b h => by exact_mod_cast h
+  have hneg : Summable fun n : ℕ => yTerm q u (-(n + 1)) := by
+    refine hsum.comp_injective fun a b h => ?_
+    omega
+  rw [tsum_of_nat_of_neg_add_one hnat hneg]
+
+  have hzero : ∑' n : ℕ, yTerm q u n = yfun u + ∑' n : ℕ, yfun (q ^ (n + 1) * u) := by
+    rw [hnat.tsum_eq_zero_add]
+    congr 1
+    · simp
+    · exact tsum_congr fun n => by
+        rw [show ((n + 1 : ℕ) : ℤ) = (n : ℤ) + 1 by push_cast; ring, yTerm_natCast_add_one]
+
+  have hyu : Summable fun n : ℕ => yfun (q ^ (n + 1) * u⁻¹) := summable_yfun_pow_mul hq u⁻¹
+  have hxu : Summable fun n : ℕ => xfun (q ^ (n + 1) * u⁻¹) := summable_xfun_pow_mul hq u⁻¹
+  have hnegval : ∑' n : ℕ, yTerm q u (-(n + 1))
+      = -(∑' n : ℕ, yfun (q ^ (n + 1) * u⁻¹)) - ∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹) := by
+    have hterm : (fun n : ℕ => yTerm q u (-(n + 1)))
+        = fun n : ℕ => -yfun (q ^ (n + 1) * u⁻¹) - xfun (q ^ (n + 1) * u⁻¹) := by
+      funext n; exact yTerm_neg_add_one hq0 hu0 hu n
+    rw [hterm, hyu.neg.tsum_sub hxu, tsum_neg]
+  rw [hzero, hnegval]
+  ring
+
+private theorem pointX_split (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0)
+    (hu : ∀ n : ℤ, q ^ n * u ≠ 1) :
+    pointX q u
+      = xfun u + ∑' n : ℕ, xfun (q ^ (n + 1) * u) + ∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹)
+        - 2 * s₁ q := by
+  rw [pointX, tsum_xTerm_eq hq0 hq hu0 hu]
+
+private theorem pointY_split (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0)
+    (hu : ∀ n : ℤ, q ^ n * u ≠ 1) :
+    pointY q u
+      = yfun u + ∑' n : ℕ, yfun (q ^ (n + 1) * u)
+        - ∑' n : ℕ, yfun (q ^ (n + 1) * u⁻¹) - ∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹)
+        + s₁ q := by
+  rw [pointY, tsum_yTerm_eq hq0 hq hu0 hu]
+
+end TwoSidedSplit
+
+end NormalForm
+
 end TateCurve
+
+theorem TateCurve.pointX_normalForm {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q u : K} (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0) (hu : ∀ n : ℤ, q ^ n * u ≠ 1) : pointX q u = xfun u + ∑' n : ℕ, (xfun (q ^ (n + 1) * u) + xfun (q ^ (n + 1) * u⁻¹) - 2 * xfun (q ^ (n + 1))) := by
+  have hA : Summable fun n : ℕ => xfun (q ^ (n + 1) * u) := summable_xfun_pow_mul hq u
+  have hB : Summable fun n : ℕ => xfun (q ^ (n + 1) * u⁻¹) := summable_xfun_pow_mul hq u⁻¹
+  have hC : Summable fun n : ℕ => xfun (q ^ (n + 1)) := by
+    simpa using summable_xfun_pow_mul hq (1 : K)
+  have hcombine : ∑' n : ℕ,
+      (xfun (q ^ (n + 1) * u) + xfun (q ^ (n + 1) * u⁻¹) - 2 * xfun (q ^ (n + 1)))
+      = (∑' n : ℕ, xfun (q ^ (n + 1) * u)) + (∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹))
+        - 2 * ∑' n : ℕ, xfun (q ^ (n + 1)) := by
+    have h2C : HasSum (fun n : ℕ => 2 * xfun (q ^ (n + 1)))
+        (2 * ∑' n : ℕ, xfun (q ^ (n + 1))) := hC.hasSum.mul_left 2
+    exact ((hA.hasSum.add hB.hasSum).sub h2C).tsum_eq
+  rw [pointX_split hq0 hq hu0 hu, hcombine, TateCurve.sOne_eq_tsum_xfun hq0 hq]
+  ring
+theorem TateCurve.pointY_normalForm {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q u : K} (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0) (hu : ∀ n : ℤ, q ^ n * u ≠ 1) : pointY q u = yfun u + ∑' n : ℕ, (yfun (q ^ (n + 1) * u) - yfun (q ^ (n + 1) * u⁻¹) - xfun (q ^ (n + 1) * u⁻¹) + xfun (q ^ (n + 1))) := by
+  have hA : Summable fun n : ℕ => yfun (q ^ (n + 1) * u) := summable_yfun_pow_mul hq u
+  have hB : Summable fun n : ℕ => yfun (q ^ (n + 1) * u⁻¹) := summable_yfun_pow_mul hq u⁻¹
+  have hD : Summable fun n : ℕ => xfun (q ^ (n + 1) * u⁻¹) := summable_xfun_pow_mul hq u⁻¹
+  have hC : Summable fun n : ℕ => xfun (q ^ (n + 1)) := by
+    simpa using summable_xfun_pow_mul hq (1 : K)
+  have hcombine : ∑' n : ℕ,
+      (yfun (q ^ (n + 1) * u) - yfun (q ^ (n + 1) * u⁻¹) - xfun (q ^ (n + 1) * u⁻¹)
+        + xfun (q ^ (n + 1)))
+      = (∑' n : ℕ, yfun (q ^ (n + 1) * u)) - (∑' n : ℕ, yfun (q ^ (n + 1) * u⁻¹))
+        - (∑' n : ℕ, xfun (q ^ (n + 1) * u⁻¹)) + ∑' n : ℕ, xfun (q ^ (n + 1)) :=
+    (((hA.hasSum.sub hB.hasSum).sub hD.hasSum).add hC.hasSum).tsum_eq
+  rw [pointY_split hq0 hq hu0 hu, hcombine, TateCurve.sOne_eq_tsum_xfun hq0 hq]
+  ring

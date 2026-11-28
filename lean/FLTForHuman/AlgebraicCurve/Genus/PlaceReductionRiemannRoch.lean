@@ -38,6 +38,11 @@ spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_exists_finset_finrank_riemannRochSpac
 spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_finrank_riemannRochSpace_le_finrank_riemannRochSpace_mapDomain_placeReduction.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_finrank_riemannRochSpace_le_finrank_riemannRochSpace_mapDomain_placeReduction.lean
 
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_Divisor_exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq.lean>
+  spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq.lean
+
 PORT NOTES (SET-AF107, order B).
 
 * **Engine diff.** The two `S_` wires carry **52 rows** (30 + 22) over **41 distinct names**.
@@ -114,6 +119,36 @@ PORT NOTES (SET-AF107, order B).
   `[propext, Classical.choice, Quot.sound]`, no `sorryAx`. `move_dead --dry-run`: 0 declarations,
   0 lines. Engine diff: 4 pin sources, 54 pin rows, 24 module declarations — 23 by statement hash,
   0 by name only, 0 unaccounted.
+
+PORT NOTES (SET-AF108, order A — the equality row inserted into this module).
+
+* **The row.** `AlgebraicCurve.Divisor.exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq`
+  — the pin's 44-line `S_` row (its `solution` is 11 lines), the **equality companion** of the two rows
+  SET-AF107B landed here: `le_antisymm` of the two headlines.  It is an insertion, not a new module,
+  because its two premises *are* this module's two declared headlines, and the module already carried
+  the `spec-pin:` wires for both the `Theorems/` wrapper and the `S_` file, so the checker diffs it
+  (FR-0316).
+* **Body.** The pin's, verbatim: `obtain ⟨S, hS0, hle⟩ := …_le K F E FE hfg hfgE hgen D` then
+  `le_antisymm (hle …) (…_le_finrank_riemannRochSpace_mapDomain_placeReduction …)`.  No substitution is
+  needed and none was available — the two engines are private-shaped `main`s whose *only* public
+  entrances are the two headlines called here — so the row adds **6 lines of code over the two
+  headlines' call sites**.
+* **Engine diff after the insertion.** `review.py`: *pin sources 6, pin decls 56, module decls 25; 24 by
+  hash, 0 by name (hash differs), 0 unaccounted* (the 24 keys because `main` names two declarations).
+  Every one of this set's declarations reads `ok`: `check_port --force` reports **25 `ok`, 0 mismatch, 0
+  missing, 0 own, 0 kw** — the 24 pre-existing declarations still `ok`, plus the new row.
+* **`dedup` unchanged.** Still the one `shape` cluster of the pin's own headline↔engine pair
+  (`LowerSemicontinuity.main` against the second headline, 21 removable lines) — the same cluster the
+  SET-AF107 note above explains; the new row adds no cluster.  `move_dead --dry-run`: 0 declarations,
+  0 lines.
+* **Heartbeat probe pair re-measured, recorded, NOT installed.** The module is still silent at
+  `-DmaxHeartbeats=40000`; at `20000` two declarations are over budget — `finrank_adjoin_algebraMap_eq`
+  (`:773`) and `LowerSemicontinuity.main` (`:906`) — which refines the SET-AF107 note above (it recorded
+  only the first).  The 6-line insertion does **not** move the module's floor or ceiling.
+  `#print axioms` on all 25 public declarations: a subset of
+  `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **Collision probe.** This module's one new public full name plus the new module's 16 were imported
+  together over the whole tree: silent (FR-0274 clear).
 -/
 
 import FLTForHuman.AlgebraicCurve.Canonical.DCoordGenerates
@@ -1091,3 +1126,31 @@ theorem AlgebraicCurve.Divisor.finrank_riemannRochSpace_le_finrank_riemannRochSp
       Module.finrank K (riemannRochSpace (Finsupp.mapDomain r D)) :=
   AlgebraicCurve.PlaceReductionRiemannRoch.LowerSemicontinuity.main K F E FE hfg hfgE hgen D A r
     hKA hArat hr
+
+theorem AlgebraicCurve.Divisor.exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq
+    (K F E FE : Type*) [Field K] [Field F] [Field E] [Field FE] [Algebra K F] [Algebra E FE]
+    [Algebra K E] [Algebra F FE] [Algebra K FE] [IsScalarTower K E FE] [IsScalarTower K F FE]
+    [IsAlgClosed K] [CharZero K] [IsAlgClosed E]
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfgE : ∃ x : FE, Transcendental E x ∧
+      FiniteDimensional (IntermediateField.adjoin E ({x} : Set FE)) FE)
+    [IsCurveOver K F] [IsCurveOver E FE]
+    (hgen : IntermediateField.adjoin E (Set.range (algebraMap F FE)) = ⊤)
+    (D : Divisor E FE) :
+    ∃ S : Finset E, (0 : E) ∉ S ∧
+      ∀ (A : ValuationSubring E) (r : Place E FE → Place K F),
+        (∀ k : K, algebraMap K E k ∈ A) →
+        (∀ a : E, a ∈ A → ∃ k : K, A.valuation (a - algebraMap K E k) < 1) →
+        (∀ s ∈ S, A.valuation s = 1) →
+        (∀ (P : Place E FE) (f : F), f ∈ (r P).toValuationSubring ↔
+          ∃ a : E, a ∈ A ∧
+            P.toValuationSubring.valuation (algebraMap F FE f - algebraMap E FE a) < 1) →
+        Module.finrank K (riemannRochSpace (Finsupp.mapDomain r D)) =
+          Module.finrank E (riemannRochSpace D) := by
+  obtain ⟨S, hS0, hle⟩ :=
+    AlgebraicCurve.Divisor.exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_le
+      K F E FE hfg hfgE hgen D
+  refine ⟨S, hS0, fun A r hKA hArat hS hr => le_antisymm (hle A r hKA hArat hS hr) ?_⟩
+  exact
+    AlgebraicCurve.Divisor.finrank_riemannRochSpace_le_finrank_riemannRochSpace_mapDomain_placeReduction
+      K F E FE hfg hfgE hgen D A r hKA hArat hr

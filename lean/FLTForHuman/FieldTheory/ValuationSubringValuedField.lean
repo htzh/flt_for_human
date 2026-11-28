@@ -43,6 +43,11 @@ References (public mirror, pinned):
 spec-pin: Theorems/Thm_ValuationSubring_ringKrullDim_le_toENat_trdeg_rat_add_one.lean
 spec-pin: P2M/Sol/S_ValuationSubring_ringKrullDim_le_toENat_trdeg_rat_add_one.lean
 
+References (public mirror, pinned):
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ValuationSubring_krullDimLE_one_of_isAlgebraic_rat.lean>
+  spec-pin: Theorems/Thm_ValuationSubring_krullDimLE_one_of_isAlgebraic_rat.lean
+  spec-pin: P2M/Sol/S_ValuationSubring_krullDimLE_one_of_isAlgebraic_rat.lean
+
 **Landing (AF103E).**  All five rows transcribed in full: **29 public declarations**, 0 private, one
 declaration per pin row.  Names are the pin's, except for the three generated namespace labels, which
 come off in favour of subject namespaces — `ValuationSubring.KrullDimTranscendence` (row 269's
@@ -148,6 +153,26 @@ Set-level note: `tmp/af103/collision-probe.lean` (the FR-0274 probe over all fiv
 cannot be run from this order yet — the other four modules' `.olean`s are not built, so the probe
 stops at `object file … EquivariantTorsion.olean does not exist`.  The three namespaces above and the
 five headline names occur in no other module of `FLTForHuman/` (`rg` over the tree).
+
+## Landing (AF108H) — the `ℚ`-algebraic Krull-dimension row
+
+A seventh row joins the six: `ValuationSubring.krullDimLE_one_of_isAlgebraic_rat`,
+`Ring.KrullDimLE 1 A` for a valuation subring of a field algebraic over `ℚ` (12 pin `S_` lines),
+four lines over this module's own `ringKrullDim_le_toENat_trdeg_rat_add_one`:
+`rw [Ring.krullDimLE_iff]`, the premise, then `rw [trdeg_eq_zero, map_zero] at h; simpa using h`
+(`trdeg_eq_zero` is `Algebra.trdeg_eq_zero`, reached through the module's `open NumberField`).
+1102 lines now (1099 before); `check_port` **31 ok / 0 mismatch / 0 missing / 0 own / 0 kw**
+(30 before). No substitution, no import added, no drift.
+
+* **Engine gate** over the same fourteen pin sources: pin decls **43**, module decls **36**;
+  **35 by hash**, **1 by name (hash differs)** — the pre-existing
+  `tensorProduct_exists_primitive_factor`, unchanged — **0 unaccounted**. The new row is a hash
+  match.
+* **`dedup --within`**: 0 clusters. **`move_dead --dry-run`**: 0 declarations, 0 lines.
+* **Axioms**: all 31 public declarations, `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **Heartbeat probe** (recorded, **never installed**): **silent at 20000, timeout at 10000**
+  (`«synthesize pending MVars»`, `RootCount.main`'s roots bookkeeping) — the pair AF103E recorded
+  for this module, unchanged by the new row.
 -/
 import Mathlib.RingTheory.Valuation.ValuationSubring
 import Mathlib.RingTheory.Valuation.RamificationGroup
@@ -1087,3 +1112,11 @@ theorem exists_map_subtype_eq_C_inv_mul_and_map_residue_ne_zero
 
 
 end ValuationSubring
+
+theorem ValuationSubring.krullDimLE_one_of_isAlgebraic_rat
+    {L : Type*} [Field L] [Algebra ℚ L] [Algebra.IsAlgebraic ℚ L] (A : ValuationSubring L) :
+    Ring.KrullDimLE 1 A := by
+  rw [Ring.krullDimLE_iff]
+  have h := ValuationSubring.ringKrullDim_le_toENat_trdeg_rat_add_one A
+  rw [trdeg_eq_zero, map_zero] at h
+  simpa using h
