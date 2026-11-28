@@ -142,6 +142,10 @@ spec-pin: Theorems/Thm_TateCurve_pointX_qExpansion.lean
 spec-pin: P2M/Sol/S_TateCurve_pointX_qExpansion.lean
 spec-pin: Theorems/Thm_TateCurve_pointY_qExpansion.lean
 spec-pin: P2M/Sol/S_TateCurve_pointY_qExpansion.lean
+spec-pin: Theorems/Thm_TateCurve_defect_qExpansion.lean
+spec-pin: P2M/Sol/S_TateCurve_defect_qExpansion.lean
+spec-pin: Theorems/Thm_TateCurve_defectCoeff_zero.lean
+spec-pin: P2M/Sol/S_TateCurve_defectCoeff_zero.lean
 
 **Landing (AF108E) — the two normal forms.**  `pointX_normalForm` (198 pin `S_` lines) and
 `pointY_normalForm` (199) as the last two declarations of the module, at the pin's statements and the
@@ -268,6 +272,64 @@ namespace already publishes every name the pin's export list carries.
   * Locked `lake build FLTForHuman.TateCurve.SeriesIdentities`: **0 warning lines**; the order-scoped
     `tmp/af109/probe-F.lean` prints nothing, and `rg` finds no other declaration of any of the six new
     names (nor of the two headlines) anywhere in `lean/FLTForHuman`.
+
+  **Landing (AF110C) — the Weierstrass defect as a `q`-series.**  `TateCurve.defect_qExpansion` (368
+  pin lines) and `TateCurve.defectCoeff_zero` (13) at the end of the module, at the pins' statements
+  and the port's subject namespace; both are stated in `TateCurve/Defect.lean`'s layer
+  (`cauchyMul`, `xCoeffFull`/`yCoeffFull`, `a₄Coeff`/`a₆Coeff`, `defectCoeff`), which the module
+  imports.  Of the first pin's 22 rows, **10 were already here** and are used directly — `pairTerm`,
+  `sigmaTerm'`, `norm_le_of_le_geometric`, `summable_sigmaTerm'`, `summable_pairTerm`,
+  `tsum_pairTerm_eq_tsum_divisors`, `succEquivPNat`, `norm_mul_growthBound_lt_one`, plus the pin's
+  `tsum_succ_prod_loc` / `summable_succ_prod_loc` pair, which this module carries at the same
+  statements as `tsum_succ_prod_main` / `summable_succ_prod` and which the new rows call under those
+  (the port's) spellings.  The **11 genuinely new** rows are `hasSum_term_succ` (17),
+  `coeffSum_qExpansion` (28), `summable_norm_a₄Series` (7), `summable_norm_a₆Series` (7),
+  `summable_norm_xSeries` (5), `summable_norm_ySeries` (5), `pointX_eq_tsum` (9), `pointY_eq_tsum`
+  (9), `a₄_eq_tsum` (11), `a₆_eq_tsum` (11) and `defect_qExpansion_loc` (66, the pin's `private`
+  copy of the headline's statement — kept as the pin has it, so the pin's own pair is recorded here
+  per the `dedup` gate exactly as `tsum_succ_prod_main` above is).  The two headline bodies are the
+  pins' verbatim: `defect_qExpansion_loc hq0 hq hu0 hu hqu hqu'`, and the 13-line second pin's
+  `nodal_xfun_yfun` + `linear_combination` proof.  Whole-module insertion: **+203 lines** of code
+  (1110 → 1313: a 199-line private section and the two bodies replacing a `sorry` each), **13
+  declarations** (11 private + 2 public), no line removed but the two scaffold `sorry`s; the module
+  reads **1371 lines** with this note.
+
+  * **Engine diff** (gate 2, `review.py`): **25** pin sources, **116** pin decls; module **61** decls,
+    **54 by hash**, **1 by name (hash differs)** — the pre-existing `exists_zpow_mul_mem_annulus` fold
+    recorded above — and **6 unaccounted**, the same six pre-existing headlines the pin spells
+    `solution`.  All **23** pin rows over the two AF110 wires (22 + 1) are matched **by statement
+    hash**, and every one of the 11 new rows matches its pin row by hash too (`defect_qExpansion_loc`
+    is exact).
+  * `check_port` **16 ok / 0 mismatch / 0 missing / 0 own / 0 kw** — **16 before, 16 after**: both
+    headlines were already `ok` as scaffolds (the two AF110 wires were on the header from the scaffold
+    pass), and the 11 new rows are `private`, so they enter only through the surface probe below.
+    (Order C's brief predicts 18; that double-counts the two headlines, the same reading AF109F
+    recorded at 14/14.)
+  * **Surface probe** (`tmp/af110/probe-surface-C.lean`, `private` dropped from all **21** pin-private
+    rows this module carries for these two wires — the 11 new and the 10 reused): **37 ok / 0
+    mismatch / 0 missing / 0 own / 0 kw**.  Every one of the 21 is a pin row and promotes cleanly;
+    whether to promote is the manager's call (the pin has them `private`).
+  * `#print axioms` on all **16** public declarations: `[propext, Classical.choice, Quot.sound]`, no
+    `sorryAx`.
+  * `dedup --within --module '*TateCurve/SeriesIdentities*'`, all three tiers at `--min-cost 0`:
+    **0 clusters** (61 declarations).
+  * `move_dead --dry-run`: **0 declarations, 0 lines** (unchanged from the AF109F landing).
+  * Heartbeat probe pair (measured, **never installed** — FR-0225): the module is now **silent at
+    `-DmaxHeartbeats=3000`** and **first fails at `2500`**, in *this* order's
+    `defect_qExpansion_loc` (`(deterministic) timeout at whnf`); 40000 / 20000 / 10000 / 5000 / 3000
+    are silent, and 2400 / 2000 / 1000 fail inside **pre-existing** rows (`yTerm_neg_add_one`,
+    `nodal_xfun_yfun`, `hasSum_xfun`).  The floor moved from AF109F's 2500/2400 pair to 3000/2500 —
+    the new rows cost ≲ 500 heartbeats, ~1.5 % of the 200 000 edit-loop cap.  No
+    `set_option maxHeartbeats` here, ever.
+  * Proof-level adaptations (statements untouched): one `omit [IsUltrametricDist K] [CompleteSpace K]
+    in` (`hasSum_term_succ`, a pure geometric-series rewrite) and four `omit [CompleteSpace K] in`
+    (`summable_norm_a₄Series`, `summable_norm_a₆Series`, `summable_norm_xSeries`,
+    `summable_norm_ySeries` — their proofs stay inside `summable_norm_qSeries` /
+    `norm_mul_growthBound_lt_one`); `a₄_eq_tsum`/`a₆_eq_tsum` keep `[CompleteSpace K]`, because
+    `Summable.of_norm` needs it (the pin's own declarations carry it too).
+  * Locked `lake build FLTForHuman.TateCurve.SeriesIdentities`: **0 warning lines** (3117 jobs, incl.
+    the `Defect`/`Tails` dependencies); the order-scoped `tmp/af110/probe-C.lean` prints nothing, and
+    `rg` finds no other declaration of any of the 13 new names anywhere in `lean/FLTForHuman`.
 -/
 import FLTForHuman.TateCurve.PointSeries
 import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
@@ -276,6 +338,7 @@ import Mathlib.Topology.Algebra.InfiniteSum.Basic
 import Mathlib.Topology.Algebra.InfiniteSum.Constructions
 import Mathlib.Topology.Algebra.InfiniteSum.Real
 import FLTForHuman.TateCurve.Tails
+import FLTForHuman.TateCurve.Defect
 
 set_option autoImplicit false
 
@@ -1075,4 +1138,234 @@ theorem TateCurve.pointY_qExpansion {K : Type*} [NontriviallyNormedField K] [IsU
       = ∑' N : ℕ, yCoeff u (N + 1) * q ^ (N + 1) := by
     simpa only [yCoeff] using TateCurve.tsum_succ_prod_eq_tsum_divisors hC1 hh hrC
   rw [TateCurve.pointY_normalForm hq0 hq hu0 hu, ← hrows, hdivisors]
+
+/-! ### The rows of the `defect_qExpansion` pin that this module did not yet carry -/
+
+namespace TateCurve
+
+section CoeffSumExpansion
+
+variable {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K]
+variable {q : K}
+
+omit [IsUltrametricDist K] [CompleteSpace K] in
+private theorem hasSum_term_succ (c : ℕ → ℕ) (hq : ‖q‖₊ < 1) (n : ℕ) :
+    HasSum (fun m : ℕ => ((c (n + 1) : K)) * q ^ ((m + 1) * (n + 1))) (term c q (n + 1)) := by
+  have hqn : ‖q ^ (n + 1)‖ < 1 := by
+    rw [norm_pow]
+    exact pow_lt_one₀ (norm_nonneg q) (show ‖q‖ < 1 from hq) (Nat.succ_ne_zero n)
+  have h2 := (hasSum_geometric_of_norm_lt_one hqn).mul_left ((c (n + 1) : K) * q ^ (n + 1))
+  have hfun : (fun m : ℕ => (c (n + 1) : K) * q ^ (n + 1) * (q ^ (n + 1)) ^ m)
+      = fun m : ℕ => ((c (n + 1) : K)) * q ^ ((m + 1) * (n + 1)) := by
+    funext m
+    rw [Nat.mul_comm (m + 1) (n + 1), pow_mul, pow_succ]
+    ring
+  rw [hfun] at h2
+  have hval : (c (n + 1) : K) * q ^ (n + 1) * (1 - q ^ (n + 1))⁻¹ = term c q (n + 1) := by
+    rw [term, div_eq_mul_inv]
+    ring
+  rwa [hval] at h2
+
+private theorem coeffSum_qExpansion (c : ℕ → ℕ) (hq : ‖q‖₊ < 1) :
+    coeffSum c q = ∑' N : ℕ, (∑ d ∈ (N + 1).divisors, (c d : K)) * q ^ (N + 1) := by
+  have hC1 : (1 : ℝ) ≤ 1 := le_refl 1
+  have hh : ∀ m : ℕ, 0 < m → ‖((c m : ℕ) : K)‖ ≤ (1 : ℝ) ^ m := fun m _ => by
+    rw [one_pow]; exact IsUltrametricDist.norm_natCast_le_one K (c m)
+  have hrC : ‖q‖ * 1 < 1 := by rw [mul_one]; exact_mod_cast hq
+
+  have hengine := tsum_succ_prod_main (h := fun d => (c d : K)) (r := q) hC1 hh hrC
+  have hdouble : Summable fun p : ℕ × ℕ => ((c (p.2 + 1) : K)) * q ^ ((p.1 + 1) * (p.2 + 1)) :=
+    (summable_succ_prod (h := fun d => (c d : K)) (r := q) hC1 hh hrC).congr fun p => rfl
+  have hGsum : Summable fun p : ℕ × ℕ => ((c (p.1 + 1) : K)) * q ^ ((p.2 + 1) * (p.1 + 1)) :=
+    ((Equiv.summable_iff (Equiv.prodComm ℕ ℕ)).mpr hdouble).congr fun p => rfl
+
+  have hA : coeffSum c q = ∑' n : ℕ, term c q (n + 1) := by
+    rw [coeffSum, (summable_term c hq).tsum_eq_zero_add, term_zero, zero_add]
+  have hB : ∑' n : ℕ, term c q (n + 1)
+      = ∑' n : ℕ, ∑' m : ℕ, ((c (n + 1) : K)) * q ^ ((m + 1) * (n + 1)) :=
+    tsum_congr fun n => ((hasSum_term_succ c hq n).tsum_eq).symm
+  have hC : ∑' n : ℕ, ∑' m : ℕ, ((c (n + 1) : K)) * q ^ ((m + 1) * (n + 1))
+      = ∑' p : ℕ × ℕ, ((c (p.1 + 1) : K)) * q ^ ((p.2 + 1) * (p.1 + 1)) :=
+    (hGsum.tsum_prod).symm
+  have hD : ∑' p : ℕ × ℕ, ((c (p.1 + 1) : K)) * q ^ ((p.2 + 1) * (p.1 + 1))
+      = ∑' p : ℕ × ℕ, ((c (p.2 + 1) : K)) * q ^ ((p.1 + 1) * (p.2 + 1)) :=
+    Equiv.tsum_eq (Equiv.prodComm ℕ ℕ)
+      (fun p : ℕ × ℕ => ((c (p.2 + 1) : K)) * q ^ ((p.1 + 1) * (p.2 + 1)))
+  rw [hA, hB, hC, hD]
+  exact hengine
+
+omit [CompleteSpace K] in
+private theorem summable_norm_a₄Series (hq : ‖q‖₊ < 1) :
+    Summable fun N => ‖a₄Coeff (K := K) N * q ^ N‖ := by
+  refine summable_norm_qSeries (B := 1) (C := 1) zero_le_one (fun N => ?_)
+    (by rw [mul_one]; exact_mod_cast hq)
+  rw [one_mul, one_pow]
+  exact norm_a₄Coeff_le N
+
+omit [CompleteSpace K] in
+private theorem summable_norm_a₆Series (hq : ‖q‖₊ < 1) :
+    Summable fun N => ‖a₆Coeff (K := K) N * q ^ N‖ := by
+  refine summable_norm_qSeries (B := 1) (C := 1) zero_le_one (fun N => ?_)
+    (by rw [mul_one]; exact_mod_cast hq)
+  rw [one_mul, one_pow]
+  exact norm_a₆Coeff_le N
+
+variable {u : K}
+
+omit [CompleteSpace K] in
+private theorem summable_norm_xSeries (hq : ‖q‖₊ < 1) (hqu : ‖q * u‖₊ < 1) (hqu' : ‖q * u⁻¹‖₊ < 1) :
+    Summable fun N => ‖xCoeffFull u N * q ^ N‖ :=
+  summable_norm_qSeries (growthBound_nonneg u) (norm_xCoeffFull_le u)
+    (norm_mul_growthBound_lt_one hq hqu hqu')
+
+omit [CompleteSpace K] in
+private theorem summable_norm_ySeries (hq : ‖q‖₊ < 1) (hqu : ‖q * u‖₊ < 1) (hqu' : ‖q * u⁻¹‖₊ < 1) :
+    Summable fun N => ‖yCoeffFull u N * q ^ N‖ :=
+  summable_norm_qSeries (growthBound_nonneg u) (norm_yCoeffFull_le u)
+    (norm_mul_growthBound_lt_one hq hqu hqu')
+
+private theorem pointX_eq_tsum (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0)
+    (hu : ∀ n : ℤ, q ^ n * u ≠ 1) (hqu : ‖q * u‖₊ < 1) (hqu' : ‖q * u⁻¹‖₊ < 1) :
+    pointX q u = ∑' N : ℕ, xCoeffFull u N * q ^ N := by
+  have hsum : Summable fun N => xCoeffFull u N * q ^ N :=
+    (summable_norm_xSeries hq hqu hqu').of_norm
+  rw [hsum.tsum_eq_zero_add]
+  simp only [xCoeffFull_zero, xCoeffFull_succ, pow_zero, mul_one]
+  exact TateCurve.pointX_qExpansion hq0 hq hu0 hu hqu hqu'
+
+private theorem pointY_eq_tsum (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0)
+    (hu : ∀ n : ℤ, q ^ n * u ≠ 1) (hqu : ‖q * u‖₊ < 1) (hqu' : ‖q * u⁻¹‖₊ < 1) :
+    pointY q u = ∑' N : ℕ, yCoeffFull u N * q ^ N := by
+  have hsum : Summable fun N => yCoeffFull u N * q ^ N :=
+    (summable_norm_ySeries hq hqu hqu').of_norm
+  rw [hsum.tsum_eq_zero_add]
+  simp only [yCoeffFull_zero, yCoeffFull_succ, pow_zero, mul_one]
+  exact TateCurve.pointY_qExpansion hq0 hq hu0 hu hqu hqu'
+
+private theorem a₄_eq_tsum (hq : ‖q‖₊ < 1) : a₄ q = ∑' N : ℕ, a₄Coeff (K := K) N * q ^ N := by
+  have hsum : Summable fun N => a₄Coeff (K := K) N * q ^ N := (summable_norm_a₄Series hq).of_norm
+  rw [hsum.tsum_eq_zero_add]
+  simp only [a₄Coeff_zero, a₄Coeff_succ, zero_mul, zero_add]
+  have hexp : ∑' N : ℕ, (-(∑ d ∈ (N + 1).divisors, ((5 * d ^ 3 : ℕ) : K))) * q ^ (N + 1)
+      = -(∑' N : ℕ, (∑ d ∈ (N + 1).divisors, ((5 * d ^ 3 : ℕ) : K)) * q ^ (N + 1)) := by
+    rw [← tsum_neg]
+    exact tsum_congr fun N => by rw [neg_mul]
+  rw [hexp, ← coeffSum_qExpansion (fun n => 5 * n ^ 3) hq, a₄]
+
+private theorem a₆_eq_tsum (hq : ‖q‖₊ < 1) : a₆ q = ∑' N : ℕ, a₆Coeff (K := K) N * q ^ N := by
+  have hsum : Summable fun N => a₆Coeff (K := K) N * q ^ N := (summable_norm_a₆Series hq).of_norm
+  rw [hsum.tsum_eq_zero_add]
+  simp only [a₆Coeff_zero, a₆Coeff_succ, zero_mul, zero_add]
+  have hexp : ∑' N : ℕ, (-(∑ d ∈ (N + 1).divisors, ((b d : ℕ) : K))) * q ^ (N + 1)
+      = -(∑' N : ℕ, (∑ d ∈ (N + 1).divisors, ((b d : ℕ) : K)) * q ^ (N + 1)) := by
+    rw [← tsum_neg]
+    exact tsum_congr fun N => by rw [neg_mul]
+  rw [hexp, ← coeffSum_qExpansion b hq, a₆]
+
+end CoeffSumExpansion
+
+section MainProof
+
+variable {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K]
+variable {q u : K}
+
+private theorem defect_qExpansion_loc (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0)
+    (hu : ∀ n : ℤ, q ^ n * u ≠ 1) (hqu : ‖q * u‖₊ < 1) (hqu' : ‖q * u⁻¹‖₊ < 1) :
+    pointY q u ^ 2 + pointX q u * pointY q u
+      - (pointX q u ^ 3 + a₄ q * pointX q u + a₆ q)
+      = ∑' N : ℕ, defectCoeff u N * q ^ N := by
+
+  have hXn := summable_norm_xSeries (u := u) hq hqu hqu'
+  have hYn := summable_norm_ySeries (u := u) hq hqu hqu'
+  have hA4n := summable_norm_a₄Series (K := K) hq
+  have hA6n := summable_norm_a₆Series (K := K) hq
+  have hXXn := summable_norm_cauchyMul hXn hXn
+
+  have hX := pointX_eq_tsum hq0 hq hu0 hu hqu hqu'
+  have hY := pointY_eq_tsum hq0 hq hu0 hu hqu hqu'
+  have hA4 := a₄_eq_tsum (K := K) hq
+  have hA6 := a₆_eq_tsum (K := K) hq
+
+  have hYY : pointY q u ^ 2
+      = ∑' N : ℕ, cauchyMul (yCoeffFull u) (yCoeffFull u) N * q ^ N := by
+    rw [pow_two, hY, qSeries_mul hYn hYn]
+  have hXY : pointX q u * pointY q u
+      = ∑' N : ℕ, cauchyMul (xCoeffFull u) (yCoeffFull u) N * q ^ N := by
+    rw [hX, hY, qSeries_mul hXn hYn]
+  have hXX : pointX q u * pointX q u
+      = ∑' N : ℕ, cauchyMul (xCoeffFull u) (xCoeffFull u) N * q ^ N := by
+    rw [hX, qSeries_mul hXn hXn]
+  have hX3 : pointX q u ^ 3
+      = ∑' N : ℕ, cauchyMul (xCoeffFull u) (cauchyMul (xCoeffFull u) (xCoeffFull u)) N * q ^ N := by
+    rw [show pointX q u ^ 3 = pointX q u * (pointX q u * pointX q u) by ring, hXX, hX,
+      qSeries_mul hXn hXXn]
+  have hA4X : a₄ q * pointX q u
+      = ∑' N : ℕ, cauchyMul a₄Coeff (xCoeffFull u) N * q ^ N := by
+    rw [hA4, hX, qSeries_mul hA4n hXn]
+
+  have sYY : Summable fun N => cauchyMul (yCoeffFull u) (yCoeffFull u) N * q ^ N :=
+    (summable_norm_cauchyMul hYn hYn).of_norm
+  have sXY : Summable fun N => cauchyMul (xCoeffFull u) (yCoeffFull u) N * q ^ N :=
+    (summable_norm_cauchyMul hXn hYn).of_norm
+  have sX3 : Summable fun N =>
+      cauchyMul (xCoeffFull u) (cauchyMul (xCoeffFull u) (xCoeffFull u)) N * q ^ N :=
+    (summable_norm_cauchyMul hXn hXXn).of_norm
+  have sA4X : Summable fun N => cauchyMul a₄Coeff (xCoeffFull u) N * q ^ N :=
+    (summable_norm_cauchyMul hA4n hXn).of_norm
+  have sA6 : Summable fun N => a₆Coeff (K := K) N * q ^ N := hA6n.of_norm
+
+  have tsum_add_combine : ∀ {f g : ℕ → K}, (Summable fun N => f N * q ^ N) →
+      (Summable fun N => g N * q ^ N) →
+      (∑' N : ℕ, f N * q ^ N) + (∑' N : ℕ, g N * q ^ N) = ∑' N : ℕ, (f N + g N) * q ^ N := by
+    intro f g hf hg
+    rw [← hf.tsum_add hg]
+    exact tsum_congr fun N => (add_mul _ _ _).symm
+  have tsum_sub_combine : ∀ {f g : ℕ → K}, (Summable fun N => f N * q ^ N) →
+      (Summable fun N => g N * q ^ N) →
+      (∑' N : ℕ, f N * q ^ N) - (∑' N : ℕ, g N * q ^ N) = ∑' N : ℕ, (f N - g N) * q ^ N := by
+    intro f g hf hg
+    rw [← hf.tsum_sub hg]
+    exact tsum_congr fun N => (sub_mul _ _ _).symm
+
+  rw [hYY, hXY, hX3, hA4X, hA6,
+    tsum_add_combine sYY sXY, tsum_add_combine sX3 sA4X,
+    tsum_add_combine ((sX3.add sA4X).congr fun N => (add_mul _ _ _).symm) sA6,
+    tsum_sub_combine ((sYY.add sXY).congr fun N => (add_mul _ _ _).symm)
+      (((sX3.add sA4X).congr fun N => (add_mul _ _ _).symm).add sA6 |>.congr
+        fun N => (add_mul _ _ _).symm)]
+  exact tsum_congr fun N => by rw [defectCoeff]
+
+end MainProof
+
+end TateCurve
+
+/-
+## SET-AF110 insertion: TateCurve.defect_qExpansion
+
+The Weierstrass defect of a point is a `q`-series with the defect coefficients.
+
+`TateCurve.defect_qExpansion` (368 pin lines): the defect `pointY ^ 2 + pointX * pointY - (pointX ^ 3 +
+a₄ * pointX + a₆)` of `(pointX q u, pointY q u)` is `∑' N, defectCoeff u N * q ^ N`. It is the
+*arithmetic* half of the point-coordinate dictionary SET-AF109F started: its two inputs are this
+module's two `q`-expansions (order F) and `TateCurve/Defect.lean`'s coefficient layer
+(`xCoeffFull`/`yCoeffFull`/`a₄Coeff`/`a₆Coeff`/`defectCoeff` and the Cauchy-product ring), which is why
+the def layer landed first.
+-/
+theorem TateCurve.defect_qExpansion {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {q u : K} (hq0 : q ≠ 0) (hq : ‖q‖₊ < 1) (hu0 : u ≠ 0) (hu : ∀ n : ℤ, q ^ n * u ≠ 1) (hqu : ‖q * u‖₊ < 1) (hqu' : ‖q * u⁻¹‖₊ < 1) : pointY q u ^ 2 + pointX q u * pointY q u - (pointX q u ^ 3 + a₄ q * pointX q u + a₆ q) = ∑' N : ℕ, defectCoeff u N * q ^ N :=
+  defect_qExpansion_loc hq0 hq hu0 hu hqu hqu'
+
+/-
+## SET-AF110 insertion: TateCurve.defectCoeff_zero
+
+The defect coefficient's constant term vanishes away from `u = 1`.
+
+`TateCurve.defectCoeff_zero` (13 pin lines): for `u ≠ 1`, `defectCoeff u 0 = 0` — the constant term of
+the defect series is the Weierstrass defect of the `q`-free point `(xfun u, yfun u)`, which lies on the
+curve. The companion of the row above, and the reason the series starts at `q ^ 1`.
+-/
+theorem TateCurve.defectCoeff_zero {K : Type*} [NontriviallyNormedField K] [IsUltrametricDist K] [CompleteSpace K] {u : K} (hu1 : u ≠ 1) : defectCoeff u 0 = 0 := by
+  have hnodal := TateCurve.nodal_xfun_yfun (K := K) (w := u) hu1
+  simp only [defectCoeff, cauchyMul_zero, xCoeffFull_zero, yCoeffFull_zero, a₄Coeff_zero,
+    a₆Coeff_zero, zero_mul, add_zero]
+  linear_combination hnodal
 

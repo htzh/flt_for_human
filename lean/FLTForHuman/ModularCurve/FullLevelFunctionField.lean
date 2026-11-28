@@ -17,6 +17,7 @@ of its premise modules — `X1/FunctionFieldInclusion` and `X0/FunctionFieldFull
 ## The rows
 
 * `ModularCurve.coe_mem_modularFunctionFieldFullC_of_forall_diamondPullbackModL_apply_eq` — 299 pin `S_` lines.
+* `ModularCurve.modularFunctionFieldC_eq_modularFunctionFieldFullC` — 25 pin `S_` lines (SET-AF110E).
 
 ## Port notes
 
@@ -53,11 +54,37 @@ of its premise modules — `X1/FunctionFieldInclusion` and `X0/FunctionFieldFull
   (`tmp/af109/probe-E.lean`, both modules of the order) prints nothing.
 * **Linters.** None silenced.
 
+## Landing (SET-AF110E, same pin and mathlib)
+
+* **Surface.** One insertion, **6 lines / 1 declaration** (the module moves from 331 to 337 lines); the
+  pin's `S_` block is 25 lines and 1 declaration. `check_port`: **6 ok / 0 mismatch / 0 missing / 0 own
+  / 0 kw** (6 before, the scaffold's headline already reading `ok`).
+* **It is the two-case wrapper and nothing else.** `ℓ = 0` → `CharP.charP_to_charZero` (a `CharZero K`
+  from `[CharP K 0]`) and `X1/FunctionFieldInclusion.lean:80`'s `…_of_charZero` row; `ℓ ≠ 0` →
+  `[NeZero ℓ]` and `Degree/FinrankDedekindPsi.lean:340`'s `…_of_charP_pos` row (SET-AF109E's). Neither
+  case is re-proved here and both were already in this module's import closure.
+* **Drift (two sites).** (i) The pin's `haveI`s become `have`s: on a proposition goal
+  `linter.style.haveILetI` warns, and a local hypothesis of class type is already an instance, so
+  `have hK : CharZero K` / `have hne : NeZero ℓ` serve as instances (measured: silent). (ii) The pin's
+  `attribute [-instance] …` / `attribute [-simp] …` walls are **dropped** — the proof elaborates
+  without them, as this order's brief allows.
+* **Engine gate**: pin sources **4**, pin decls **10**, module public decls **6** — **6 by hash**, 0 by
+  name, **0 unaccounted**, 6 distinct wire rows.
+* **Axioms**: all 6 public declarations ⊆ `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **`dedup --within`**: 0 clusters. **`move_dead --dry-run`**: 0 declarations, 0 lines.
+* **Heartbeat probe** (recorded, **never installed**; the pin's `synthInstance`/`maxHeartbeats` bumps are
+  absent): **silent at 50000, fails at 40000** (`whnf`, first at `:298`, i.e. SET-AF109E's headline
+  proof) — unchanged from that set's record, so the new row adds nothing to the floor. The module floor
+  is in `(40000, 50000]`.
+* **Linters**: none silenced; the locked `lake build` logs no warning line of this file.
+
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_coe_mem_modularFunctionFieldFullC_of_forall_diamondPullbackModL_apply_eq.lean>
 
 spec-pin: Theorems/Thm_ModularCurve_coe_mem_modularFunctionFieldFullC_of_forall_diamondPullbackModL_apply_eq.lean
 spec-pin: P2M/Sol/S_ModularCurve_coe_mem_modularFunctionFieldFullC_of_forall_diamondPullbackModL_apply_eq.lean
+spec-pin: Theorems/Thm_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC.lean
+spec-pin: P2M/Sol/S_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC.lean
 -/
 import FLTForHuman.ModularCurve.Degree.FinrankDedekindPsi
 import FLTForHuman.ModularCurve.Gamma0DedekindPsi
@@ -310,3 +337,25 @@ theorem ModularCurve.coe_mem_modularFunctionFieldFullC_of_forall_diamondPullback
     exact hu γ
   have huL : (u : LaurentSeries K) ∈ L := (IntermediateField.mem_lift u).mpr huFix
   exact hLF0 huL
+/-
+## SET-AF110 insertion: ModularCurve.modularFunctionFieldC_eq_modularFunctionFieldFullC
+
+The two full-level function fields coincide.
+
+`ModularCurve.modularFunctionFieldC_eq_modularFunctionFieldFullC` (25 pin lines): for `K` of
+characteristic `ℓ` with `ℓ ∤ N` the `q`-expansion function field and the divisor-generated one are
+equal — **without** the `[NeZero ℓ]` hypothesis SET-AF109E's row carries. Its pin proof is a two-case
+wrapper (`ℓ = 0` → `modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charZero`, which is ported in
+`ModularCurve/X1/FunctionFieldInclusion.lean:80`; `ℓ ≠ 0` → AF109E's `charP` row), so the row is a
+*generalisation* of a port row, not a new engine.
+-/
+theorem ModularCurve.modularFunctionFieldC_eq_modularFunctionFieldFullC (K : Type*) [Field K]
+    (ℓ : ℕ) [CharP K ℓ] (N : ℕ) [NeZero N] (hlN : ¬ ℓ ∣ N) :
+    modularFunctionFieldC K N = modularFunctionFieldFullC K N := by
+  rcases eq_or_ne ℓ 0 with hℓ | hℓ
+  · subst hℓ
+    have hK : CharZero K := CharP.charP_to_charZero K
+    exact modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charZero K N
+  · have hne : NeZero ℓ := ⟨hℓ⟩
+    exact modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos K ℓ N hlN
+

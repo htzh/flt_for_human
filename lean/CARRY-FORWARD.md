@@ -878,6 +878,13 @@ no verdict is wrong today; the damage is confined to full-name keys — `spec/de
 corpus's name column, and any tool that resolves a full name. Exposure, measured 2026-10-23:
 **82 adjacencies in 62 port files**, 1,662 in 1,211 pin files.
 
+**A second consequence, measured 2026-11-27 (SET-AF110A, FR-0334).** It is no longer only a full-name
+key: the manager's review harness generates its `#print axioms` probe from the *parsed* names, so a module
+laid out `end` … `end Foo` made that probe fail with `unknownIdentifier` and the harness print
+`PROBLEMS: 1` while every axiom was clean. The workaround there was a re-layout (the headline declared
+inside the namespace at its bare name); the *diagnosis* rule is that a harness `PROBLEMS: 1` on an axioms
+probe with no `sorry`/`error` line is this bug until the probe's names are checked.
+
 **Fix.** `\s+` → `[ \t]+` in the two name groups of `ENCLOSE_RE` (and `(?P<indent>\s*)` → `[ \t]*`).
 Then rebuild the corpus — `python3 spec/statement_db.py build`; the stamp carries the parser digest, so
 every cached verdict invalidates — and re-run `check_port --all` plus `--strict-markers`, expecting
@@ -1293,6 +1300,7 @@ different statements — so each rename needs a collision check before the wave,
 cluster is next active, keeping every last name so the checker's dotted fallback still matches.
 
 ### Tool hazards
+
 
 - **`frontier.py` credits a `spec-pin:` header before the module is green.** The `sources`
   tier now reads the `spec-pin:` lines of the port tree, so a node counts as ported as soon

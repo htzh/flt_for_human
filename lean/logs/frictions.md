@@ -7064,3 +7064,94 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   a name grep; and the set's "already in the port" figure is the advise's, with any row a worker rejects
   subtracted and named. Here: 768 → **~731 effective** (two rows, 37 lines) and one 3-line row deferred.
 - **seen**: 2026-11-27, SET-AF109D (7 rows transcribed instead of the 6 planned; 33 ok / 0 mismatch).
+
+## FR-0331 [Lean] — a `@[reducible]` alias makes a *term* ambiguous under two opened namespaces, and the fix is to drop the `open` (the pin's own list)
+
+- **where**: SET-AF110A. The pin's wrapper opens `NumberField NumberField.AdelicLevel NumberField.AdelicBox`
+  and then writes `integralFiniteAdeles` bare; the port has `AdelicBox.integralFiniteAdeles` as a
+  **`@[reducible]` alias** (`NumberTheory/AdelicHaar/PlaceMeasure.lean:48`) *and* the original under
+  `NumberField.AdelicLevel`, so with both namespaces opened every applied occurrence is an
+  *ambiguous term* — and so are the four `is*_integralFiniteAdeles` rows, which are stated as instances
+  over it.
+- **symptom**: the scaffold's statement fails with `ambiguous term` errors that name both candidates, and
+  neither `open` order helps (both are `open`ed in the pin's own wrapper).
+- **cause**: FR-0327's class again — the collision reaches a **term the statement spells bare**, so
+  name-resolution order cannot separate them; and a reducible alias is not a distinct *name*, so
+  qualification is not available either without changing the statement text (hash).
+- **cure / rule**: drop the namespace the pin does not *need* from the module's `open` list (here
+  `NumberField.AdelicLevel`), which leaves the statement text identical and the checker green. When the pin
+  opens two namespaces that both supply a term, the port opens the one whose spelling the pin's *proof*
+  needs and qualifies the other's uses in the proof (FR-0327's rule).
+- **seen**: 2026-11-27, SET-AF110A (file-level `open` list adjusted; `check_port` 52 ok / 0 mismatch).
+
+## FR-0332 [mathlib drift] — `AddChar.compAddMonoidHom_apply` is not `simp`/`rw`-able where the port's `AdeleRing` product instance makes the two sides only *defeq*, and `rw [← unipotentGL2_add]` cannot match a pair literal
+
+- **where**: SET-AF110A, two sites; the same shape is already recorded in
+  `FLTForHuman/EisensteinGeneral/PiecePartialEulerProduct.lean:106` (SET-AF109A hit it independently).
+- **symptom**: `rw [AddChar.compAddMonoidHom_apply]` or `simp`-ing with it fails with an
+  `implicit`-transparency mismatch, because `AdeleRing = InfiniteAdeleRing × FiniteAdeleRing` is a product
+  `def` and the rewrite must see through it; and `rw [← unipotentGL2_add]` fails to match when one operand
+  is written as a pair literal at `R := AdeleRing (𝓞 K) K`.
+- **cure**: state the intermediate equality with `show … = …` (the pin's own idiom does this in several
+  places), or `simp only [AddChar.compAddMonoidHom_apply]` after `change`/`show` at the pair form. Do not
+  raise transparency on the whole proof.
+- **seen**: 2026-11-27, SET-AF110A (twice), SET-AF109A (once).
+
+## FR-0333 [checker] — a declaration can read `ok` while matching the *wrong* pin row, because the checker credits by content hash within the wire
+
+- **where**: SET-AF110E, `ann_impl`. The pin's `S_` file states its helpers with `variable (F : Type)` in
+  scope, so `F` appears in **none** of the `S_` binder texts; writing `(F : Type)` into the port's declaration
+  was read as **MISMATCH** (FR-0321's shape). But *before* that fix the declaration was not a mismatch at
+  all: it silently matched the **`Theorems/` headline's** statement hash, so `check_port` read `ok` — a
+  false pass that hides the drift, and one which the engine diff's "by hash" credit also reports as clean.
+- **symptom**: a MISMATCH-free run, a green engine diff, and a declaration whose statement is not the pin
+  row it is named after. It is FR-0318's mirror image: there a *conclusion-only* hash matched anything; here
+  a helper's statement coincidentally equals another row's (the headline's) content hash.
+- **cause**: the checker looks the declaration up in the wire's sources by content hash, not by name, so any
+  same-hash row in the same wire is an acceptable partner. The engine diff then counts it as matched.
+- **rule**: read `check_port`'s `-> file:line` column, not only the `ok`; a declaration claiming a line of a
+  *different* statement is the tell. When a pin writes `variable (F : Type)`, the port must keep `F` in the
+  section variables (statement text unchanged), never as an explicit binder.
+- **seen**: 2026-11-27, SET-AF110E (`ann_impl`, `mul_apply`, `neg_apply`; three sites, one fix).
+
+## FR-0334 [tools] — `spec/lean_parser.py` reads a bare `end` line's *name* from the next `end Foo`, so a module laid out `end` … `end Foo` keeps `Foo` open and its later headlines get a doubled full name
+
+- **where**: SET-AF110A. The module's namespace layout had a bare `end` (closing a `section`) followed by
+  `end …` several lines later; the parser's `end` regex lets `\s` cross newlines, so it took `Foo` as the
+  *name of the bare* `end`, closed the wrong scope, and every later declaration was parsed as
+  `AutomorphicForm.AutomorphicForm.…`.
+- **symptom**: `check_port` is green (it matches by statement hash, which is namespace-free), but the
+  manager's harness (`tmp/af110/review.py`) generates its `#print axioms` probe from the *parsed names*, so
+  it reports `PROBLEMS: 1` with `unknownIdentifier` while the axioms are clean. The CARRY-FORWARD already
+  registers this as a known parser bug (a bare `end` immediately followed by `end Name` is mis-read); this
+  is the first measured consequence.
+- **cure / rule**: lay a module out so no bare `end` is followed by `end Foo` (put the headline inside the
+  namespace at its bare name, or name every `section`), and treat a harness `PROBLEMS: 1` on an `axioms`
+  probe as this bug until the probe's names are checked. The parser fix is a quiet-tree job: it changes
+  **every** module's parsed full names, so it must be landed with a full `check_port` sweep, not mid-wave.
+- **seen**: 2026-11-27, SET-AF110A (module restructured; harness reads 0 problems).
+
+## FR-0335 [port bug] — a public "identical" port copy can be unusable because it was declared at universe 0; the checker cannot see universes
+
+- **where**: SET-AF110B, row 2. `port_advise` matched the pin's `continuous_ringEquiv_mixedSpace_symm`
+  (32 lines, `variable (K : Type*)`) to `NumberField.AdelicBox.continuous_ringEquiv_mixedSpace_symm`
+  (`NumberTheory/AdelicBox/Normalization.lean:131`) and to
+  `AutomorphicForm.continuous_ringEquiv_mixedSpace_symm` (`TestFnNearIdentity.lean:58`) — both
+  **statement-identical up to namespace and binder spelling**. Both are declared under
+  `variable (F : Type)`.
+- **measurement**: applying the copy at the pin's `K : Type u_1` is rejected:
+  *"K has type Type u_1 but is expected to have type Type"*. The substitution is therefore **unusable**,
+  not merely misplaced, and the pin's 32-line proof had to be transcribed (at the pin's own name, in
+  `AdelicFourier/NonzeroTrace.lean`).
+- **cause**: the checker and `port_advise` read the **source text**, which does not record universes:
+  `variable (K : Type*)` in the pin and `variable (F : Type)` in the port produce the same statement hash
+  and the same shape-tier match. The elaborated types differ, and only application sees it. This is FR-0324's
+  class (a public, `ok`, unappliable row) with the *universe* as the reason — the first measured instance of
+  it in this column.
+- **rule**: when a substitution's binders include a `Type*`-valued parameter, check the port copy's
+  declaration site for `variable (X : Type)` versus `(X : Type*)` before believing it. The cheap test is one
+  `#check`/application at a `Type u` in a scratch file; the expensive one is discovering it mid-proof.
+  A port copy at universe 0 that blocks a pin row is a **promotion of generality**, not a shadow: either
+  re-declare at `Type*` (and keep the `ok` statement text) or transcribe the pin's row.
+- **seen**: 2026-11-27, SET-AF110B (`NumberField.InfiniteAdeleRing.continuous_ringEquiv_mixedSpace_symm`,
+  now importable from `AdelicFourier/NonzeroTrace.lean`).
