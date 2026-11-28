@@ -6950,3 +6950,117 @@ Two instructions from SET-AF88A's step 1 that every later work order should carr
   pin's statement text, which the checker hashes (`MISMATCH` would be the price). Not done here: it is
   another set's module and the change must keep that module's checker green.
 - **seen**: 2026-11-27, SET-AF108D (workaround: a private restatement; registered in CARRY-FORWARD).
+
+## FR-0325 [Lean] — a ready row whose *statement* needs an unported `Def_` module is not statable, and the def-layer read is the only gate that sees it
+
+- **where**: SET-AF109, order F. `TateCurve.pointX_qExpansion` reads `needed = 1, premises = 4` on the
+  shelf and all four premises are public in `TateCurve/SeriesIdentities.lean`; the row is nevertheless not
+  statable, because its statement's series is written in `TateCurve.xCoeff` / `yCoeff`, declared in
+  `Definitions/Def_TateCurve_Tails.lean` (90 lines, 15 declarations), and the port carried **none** of them.
+- **symptom**: the scoping read's def-layer check prints `GATE Def_TateCurve_Tails.lean: 0 public / 0
+  private / 15 absent of 15` — the only `GATE` line among the eleven rows of the set; every other absence
+  in the set is a `structure` field (`RegularProlongation.integers`, `Place.toValuationSubring`,
+  `IsCurveOver.finiteResidue`, …), which the checker's declaration index does not carry and which the port
+  does supply inside the structure.
+- **cause**: the readiness test reads the row's graph premises; the statement's *vocabulary* is not a graph
+  node (the recipe's §0 note). A `Definitions/` module that only the statement needs therefore never shows
+  up as a premise.
+- **cure / rule**: before scaffolding, read every row's `S_` file `import Definitions/…` lines and classify
+  each absent declaration as **structure field** (ignore) or **def/theorem** (a gate). Port the gate first —
+  it is manager work (`Def_*` nodes are the manager's), and it is cheap when it is small: this one is
+  90 lines / 15 declarations and landed as `TateCurve/Tails.lean` with **13 ok / 0 mismatch**. Doing it
+  before the scaffold is what lets the row's two headlines be *written* at all.
+- **seen**: 2026-11-27, SET-AF109 (order F; `TateCurve/Tails.lean` landed by the manager).
+
+## FR-0326 [process] — the promotion of a neighbour module's `private` block is a *cost* instrument, not only a dedup one
+
+- **where**: SET-AF109A. The pin's 2,468-line row and SET-AF108F's 547-line row are two `S_` files of one
+  pin family: they share **17 declaration names**, 14 of which AF108F landed `private` in
+  `EisensteinGeneral/PieceWeylIntegrability.lean` (12 statement-hash-identical, 2 by name, plus 2 already
+  substituted elsewhere).
+- **measurement**: dropping `private` on those 14 and running `check_port` on that module reads
+  **15 ok / 0 mismatch / 0 own** (from 1 ok + 21 `private`) — i.e. every promoted row is pin-faithful, the
+  recipe's §5 surface gate as a *promotion* test. The row that needed them then imports ~300 lines instead
+  of re-proving them, and the wave carries no cross-module duplicate.
+- **cause**: a `private` declaration is not importable, so the default outcome of two waves transcribing one
+  pin family is a duplicate that only `dedup --cross` sees afterwards.
+- **rule**: when a cut row's `port_advise` block says "only as a port-private declaration", read that as a
+  promotion decision for the manager (not as a transcription instruction for the worker), and run the
+  surface gate on the *neighbour* module before dispatch. The price is one hub rebuild and one header
+  paragraph; the return is the shared engine, importable, plus one fewer CARRY-FORWARD item.
+- **seen**: 2026-11-27, SET-AF109 (the fourteen promotions in `PieceWeylIntegrability.lean`).
+
+## FR-0327 [Lean] — FR-0322's "fix a namesake collision by `open` order, never by qualification" has a second shape: when the *namespace* also carries a same-named **term**, only the lemma in the proof may be qualified
+
+- **where**: SET-AF109G, row 1. The pin uses `algebraMap_mem_adicCompletionIntegers`, which the port
+  declares as `NumberField.AdelicLevel.algebraMap_mem_adicCompletionIntegers`, and the proof also uses the
+  bare term `integralFiniteAdeles`, which exists **twice** with the same type
+  `Set (FiniteAdeleRing (𝓞 F) F)`: `NumberField.AdelicBox.integralFiniteAdeles` (the one the statement
+  means) and `NumberField.AdelicLevel.integralFiniteAdeles`.
+- **symptom**: applying FR-0322's cure — `open NumberField.AdelicLevel` so the lemma resolves bare — makes
+  **every applied occurrence** of `integralFiniteAdeles` an *ambiguous term* error. Both `open` orders are
+  ambiguous (measured in both directions), and `#check integralFiniteAdeles` alone goes ambiguous as soon as
+  the second namespace is open.
+- **cause**: FR-0322's collision was between two *declaration* names, where `open` order picks a winner for
+  a name that is unambiguous per namespace. Here the collision is on a **term that the statement must spell
+  bare** (the checker hashes the statement text) *and* that two opened namespaces both provide. No `open`
+  order can separate them, because the statement needs one and the proof needs the other.
+- **cure / rule**: keep the pin's `open` list exactly as the wrapper has it, and qualify the **lemma inside
+  the proof** (`NumberField.AdelicLevel.algebraMap_mem_adicCompletionIntegers v α`). The statement keeps the
+  pin's bare spelling, so `check_port` reads `ok`, and the proof's qualification is invisible to the
+  checker. The rule to carry: `open` order fixes **name** collisions; a collision that reaches a term the
+  statement spells bare is fixed on the **proof side only**.
+- **seen**: 2026-11-27, SET-AF109G (row 1; `check_port` 1 ok / 0 mismatch).
+
+## FR-0328 [Lean] — `private` gives no shadowing exemption: a `private` declaration may not reuse a *public* full name that already exists
+
+- **where**: SET-AF109B. The pin's `S_` file has `private theorem residue_eq_zero_iff`, and the port already
+  declares a **public** `AlgebraicCurve.RegularProlongation.residue_eq_zero_iff` with a different statement
+  (`RegularProlongationFinrank.lean:118`).
+- **symptom**: writing the pin's row `private` at the pin's name fails with "has already been declared",
+  even though Lean's `private` names are supposed to be name-mangled (`_private.<module>.0.…`) and therefore
+  invisible.
+- **cause**: the mangling applies to the *name that is introduced*, not to an existing public name: the
+  declaration's full name is computed before mangling, so the check against an existing public declaration
+  fires first. (Same rule that makes FR-0320's stale `.olean` survive a source deletion.)
+- **cure / rule**: a `private` row whose last name is taken by a *public* declaration of another module
+  needs a distinct name; prefer a descriptive one (`residue_eq_zero_iff_of_mem`) over a prime, and check
+  `check_port` afterwards — the checker's hash tier matches the pin row anyway, so a rename does **not**
+  cost a MISMATCH, while a same-named public row would have cost a collision.
+- **seen**: 2026-11-27, SET-AF109B (`residue_eq_zero_iff'`, 57 ok / 0 mismatch).
+
+## FR-0329 [Lean] — a projection declared in the *same* namespace beats every `open`, and the checker hashes the written text, so the cure is `local notation`
+
+- **where**: SET-AF109B, `residue_cst`. The pin writes `residue A a` for `IsLocalRing.residue A a` inside
+  `namespace AlgebraicCurve.RegularProlongation`, where `RegularProlongation.residue` is a **structure
+  projection** with the same last name.
+- **symptom**: the bare `residue` elaborates to the projection, not to `IsLocalRing.residue`, so the pin's
+  statement text cannot be reproduced by `open`ping anything; and spelling it `IsLocalRing.residue` makes
+  `check_port` read a **MISMATCH**, because the checker normalises/hashes the *written* text (FR-0321).
+- **cause**: name resolution prefers the enclosing namespace over any `open`ed one, and a structure
+  projection is an ordinary declaration name in that namespace. FR-0322's "`open` order picks the winner"
+  only holds between two *opened* namespaces; the enclosing namespace outranks both.
+- **cure / rule**: `local notation "residue" => IsLocalRing.residue` in the module (it rewrites the
+  *written* term, so the hash stays the pin's), or `open IsLocalRing in` **plus** a rename/namespace change
+  of the colliding projection if the module owns it. Never qualify in the statement (hash) — qualify in the
+  proof or introduce the notation.
+- **seen**: 2026-11-27, SET-AF109B (one `local notation` line, `check_port` 57 ok).
+
+## FR-0330 [process] — a manager's substitution table built from the name index is not a substitution table; only the advise's *statement* tier is
+
+- **where**: SET-AF109D's work order. The brief's §3 and `tmp/af109/substitutions.txt` were built by looking
+  each pin row's **last name** up in the port index, and the order's table inherited the result.
+- **measurement**: of the order's "22 of 29 declarations already public", **two are not**:
+  `mem_range_of_forall_ord_nonneg` — its only port copy is a *weaker* row (`Pole` form, transcendental `j`)
+  in `Genus/ConstantFieldExtensionDivisor.lean:163`, and that module **imports the home**, so importing it
+  back is a cycle; and `degree_eq_sum` — `Defs/Divisor.lean:49` carries the pin's *other* `degree_eq_sum`
+  (`degree D = ∑ v ∈ D.support, D v * deg v`), not the row's (`G.degree = G.sum fun _ n => n`).
+  Both were transcribed from the pin (38 lines), and the third row the table missed entirely
+  (`mem_compositeRing_iff`, 3 lines, `Iff.rfl`) has no port copy at all.
+- **cause**: last-name matching is exactly the FR-0047 shadow class the premise check exists for, and a
+  `def` on a type is the FR-0266 trap; the name index has neither defence. `port_advise`'s tier-1/tier-3
+  blocks do (statement hash + binder normalisation), and its three "suspect" rows are the honest residual.
+- **rule**: a work order's substitution table is copied from the advise's statement tier, never rebuilt from
+  a name grep; and the set's "already in the port" figure is the advise's, with any row a worker rejects
+  subtracted and named. Here: 768 → **~731 effective** (two rows, 37 lines) and one 3-line row deferred.
+- **seen**: 2026-11-27, SET-AF109D (7 rows transcribed instead of the 6 planned; 33 ok / 0 mismatch).

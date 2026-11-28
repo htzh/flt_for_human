@@ -46,6 +46,8 @@ References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_NumberField_mixedEmbedding_traceForm_mixedSpace_nondegenerate.lean>
   spec-pin: Theorems/Thm_NumberField_mixedEmbedding_traceForm_mixedSpace_nondegenerate.lean
   spec-pin: P2M/Sol/S_NumberField_mixedEmbedding_traceForm_mixedSpace_nondegenerate.lean
+spec-pin: Theorems/Thm_NumberField_mixedEmbedding_coe_dualSubmodule_flip_traceForm_idealLattice.lean
+spec-pin: P2M/Sol/S_NumberField_mixedEmbedding_coe_dualSubmodule_flip_traceForm_idealLattice.lean
 
 ## Port notes (order AF107F, ported at pin `aa2d8b3` against the port's mathlib `v4.34.0`)
 
@@ -99,6 +101,36 @@ the matrix identity `toMatrix = (traceMatrix ℚ (integralBasis K)).map (algebra
 * **Heartbeat probe**: unchanged by this row — fails at 80000 (`whnf`, in `Weight`'s
   `mul_le_mul`), passes at 100000, the module's bisector as AF107F recorded it. The new row is
   not the worst site.
+
+## Landing (AF109G) — the ideal-lattice trace dual
+
+A fourteenth declaration joins the thirteen:
+`coe_dualSubmodule_flip_traceForm_idealLattice`, `B.flip.dualSubmodule (idealLattice K I)` is
+`mixedEmbedding K '' (dual ℤ ℚ I)` as a set (50 pin `S_` lines). 580 lines now (522 before; the row
+is a 28-line proof, the rest is this note); `check_port` **14 ok / 0 mismatch / 0 missing / 0 own / 0 kw**.
+
+* **Substitutions**: none. The pin's proof ran verbatim but for one API move — `FractionalIdeal.coe_dual`
+  takes its `A K` explicitly at `v4.34.0` (`coe_dual ℤ ℚ hI`), as the pin already wrote it, but its
+  `hI` argument is now the *only* explicit one, so a first `rw [FractionalIdeal.coe_dual hI]` fails;
+  the pin's form is correct as written. Everything else
+  (`basisOfFractionalIdeal`/`mem_span_basisOfFractionalIdeal`, `fractionalIdealLatticeBasis_apply`,
+  `span_idealLatticeBasis`, `Submodule.traceDual_span_of_basis`,
+  `LinearMap.BilinForm.dualSubmodule_span_of_basis`, `dualBasis_eq_iff`, `Basis.trace_mul_traceDual`)
+  is the port's mathlib unchanged.
+* **No import added**: `Mathlib.RingTheory.DedekindDomain.Different` (already carried for
+  `FractionalIdeal.dual`, per the order) also brings `Mathlib.LinearAlgebra.BilinearForm.DualLattice`,
+  where `dualSubmodule` lives, so the scaffold's import list was complete.
+* **`open scoped nonZeroDivisors`** (the scaffold's, for `(𝓞 K)⁰`) kept.
+* **Engine gate** over the six pin sources: pin decls **2**, module decls **14**; **1 by hash**
+  (`cb0c03abb50e6e37a7e2`), 0 by name, 0 unaccounted.
+* **`dedup --within`**: the same **1** cluster as before this row
+  (`exists_forall_norm_embedding_sub_le_impl` ↔ `…_sub_le`, 7 lines, the pin's own
+  headline↔engine pair). **`move_dead --dry-run`**: 0 declarations, 0 lines.
+* **Axioms**: all 14 public declarations, `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **Heartbeat probe** (recorded, **never installed**): unchanged by this row — the downward ladder
+  fails all of 40000 / 20000 / 10000 / 5000, fails at 80000 (`whnf`, in `Weight`'s `mul_le_mul`,
+  line 338) and passes at 100000, exactly AF107F's/AF108H's bisector. The new row is not the
+  worst site and no `set_option` is installed.
 -/
 
 import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.Basic
@@ -119,6 +151,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Topology.Algebra.InfiniteSum.Basic
 import Mathlib.RingTheory.Ideal.Norm.AbsNorm
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.RingTheory.DedekindDomain.Different
 import Mathlib.Tactic
 
 open NumberField NumberField.mixedEmbedding NumberField.InfinitePlace Module
@@ -498,3 +531,50 @@ theorem NumberField.mixedEmbedding.traceForm_mixedSpace_nondegenerate
       Algebra.traceForm_apply, eq_ratCast]
   rw [h, ← RingHom.mapMatrix_apply, ← RingHom.map_det, ← Algebra.discr_def, map_ne_zero]
   exact Algebra.discr_not_zero_of_basis ℚ (integralBasis K)
+/-
+## SET-AF109 insertion: NumberField.mixedEmbedding.coe_dualSubmodule_flip_traceForm_idealLattice
+
+The trace dual of an ideal lattice is the dual ideal.
+
+`NumberField.mixedEmbedding.coe_dualSubmodule_flip_traceForm_idealLattice` (50 pin lines): the
+`dualSubmodule` of `idealLattice K I` under the flipped trace form is
+`mixedEmbedding K '' (dual ℤ ℚ I)`, as a set. It is the lattice-level form of the trace-duality that
+`traceForm_mixedSpace_nondegenerate` (the row above) and `trace_mixedEmbedding` provide, and the form the
+Poisson summation of the L-function consumes.
+-/
+open scoped nonZeroDivisors
+theorem NumberField.mixedEmbedding.coe_dualSubmodule_flip_traceForm_idealLattice
+    (K : Type*) [Field K] [NumberField K] (I : (FractionalIdeal (𝓞 K)⁰ K)ˣ) :
+    (LinearMap.BilinForm.dualSubmodule (Algebra.traceForm ℝ (mixedSpace K)).flip
+        (mixedEmbedding.idealLattice K I) : Set (mixedSpace K))
+      = mixedEmbedding K '' (FractionalIdeal.dual ℤ ℚ (I : FractionalIdeal (𝓞 K)⁰ K) : Set K) := by
+  have hB : (Algebra.traceForm ℝ (mixedSpace K)).flip.Nondegenerate :=
+    (NumberField.mixedEmbedding.traceForm_mixedSpace_nondegenerate K).flip
+  have hI : (I : FractionalIdeal (𝓞 K)⁰ K) ≠ 0 := Units.ne_zero I
+  have hspan : ((I : FractionalIdeal (𝓞 K)⁰ K) : Submodule (𝓞 K) K).restrictScalars ℤ
+      = Submodule.span ℤ (Set.range (basisOfFractionalIdeal K I)) := by
+    ext x
+    rw [Submodule.restrictScalars_mem, FractionalIdeal.mem_coe, mem_span_basisOfFractionalIdeal]
+    rfl
+  have hdual : ((FractionalIdeal.dual ℤ ℚ (I : FractionalIdeal (𝓞 K)⁰ K) :
+        FractionalIdeal (𝓞 K)⁰ K) : Submodule (𝓞 K) K).restrictScalars ℤ
+      = Submodule.span ℤ (Set.range (basisOfFractionalIdeal K I).traceDual) := by
+    rw [FractionalIdeal.coe_dual ℤ ℚ hI]
+    exact Submodule.traceDual_span_of_basis ℤ _ (basisOfFractionalIdeal K I) hspan
+  have hdb : ⇑((Algebra.traceForm ℝ (mixedSpace K)).flip.dualBasis hB
+        (fractionalIdealLatticeBasis K I))
+      = fun i => mixedEmbedding K ((basisOfFractionalIdeal K I).traceDual i) := by
+    rw [LinearMap.BilinForm.dualBasis_eq_iff]
+    intro i j
+    rw [LinearMap.BilinForm.flip_apply, fractionalIdealLatticeBasis_apply, Algebra.traceForm_apply,
+      ← map_mul, NumberField.mixedEmbedding.trace_mixedEmbedding, Basis.trace_mul_traceDual]
+    split_ifs <;> simp
+  have himage : (⇑(mixedEmbedding K) '' (FractionalIdeal.dual ℤ ℚ (I : FractionalIdeal (𝓞 K)⁰ K) : Set K))
+      = ((Submodule.span ℤ (Set.range (basisOfFractionalIdeal K I).traceDual)).map
+          (mixedEmbedding K).toIntAlgHom.toLinearMap : Set (mixedSpace K)) := by
+    rw [Submodule.map_coe, ← hdual]
+    rfl
+  rw [← span_idealLatticeBasis, LinearMap.BilinForm.dualSubmodule_span_of_basis _ hB, hdb, himage,
+    Submodule.map_span, ← Set.range_comp]
+  rfl
+

@@ -32,9 +32,23 @@ References (public mirror, pinned):
 spec-pin: Theorems/Thm_EisensteinGeneral_Piece_integrable_weyl_unipotent_mul_of_factorization.lean
 spec-pin: P2M/Sol/S_EisensteinGeneral_Piece_integrable_weyl_unipotent_mul_of_factorization.lean
 
-## Surface (order AF108F)
+## Surface (order AF108F; fourteen rows promoted by SET-AF109A)
 
-**22 declarations: 1 public (the row) + 21 `private`.** The pin's `S_` file states 25 declarations;
+**22 declarations: 15 public + 7 `private`.** Fourteen helpers were landed `private` by AF108F and
+are promoted by SET-AF109A: **eleven** are statement-hash-identical to the sibling pin file's copies and one
+(`pc_isCompact_integers`) differs only in binder explicitness, so twelve of the fourteen are reused
+directly; the other two (`pc_norm_mul_cpow_lt_one`, `pc_excess_bounds`) turn out to be *different lemmas*
+that merely share a last name with the sibling pin's rows — the pin's two files reuse both names for
+different statements, invisibly, because both copies are `private`. That pin transcribes the two privately
+under its own names. The promoted block is the shared
+prelude `ch_norm_realWeightIntegrand`, `ch_continuous_realWeightIntegrand`,
+`integrable_realWeightIntegrand`, `ch_majorant_integrable`, `integrable_complexWeightIntegrand`,
+`integrable_mixedSpace_prod` (`WeylGlue`) and `pc_norm_mul_cpow_lt_one`, `pc_excess_bounds`,
+`pc_isCompact_integers`, `pc_integrable_realWeight`, `pc_integrable_complexWeight`,
+`pc_integrable_comp_smul`, `pc_integrable_arch`, `pc_integrable_affine` (`Piece`). Each was already
+statement-hash-faithful to the pin, so `check_port` reads all fourteen `ok` after the promotion (15 ok
+/ 0 mismatch); the seven that stay `private` are this module's own local spellings. The pin's `S_` file
+states 25 declarations;
 three are substituted into the port (below) and its `solution` (`:467`) is the row restated, so the
 row is written once, at the wrapper's `Theorems/` name. Everything else is the pin's private engine,
 transcribed at the pin's own names: the 4-to-42-line helpers of its `EgenGlue`/`EgenPiece`
@@ -122,7 +136,7 @@ attribute [local instance] NumberField.AdelicHaar.adeleBorel NumberField.AdelicH
 
 namespace EisensteinGeneral.WeylGlue
 
-private theorem ch_norm_realWeightIntegrand (k : ℤ) (w : ℂ) (t x : ℝ) :
+theorem ch_norm_realWeightIntegrand (k : ℤ) (w : ℂ) (t x : ℝ) :
     ‖((((x : ℝ) : ℂ) - Complex.I) / ((Real.sqrt (1 + x ^ 2) : ℝ) : ℂ)) ^ k
       * (((1 + x ^ 2 : ℝ) : ℂ)) ^ (-w)
       * Complex.exp (-(((2 * Real.pi * t * x : ℝ) : ℂ) * Complex.I))‖ = (1 + x ^ 2) ^ (-w.re) := by
@@ -143,7 +157,7 @@ private theorem ch_norm_realWeightIntegrand (k : ℤ) (w : ℂ) (t x : ℝ) :
   rw [norm_mul, norm_mul, hweight, hchar, Complex.norm_cpow_eq_rpow_re_of_pos hs, Complex.neg_re,
     one_mul, mul_one]
 
-private theorem ch_continuous_realWeightIntegrand (k : ℤ) (w : ℂ) (t : ℝ) :
+theorem ch_continuous_realWeightIntegrand (k : ℤ) (w : ℂ) (t : ℝ) :
     Continuous (fun x : ℝ => ((((x : ℝ) : ℂ) - Complex.I) / ((Real.sqrt (1 + x ^ 2) : ℝ) : ℂ)) ^ k
       * (((1 + x ^ 2 : ℝ) : ℂ)) ^ (-w)
       * Complex.exp (-(((2 * Real.pi * t * x : ℝ) : ℂ) * Complex.I))) := by
@@ -172,7 +186,7 @@ private theorem ch_continuous_realWeightIntegrand (k : ℤ) (w : ℂ) (t : ℝ) 
     fun_prop
   exact (hweight.mul hpow).mul hchar
 
-private theorem integrable_realWeightIntegrand (k : ℤ) (w : ℂ) (hw : 1 / 2 < w.re) (t : ℝ) :
+theorem integrable_realWeightIntegrand (k : ℤ) (w : ℂ) (hw : 1 / 2 < w.re) (t : ℝ) :
     Integrable (fun x : ℝ => ((((x : ℝ) : ℂ) - Complex.I) / ((Real.sqrt (1 + x ^ 2) : ℝ) : ℂ)) ^ k
       * (((1 + x ^ 2 : ℝ) : ℂ)) ^ (-w)
       * Complex.exp (-(((2 * Real.pi * t * x : ℝ) : ℂ) * Complex.I))) := by
@@ -189,7 +203,7 @@ private theorem integrable_realWeightIntegrand (k : ℤ) (w : ℂ) (hw : 1 / 2 <
   ring
 
 
-private theorem ch_majorant_integrable (n : ℕ) (σ : ℝ) (hσ : (n : ℝ) / 2 + 1 < σ) :
+theorem ch_majorant_integrable (n : ℕ) (σ : ℝ) (hσ : (n : ℝ) / 2 + 1 < σ) :
     Integrable (fun z : ℂ => ‖z‖ ^ n * (1 + ‖z‖ ^ 2) ^ (-σ)) := by
   have hnr : (Module.finrank ℝ ℂ : ℝ) < 2 * σ - n := by
     rw [Complex.finrank_real_complex]
@@ -207,7 +221,7 @@ private theorem ch_majorant_integrable (n : ℕ) (σ : ℝ) (hσ : (n : ℝ) / 2
           congr 1
           ring
 
-private theorem integrable_complexWeightIntegrand (a b : ℕ) (w : ℂ) (hw : ((a + b : ℕ) : ℝ) / 2 + 1 < w.re) (ζ : ℂ) :
+theorem integrable_complexWeightIntegrand (a b : ℕ) (w : ℂ) (hw : ((a + b : ℕ) : ℝ) / 2 + 1 < w.re) (ζ : ℂ) :
     Integrable (fun z : ℂ => z ^ a * (starRingEnd ℂ) z ^ b * (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ^ (-w)
       * Complex.exp (-(((4 * Real.pi * (ζ * z).re : ℝ) : ℂ) * Complex.I))) := by
   refine (ch_majorant_integrable (a + b) w.re hw).mono' ?_
@@ -225,7 +239,7 @@ private theorem integrable_complexWeightIntegrand (a b : ℕ) (w : ℂ) (hw : ((
 
 open scoped Classical in
 
-private theorem integrable_mixedSpace_prod (F : Type) [Field F] [NumberField F]
+theorem integrable_mixedSpace_prod (F : Type) [Field F] [NumberField F]
     (f : {w : InfinitePlace F // w.IsReal} → ℝ → ℂ) (h : {w : InfinitePlace F // w.IsComplex} → ℂ → ℂ)
     (hf : ∀ w, Integrable (f w)) (hh : ∀ w, Integrable (h w)) :
     Integrable (fun x : mixedEmbedding.mixedSpace F => (∏ w, f w (x.1 w)) * ∏ w, h w (x.2 w))
@@ -259,7 +273,7 @@ open Filter Topology
 variable {F : Type} [Field F] [NumberField F]
 
 
-private theorem pc_norm_mul_cpow_lt_one (v : HeightOneSpectrum (𝓞 F)) (c : ℂ) (hc : ‖c‖ = 1) (s : ℂ)
+theorem pc_norm_mul_cpow_lt_one (v : HeightOneSpectrum (𝓞 F)) (c : ℂ) (hc : ‖c‖ = 1) (s : ℂ)
     (hs : 0 < s.re) :
     ‖c * ((Ideal.absNorm v.asIdeal : ℕ) : ℂ) ^ (-(2 * s))‖ < 1 := by
   have h2 := NumberField.PrimeNormSum.two_le_absNorm v
@@ -270,7 +284,7 @@ private theorem pc_norm_mul_cpow_lt_one (v : HeightOneSpectrum (𝓞 F)) (c : �
   have h2' : (2 : ℝ) ≤ (Ideal.absNorm v.asIdeal : ℝ) := by exact_mod_cast h2
   exact Real.rpow_lt_one_of_one_lt_of_neg (by linarith) (by linarith)
 
-private theorem pc_excess_bounds (M q t I : ℝ) (hM : 0 < M) (hq : 2 ≤ q) (ht : 1 ≤ t)
+theorem pc_excess_bounds (M q t I : ℝ) (hM : 0 < M) (hq : 2 ≤ q) (ht : 1 ≤ t)
     (hI : I = M * (1 - 1 * q ^ (-(t + 1))) * (1 - 1 * q ^ (-t))⁻¹) :
     0 ≤ M⁻¹ * I - 1 ∧ M⁻¹ * I - 1 ≤ 2 * q ^ (-t) := by
   have hq1 : 1 ≤ q := by linarith
@@ -349,7 +363,7 @@ private theorem pc_continuousOn_integers_of_depth {v : HeightOneSpectrum (𝓞 F
     simpa [sub_add_cancel] using Valuation.map_add_le _ (hy.trans hle1) hx1
   exact (hA x hx y hy1 hy).symm
 
-private theorem pc_isCompact_integers (v : HeightOneSpectrum (𝓞 F)) :
+theorem pc_isCompact_integers (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (v.adicCompletionIntegers F : Set (v.adicCompletion F)) :=
   isCompact_iff_compactSpace.mpr (NumberField.AdelicHaar.compactSpace_adicCompletionIntegers (𝓞 F) F v)
 
@@ -364,7 +378,7 @@ private theorem pc_integrableOn_integers_of_depth {v : HeightOneSpectrum (𝓞 F
     IntegrableOn A (v.adicCompletionIntegers F : Set (v.adicCompletion F)) μ :=
   (pc_continuousOn_integers_of_depth ϖ hϖ m A hA).integrableOn_compact (pc_isCompact_integers v)
 
-private theorem pc_integrable_realWeight (k : ℤ) (τ : ℝ) (s : ℂ) (hs : 1 < s.re) :
+theorem pc_integrable_realWeight (k : ℤ) (τ : ℝ) (s : ℂ) (hs : 1 < s.re) :
     Integrable (fun x : ℝ => ((((x : ℝ) : ℂ) - Complex.I) / ((Real.sqrt (1 + x ^ 2) : ℝ) : ℂ)) ^ k
       * (((1 + x ^ 2 : ℝ) : ℂ)) ^ (-(s + 1 / 2 + ((τ : ℝ) : ℂ) * Complex.I / 2))) := by
   have hw : 1 / 2 < (s + 1 / 2 + ((τ : ℝ) : ℂ) * Complex.I / 2).re := by
@@ -374,7 +388,7 @@ private theorem pc_integrable_realWeight (k : ℤ) (τ : ℝ) (s : ℂ) (hs : 1 
   refine (EisensteinGeneral.WeylGlue.integrable_realWeightIntegrand k _ hw 0).congr (ae_of_all _ fun x => ?_)
   simp
 
-private theorem pc_integrable_complexWeight (a b m : ℕ) (habm : a + b ≤ m) (τ : ℝ) (s : ℂ) (hs : 1 < s.re) :
+theorem pc_integrable_complexWeight (a b m : ℕ) (habm : a + b ≤ m) (τ : ℝ) (s : ℂ) (hs : 1 < s.re) :
     Integrable (fun z : ℂ => z ^ a * (starRingEnd ℂ) z ^ b
       * (((1 + ‖z‖ ^ 2 : ℝ) : ℂ)) ^ (-(2 * s + 1 + (m : ℂ) / 2 + ((τ : ℝ) : ℂ) * Complex.I / 2))) := by
   have hw : ((a + b : ℕ) : ℝ) / 2 + 1 < (2 * s + 1 + (m : ℂ) / 2 + ((τ : ℝ) : ℂ) * Complex.I / 2).re := by
@@ -387,7 +401,7 @@ private theorem pc_integrable_complexWeight (a b m : ℕ) (habm : a + b ≤ m) (
   simp
 
 set_option linter.style.haveILetI false in
-private theorem pc_integrable_comp_smul (f : AdeleRing (𝓞 F) F → ℂ) (hf : Integrable f (adelicAddHaar (𝓞 F) F))
+theorem pc_integrable_comp_smul (f : AdeleRing (𝓞 F) F → ℂ) (hf : Integrable f (adelicAddHaar (𝓞 F) F))
     (a : (AdeleRing (𝓞 F) F)ˣ) : Integrable (fun y => f (a • y)) (adelicAddHaar (𝓞 F) F) := by
   haveI := NumberField.AdelicHaar.isAddHaarMeasure_adelicAddHaar (𝓞 F) F
   haveI : (adelicAddHaar (𝓞 F) F).Regular := by
@@ -480,7 +494,7 @@ private theorem pc_local_on (v : HeightOneSpectrum (𝓞 F))
 
 open scoped Classical in
 
-private theorem pc_integrable_arch
+theorem pc_integrable_arch
     (kdat : {w : InfinitePlace F // w.IsReal} → ℤ) (τr : {w : InfinitePlace F // w.IsReal} → ℝ)
     (abm : {w : InfinitePlace F // w.IsComplex} → ℕ × ℕ × ℕ) (τc : {w : InfinitePlace F // w.IsComplex} → ℝ)
     (habm : ∀ w : {w : InfinitePlace F // w.IsComplex}, (abm w).1 + (abm w).2.1 ≤ (abm w).2.2)
@@ -504,7 +518,7 @@ private theorem pc_integrable_arch
 open scoped Classical in
 
 set_option linter.style.haveILetI false in
-private theorem pc_integrable_affine (G : mixedEmbedding.mixedSpace F → ℂ) (hG : Integrable G MeasureTheory.volume)
+theorem pc_integrable_affine (G : mixedEmbedding.mixedSpace F → ℂ) (hG : Integrable G MeasureTheory.volume)
     [MeasurableSpace (FiniteAdeleRing (𝓞 F) F)] [BorelSpace (FiniteAdeleRing (𝓞 F) F)]
     (ν : Measure (FiniteAdeleRing (𝓞 F) F)) [ν.IsAddHaarMeasure]
     (Φ : FiniteAdeleRing (𝓞 F) F → ℂ) (hΦ : Integrable Φ ν) (a : (AdeleRing (𝓞 F) F)ˣ) (u : AdeleRing (𝓞 F) F) :

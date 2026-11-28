@@ -120,3 +120,14 @@ The recurring *shapes*, beyond a rename:
 Two cross-cutting facts: `CuspForm` does not extend `ModularForm` (bridge with
 `CuspForm.toModularFormₗ`), and `(W.map f).IsElliptic` is all a base-change `IsElliptic` instance
 needs.
+
+### Two v4.34 moves measured by SET-AF109G (2026-11-27)
+
+- **`Circle.exp_eq_one` moved out of `Mathlib/Analysis/Complex/Circle.lean`** into
+  `Mathlib/Analysis/SpecialFunctions/Complex/Circle.lean`. A module that transcribes a pin proof using it
+  and imports only the old path fails with `unknown identifier` until the new module is added; its `.olean`
+  exists in this checkout, so the cure is one `import` line (the pin's bare `import Mathlib` hides the move).
+- **`FractionalIdeal.coe_dual` changed its explicit arguments**: at v4.34.0 it is
+  `coe_dual (A K : Type*) (hI : …)` — the pin's `coe_dual ℤ ℚ hI` is right and the shortened
+  `coe_dual hI` is a type mismatch. The same drift class as the `Ideal`/`FractionalIdeal` renames: read the
+  argument list at the *local* mathlib, not in the pin.

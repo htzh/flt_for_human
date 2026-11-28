@@ -1209,6 +1209,58 @@ provenance), with a thin listed façade `AlgebraicCurve/RadialRegion/<Node>.lean
 node carrying the wrapper headline. First order:
 [topics/algebraicCurve/WORKORDER-R1-radial-rectangle.md](topics/algebraicCurve/WORKORDER-R1-radial-rectangle.md).
 
+### SET-AF109: the promotions it took, and the one still open
+
+SET-AF109A needed fourteen rows of the pin family's shared prelude that SET-AF108F had landed `private`
+in `EisensteinGeneral/PieceWeylIntegrability.lean`. They are **promoted** (public at the pin's names;
+`check_port` on that module reads 15 ok / 0 mismatch), so the shared engine is importable and the wave
+carries no cross-module copy: `ch_norm_realWeightIntegrand`, `ch_continuous_realWeightIntegrand`,
+`integrable_realWeightIntegrand`, `ch_majorant_integrable`, `integrable_complexWeightIntegrand`,
+`integrable_mixedSpace_prod` (`EisensteinGeneral.WeylGlue`) and `pc_norm_mul_cpow_lt_one`,
+`pc_excess_bounds`, `pc_isCompact_integers`, `pc_integrable_realWeight`,
+`pc_integrable_complexWeight`, `pc_integrable_comp_smul`, `pc_integrable_arch`,
+`pc_integrable_affine` (`EisensteinGeneral.Piece`). Delete this paragraph's list when a later set finds it
+stale — the fact to keep is that the module's surface is now **15 public**, not 1.
+
+The same set landed the def-layer module **`TateCurve/Tails.lean`** (`Definitions/Def_TateCurve_Tails.lean`,
+90 pin lines, 13 checked declarations: `xDivTerm`, `yDivTerm`, `xCoeff`, `yCoeff`, `growthBound` and their
+ten bounds). The pin's torsion-parametrisation dossier below therefore no longer needs that step; the two
+`q`-expansion rows it calls "the first step" are SET-AF109F's.
+
+Still open, and not this set's business:
+
+* **`EisensteinGeneral.Arch.majorant_integrable`** (`EisensteinGeneral/ArchKType.lean:729`) is `private`
+  while the pin states it publicly. SET-AF108F transcribed the pin's *other* copy of the same bound as
+  `ch_majorant_integrable` in `PieceWeylIntegrability.lean`, and SET-AF109A has now made that one
+  **public** (it is one of the fourteen promotions). So the item is no longer "promote", it is a `dedup`
+  decision: the two declarations are the same bound under two pin names, and the pin carries both, so the
+  port may keep both — but `ArchKType.majorant_integrable` should be promoted (mechanical: `private` →
+  public, `check_port` reads it `ok`, statement pin-hash-identical) the next time that module is touched
+  for another reason, and the pair recorded as the pin's own duplication rather than a port one.
+* the nine `W7XL2`/`TorsionDescentDeriv` promotions and the
+  `CoeffMap.linearIndependent_coeffMap_comp_of_linearIndependent` instance fix, both unchanged from
+  SET-AF108's register.
+
+### Two `Divisor`/`Place` rows SET-AF109D deferred, and one weaker namesake it did not touch
+
+* **`mem_compositeRing_iff`** (`S_AlgebraicCurve_Divisor_isPrincipal_…:329`, 3 lines, body `Iff.rfl`) is the
+  one declaration of that pin's 29 that is **not** ported. It unfolds `compositeRing`, which is
+  `AlgebraicCurve.Pic0.BaseChange.compositeRing` (`AlgebraicCurve/Pic0/BaseChange.lean`), so its home is that
+  module — but the module's wire is the *other* pin file, and adding this one as a second `spec-pin:` source
+  would re-attribute its 15-row helper block in `check_port`. Nothing consumes the row. Cost when someone
+  takes it: one `spec-pin:` line, a 3-line declaration, one rebuild, and a `check_port` re-read (expect all
+  rows to stay `ok`, they are hash-identical to the same helper block).
+* **`AlgebraicCurve.mem_range_of_forall_ord_nonneg` now exists twice with different statements**:
+  `Genus/ConstantFieldExtensionDivisor.lean:163` (the weaker `Pole` form: `[IsAlgClosed K] [IsCurveOver K F]`,
+  a transcendental `j` with `FiniteDimensional (adjoin K {j}) F`) and
+  `AlgebraicCurve.SpecializationPrincipleAux.mem_range_of_forall_ord_nonneg` in
+  `Genus/PlaceReductionRiemannRoch.lean` (the pin's stronger `(v₀ : Place K F)` form, added by SET-AF109D).
+  The two are not interchangeable — the strong one proves the weak one — and **no gate sees the pair**
+  (different full names, different modules, both `ok` against their own wires). A later refactor should make
+  the strong row the home and the weak one its corollary, which is a one-line proof in the weak module and
+  needs the import direction checked first (the weak module is *above* the strong one today, which is the
+  cycle SET-AF109D reported).
+
 ## Cleanup families
 
 ### Two pin-chapter namespaces still in use

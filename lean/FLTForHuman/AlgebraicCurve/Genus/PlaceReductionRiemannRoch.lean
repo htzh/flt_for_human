@@ -42,6 +42,8 @@ References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_Divisor_exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq.lean>
   spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_isPrincipal_of_forall_isPrincipal_mapDomain_placeReduction.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_isPrincipal_of_forall_isPrincipal_mapDomain_placeReduction.lean
 
 PORT NOTES (SET-AF107, order B).
 
@@ -149,6 +151,67 @@ PORT NOTES (SET-AF108, order A — the equality row inserted into this module).
   `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
 * **Collision probe.** This module's one new public full name plus the new module's 16 were imported
   together over the whole tree: silent (FR-0274 clear).
+
+PORT NOTES (SET-AF109, order D — the descent row inserted into this module).
+
+* **The row.** `AlgebraicCurve.Divisor.isPrincipal_of_forall_isPrincipal_mapDomain_placeReduction`,
+  the pin's 485-line `S_` file (29 declarations).  It is the *descent* direction of the
+  `mapDomain` dictionary, the third direction after SET-AF107B/C's inequality forms and this
+  module's own equality row, and the home is here because its first premise
+  `exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq` is one of this module's rows.
+* **Two of the order's 22 claimed substitutions are not statement-identical — the pin's text is
+  kept for both.**  Twenty of the pin's 29 declarations are imported from their public port homes
+  (`Pic0.BaseChange`'s fifteen-place `Reduction` block; `Place.mem_of_ord_nonneg` and
+  `Place.ord_nonneg_of_mem` of `Defs/PushPull`; `OmegaBaseChangeProof.ord_coe_nonneg`;
+  `SumOrdResidue.isUnit_algebraMap`; `Place.ord_algebraMap`).  The other two:
+  * `mem_range_of_forall_ord_nonneg` — its only port copy is `DivisibilityDescent.…` in
+    `Genus/ConstantFieldExtensionDivisor.lean:163`, and **that module imports this one**, so the
+    import would be a cycle; its statement is also the *weaker* `Pole` form (it takes a
+    transcendental `j` and `FiniteDimensional (adjoin K {j}) F`), not the pin's
+    `(v₀ : Place K F) {f} (hf) (h)`.
+  * `degree_eq_sum` — `substitutions.txt` sends it to `Defs/Divisor.lean:49`, which carries the
+    pin's *other* row (`degree D = ∑ v ∈ D.support, D v * deg v`), not this one
+    (`G.degree = G.sum fun _ n => n` under `hdeg : ∀ v, v.deg = 1`).
+  The pin's `mem_compositeRing_iff` (`:329`, 3 lines, `Iff.rfl`) has **no** port copy — the
+  `BaseChange` port dropped it — and is not declared here: nothing in the pin's proof uses it and it
+  belongs beside the `compositeRing` it unfolds.
+* **Namespaces and cost.**  The seven transcribed rows keep the pin's own subject namespace
+  `AlgebraicCurve.SpecializationPrincipleAux` (only the generated `P2MW.S_…` wrapper comes off), so
+  they collide with nothing — `DivisibilityDescent`'s copy is a different full name (FR-0274 clear).
+  They cost 131 lines: the pin's `PlaceFacts` block verbatim, `haveI` written `have` at its two
+  sites as elsewhere in this module, and `degree_eq_sum`'s body a one-line call to
+  `GenericUpperBound.degree_eq_sum_of_deg_eq_one`, the name SET-AF107 gave that same statement.
+  One import is added, `AlgebraicCurve.Pic0.BaseChange`, whose closure already carries
+  `Defs/PushPull`, `ConstantReduction`, `RegularProlongationSumOrdResidue`, `Defs/Divisor`,
+  `Defs/Repartitions` and `RingTheory/Valuation/ChevalleyExtension` (the last for
+  `IsAlgClosed.exists_valuationSubring_ringHom_retraction_forall_valuation_eq_one`, the pin's
+  retraction source).
+* **The headline's body is the pin's**, 33 lines transcribing the pin's `solution:450–485`, with the
+  pin's two unqualified calls qualified (`Pic0.BaseChange.exists_placeReduction`,
+  `SpecializationPrincipleAux.finrank_riemannRochSpace_ne_zero_of_isPrincipal`).  No `sorry`
+  remains in the module and no `set_option` is added.
+* **Gates measured on this insertion.**  `check_port --force`: **33 `ok`, 0 mismatch, 0 missing,
+  0 own, 0 kw** — the 26 pre-existing declarations (including this set's scaffolded headline) plus
+  the 7 transcribed rows, every one hash-matching its `S_` row.  Engine diff: 8 pin sources, 86 pin
+  decls, 33 module decls — **32 by hash, 0 by name, 0 unaccounted** (the 32 keys because `main`
+  names two declarations).  Edit loop at `-DmaxHeartbeats=200000`: silent.  `dedup --within`:
+  unchanged — still the one `shape` cluster of the pin's own headline↔engine pair (21 removable
+  lines), the cluster the SET-AF107 note explains.  `move_dead --dry-run`: 0 declarations, 0 lines.
+  `#print axioms` on all 33 public declarations: a subset of
+  `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **Heartbeat probe pair re-measured, recorded, NOT installed.**  Still silent at
+  `-DmaxHeartbeats=40000`; at `20000` three declarations are over budget —
+  `finrank_adjoin_algebraMap_eq` (`:867`), `LowerSemicontinuity.main` (`:1000`) and the second
+  headline `finrank_riemannRochSpace_le_finrank_riemannRochSpace_mapDomain_placeReduction`
+  (`:1173`), the first two being the ones SET-AF108 recorded (its log truncated the third).  At
+  `10000` five are over budget (`step` `:559` and `good_of_le` `:708` join them), which refines
+  SET-AF107's "first is `step`".  The 131-line insertion moves neither the floor nor the ceiling.
+* **Collision probe.**  The order-scoped probe (`import FLTForHuman.AlgebraicCurve.Genus.
+  PlaceReductionRiemannRoch`, which now also pulls in `Pic0/BaseChange` and its closure) is silent,
+  and the name sweep finds no other declaration of any of the seven new full names: the five
+  same-last-name declarations elsewhere (`Divisor.degree_eq_sum`, `W7XH.CFE.degree_eq_sum`,
+  `Pic0.BaseChange.degree_eq_sum`, `WeierstrassCurve.Affine.degree_eq_sum`,
+  `DivisibilityDescent.mem_range_of_forall_ord_nonneg`) all sit in other namespaces (FR-0274 clear).
 -/
 
 import FLTForHuman.AlgebraicCurve.Canonical.DCoordGenerates
@@ -159,6 +222,7 @@ import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.IsCurveOver.ConstantFieldExtensionExists
 import FLTForHuman.AlgebraicCurve.IsCurveOver.EssFiniteType
+import FLTForHuman.AlgebraicCurve.Pic0.BaseChange
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtension
 import FLTForHuman.AlgebraicCurve.RegularProlongationFinrank
 import FLTForHuman.AlgebraicCurve.RegularProlongationRetraction
@@ -1154,3 +1218,218 @@ theorem AlgebraicCurve.Divisor.exists_finset_finrank_riemannRochSpace_mapDomain_
   exact
     AlgebraicCurve.Divisor.finrank_riemannRochSpace_le_finrank_riemannRochSpace_mapDomain_placeReduction
       K F E FE hfg hfgE hgen D A r hKA hArat hr
+/-! ## The descent rows (SET-AF109, order D)
+
+The pin's `PlaceFacts` block, kept in the pin's own subject namespace
+`AlgebraicCurve.SpecializationPrincipleAux`.  Seven of its ten declarations are new to the port and
+are transcribed here (`one_le_ord_of_mem_maximalIdeal`, `degree_eq_sum`, `le_degree`,
+`eq_zero_of_degree_eq_zero`, `mem_range_of_forall_ord_nonneg`,
+`finrank_riemannRochSpace_ne_zero_of_isPrincipal`, `isPrincipal_of_riemannRochSpace_ne_bot`); the
+pin's `mem_of_ord_nonneg`, `ord_nonneg_of_mem` and `ord_coe_nonneg` are public in
+`Defs/PushPull.lean` and `Differential/CorrespondenceRegularCFE.lean` and are imported at their own
+names.  `mem_range_of_forall_ord_nonneg` and `degree_eq_sum` are transcribed rather than substituted
+(the former's only copy is downstream and weaker, the latter's only copy is the pin's other
+`degree_eq_sum`); see the module header.  `degree_eq_sum`'s body is the one call to this module's
+`GenericUpperBound.degree_eq_sum_of_deg_eq_one`, which is the same statement under the name
+SET-AF107 gave it — the pin carries that helper in two of its own `S_` files, so the shape pair is
+the pin's, not the port's. -/
+
+namespace AlgebraicCurve
+
+namespace SpecializationPrincipleAux
+
+open IsLocalRing
+
+section PlaceFacts
+
+variable {K : Type*} {F : Type*} [Field K] [Field F] [Algebra K F]
+
+theorem one_le_ord_of_mem_maximalIdeal (v : Place K F) {f : v.toValuationSubring} (hf : f ≠ 0)
+    (hm : f ∈ maximalIdeal v.toValuationSubring) : 1 ≤ v.ord (f : F) := by
+  obtain ⟨π, hπ⟩ := IsDiscreteValuationRing.exists_irreducible v.toValuationSubring
+  obtain ⟨n, u, hu⟩ := IsDiscreteValuationRing.eq_unit_mul_pow_irreducible hf hπ
+  have hcoe : (f : F) = ((u : v.toValuationSubring) : F) * ((π : F) ^ (n : ℤ)) := by
+    rw [hu, zpow_natCast]; push_cast; rfl
+  rw [hcoe, v.ord_unit_smul_zpow u hπ]
+  rcases Nat.eq_zero_or_pos n with hn | hn
+  · exfalso
+    rw [hn, pow_zero, mul_one] at hu
+    exact (IsLocalRing.mem_maximalIdeal _ |>.1 hm) (hu ▸ u.isUnit)
+  · exact_mod_cast hn
+
+theorem degree_eq_sum (hdeg : ∀ v : Place K F, v.deg = 1) (G : Divisor K F) :
+    G.degree = G.sum fun _ n => n :=
+  AlgebraicCurve.PlaceReductionRiemannRoch.GenericUpperBound.degree_eq_sum_of_deg_eq_one hdeg G
+
+theorem le_degree (hdeg : ∀ v : Place K F, v.deg = 1) (G : Divisor K F) (hG : ∀ v, 0 ≤ G v)
+    (v : Place K F) : G v ≤ G.degree := by
+  rw [degree_eq_sum hdeg]
+  by_cases hv : v ∈ G.support
+  · exact Finset.single_le_sum (f := fun w => G w) (fun w _ => hG w) hv
+  · rw [Finsupp.notMem_support_iff.1 hv]
+    exact Finset.sum_nonneg fun w _ => hG w
+
+theorem eq_zero_of_degree_eq_zero (hdeg : ∀ v : Place K F, v.deg = 1) (G : Divisor K F)
+    (hG : ∀ v, 0 ≤ G v) (h0 : G.degree = 0) : G = 0 := by
+  ext v
+  have hle := le_degree hdeg G hG v
+  rw [h0] at hle
+  exact le_antisymm hle (hG v)
+
+variable [IsAlgClosed K] [IsCurveOver K F]
+
+theorem mem_range_of_forall_ord_nonneg (v₀ : Place K F) {f : F} (hf : f ≠ 0)
+    (h : ∀ v : Place K F, 0 ≤ v.ord f) : f ∈ Set.range (algebraMap K F) := by
+  have hdeg := IsCurveOver.forall_deg_eq_one_of_isAlgClosed (K := K) (F := F)
+  have hf₀ : f ∈ v₀.toValuationSubring := Place.mem_of_ord_nonneg v₀ hf (h v₀)
+  have : Module.Finite K v₀.ResidueField := IsCurveOver.finiteResidue v₀
+  have : Algebra.IsIntegral K v₀.ResidueField := Algebra.IsIntegral.of_finite K _
+  obtain ⟨c, hc⟩ := (IsAlgClosed.algebraMap_bijective_of_isIntegral (k := K)
+    (K := v₀.ResidueField)).2 (IsLocalRing.residue _ ⟨f, hf₀⟩)
+  have hmem : (⟨f, hf₀⟩ : v₀.toValuationSubring) - algebraMap K v₀.toValuationSubring c ∈
+      maximalIdeal v₀.toValuationSubring := by
+    rw [← Ideal.Quotient.eq]
+    exact hc.symm
+  by_cases hg : f - algebraMap K F c = 0
+  · exact ⟨c, (sub_eq_zero.1 hg).symm⟩
+  exfalso
+  set g : F := f - algebraMap K F c with hg_def
+  have hg1 : 1 ≤ v₀.ord g := by
+    have hne : (⟨f, hf₀⟩ : v₀.toValuationSubring) - algebraMap K v₀.toValuationSubring c ≠ 0 := by
+      intro h0
+      apply hg
+      have := congrArg Subtype.val h0
+      simpa using this
+    have := one_le_ord_of_mem_maximalIdeal v₀ hne hmem
+    simpa using this
+  have hg0 : ∀ v : Place K F, 0 ≤ v.ord g := fun v =>
+    Place.ord_nonneg_of_mem v (sub_mem (Place.mem_of_ord_nonneg v hf (h v)) (v.algebraMap_mem' c))
+  obtain ⟨Dg, hDg, hDg0⟩ := HasPrincipalDivisors.exists_divisor (K := K) g hg
+  have hle := le_degree hdeg Dg (fun v => (hDg v).symm ▸ hg0 v) v₀
+  rw [hDg0, hDg] at hle
+  omega
+
+theorem finrank_riemannRochSpace_ne_zero_of_isPrincipal (v₀ : Place K F) (D : Divisor K F)
+    (hP : D.IsPrincipal) : Module.finrank K (riemannRochSpace D) ≠ 0 := by
+  obtain ⟨φ, hφ0, hφ⟩ := hP
+  have hle : riemannRochSpace D ≤ K ∙ φ⁻¹ := by
+    intro g hg
+    rw [mem_riemannRochSpace_iff] at hg
+    by_cases hg0 : g = 0
+    · simp [hg0]
+    have hprod : ∀ v : Place K F, 0 ≤ v.ord (g * φ) := by
+      intro v
+      rw [v.ord_mul hg0 hφ0, ← hφ v]
+      have := (hg v).resolve_left hg0
+      omega
+    obtain ⟨c, hc⟩ := mem_range_of_forall_ord_nonneg v₀ (mul_ne_zero hg0 hφ0) hprod
+    rw [Submodule.mem_span_singleton]
+    refine ⟨c, ?_⟩
+    rw [Algebra.smul_def, hc]
+    field_simp
+  have : FiniteDimensional K (K ∙ φ⁻¹) := FiniteDimensional.span_of_finite K (Set.finite_singleton _)
+  have : FiniteDimensional K (riemannRochSpace D) := Submodule.finiteDimensional_of_le hle
+  intro h0
+  have hbot := Submodule.finrank_eq_zero.1 h0
+  have hmem : φ⁻¹ ∈ riemannRochSpace D := by
+    rw [mem_riemannRochSpace_iff]
+    intro v
+    right
+    rw [v.ord_inv, ← hφ v]
+  rw [hbot, Submodule.mem_bot] at hmem
+  exact inv_ne_zero hφ0 hmem
+
+omit [IsAlgClosed K] in
+theorem isPrincipal_of_riemannRochSpace_ne_bot (hdeg : ∀ v : Place K F, v.deg = 1)
+    (D : Divisor K F) (hD : D.degree = 0) (hne : riemannRochSpace D ≠ ⊥) : D.IsPrincipal := by
+  obtain ⟨f, hfL, hf0⟩ := (Submodule.ne_bot_iff _).1 hne
+  rw [mem_riemannRochSpace_iff] at hfL
+  obtain ⟨Df, hDf, hDf0⟩ := HasPrincipalDivisors.exists_divisor (K := K) f hf0
+  have hG : ∀ v, 0 ≤ (Df + D) v := by
+    intro v
+    rw [Finsupp.add_apply, hDf v]
+    have := (hfL v).resolve_left hf0
+    omega
+  have hG0 : (Df + D).degree = 0 := by rw [map_add, hDf0, hD, add_zero]
+  have hzero := eq_zero_of_degree_eq_zero hdeg (Df + D) hG hG0
+  refine ⟨f⁻¹, inv_ne_zero hf0, fun v => ?_⟩
+  have := congrArg (fun G : Divisor K F => G v) hzero
+  simp only [Finsupp.add_apply, Finsupp.coe_zero, Pi.zero_apply, hDf v] at this
+  rw [v.ord_inv]
+  omega
+
+end PlaceFacts
+
+end SpecializationPrincipleAux
+
+end AlgebraicCurve
+
+/-
+## SET-AF109 insertion: AlgebraicCurve.Divisor.isPrincipal_of_forall_isPrincipal_mapDomain_placeReduction
+
+A divisor is principal if all its place reductions are.
+
+`AlgebraicCurve.Divisor.isPrincipal_of_forall_isPrincipal_mapDomain_placeReduction` (485 pin lines): if
+for every valuation subring `A` of `E` and every place correspondence `r` compatible with `A`, the
+`mapDomain`-reduced divisor is principal on `F`, then `D` is principal on `FE`. It is the *descent*
+direction of the `mapDomain` dictionary whose inequality and equality forms are this module's rows, and
+it closes the dictionary's three directions.
+
+Twenty-two of the pin's 29 declarations are already public in the port and are imported rather than
+re-proved: the place-reduction calculus of `AlgebraicCurve.Pic0.BaseChange` (`compositeRing`,
+`reducedRing`, `exists_placeReduction`, the valuation comparisons), the ord calculus of
+`AlgebraicCurve.Defs.PushPull` / `ConstantReduction` (`mem_of_ord_nonneg`, `ord_nonneg_of_mem`,
+`ord_algebraMap`), `degree_eq_sum` of `Defs/Divisor` and `mem_range_of_forall_ord_nonneg` of
+`Genus/ConstantFieldExtensionDivisor`.
+-/
+theorem AlgebraicCurve.Divisor.isPrincipal_of_forall_isPrincipal_mapDomain_placeReduction
+    (K F E FE : Type*) [Field K] [Field F] [Field E] [Field FE] [Algebra K F] [Algebra E FE]
+    [Algebra K E] [Algebra F FE] [Algebra K FE] [IsScalarTower K E FE] [IsScalarTower K F FE]
+    [IsAlgClosed K] [CharZero K] [IsAlgClosed E]
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfgE : ∃ x : FE, Transcendental E x ∧
+      FiniteDimensional (IntermediateField.adjoin E ({x} : Set FE)) FE)
+    [IsCurveOver K F] [IsCurveOver E FE]
+    (hgen : IntermediateField.adjoin E (Set.range (algebraMap F FE)) = ⊤)
+    (D : Divisor E FE) (hD : D.degree = 0)
+    (h : ∀ (A : ValuationSubring E) (r : Place E FE → Place K F),
+      (∀ k : K, algebraMap K E k ∈ A) →
+      (∀ a : E, a ∈ A → ∃ k : K, A.valuation (a - algebraMap K E k) < 1) →
+      (∀ (P : Place E FE) (f : F), f ∈ (r P).toValuationSubring ↔
+        ∃ a : E, a ∈ A ∧
+          P.toValuationSubring.valuation (algebraMap F FE f - algebraMap E FE a) < 1) →
+      Divisor.IsPrincipal (K := K) (F := F) (Finsupp.mapDomain r D)) :
+    D.IsPrincipal := by
+  by_contra hnp
+  have hbot : riemannRochSpace D = ⊥ := by
+    by_contra hne
+    exact hnp (AlgebraicCurve.SpecializationPrincipleAux.isPrincipal_of_riemannRochSpace_ne_bot
+      (IsCurveOver.forall_deg_eq_one_of_isAlgClosed (K := E) (F := FE)) D hD hne)
+  have hfin0 : Module.finrank E (riemannRochSpace D) = 0 := by rw [hbot, finrank_bot]
+  have hD0 : D ≠ 0 := by
+    rintro rfl
+    exact hnp ⟨1, one_ne_zero, fun v => by simp⟩
+  obtain ⟨P₀, hP₀⟩ : ∃ P₀ : Place E FE, P₀ ∈ D.support := by
+    by_contra hno
+    push Not at hno
+    exact hD0 (Finsupp.support_eq_empty.1 (Finset.eq_empty_of_forall_notMem hno))
+  obtain ⟨S, hS0, hS⟩ :=
+    AlgebraicCurve.Divisor.exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_eq
+      K F E FE hfg hfgE hgen D
+  obtain ⟨A, hK, σ, hker, hsec, hunits⟩ :=
+    IsAlgClosed.exists_valuationSubring_ringHom_retraction_forall_valuation_eq_one K E S hS0
+  have hrat : ∀ a : E, a ∈ A → ∃ k : K, A.valuation (a - algebraMap K E k) < 1 := by
+    intro a ha
+    refine ⟨σ ⟨a, ha⟩, ?_⟩
+    have hmem : (⟨a, ha⟩ : A) - ⟨algebraMap K E (σ ⟨a, ha⟩), hK _⟩ ∈ RingHom.ker σ := by
+      rw [RingHom.mem_ker, map_sub, hsec, sub_self]
+    rw [hker] at hmem
+    exact (ValuationSubring.valuation_lt_one_iff _ _).1 hmem
+  obtain ⟨r, hr⟩ :=
+    AlgebraicCurve.Pic0.BaseChange.exists_placeReduction (F := F) (FE := FE) A hfg hK hrat
+  have hℓ := hS A r hK hrat hunits hr
+  rw [hfin0] at hℓ
+  exact
+    (AlgebraicCurve.SpecializationPrincipleAux.finrank_riemannRochSpace_ne_zero_of_isPrincipal
+      (r P₀) (Finsupp.mapDomain r D) (h A r hK hrat hr)) hℓ
+

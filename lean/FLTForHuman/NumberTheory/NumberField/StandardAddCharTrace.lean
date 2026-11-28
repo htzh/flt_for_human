@@ -21,6 +21,8 @@ spec-pin: Theorems/Thm_NumberField_StandardAddChar_AdelicTraceData_psiK_apply_mk
 spec-pin: P2M/Sol/S_NumberField_StandardAddChar_AdelicTraceData_psiK_apply_mk_zero_eq_fourierChar_trace.lean
 spec-pin: Theorems/Thm_NumberField_AdelicFourier_addChar_zero_finitePart_algebraMap_eq_fourierChar_neg_trace.lean
 spec-pin: P2M/Sol/S_NumberField_AdelicFourier_addChar_zero_finitePart_algebraMap_eq_fourierChar_neg_trace.lean
+spec-pin: Theorems/Thm_NumberField_StandardAddChar_stdAddChar_apply_mk_zero_eq_fourierChar_trace.lean
+spec-pin: P2M/Sol/S_NumberField_StandardAddChar_stdAddChar_apply_mk_zero_eq_fourierChar_trace.lean
 
 ## Landing (AF108H, pin `aa2d8b3` against the port's mathlib `v4.34.0`)
 
@@ -56,6 +58,28 @@ spec-pin: P2M/Sol/S_NumberField_AdelicFourier_addChar_zero_finitePart_algebraMap
 * **Heartbeat probe** (recorded, **never installed**): **silent at 10000, timeout at 5000**
   (`whnf`, reported at the first declaration's *header*) — at that cap the cost is in the
   statement, not the proof.
+
+## Landing (AF109G) — `stdAddChar`'s archimedean value
+
+A third declaration joins the two: `stdAddChar_apply_mk_zero_eq_fourierChar_trace`,
+`stdAddChar F (x, 0) = fourierChar (trace (mixedEmbedding x))` (13 pin `S_` lines). 205 lines now
+(183 before; the row is a one-line proof term, the rest is this note); `check_port`
+**3 ok / 0 mismatch / 0 missing / 0 own / 0 kw**.
+
+* **Surface.** The row is the `StandardAddChar` form of this module's own `AdelicTraceData.psiK` row,
+  and it is *exactly* that row at `T := adelicTraceData F`: the port's
+  `stdAddChar` is the `abbrev` `(adelicTraceData F).psiK` (`AdelicTraceFin.lean:222`), so the pin's
+  one-line proof term applies unchanged (a definitional unfold, not a rewrite). No `sorry`, no
+  `simp`, no lemma invented.
+* **Substitutions**: none; **no import added** (the scaffold's `…NumberField.AdelicTraceFin` carries
+  the `abbrev`).
+* **Engine gate**: pin sources 2, pin decls 2, module decls 3; **1 by hash**
+  (`d0e90220b289c1bb0fd5`), 0 by name, 0 unaccounted.
+* **Axioms**: all 3 public declarations, `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* **`dedup --within`**: 0 clusters. **`move_dead --dry-run`**: 0 declarations, 0 lines.
+* **Heartbeat probe** (recorded, **never installed**): unchanged by this row — **silent at 10000,
+  fails at 5000 and at 1000** (`whnf`, reported at the declaration *header* line 77, i.e. the first
+  row's statement), the same pair AF108H recorded. No `set_option` is installed.
 -/
 
 import FLTForHuman.NumberTheory.NumberField.StandardGlobalAddChar
@@ -65,6 +89,7 @@ import FLTForHuman.NumberTheory.AdelicFourier.Transform
 import FLTForHuman.NumberTheory.AdelicBox
 import Mathlib.Analysis.Complex.Circle
 import Mathlib.Tactic
+import FLTForHuman.NumberTheory.NumberField.AdelicTraceFin
 
 open NumberField NumberField.StandardAddChar IsDedekindDomain MeasureTheory AutomorphicForm
 open scoped Classical FourierTransform nonZeroDivisors
@@ -162,3 +187,20 @@ theorem NumberField.AdelicFourier.addChar_zero_finitePart_algebraMap_eq_fourierC
       = (Real.fourierChar ((Algebra.trace ℚ F q : ℚ) : ℝ) : ℂ)⁻¹ :=
     eq_inv_of_mul_eq_one_right hsplit.symm
   rw [hx, ← Circle.coe_inv, ← AddChar.map_neg_eq_inv]
+/-
+## SET-AF109 insertion: NumberField.StandardAddChar.stdAddChar_apply_mk_zero_eq_fourierChar_trace
+
+The standard additive character on the infinite places is `fourierChar ∘ trace`.
+
+`NumberField.StandardAddChar.stdAddChar_apply_mk_zero_eq_fourierChar_trace` (13 pin lines): the
+`stdAddChar`'s value at `(x, 0)` is `fourierChar (trace (mixedEmbedding x))`. It is the
+`StandardAddChar` form of the archimedean trace computation this module's `AdelicTraceData.psiK` row
+proves for a general global character.
+-/
+theorem NumberField.StandardAddChar.stdAddChar_apply_mk_zero_eq_fourierChar_trace
+    (F : Type) [Field F] [NumberField F] (x : InfiniteAdeleRing F) :
+    stdAddChar F (x, 0) = (Real.fourierChar (Algebra.trace ℝ (mixedEmbedding.mixedSpace F)
+      (InfiniteAdeleRing.ringEquiv_mixedSpace F x)) : ℂ) :=
+  NumberField.StandardAddChar.AdelicTraceData.psiK_apply_mk_zero_eq_fourierChar_trace F
+    (adelicTraceData F) x
+

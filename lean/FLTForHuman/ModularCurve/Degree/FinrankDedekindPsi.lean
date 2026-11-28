@@ -17,6 +17,8 @@ References (public mirror, pinned):
 
 spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqModC_modularFunctionFieldFullC_eq_dedekindPsi.lean
 spec-pin: P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_modularFunctionFieldFullC_eq_dedekindPsi.lean
+spec-pin: Theorems/Thm_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos.lean
+spec-pin: P2M/Sol/S_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos.lean
 
 ## Port notes
 
@@ -280,3 +282,108 @@ theorem finrank_adjoin_jqModC_modularFunctionFieldFullC_eq_dedekindPsi
   (finrank_rel_eq K N hN).trans (finrank_adjoin_eq K N hN N (dvd_refl N))
 
 end ModularCurve
+/-
+## SET-AF109 insertion: ModularCurve.modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos
+
+In characteristic `ℓ ∤ N`, the `q`-expansion function field is the full level-`N` one.
+
+`ModularCurve.modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos` (114 pin lines): for
+`K` of characteristic `ℓ ≠ 0` with `ℓ ∤ N`, `modularFunctionFieldC K N = modularFunctionFieldFullC K N`.
+The pin's proof is the finrank sandwich: `finrank_full` bounds the full field's finrank by `ψ(N)` from
+both sides, using SET-AF108D's `finrank_adjoin_jqModC_modularFunctionFieldFullC_eq_dedekindPsi`, the
+`jqNModC` socket form `finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` and `StarBank`'s
+`starBank`; `dedekindPsi_pos` is already public in `ModularCurve/Defs/DedekindPsi.lean`.
+
+Port notes (SET-AF109).
+
+* **Declarations.** `finrank_full` (pin `S_:28`) and the headline (`S_:66`), at the pin's names; the
+  pin's label namespace `IgSol` comes off (root namespace at the pin's `ModularCurve`, like the port's
+  `ModularCurve.dedekindPsi_pos` from the same pin block). `dedekindPsi_pos` is **imported, not
+  restated**: the call site takes the wrapper's `(N) (hN : N ≠ 0)` form (`NeZero.ne N`).
+* **`finrank_full`'s proof is re-derived.** The pin builds two `RingEquiv`s (`adjoin ≃ adjoin`,
+  `full ≃ extendScalars`) and closes with `Algebra.finrank_eq_of_equiv_equiv`; that costs more than
+  50 000 heartbeats here (the `isDefEq` sits on the two structure literals). The route used instead is
+  this module's own `relfinrank` machinery — `relfinrank_eq_finrank_of_le`,
+  `relfinrank_map_map`/`relfinrank_top_right` (exactly the steps of `finrank_rel_eq`) — and comes in
+  **under 40 000**. The *statement* is the pin's (checker `ok`). `haveI` is written `have` (the
+  `linter.style.haveILetI` linter); no linter is silenced.
+* **Heartbeat probe pair** (recorded, never installed). Whole module: silent at `40000`;
+  deterministic timeout at `20000`, first at `mem_adjoin_of_degree_count` (`:83`, AF108D's own recorded
+  site) — i.e. this insertion does not move the module's floor. Nothing is installed.
+* **Gate readings.** `check_port --force` → **17 ok, 0 mismatch, 0 missing, 0 own, 0 kw** (15 AF108D +
+  `finrank_full` + the headline); engine diff (pin sources 4) pin decls 21, module decls 17,
+  **17 by hash, 0 by name, 0 unaccounted**; every public declaration's `#print axioms` ⊆
+  `{propext, Classical.choice, Quot.sound}`; `dedup --within` → 0 clusters; `move_dead --dry-run` →
+  `0 declarations, 0 lines`.
+-/
+open ModularCurve IntermediateField in
+theorem ModularCurve.finrank_full (K : Type*) [Field K] (N : ℕ) [NeZero N] (hN : (N : K) ≠ 0)
+    (hJF : IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)) ≤ modularFunctionFieldFullC K N) :
+    Module.finrank (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) (extendScalars hJF) = dedekindPsi N := by
+  let F : IntermediateField K (LaurentSeries K) := modularFunctionFieldFullC K N
+  let B : IntermediateField K F :=
+    IntermediateField.adjoin K ({⟨jqModC K, jqModC_mem_full K N⟩} : Set F)
+  have hB : IntermediateField.lift B = IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)) :=
+    (IntermediateField.lift_adjoin K F _).trans (by rw [Set.image_singleton])
+  have hT : IntermediateField.lift (⊤ : IntermediateField K F) = F := IntermediateField.lift_top K F
+  have key : (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))).relfinrank F
+      = Module.finrank B F := by
+    calc (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))).relfinrank F
+        = (IntermediateField.lift B).relfinrank F := by rw [hB]
+      _ = (IntermediateField.lift B).relfinrank (IntermediateField.lift (⊤ : IntermediateField K F)) := by rw [hT]
+      _ = B.relfinrank (⊤ : IntermediateField K F) := IntermediateField.relfinrank_map_map B ⊤ F.val
+      _ = Module.finrank B F := IntermediateField.relfinrank_top_right B
+  rw [← IntermediateField.relfinrank_eq_finrank_of_le hJF]
+  exact key.trans (finrank_adjoin_jqModC_modularFunctionFieldFullC_eq_dedekindPsi K N hN)
+
+open ModularCurve IntermediateField in
+theorem ModularCurve.modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charP_pos
+    (K : Type*) [Field K] (ℓ : ℕ) [CharP K ℓ] [NeZero ℓ] (N : ℕ) [NeZero N] (hlN : ¬ ℓ ∣ N) :
+    modularFunctionFieldC K N = modularFunctionFieldFullC K N := by
+  classical
+  have hℓ : Fact ℓ.Prime := ⟨(CharP.char_is_prime_or_zero K ℓ).resolve_right (NeZero.ne ℓ)⟩
+  have hN : (N : K) ≠ 0 := fun h => hlN ((CharP.cast_eq_zero_iff K ℓ N).mp h)
+
+  have hsock : ∀ (p : ℕ) [Fact (Nat.Prime p)], p ∣ N →
+      jqNModC K p ∉ IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)) := by
+    intro p hp hpN
+    have hpℓ : p ≠ ℓ := fun h => hlN (h ▸ hpN)
+    exact StarBank.starBank (K := K) (ℓ := ℓ) hpℓ
+
+  have hJC : IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)) ≤ modularFunctionFieldC K N := by
+    rw [IntermediateField.adjoin_le_iff]; rintro _ rfl; exact jqModC_mem K N
+  have hJF : IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)) ≤ modularFunctionFieldFullC K N :=
+    hJC.trans (modularFunctionFieldC_le_full K N)
+
+  have hC : extendScalars hJC
+      = IntermediateField.adjoin (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) ({jqNModC K N} : Set (LaurentSeries K)) := by
+    have e := IntermediateField.extendScalars_adjoin
+      (K := IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+      (S := ({jqModC K, jqNModC K N} : Set (LaurentSeries K))) hJC
+    refine e.trans ?_
+    apply le_antisymm
+    · rw [IntermediateField.adjoin_le_iff]
+      rintro x (rfl | rfl)
+      ·
+        have : (jqModC K : LaurentSeries K)
+            = algebraMap (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) (LaurentSeries K)
+                ⟨jqModC K, IntermediateField.subset_adjoin K _ (Set.mem_singleton _)⟩ := rfl
+        rw [this]
+        exact IntermediateField.algebraMap_mem _ _
+      · exact IntermediateField.subset_adjoin _ _ (Set.mem_singleton _)
+    · exact IntermediateField.adjoin.mono _ _ _ (Set.singleton_subset_iff.mpr (Set.mem_insert_of_mem _ rfl))
+  have hdegC : Module.finrank (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) (extendScalars hJC) = dedekindPsi N := by
+    rw [hC]
+    exact finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket (K := K) N hsock
+  have hdegF := finrank_full K N hN hJF
+  have hfin : FiniteDimensional (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) (extendScalars hJF) :=
+    FiniteDimensional.of_finrank_pos (by rw [hdegF]; exact dedekindPsi_pos N (NeZero.ne N))
+  have heq : extendScalars hJC = extendScalars hJF :=
+    IntermediateField.eq_of_le_of_finrank_eq
+      ((IntermediateField.extendScalars_le_extendScalars_iff hJC hJF).mpr (modularFunctionFieldC_le_full K N))
+      (by rw [hdegC, hdegF])
+  have hcoe := congrArg (fun X : IntermediateField (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) (LaurentSeries K) =>
+    (X : Set (LaurentSeries K))) heq
+  simp only [IntermediateField.coe_extendScalars] at hcoe
+  exact SetLike.coe_injective hcoe
+
